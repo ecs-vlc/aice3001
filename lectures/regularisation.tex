@@ -1,0 +1,728 @@
+%Master File:lectures.tex
+
+\lesson{Regularisation}
+\vspace{-1cm}
+\begin{center}
+  \includegraphics[height=10cm]{rbf20_smooth.eps}
+\end{center}
+\keywords{Regularisation, weight decay, Tikhonov}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{8cm}\raggedright
+  \begin{enumerate}\squeeze
+    \outlineitem{Training Output Layer}{training}
+    \outlineitem{Regularisation}{regularisation}
+    \begin{itemize}
+    \item \toplink{wd}{Weight Decay}
+    \item \toplink{tik}{Tikhonov}
+    \end{itemize}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{14cm}
+  \includegraphics[width=14cm]{rbf20_smooth.eps}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Output Layer
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Back to Radial Basis Functions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall in the last lecture that an RBF is a machine of the form
+    \begin{align*}
+      f(\bm{x}|\bm{w},\{\bm{\mu}_i,\sigma_i\}_{i=1}^K) &=
+      \sum_{i=1}^K w_i \phi_i(\bm{x}) + w_0\pause
+    \end{align*}
+  \item where $\phi_i(\bm{x}) =
+    \psi\left(\left\|\frac{\bm{x}-\bm{c}_i}{\sigma_i}\right\|\right)$
+    are the radial basis functions\pause
+  \item Given data $\data=\{(\bm{x}_i,y_i)\}$, the weights in the output
+    layer are learnt by linear least squares
+    \begin{displaymath}
+      E(\bm{w}|\data) = \frac{1}{P} \sum_{k=1}^P 
+      \left( \strut \bm{\phi}(\bm{x}_k)^\tr \bm{w} -y_k \right)^2
+      = \frac{1}{P} \left\| \strut \mat{\Phi}^\tr \bm{w} -
+        \bm{y}  \right\|^2\pause
+    \end{displaymath}
+   \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Linear Least Squares}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item Same as linear perceptron\pause
+\item Output $\bm{\phi}(\bm{x})^\tr\bm{w}$ where $\phi_k(\bm{x}) =
+  \phi\!\left(\frac{\|\bm{x}-\bm{\mu}_k\|}{\sigma_k}\right)$\pause
+\item Mean squared error
+  \begin{displaymath}
+    E = \frac{1}{P} \sum_{k=1}^P \left( \strut \bm{\phi}(\bm{x}_k)^\tr \bm{w}
+    -y_k \right)^2 = \frac{1}{P} \left\| \strut \mat{\Phi}^\tr \bm{w} -
+    \bm{y}  \right\|^2\pause
+  \end{displaymath}
+where
+\begin{displaymath}
+  \mat{\Phi} = 
+  \begin{pmatrix}
+    \phi_1(\bm{x}_1) & \phi_1(\bm{x}_2) & \cdots & \phi_1(\bm{x}_P) \\
+    \phi_2(\bm{x}_1) & \phi_2(\bm{x}_2) & \cdots & \phi_2(\bm{x}_P) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \phi_N(\bm{x}_1) & \phi_N(\bm{x}_2) & \cdots & \phi_N(\bm{x}_P) \\
+  \end{pmatrix}\pause \hspace{2em}
+  \bm{y} = 
+  \begin{pmatrix}
+    y_1 \\ y_2 \\ \vdots \\ y_P
+  \end{pmatrix}\pause
+\end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Least Squares Solution}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item In matrix form
+  \begin{displaymath}
+    E = \frac{1}{P} \left( \strut \bm{w}^\tr \, \mat{\Phi} \,
+    \mat{\Phi}^\tr \, \bm{w} - 2 \bm{w}^\tr \, \mat{\Phi} \, \bm{y} +
+    \bm{y}^\tr \, \bm{y} \right)\pause
+  \end{displaymath}
+\item Minimum given by $\grad E=0$
+  \begin{displaymath}
+    \grad E = \frac{2}{P} \left( \strut \mat{\Phi} \,
+    \mat{\Phi}^\tr\, \bm{w} - \mat{\Phi} \, \bm{y} \right)=0\pause
+  \end{displaymath}
+\item Optimal weight vector
+  \begin{displaymath}
+    \bm{w}^* = \left( \mat{\Phi} \, \mat{\Phi}^\tr \right)^{-1}
+    \mat{\Phi} \, \bm{y} \pause
+  \end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Singular Value Decomposition}
+
+\begin{PauseHighLight}
+\hypertarget{pseudo-inverse}{}
+
+\begin{itemize}\squeeze
+\item Remember the singular valued decomposition formula
+  \begin{displaymath}
+    \mat{\Phi} = \mat{U}\, \mat{S}\, \mat{V}^\tr\pause
+  \end{displaymath}
+  where
+  \begin{displaymath}
+    \mat{S} = 
+    \begin{pmatrix}
+      s_1 & \cdots & 0 & \cdots & 0  \\
+      \vdots & \ddots & \vdots & \ddots & \vdots  \\
+      0 & \cdots & s_N & \cdots & 0 \\
+    \end{pmatrix}\pause
+  \end{displaymath}
+\item $\mat{U}$ and $\mat{V}$ are orthogonal matrices,
+  i.e. $\mat{U}^\tr = \mat{U}^{-1}$ and $\mat{V}^\tr = \mat{V}^{-1}$\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2.5]{$\mat{\Phi}\,\mat{\Phi}^\tr$ Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Now the `covariance-like matrix' is equal to
+  \begin{eqnarray*}
+    \mat{\Phi}\,\mat{\Phi}^\tr &=& \left(\mat{U}\, \mat{S}\,
+    \mat{V}^\tr\right)
+    \left(\mat{U}\,\mat{S}\, \mat{V}^\tr\right)^\tr\\
+    &=& \left(\mat{U}\, \mat{S}\, \mat{V}^\tr\right)
+    \left(\mat{V}\, \mat{S}^\tr\, \mat{U}^\tr\right)\\
+    &=& \mat{U}\left( \strut \mat{S}\,\mat{S}^\tr \right) \mat{U}^\tr
+    = \mat{U} \mat{\Lambda} \mat{U}^\tr \pause
+  \end{eqnarray*}
+\item $\mat{\Lambda} = \mat{S}\,\mat{S}^\tr=\diag(s_1^2,s_2^2,\ldots,s_N^2) =
+  \diag(\lambda_1, \lambda_2, \ldots, \lambda_N)$\pause
+\item ($\mat{\Phi}\,\mat{\Phi}^\tr$ is a positive definite matrix with
+eigenvalues $\lambda_i=s_i^2$)\pause
+\item The inverse covariance matrix is
+  \begin{displaymath}
+    \left(\mat{\Phi}\,\mat{\Phi}^\tr\right)^{-1} = \mat{U}\,
+    \mat{\Lambda}^{-1}\, \mat{U}^\tr\pause
+  \end{displaymath}
+\item Since
+  $(\mat{\Phi}\,\mat{\Phi}^\tr)^{-1}(\mat{\Phi}\,\mat{\Phi}^\tr)=
+  \mat{U}\,
+    \mat{\Lambda}^{-1}\, \mat{U}^\tr \mat{U}\mat{\Lambda} \mat{U}^\tr =
+    \mat{I}$\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Least-Squares Solution}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item The inverse covariance matrix is
+  \begin{displaymath}
+    \left(\mat{\Phi}\,\mat{\Phi}^\tr\right)^{-1} = \mat{U}\,
+    \left(\mat{S}\,\mat{S}^\tr\right)^{-1}\, \mat{U}^\tr
+  \end{displaymath}
+\item where $\left(\mat{S}\,\mat{S}^\tr \right)^{-1} = \diag(s_1^{-2},
+  s_2^{-2}, \cdots, s_N^{-2})$\pause
+\item Thus
+  \begin{eqnarray*}
+    \left(\mat{\Phi}\,\mat{\Phi}^\tr\right)^{-1}
+    \mat{\Phi}
+    &=& \left(\mat{U}
+      \left(\mat{S}\,\mat{S}^\tr\right)^{-1}\, \mat{U}^\tr\right)
+    \left(\mat{U}\, \mat{S} \, \mat{V}^\tr \right) \\
+    &=& \mat{U}\left(\mat{S}\,\mat{S}^\tr\right)^{-1}  \mat{S}\,
+    \mat{V}^\tr \\
+    &=& \mat{U} \, \mat{S}^{+}\, \mat{V}^\tr
+  \end{eqnarray*}
+where $\mat{S}^{+} = \left(\mat{S}\,\mat{S}^\tr\right)^{-1}
+\mat{S}$\pause 
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Pseudo-Inverse}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item The \emph{pseudo-inverse} is defined as
+  $\mat{\Phi}^{+} = \mat{U} \, \mat{S}^{+} \mat{V}^\tr$ where
+  \begin{displaymath}
+    \mat{S}^{+} = \left(\mat{S}\,\mat{S}^\tr\right)^{-1} \mat{S}  =
+    \begin{pmatrix}
+      s_1^{-1} & \cdots & 0 & \cdots & 0 \\
+      \vdots & \ddots & \vdots & \ddots & \vdots \\
+      0 & \cdots & s_N^{-1} & \cdots & 0
+    \end{pmatrix}\pause
+  \end{displaymath}
+\item Thus the solution to the least squares problem is
+  \begin{displaymath}
+    \bm{w}^{*} = \left(\mat{\Phi}\,\mat{\Phi}^\tr\right)^{-1}
+    \mat{\Phi} \bm{y} = \mat{\Phi}^{+} \bm{y} = \mat{U} \, \mat{S}^{+}
+    \mat{V}^\tr \bm{y} \pause
+  \end{displaymath}
+\item For non-square matrices Matlab uses the pseudo-inverse so in
+  Matlab we can write
+  \begin{matlab}
+    w = Psi\t
+  \end{matlab}\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Example}
+
+\begin{PauseHighLight}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf_func.eps}\\
+  Function
+\end{center}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Example}
+
+\begin{PauseHighLight}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf_data.eps}\\
+  Data
+\end{center}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Example}
+
+\begin{PauseHighLight}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf5}\\
+  Centres too far apart
+\end{center}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Example}
+
+\begin{PauseHighLight}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf10}\\
+  Centres about right
+\end{center}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Example}
+
+\begin{PauseHighLight}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf20_noreg}\\
+  Too many centres
+\end{center}
+
+\end{PauseHighLight}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Regularisation
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Regularisation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item One way to improve generalisation performance is to bias a
+    learning machine to learn simpler (smoother) functions\pause
+  \item This should reduce the sensitivity of the learning machine on
+    the learning data\pause
+  \item To achieve this we can add \emph{regularisation terms} that
+    punishes complex functions\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Regularisation Term}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item We can add a regularisation term to force smoothness
+  \begin{displaymath}
+    E = \left\|\strut \mat{\Phi}^\tr \, \bm{w}-\bm{y} \right\|^2 + \nu
+    R(\bm{w})\pause 
+  \end{displaymath}
+\item Common regularisation terms are
+  \begin{itemize}
+  \item Weight decay $R(\bm{x})=\|\bm{w}\|^2$
+    \begin{itemize}
+    \item Easy to implement
+    \item \textit{Ad hoc}\pause
+    \end{itemize}
+  \item Tikhonov regularisation $R(\bm{x})=\int \sum_i \left(\frac{\partial^2
+        f(\bm{x};\bm{w})}{\partial x_i^2}\right)^2\, p(\bm{x}) \, \dd \bm{x}$
+    \begin{itemize}
+    \item Slightly more complicated to implement
+    \item Punishes rapid changes in gradient\pause
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Weight Decay}
+\toptarget{wd}
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Define the `error'
+  \begin{displaymath}
+    E = \left\|\strut \mat{\Phi}^\tr \, \bm{w}-\bm{y} \right\|^2 + \nu
+    \left\| \strut \bm{w} \right\|^2\pause
+  \end{displaymath}
+\item First term is proportional to means squared error\pause
+\item Second term is \emph{regularisation} term\pause
+\item $\nu$ (Greek letter nu) controls balance between minimising
+the training error and preferring smooth solutions\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Least Mean Squared Solution}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Regularised learning error
+  \begin{eqnarray*}
+    E &=& \left\|\strut \mat{\Phi}^\tr \, \bm{w}-\bm{y} \right\|^2 + \nu\,
+    \left\| \strut \bm{w} \right\|^2 \\ &=& \bm{w}^\tr \mat{\Phi}\,
+    \mat{\Phi}^\tr \bm{w} - 2 \bm{w}^\tr \mat{\Phi}\, \bm{y} + \bm{y}^\tr
+    \bm{y} + \nu\, \bm{w}^\tr \bm{w}\\ &=& \bm{w}^\tr \left(
+    \strut \mat{\Phi} \mat{\Phi}^\tr + \nu\, \mat{I} \right) \bm{w}
+    - 2 \bm{w}^\tr \mat{\Phi}\, \bm{y} + \bm{y}^\tr \bm{y}\pause
+  \end{eqnarray*}
+\item Gradient
+  \begin{displaymath}
+    \grad E = 2 \left( \strut \mat{\Phi} \mat{\Phi}^\tr + \nu\, \mat{I}
+    \right) \bm{w} - 2\, \mat{\Phi}\, \bm{y}\pause
+  \end{displaymath}
+\item Minimum $\grad E = 0$
+  \begin{displaymath}
+    \bm{w}^{*} = \left( \strut \mat{\Phi}\, \mat{\Phi}^\tr + \nu\, \mat{I}
+    \right)^{-1} \mat{\Phi}\, \bm{y}\pause
+  \end{displaymath}
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Example}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf20_noreg}\\
+  No regularisation\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Example}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf20_weightdecay}\\
+  Weight decay regularisation\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Eigen Analysis}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Regularised least mean squared solution
+  \begin{displaymath}
+    \bm{w}^* = \left( \strut \mat{\Phi}\, \mat{\Phi}^\tr + \nu\, \mat{I}
+    \right)^{-1} \mat{\Phi}\, \bm{y}\pause
+  \end{displaymath}
+\item Now $\mat{\Phi}\, \mat{\Phi}^\tr$ is a symmetric matrix which
+  can be written
+  \begin{displaymath}
+    \mat{\Phi}\, \mat{\Phi}^\tr = \mat{U} \, \mat{\Lambda}\, \mat{U}^\tr\pause
+  \end{displaymath}
+\item $\mat{\Lambda}=\mat{S}\,\mat{S}^\tr = \diag(\lambda_1, \lambda_2,
+  \ldots, \lambda_N)$, $\mat{U} = (\bm{u}_1, \bm{u}_2, \ldots, \bm{u}_N)$\pause
+\item $\mat{\Phi}\, \mat{\Phi}^\tr$ is positive semi-definite so $\lambda_i
+  \geq 0$\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Properties of Regularised Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item Regularised matrix
+  \begin{eqnarray*}
+    \mat{\Phi}\, \mat{\Phi}^\tr + \nu\, \mat{I} &=& \mat{U} \left( \strut
+      \mat{\Lambda} +  \nu \mat{I} \right) \mat{U}^\tr  \\
+    \left(\mat{\Phi}\, \mat{\Phi}^\tr + \nu\, \mat{I}\right)^{-1} &=&
+      \mat{U} \left( \strut \mat{\Lambda} +  \nu\, \mat{I} \right)^{-1}
+      \mat{U}^\tr\pause
+  \end{eqnarray*}
+  where
+  \begin{displaymath}
+    \left( \strut \mat{\Lambda} +  \nu \, \mat{I} \right)^{-1} =
+    \diag\left(\frac{1}{\lambda_1+\nu}, \cdots,
+    \frac{1}{\lambda_N+\nu}\right)\pause
+  \end{displaymath}
+\item Regularisation makes inverse well posed if it wasn't\pause
+\item Regularisation improves the conditioning (i.e. sensitive to
+  changes in data)
+  \begin{displaymath}
+    \frac{|\lambda_{max}|}{|\lambda_{min}|}\longrightarrow
+    \frac{|\lambda_{max}+\nu|}{|\lambda_{min}+\nu|} <
+    \frac{|\lambda_{max}|}{|\lambda_{min}|}\pause
+  \end{displaymath}
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Ill-Conditioning}
+
+\pb\pause
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{conditioning0}\mypl{1}
+  \multido{\ia=1+1,\ib=2+1}{5}{%
+    \llap{\includegraphics[width=0.9\linewidth]{conditioning\ia}\mypl{\ib}}}
+\end{center}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{What Does It Mean?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Without regularisation the optimal weights are
+    \begin{align*}
+      \bm{w}^* = \left( \mat{\Phi} \, \mat{\Phi}^\tr \right)^{-1}
+      \mat{\Phi} \, \bm{y} \pause
+    \end{align*}
+  \item The matrix $\mat{\Phi} \, \mat{\Phi}^\tr$ depends on the
+    data\pause
+  \item If $\mat{\Phi} \, \mat{\Phi}^\tr$ is ill-conditioned the inverse
+    is unreliable\pause
+  \item With a weight decay regulariser the optimal weights are
+    \begin{displaymath}
+      \bm{w}^{*} = \left( \strut \mat{\Phi}\, \mat{\Phi}^\tr + \nu\, \mat{I}
+      \right)^{-1} \mat{\Phi}\, \bm{y}\pause
+    \end{displaymath}
+  \item These don't fit the data quite so well, but they are less
+    sensitive to the data\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Tikhonov Regularisation}
+\toptarget{tik}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item We can use a more direct penalty for non-smooth functions
+  \begin{displaymath}
+    \int \sum_{i=1}^N \left(\frac{\partial^2 f(\bm{x};\bm{w})}{\partial
+        x_i^2}\right)^2\, p(\bm{x}) \, \dd \bm{x}\pause
+  \end{displaymath}
+\item In practice we cannot compute this\pause
+\item We can estimate this quantity by
+  \begin{displaymath}
+    \frac{1}{P} \sum_{p=1}^P \sum_{i=1}^N \left(\frac{\partial^2
+        f(\bm{x}_p;\bm{w})}{\partial x_i^2}\right)^2\pause
+  \end{displaymath}
+\item Average over all input patterns\pause
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Tikhonov Regulariser}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Now, $f(\bm{x};\bm{w}) = \sum_k w_k \phi_k(\bm{x})$ so
+  \begin{displaymath}
+    \frac{\partial^2 f(\bm{x};\bm{w})}{\partial x_i^2} =
+    \sum_k w_k  \frac{\partial^2 \phi_k(\bm{x})}{\partial x_i^2}\pause
+  \end{displaymath}
+\item And
+  \begin{displaymath}
+     \frac{1}{P} \sum_{p=1}^P \sum_{i=1}^N \left(
+      \frac{\partial^2 f(\bm{x}_p;\bm{w})}{\partial x_i^2}\right)^2
+    = \bm{w}^\tr\, \mat{T}\, \bm{w}
+  \end{displaymath}
+\item where
+  \begin{displaymath}
+    T_{jk} = \frac{1}{P}  \sum_{p=1}^P \sum_{i=1}^N \frac{\partial^2
+    \phi_j(\bm{x}_p)}{\partial 
+    x_i^2} \, \frac{\partial^2 \phi_k(\bm{x}_p)}{\partial x_i^2}\pause
+  \end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Tikhonov Regulariser}
+
+\begin{PauseHighLight}
+
+
+\begin{itemize}
+\item For Gaussian RBFs, $\phi_k(\bm{x}) =
+  \e{-\|\bm{x}-\bm{\mu}\|^2/2\sigma^2}$
+  \begin{displaymath}
+    \frac{\partial^2 \phi_k(\bm{x})}{\partial x_i^2} = \left(
+      \frac{(x_i-\mu_i)^2-\sigma^2}{\sigma^4} \right)\phi_k(\bm{x})
+    \pause
+  \end{displaymath}
+\item Minimise
+  \begin{displaymath}
+    E = \left\| \strut \mat{\Phi}^\tr\, \bm{w}-\bm{y} \right\|^2 + \nu\,
+    \bm{w}^\tr \, \mat{T} \,\bm{w}\pause
+  \end{displaymath}
+\item $\grad E=0$ gives
+  \begin{displaymath}
+    \bm{w}^* = \left( \strut \mat{\Phi} \, \mat{\Phi}^\tr + \nu\, \mat{T}
+    \right)^{-1}\, \mat{\Phi}\, \bm{y}\pause
+  \end{displaymath}
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Example}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf20_noreg}\\
+  No regularisation\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Example}
+
+\begin{center}
+  \includegraphics[width=18cm]{rbf20_smooth}\\
+  Tikhonov Regularisation\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Using Regularisers}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Regularisation terms are widely used---they really improve
+    performance\pause
+  \item They can also be used in MLPs\pause
+  \item They prevent a learning machine with lots of parameters from
+    \emph{overfitting} the data\pause
+  \item They raise a new question ``How do we choose the regularisation
+    parameters, $\nu$, etc.''\pause
+  \item Usually, we use another set of unseen data to test for
+    the best regularisation parameters\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Summary}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item In machine learning we care about performance on unseen
+    data\pause
+  \item Over complicated machines will tend to learn the data set well,
+    but will have poor generalisation performance\pause
+  \item We often wish to tailor the complexity of the machine to the
+    data set\pause
+  \item One way to do this automatically is by introducing
+    regularisation terms\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}

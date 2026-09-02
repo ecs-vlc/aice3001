@@ -1,0 +1,30 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 1: When Machine Learning Works
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+
+* Keywords
+  * When ML Works, Bias Variance
+
+
+* Main Points
+
+** Generalisation
+   * Need to understand the importance of performance on unseen data
+   * Understand that fitting well on the training set doesn't
+     guarantee good generalisation
+
+
+** Bias-Variance Dilemms
+   * Need to understand this is a thought experiment
+   * Bias: generalisation of mean machine
+   * Variance: expected variation of a particular machine from the
+     mean machine
+   * Expected Variance = Bias + Variance
+     * Need to be able to derive this result
+   * Dilemma
+     * Simple machine are likely to have high bias
+     * Complex machines are likely to have high variance
+
+
+* COMMENT [[file:overfitting-subsidiary.org][Next]]

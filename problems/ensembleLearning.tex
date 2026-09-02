@@ -1,0 +1,189 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\bra}[1]{\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Ensemble Learning Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+
+%\blankpage
+
+
+%% ----------------------------------------------------------------
+%\section
+% -----------------------------------------------------------------------
+% *************************  Section A  *********************************
+% -----------------------------------------------------------------------
+
+% ***************************** question 1 **************************
+% Bias Variance Dilemma
+
+\newcommand{\ml}[1]{\hat{f}(\bm{x}|\bm{\theta}_{#1})}
+\newcommand{\mln}{\hat{f}_n(\bm{x})}
+\newcommand{\mm}{\hat{m}(\bm{x})}
+
+\begin{question}{20}
+  These questions have both appeared in past examinations.
+  \begin{qparts}
+    \qpart[10]{If $\{X_i | i=1, 2, \ldots, n\}$ is a set of correlated
+      random variables such that
+      \begin{align*}
+        \av{X_i} &= \mu & \av{(X_i-\mu)(X_j-\mu)} =
+                          \begin{cases}
+                            \sigma^2 & \text{if $i=j$}\\
+                            \rho\,\sigma^2 & \text{if $i\neq j$}
+                          \end{cases}
+      \end{align*}
+      show
+      \begin{align*}
+        \av{\bra{\frac{1}{n} \sum_{i=1}^n X_i - \mu}^2} =
+        \rho\,\sigma^2 + \frac{(1-\rho) \, \sigma^2}{n}
+      \end{align*}
+    }{\lines{12}}
+    \begin{answer}
+      \begin{align*}
+        \av{\bra{\frac{1}{n} \sum_{i=1}^n X_i - \mu}^2}
+        &=  \av{\bra{\frac{1}{n} \sum_{i=1}^n (X_i - \mu)}^2} =
+          \frac{1}{n^2} \av{\bra{ \sum_{i=1}^n (X_i - \mu)}^2}\\
+        &= \frac{1}{n^2} \av{\sum_{i=1}^n \sum_{j=1}^n (X_i - \mu)(X_j
+          - \mu)}\\
+        &= \frac{1}{n^2} \sum_{i=1}^n \sum_{j=1}^n \av{(X_i - \mu)(X_j
+          - \mu)}\\
+        &= \frac{1}{n^2} \sum_{i=1}^n \sigma^2 + \frac{1}{n^2}
+          \sum_{i,j=1\atop i\neq j}^n \rho\,\sigma^2 =
+          \frac{1}{n^2}n\,\sigma^2 + \frac{1}{n^2} \,
+          n\,(n-1)\,\rho\,\sigma^2 \\
+        &= \rho\,\sigma^2 + \frac{1-\rho}{n} \, \sigma^2
+      \end{align*}
+     \end{answer}
+     \clearpage
+     \qpart[10]{We consider a regression
+      problem where the data $(\bm{x},y)$ is distributed according to
+      $\gamma(\bm{x},y)$.  We consider a learning machine that makes a
+      prediction $\ml{}$, where the parameters, $\bm{\theta}$ are
+      trained using a stochastic algorithm that returns parameters
+      distributed according to a probability density
+      $\rho(\bm{\theta})$.  We can define the mean machine as
+      $\mm = \av[\bm{\theta}\sim\rho]{\ml{}}$.  We assume that
+      \begin{align*}
+        \av[(\bm{x},y)\sim\gamma]{\bra{\mm-y}^2} &= B,
+        &
+        \av[(\bm{x},y)\sim\gamma]{\av[\bm{\theta}\sim\rho]{\bra{\ml{}-\mm}^2}}
+          = V.
+      \end{align*}
+      That is, we can define a bias $B$ and variance $V$.  We now
+      consider ensembling $n$ machines
+      \begin{align*}
+        \hat{f}_n(\bm{x}) = \frac{1}{n} \sum_{i=1}^n \ml{i}
+      \end{align*}
+      where $\bm{\theta}_i$ are drawn independently from
+      $\rho(\bm{\theta})$.  Compute the expected generalisation
+      error of $\mln$. (Note this is different from the usual
+      bias-variance calculation because we are averaging the
+      performance of $n$ machines).
+    }{\lines{12}}
+    \begin{answer}
+      We note that $\av[\bm{\theta}]{\mln} = \mm$ so the bias
+      variance dilemma calculation still holds
+      \begin{align*}
+        \mathcal{E}_n
+        &= \av[\bm{\theta}]{\av[(\bm{x}, y)]{\bra{\mln-y}^2}}
+          = \av[\bm{\theta}]{\av[(\bm{x}, y)]{\bra{(\mln-\mm) +
+          (\mm-y)}^2}}
+        \\
+          &= \av[(\bm{x}, y)]{\bra{\strut \mm-y}^2}
+          + \av[\bm{\theta}]{\av[(\bm{x}, y)]{\bra{\mln-\mm)}^2}}
+      \end{align*}
+      where the cross term vanishes as
+      \begin{align*}
+        \av[\bm{\theta}]{\bra{\mln-\mm}\,\bra{\strut y-\mm}}
+        = \bra{\strut y-\mm} \av[\bm{\theta}]{\mln-\mm} = 0.
+      \end{align*}
+      Thus $\mathcal{E}_n$ consists of a bias $B$ and a new variance
+      $V_n$ where
+      \begin{align*}
+        V_n &=\av[\bm{\theta}]{\av[(\bm{x}, y)]{\bra{\mln-\mm)}^2}} =
+              \av[\bm{\theta}]{\av[(\bm{x},y)]{\bra{\frac{1}{n}\sum_{i=1}^n
+              \bra{\ml{i}-\mm}}^2}}
+        \\
+        &= \av[\bm{\theta}]{\av[(\bm{x},y)]{\frac{1}{n^2}\sum_{i=1}^n \bra{\ml{i}-\mm}^2
+          + \frac{1}{n^2}\sum_{\substack{i,j=1}{j\neq i}}^n
+          \bra{\ml{i}-\mm}\bra{\ml{j}-\mm }}}
+        \\
+            &=
+              \av[\bm{\theta}]{\av[(\bm{x},y)]{\frac{1}{n^2}\sum_{i=1}^n
+              \bra{\ml{i}-\mm}^2}} = \frac{V}{n}
+      \end{align*}
+      since
+      \begin{align*}
+         \av[\bm{\theta}]{\bra{\ml{i}-\mm}\bra{\ml{j}-\mm }} = 0
+      \end{align*}
+      as $\bm{\theta}_i$ and $\bm{\theta}_j$ are independent.  Thus the expected
+      generalisation performance is equal to
+      \begin{align*}
+        \mathcal{E}_n = B + \frac{V}{n}.
+      \end{align*}
+      That is, by averaging over $n$ different machines we reduce the
+      variance by $n$.  Note that we assume the predictions of the
+      machine where independent so
+      \begin{align*}
+        \av[\bm{\theta}]{\bra{\ml{i}-\mm}\bra{\ml{j}-\mm }} = 0
+      \end{align*}
+      If the predictions of the machines are correlated then we don't
+      do so well.
+     \end{answer}
+   \end{qparts}
+\end{question}
+
+
+\end{document}
+
+
+
+

@@ -1,0 +1,632 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\bra}[1]{\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\partial #1}{\partial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+\newcommand{\Tr}{\mathop{\mathrm{tr}}\,}
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Problem Sheet 2 for Advanced Machine Learning (COMP6208)}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+This problem sheet asks you to prove some well known results.
+Although the algebra is easy the proofs are not entirely
+straightforward.  There are marks assigned to the readability of the
+solution and also how well laid out and explained the steps you make
+are. (A good proof needs to be easy to follow: you need not comment on
+trivial algebra, but there should not be steps that are difficult to
+follow).
+
+This looks very mathematical, but it helps to develop the tools and
+language that is used to describe machine learning.
+
+%\blankpage
+
+
+%% ----------------------------------------------------------------
+%\section
+% -----------------------------------------------------------------------
+% *************************  Section A  *********************************
+% -----------------------------------------------------------------------
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[4]{Starting from the definition of a convex function where,
+      for $a\in[0,1]$,
+      \begin{align}\label{eq:convex1}
+        f\bra{a\,x + (1-a)\,y} \leq a\,f(x) + (1-a) \, f(y)
+      \end{align}
+      Let $a = \epsilon/(x-y)$ and rearrange the
+      inequality to give
+      \begin{align*}
+        (x-y)\,\bra{\frac{f(y+\epsilon) - f(y)}{\epsilon}}
+      \end{align*}
+      on the left-hand side.  Taking the limit $\epsilon \rightarrow 0$
+      show that the function $f(x)$ lies above the tangent line
+      $t(x) = f(y) + (x-y)\,f'(y)$ going through the point $y$.}{\lines{12}}
+      \begin{answer}
+        Rearranging the Equation~\ref{eq:convex1}
+        \begin{align*}
+          f\bra{y + a(x-y)} \leq f(y) + a\,\bra{f(x) - f(y)}.
+        \end{align*}
+        Or
+        \begin{align*}
+          \frac{f\bra{y + a(x-y)} - f(y)}{a} \leq f(x) - f(y).
+        \end{align*}
+        Letting $a =\epsilon/(x-y)$ then
+        \begin{align*}
+          (x-y) \,  \frac{f\bra{y + \epsilon} - f(y)}{\epsilon} \leq
+          f(x) - f(y)
+        \end{align*}
+        Taking the limit $\epsilon \rightarrow 0$ and then using
+        \begin{align*}
+          \lim_{\epsilon \rightarrow 0} \frac{f\bra{y + \epsilon} -
+          f(y)}{\epsilon}  = f'(y)
+        \end{align*}
+        So that
+        \begin{align*}
+           (x-y) \, f'(y) \leq f(x) - f(y)
+        \end{align*}
+        or
+        \begin{align*}
+          f(x) \geq f(y) + (x-y)\,f'(y) = t(x).
+        \end{align*}
+      \end{answer}
+      \qpart[1]{Sketch the tangent line, $t(x)$, at the point $y$ in the graph
+        shown below.}{\qfig[7cm]{tangentline_q}}
+      \begin{answer}
+        \afig[7cm]{tangentline_a}
+      \end{answer}
+      \qpart[4]{Starting from the inequality for a convex function, $f$,
+        \begin{align}\label{eq:convex2}
+          f(x) \geq f(y)  + (x-y)\, f'(y)
+        \end{align}
+        consider the case $y = x+\epsilon$, then by Taylor expanding $f(x+\epsilon)$
+        and $f'(x+\epsilon)$ around $x$ and keeping all terms up to
+        order $\epsilon^2$, show that $f''(x)\geq0$.
+      }{\lines{8}}
+      \begin{answer}
+        We use the expansions
+        \begin{align*}
+          f(x+\epsilon) &= f(x) + \epsilon\,f'(x) +
+                          \frac{\epsilon^2}{2} f''(x) + O(\epsilon^3) \\
+          f'(x+\epsilon) &= f'(x) + \epsilon\,f''(x) +
+                           O(\epsilon^2) 
+        \end{align*}
+        Substituting into the Equation~(\ref{eq:convex2})
+        \begin{align*}
+          f(x) \geq f(x) + \epsilon\,f'(x) +
+          \frac{\epsilon^2}{2} f''(x) + O(\epsilon^3)
+          - \epsilon\,\bra{f'(x) + \epsilon\,f''(x) +
+                           O(\epsilon^2) }
+        \end{align*}
+        and subtraction $f(x)$ on both sides
+        \begin{align*}
+          0 \geq - \frac{\epsilon^2}{2} \, f''(x) + O(\epsilon^3) - \epsilon\,O(\epsilon^2) 
+        \end{align*}
+        Since this has to be true for all $\epsilon$ close to $0$, this requires $f''(x)\geq0$.
+      \end{answer}
+      \qpart[1]{Prove that $x^4$ is convex.}{\lines{1}}
+      \begin{answer}
+        \begin{align*}
+          \frac{\dd^2 x^4}{\dd \, x^2} = 12\,x^2 \geq 0
+        \end{align*}
+      \end{answer}
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 2 **************************
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[2]{Show by writing out in component for that
+      $\Tr \mat{A}\,\mat{B} = \Tr \mat{B}\,\mat{A}$ where
+      $\Tr \mat{M} = \sum_i M_{ii}$ (i.e. the trace of a matrix is
+      equal to the sum of terms down the diagonal).}{\lines{5}}
+    \begin{answer}
+      \begin{align*}
+        \Tr \mat{A}\,\mat{B}  &= \sum_{i,j} A_{ij}\,B_{ji}
+        &
+          \Tr \mat{B}\,\mat{A} &= \sum_{k,l} B_{kl}\,A_{lk}
+      \end{align*}
+      These are identical (which is clearer if we let $l=i$ and
+      $k=j$).
+    \end{answer}
+    \qpart[2]{Using the fact that we can write a symmetric matrix
+      $\mat{M}$ as $\mat{M}= \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$
+      where $\mat{V}$ is an orthogonal matrix and $\mat{\Lambda} =
+      \mathrm{diag}(\lambda_1, \lambda_2, \ldots)$
+      (i.e. a diagonal matrix with $\Lambda_{ii}=\lambda_i$). Show
+      that $\Tr \mat{M} = \sum_{i} \lambda_i$.}{\lines{5}}
+    \begin{answer}
+      \begin{align*}
+        \Tr \mat{M} = \Tr \bra{\mat{V}\mat{\Lambda}\mat{V}^\tr}
+        = \Tr \bra{\mat{V}^\tr\mat{V}\,\mat{\Lambda}}
+        = \Tr
+        \mat{\Lambda} = \sum_i \lambda_i
+      \end{align*}
+      where we have used (1) $\Tr \mat{A}\,\mat{B} = \Tr
+      \mat{B}\,\mat{A}$  with $\mat{A} = \mat{V}\mat{\Lambda}$ and
+      $\mat{B}= \mat{V}^\tr$ and (2) $\mat{V}^\tr\mat{V}=\mat{I}$.
+    \end{answer}
+    \qpart[2]{Consider the matrix $\mat{X} = (\bm{x}_1, \bm{x}_2,
+      \ldots, \bm{x}_n)$ where  the $i^{th}$ column of $\mat{X}$ is
+      the vector $\bm{x}_i$.  Compute $\Tr \mat{X}^\tr
+      \mat{X}$}{\lines{5}}
+    \begin{answer}
+      \begin{align*}
+        \Tr \mat{X}^\tr \mat{X}
+        = \Tr
+        \begin{pmatrix}
+          \bm{x}_1^\tr \bm{x}_1 & \bm{x}_1^\tr \bm{x}_2 & \ldots &
+          \bm{x}_1^\tr \bm{x}_n \\
+          \bm{x}_2^\tr \bm{x}_1 & \bm{x}_2^\tr \bm{x}_2 & \ldots &
+          \bm{x}_2^\tr \bm{x}_n \\
+          \vdots & \vdots & \ddots & \vdots \\
+          \bm{x}_n^\tr \bm{x}_1 & \bm{x}_n^\tr \bm{x}_2 & \ldots &
+          \bm{x}_n^\tr \bm{x}_n \\
+        \end{pmatrix}
+        = \sum_{i=1}^n \bm{x}_i^\tr \bm{x}_i = \sum_{i=1}^n
+        \len{\bm{x}_i}^2
+      \end{align*}
+    \end{answer}
+    \freshpage
+    \qpart[2]{The Frobenius norm, $\len{\mat{X}}_F$ for a matrix
+      $\mat{X}$ is given by
+      \begin{align*}
+        \len{\mat{X}}_F =\sqrt{ \sum\limits_{i,j} X_{ij}^2},
+      \end{align*}
+      where $X_{ij}$ is the $(i,j)$ component of $\mat{X}$.
+      Using the previous result, show that $\len{\mat{X}}_F^2 = \Tr
+      \mat{X}^\tr \mat{X}$
+    }{\lines{6}}
+    \begin{answer}
+      \begin{align*}
+        \len{\mat{X}}_F^2 = \sum\limits_{i,j} X_{ij}^2 = \sum_j \bra{
+        \sum_i X_{ij}^2} = \sum_j \len{\bm{x}_j}^2 = \Tr \mat{X}^\tr \mat{X}
+      \end{align*}
+      where we have used the fact that  $\sum_i X_{ij}^2$ is a sum
+      over all elements in the $j^{th}$ column but the $j^{th}$ column
+      is equal to the vector $\bm{x}_j$.
+    \end{answer}
+    \qpart[2]{By using the SVD $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
+      where $\mat{S}=\mathrm{diag}(s_1, s_2, \ldots, s_n)$ (i.e. a
+      diagonal matrix where $S_{ii} = s_i$---the $i^{th}$ singular
+      value) and using the previous results, show that $\len{\mat{X}}_F^2 =
+      \sum_i s_i^2$.}{\lines{10}}
+    \begin{answer}
+      Now
+      \begin{align*}
+        \mat{X}^\tr \mat{X} = \bra{\mat{V}\,\mat{S}^\tr \,\mat{U}^\tr}
+         \bra{\mat{U}\,\mat{S}\,\mat{V}^\tr} = \mat{V}\,\mat{S}^\tr \mat{S}\,\mat{V}^\tr
+      \end{align*}
+      And so using
+      \begin{align*}
+        \Tr \mat{X}^\tr \mat{X} = \Tr \mat{S}^\tr \mat{S}
+      \end{align*}
+      but $\mat{S}^\tr \mat{S}$ is a diagonal matrix with elements
+      $s_i^2$ so $\Tr \mat{X}^\tr \mat{X} = \sum_{i} s_i^2$.  But we
+      have shown that $\len{\mat{X}}_F^2 = \Tr \mat{X}^\tr \mat{X}$,
+      so $\len{\mat{X}}_F^2 = \sum_{i} s_i^2$.
+    \end{answer}
+  \end{qparts}
+\end{question}
+
+% ***************************** question 3 **************************
+
+
+\begin{question}{10}
+  The $p$-norm of a matrix $\mat{M}$, for $p\geq 1$ is defined to satisfy
+  \begin{align}
+    \len{\mat{M}}_p &= \max_{\bm{x}\neq \bm{0}}
+    \frac{\len{\mat{M}\,\bm{x}}_p}{\len{\bm{x}}_p} \\
+    &= \max_{\bm{x}:\len{\bm{x}}_p=1}\len{\mat{M}\,\bm{x}}_p \label{eq:pnorm2}
+  \end{align}
+  where $\len{\bm{x}}_p$ is the $p$ norm of a vector defined by
+  \begin{align*}
+    \len{\bm{x}}_p = \bra{ \sum_i |x_i|^p}^{1/p}.
+  \end{align*}
+  Note that with this definition $\len{\mat{M}\,\bm{x}}_p \leq
+  \len{\mat{M}}_p \, \len{\bm{x}}_p$ (where the inequality is tight,
+  i.e. there exists a vector where the inequality becomes an
+  equality).
+    
+
+  \begin{qparts}
+    \qpart[2]{If $\mat{U}$ is an orthogonal matrix show that for any
+      vector $\bm{v}$ that $\len{\mat{U}\,\bm{v}}_2 = \len{\bm{v}}_2$.
+      Use this to show
+      $\len{\mat{U}\,\mat{A}}_2 = \len{\mat{A}}_2$.}{\lines{5}}
+    \begin{answer}
+      We note that
+      \begin{align*}
+        \len{\mat{U}\,\bm{v}}_2^2 = \bm{v}^\tr \,\mat{U}^\tr
+        \mat{U}\,\bm{v} = \bm{v}^\tr\bm{v} = \len{\bm{v}}_2^2
+      \end{align*}
+      since norms are positive $\len{\mat{U}\,\bm{v}}_2 =
+      \len{\bm{v}}_2$.
+      We note that  $\len{\mat{U}\,\mat{A}\,\bm{x}}_2 =
+      \len{\mat{A}\,\bm{x}}_2$, thus the unit vector $\bm{x}$ that
+      maximises $\len{\mat{A}\,\bm{x}}_2$ will also maximise
+      $\len{\mat{U}\,\mat{A}\,\bm{x}}_2 $.  By
+      Equation~(\ref{eq:pnorm2}) this implies $\len{\mat{U}\,\mat{A}}_2 =
+      \len{\mat{A}}_2$.
+    \end{answer}
+    \qpart[2]{If $\bm{V}$ is an orthogonal matrix show that
+      $\len{\mat{A}\,\mat{V}^\tr}_2 = \len{\mat{A}}_2$.}{\lines{5}}
+    \begin{answer}
+      We consider a unit-vector $\bm{x}$ that maximises
+      $\len{\mat{A}\,\bm{x}}_2$ then by definition~(\ref{eq:pnorm2})
+      $\len{\mat{A}\,\bm{x}}_2 = \len{\mat{A}}_2$.  But we note that
+      $\bm{y}=\mat{V}\,\bm{x}$ will be a unit vector that maximises
+      $\len{\mat{A}\,\mat{V}^\tr\bm{y}}_2$ since
+      \begin{align*}
+        \len{\mat{A}\,\mat{V}^\tr\bm{y}}_2 =
+        \len{\mat{A}\,\mat{V}^\tr\mat{V}\bm{x}}_2 =
+        \len{\mat{A}\bm{x}}_2
+      \end{align*}
+      using $,\mat{V}^\tr\mat{V}=\mat{I}$.  But as $\bm{x}$ is a
+      unit vector that maximises $ \len{\mat{A}\bm{x}}_2$ then
+      $\bm{y}$ will be a unit vector that maximise
+      $\len{\mat{A}\,\mat{V}^\tr\bm{y}}_2 $ and thus
+      $\len{\mat{A}\,\mat{V}^\tr}_2=\len{\mat{A}}_2$.
+    \end{answer}
+    \qpart[1]{Use the SVD  $\mat{M} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
+      and the results of part (a) and part (b) to
+      show that $\len{\mat{M}}_2 = \len{\mat{S}}_2$.}{\lines{3}}
+    \begin{answer}
+      We note that $\len{\mat{M}}_2 =
+      \len{\mat{U}\,\mat{S}\,\mat{V}^\tr}_2$.  But by part (a)
+      $\len{\mat{U}\,\mat{S}\,\mat{V}^\tr}_2=\len{\mat{S}\,\mat{V}^\tr}_2$
+      and by part (b) $\len{\mat{S}\,\mat{V}^\tr}_2=\len{\mat{S}}_2$.
+    \end{answer}
+    \freshpage \qpart[1]{Compute $\len{\mat{S}\,\bm{x}}_2^2$ where
+      $\bm{x}= (x_1, x_2, \ldots, x_n)$ and
+      $\mat{S}=\mathrm{diag}(s_1, s_2, \ldots, s_n)$ is the diagonal
+      matrix of singular values, $s_i$.}{\lines{2}}
+    \begin{answer}
+      Since $\mat{S}= \diag(s_1, s_2, \ldots, s_n)$ then
+      \begin{align*}
+        \len{\mat{S}\,\bm{x}}_2^2 = \sum_{i=1}^n s_i^2\,x_i^2
+      \end{align*}
+    \end{answer}
+    \qpart[4]{Write down the Lagrangian, $L$,
+      to maximise $\len{\mat{S}\bm{x}}_2^2$ subject to
+      $\len{\bm{x}}_2^2 =1$.  Compute the extrumum conditions given by
+      $\partial L/\partial x_i=0$.  Let $(s_\alpha|\alpha=1,2,\ldots)$
+      be the set of unique singular values and $I_\alpha$ the set of
+      indices such that $s_i=s_\alpha$ if $I\in I_{\alpha}$.  Using the extremum
+      condition and the constraint, write down the set of extremum
+      values for $\len{\mat{S}\,\bm{x}}$ and hence show that
+      $\len{\mat{M}}_2 = s_{max}$ where $s_{max}$ is the maximum
+      singular value and $\mat{M} = \mat{U}\,\mat{S}\,\mat{V}^\tr$.}{\lines{12}}
+    \begin{answer}
+      The Lagrangian is equal to
+      \begin{align*}
+        L = \sum_{i=1}^n s_i^2 \, x_i^2 - \lambda\bra{\sum_{i=1}^n
+        x_i^2 -1}
+      \end{align*}
+      The extremum conditions are
+      \begin{align*}
+        \pd{L}{x_i} = 2\,x_i\,\bra{s_i^2 - \lambda} = 0
+      \end{align*}
+      (and the constraint).  The extremum conditions are thus either
+      $x_i=0$ or $s_i^2=\lambda$.   Thus the value of Lagrange
+      multiplier is $\lambda = s_\alpha^2$ where $x_i=0$ if $i\not\in
+      I_\alpha$.  Thus
+      \begin{align*}
+        \len{\mat{S}\,\bm{x}}_2^2 = s_\alpha^2 \sum_{i \in I_\alpha} x_i^2
+        = s_\alpha^2
+      \end{align*}
+      where we have used $ \sum_{i} x_i^2=1$.  The maximum condition
+      is just given by the case $s_{max}$ (the largest maximum
+      eigenvalue).  Thus using Equation~(\ref{eq:pnorm2}) we have
+      $\len{\mat{S}}_2= s_{max}$.  But since $\len{\mat{M}}_2 =
+      \len{\mat{S}}_2$ it follows that $\len{\mat{M}}_2 = s_{max}$.
+    \end{answer}
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 4 **************************
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[2]{We consider the mapping $\bm{y}= \mat{M}\,\bm{x}$ where
+      $\mat{M}$ is an $n\times n$ matrix.  Suppose there is some noise
+      in $\bm{x}$ so that $\bm{x}' = \bm{x} + \bm{\epsilon}$ and
+      under the mapping $\bm{y}'= \mat{M}\,\bm{x}'$.  Compute an upper
+      bound for $\len{\bm{y}'-\bm{y}}_2$ in terms of $\len{\bm{\epsilon}}$
+      and $s_{max}$, where $s_{max}$ follows the same definition as in Q3(e).}{\lines{3}}
+    \begin{answer}
+      \begin{align*}
+        \len{\bm{y}'-\bm{y}}_2 = \len{\mat{M}\,\bm{\epsilon}}_2 \leq
+        \len{\mat{M}}_2 \, \len{\bm{\epsilon}}_2 = s_{max} \, \len{\bm{\epsilon}}_2
+      \end{align*}
+    \end{answer}
+
+    \qpart[3]{For a matrix $\mat{M} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
+      show that
+      \begin{align*}
+         \len{\mat{M}\,\bm{x}}_2 =  \len{\mat{S}\,\bm{a}}_2 \, \len{\bm{x}}_2
+      \end{align*}
+      where $\bm{a} = \mat{V}^\tr \bm{x}/\len{\bm{x}}_2$ so that
+      $\len{\bm{a}}_2=1$.  Show that we can lower bound
+      $\len{\mat{S}\,\bm{a}}_2^2$ by $s_{min}^2$ and hence prove
+      \begin{align*}
+        \len{\mat{M}\,\bm{x}}_2 \geq s_{min}\,\len{\bm{x}}_2.
+      \end{align*}
+      where $s_{min}$ is the minimum non-zero singular value analogous
+      to the definition of $s_{max}$.
+    }{\lines{7}}
+    \begin{answer}
+      \begin{align*}
+        \len{\mat{M}\,\bm{x}}_2 =
+        \len{\mat{U}\,\mat{S}\,\mat{V}^\tr\,\bm{x}}_2
+        = \len{\mat{S}\,\mat{V}^\tr\,\bm{x}}_2
+      \end{align*}
+      but using $\bm{a} = \mat{V}^\tr \bm{x}/\len{\bm{x}}_2$
+      \begin{align*}
+        \len{\mat{M}\,\bm{x}}_2 =  \len{\mat{S}\,\bm{a}}_2 \, \len{\bm{w}}_2
+      \end{align*}
+      where $\len{\bm{a}}_2=1$.  But
+      \begin{align*}
+        \len{\mat{S}\,\bm{a}}_2^2 = \sum_i a_i^2\,s_i^2 \geq
+        s_{min}^2 \sum_i a_i^2 = s_{min}^2\, 
+        \len{\bm{a}}^2 = s_{min}^2.
+      \end{align*}
+      Thus $\len{\mat{S}\,\bm{a}}_2 \geq s_{min}$ and
+      \begin{align*}
+         \len{\mat{M}\,\bm{x}}_2 \geq s_{min}\,\len{\bm{x}}_2.
+      \end{align*}
+    \end{answer}
+    
+    \qpart[1]{Using the previous results, obtain an upper bound for the relative error
+      \begin{align*}
+        \frac{\len{\bm{y}' - \bm{y}}_2}{\len{\bm{y}}_2}
+      \end{align*}
+      in terms of $s_{max}$, $s_{min}$, $\len{\bm{\epsilon}}_2$ and
+      $\len{\bm{x}}_2$.}{\lines{2}}
+      \begin{answer}
+        \begin{align*}
+          \frac{\len{\bm{y}' - \bm{y}}_2}{\len{\bm{y}}_2} \leq
+          \frac{s_{max}}{s_{min}} \, \frac{\len{\bm{\epsilon}}_2}{\len{\bm{x}}_2}
+        \end{align*}
+      \end{answer}
+      \freshpage
+      
+      \qpart[1]{The condition number for an invertible square matrix $\mat{M}$ is
+        given by $\kappa_2(\mat{M}) =
+        \len{\mat{M}}_2\,\len{\mat{M}^{-1}}_2$ (there are different
+        condition numbers for different norms.)  Write down the
+        condition number of $\mat{M}$ in terms of $s_{max}$ and $s_{min}$.}{\lines{4}}
+      \begin{answer}
+        We observe that $\len{\mat{M}}_2=s_{max}$ and
+        $\len{\mat{M}^{-1}}_2 = s_{min}^{-1}$ so that
+        \begin{align*}
+          \kappa_2(\mat{M}) =
+        \len{\mat{M}}_2\,\len{\mat{M}^{-1}}_2 = \frac{s_{max}}{s_{min}}
+        \end{align*}
+      \end{answer}
+
+      \qpart[3]{In linear regression we make predictions
+        $\hat{y} = \bm{x}^\tr \bm{w}$ given an input $\bm{x}$ where
+        $\bm{w} = \mat{X}^+\,\bm{y}$, where
+        $\mat{X}^+= (\mat{X}^\tr\,\mat{X})^{-1}\mat{X}^\tr$ is the
+        pseudo inverse of the design matrix $\mat{X}$ and $\bm{y}$ is
+        a vector of training examples.  There are bounds on the
+        accuracy of linear regression depending on
+        $\av{s_{max}/s_{min}}$ where $s_{max}$ and $s_{min}$ are
+        respectively the maximum and minimum no-zero singular values of
+        the design matrix.  Consider randomly drawn feature vectors
+        \begin{align*}
+          \bm{x}_i \sim \mathcal{N}(\bm{0},\mat{I}).
+        \end{align*}
+        Use python to generate the $m\times p$ dimensional design
+        matrix $\mat{X}$ with rows $\bm{x}_i^\tr$.  By computing the
+        singular values for $\mat{X}$ with $m=i\times p$ where
+        $i\in\{1, 2, \ldots, 10\}$, find $s_{max}/s_{min}$.  Repeat this 10
+        times for each $i$ to obtain an estimate of $\av{s_{max}/s_{min}}$.  Plot a
+        graph of your estimate for $\av{s_{max}/s_{min}}$ (on a log-axis) versus $m/p$
+        for $p=10, 50$ and $100$. }{\qfig[14cm]{condition_number_q}}
+      \begin{answer}
+        \afig[10cm]{condition_number}
+      \end{answer}
+  \end{qparts}
+\end{question}
+
+
+% ***************************** End of exam *****************************
+\end{document}
+
+
+% ***************************** question 4 **************************
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[3]{We consider the least squares solution to a linear
+      regression problem with data $\mathcal{D} =
+      \{(\bm{x}_i,y_i) \mid i=1,2,\ldots, m\}$
+      \begin{align*}
+        \bm{w}^* = \mat{X}^+ \bm{y} = \bra{\mat{X}^\tr\mat{X}}^{-1} \mat{X} \, \bm{y}
+      \end{align*}
+      where $\mat{X}$ is the design matrix with rows equal to
+      $\bm{x}_i$ and $\bm{y}$ is the vector of targets with elements
+      $y_i$.  Assuming $p>m$ and using the SVD
+      $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ compute
+      $\len{\mat{X}^+}_2$ (see lecture 8).}{\lines{7}}
+    \begin{answer}
+      Using the properties of orthogonal matrices $\mat{X}^+ =
+      \mat{V}\mat{S}^+\mat{U}$ where $\mat{S}^+$ is a matrix with
+      non-zero elements on the diagonal equal to $1/s_i$.  Using the
+      result from the previous question $\len{\mat{X}^+}_2 =
+      1/s_{min}$ where $s_{min}$ is the smallest singular value of the
+      design matrix $\mat{X}$.
+    \end{answer}
+    \qpart[2]{Assume an error, $\bm{\epsilon}$, in the targets
+      $\bm{y}=\bm{y}_{true} + \bm{\epsilon}$.  Let
+      $\bm{w}_{true} = \mat{X}^+ \bm{y}_{true}$ and
+      $\bm{w} = \mat{X}^+ \bm{y} = \mat{X}^+ (\bm{y}+\bm{\epsilon})$.
+      In linear regression given a feature vector $\bm{x}$ we make a
+      prediction $\hat{y} = \bm{x}^\tr\,\bm{w}$.  Using the
+      Cauchy-Schwarz inequality
+      $|\bm{a}^\tr\bm{b}| \leq \len{\bm{a}}_2\,\len{\bm{b}}_2$ and the
+      norm inequality
+      $\len{\mat{A}\bm{x}}_2 \leq \len{\mat{A}}_2 \, \len{\bm{x}}_2$
+      and obtain a bound on the absolute error in the prediction
+      $|\bm{x}^\tr\,\bm{w} - \bm{x}^\tr\,\bm{w}_{true}|$ involving
+      $\len{\bm{x}}_2$, $\len{\bm{\epsilon}}_2$ and $s_{min}$ (the
+      minimum singular value of the design matrix
+      $\mat{X}$).}{\lines{7}}
+    \begin{answer}
+      \begin{align*}
+        |\bm{x}^\tr\,\bm{w} - \bm{x}^\tr\,\bm{w}_{true}|
+        = |\bm{x}^\tr \mat{X}^+ \bm{\epsilon}|
+        \leq \len{\bm{x}}_2 \, \len{\mat{X}^+\,\bm{\epsilon}}_2
+        \leq \len{\bm{x}}_2 \,
+        \len{\mat{X}^+}_2\,\len{\bm{\epsilon}}_2
+        = \frac{1}{s_{min}}\len{\bm{x}}_2 \, \len{\bm{\epsilon}}_2
+      \end{align*}
+      where the first inequality results from applying the
+      Cauchy-Schwarz inequality and the second inequality comes from
+      the norm inequality.
+    \end{answer}
+    \freshpage
+    \qpart[2]{Using the SVD, $\mat{X}=\mat{U}\mat{S}\mat{V}^\tr$, show that
+      \begin{align*}
+        \len{\bm{x}^\tr \mat{X}^+}_2 \leq \len{\bm{w}}_2\,\len{\bm{a}^\tr\mat{S}^+}_2
+      \end{align*}
+      where $\bm{a}^\tr = \bm{x}^\tr\,\mat{V}/\len{\mat{w}}_2$ so that
+      $\len{\bm{a}}_2=1$.  Find the structure of the matrix $ \mat{S}^+
+      (\mat{S}^+)^\tr$ and thus show that
+      \begin{align*}
+        \len{\bm{a}^\tr\mat{S}^+}_2^2 = 
+        \sum_i s_i^{-2}\,a_i^2
+      \end{align*}
+      and therefore $\len{\bm{a}^\tr\mat{S}^+}_2^2  \geq s_{max}^{-2}$ where
+      $s_{max}$ is the maximum singular value of the design matrix $\mat{X}$.
+      From this result show
+      \begin{align*}
+        \len{\bm{x}^\tr \mat{X}^+}_2 \leq \frac{1}{s_{max}} \len{\bm{x}}_2.
+      \end{align*}}{\lines{10}}
+      \begin{answer}
+        We note that $\mat{X}^+ = \mat{V}\,\mat{S}^+\mat{U}^\tr$ so
+        that
+        \begin{align*}
+          \len{\bm{x}^\tr \mat{X}^+}_2 =
+          \len{\bm{x}^\tr\mat{V}\mat{S}^+\mat{U}^\tr} _2
+          = \len{\bm{x}^\tr\mat{V}\mat{S}^+}_2
+        \end{align*}
+        since for any vector $\bm{b}$ if $\mat{U}$ is an orthogonal
+        matrix $\len{\bm{b}^\tr \mat{U}^\tr}_2^2 = \bm{b}^\tr\mat{U}^\tr\mat{U}\,\bm{b} =
+        \len{\bm{b}}_2^2$.
+        If we  let $\bm{a}^\tr = \bm{x}^\tr\,\mat{V}/\len{\mat{w}}$ then
+        \begin{align*}
+          \len{\bm{x}^\tr \mat{X}^+}_2 = \len{\bm{w}}_2 \, \len{\bm{a}^\tr\,\mat{S}^+}_2.
+        \end{align*}
+        Now $ \mat{S}^+ (\mat{S}^+)^\tr= \mathrm{diag}(s_1^{-2},
+        s_2^{-2}, \ldots s_n^{-2})$.   So that
+        \begin{align*}
+          \len{\bm{u}^\tr\,\mat{S}^+}_2^2 =
+          \bm{a}^\tr \mat{S}^+ (\mat{S}^+)^\tr \bm{a} 
+          =   \sum_i s_i^{-2} a_i ^2
+          \geq s_{max}^{-2} \sum_i a_i^2
+          = s_{max}^{-2}
+        \end{align*}
+        where we have used the fact that $\len{\bm{a}}=1$.  Using this
+        and the previous result
+        \begin{align*}
+           \len{\bm{x}^\tr \mat{X}^+}_2 > s_{max}^{-1} \len{\bm{w}}_2 .
+        \end{align*}
+      \end{answer}
+      \freshpage
+
+      We note that given a feature vector $\bm{x}$ we can use linear
+      regression to make a prediction $\bm{x}^\tr \bm{w}= \bm{x}^\tr
+      \mat{X}^+ \bm{y}$.  We have shown that an error of size
+      $\bm{\epsilon}$ in the training targets $\bm{y}$ leads to a
+      possible error no larger than
+      $s_{min}^{-1}\,\len{\bm{x}}_2\,\len{\bm{\epsilon}}_2$.  The
+      prediction, $\bm{x}^\tr\bm{w}$ is smaller than $s_{max}^{-1}\,\len{\bm{x}}_2
+      \bm{a}^\tr\bm{y}$ where $\len{\bm{a}}_2=1$.  The fractional
+      error is
+      \begin{align*}
+        \frac{\bm{x}^\tr \bm{w} - \bm{x}^\tr
+        \bm{w}_{true}}{\bm{x}^\tr\bm{w}}
+        \leq \frac{s_{max}}{s_{min}}
+        \frac{\len{\bm{\epsilon}}}{\bm{a}^\tr\bm{y}}.
+      \end{align*}
+      for some unit vector $\bm{a}$.
+      This is not a useful bound as $\bm{a}^\tr\bm{y}$ can be
+      arbitrarily small (reflecting the fact that $\bm{x}^\tr\bm{w}$
+      can be arbitrarily small).  Nevertheless, assuming that
+      $\bm{x}$ is not correlated in anyway with $\mat{X}^+ \bm{y}$
+      then we would expect $\bm{a}^\tr\bm{y}$ to be proportional to
+      $\len{\bm{y}}_2$.  We note that in this case the fractional error
+      is amplified by $s_{max}/s_{min}$.  This is an example of a
+      condition number (there are different condition numbers
+      depending on what norm we use).  We can obtain rigorous error
+      bounds for linear regression (they involve slightly more
+      algebra), but they all tend to involve condition numbers.
+      \qpart[3]{Assume that
+        \begin{align*}
+          \bm{x}_i \sim \mathcal{N}(\bm{0},\mat{I})
+        \end{align*}
+        using python form the $m\times p$ matrix $\mat{X}$ with rows
+        $\bm{x}_i^\tr$.  Compute the singular values for $\mat{X}$
+        for $m=i\times p$ where $i=1, 2, \ldots, 10$.  Compute
+        $s_{max}/s_{min}$ and repeat 10 times to obtain an estimate of
+        $\av{s_{max}/s_{min}}$.  Plot a graph of you estimate for
+        $\av{s_{max}/s_{min}}$ versus $m/p$ for $p=10, 50$ and $100$.
+      }{\lines{10}}
+  \end{qparts}
+\end{question}
+
+

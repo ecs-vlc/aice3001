@@ -1,0 +1,482 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 23: Probabilistic Inference
+
+
+* Keywords
+  * Hierarchical Models, Mixture of Gaussians, Expectation Maximisation
+
+
+* Main Points
+
+** Laws of Probability
+    * We  quickly review probabilities (you should know all this)
+    * Probabilities and events
+      - We typically associate probabilities with events
+      - The probability of an event lie between 0 and 1
+      - If the set of events $\mathcal{E}$ are exhaustive and
+        mutually exclusive then
+	$$ \sum_{A\in\mathcal{E}} \Prob{A} = 1 $$
+    * Often we associate numbers to events
+      - These are known as /random variables/
+      - Conventionally random variables are denoted by capitals,
+        while we use lower-case letters to represent the value the
+        random variable takes
+      - We associate probability distributions to random variables
+      - For discrete random variables these are known as
+        /probability mass functions/ and are denoted $\Prob{X=x}$
+      - When our events are continuous we often associate the outcome
+        to a continuous random variable
+      - In this case the probability of a continuous random variable
+        taking a particular value is typically 0
+      - We then look at probability densities
+	$$ f_X(x) = \lim_{\delta x \rightarrow 0} \frac{\Prob{x\leq X \leq
+        x+\delta x}}{\delta x} $$
+	+ Densities are not probabilities (they can be greater than 1
+          although
+	  $$ \Prob{a\leq X \leq b} = \int_a^b f_X(x)\,\dd x $$
+	  is a probability and is always less than or equal to 1)
+    * Probabilities become interesting when we have multiple events
+      - The /joint probability/ of both event $A$ and $B$ occurring is
+        denoted $\Prob{A,B}$
+      - The probability of random variables $X$ and $Y$ taking values
+        $x$ and $y$ is denoted by
+	+ $\Prob{X=x,Y=y}$ for discrete random variables or
+	+ $f_{X,Y}(x,y)$ for continuous random variables (where this
+          is now a probability density)
+	+ sometimes we write $\Prob{X,Y}$ or $f(x,y)$ when the context
+          is clear
+      - The /conditional probability/ of an event $A$ happening given
+        and event $B$ has happened is denoted by $\Prob{A|B}$ for
+        discrete random variables or $f_{X|Y}(x|y)$ for continuous random
+        variables
+	+ sometimes we write $\Prob{X|Y}$ or $f(x|y)$ when the context
+          is clear
+	+ conditional probability doesn't imply any causation
+	+ Note that $\Prob{X|Y}$ or $f(x|y)$ are probabilities or
+          densities of $X$
+	$$ \sum_x \Prob{X=x|Y=y} = 1 \quad \quad \int f(x|y) \, \dd x
+        = 1 $$
+	+ But they are not probabilities or densities of $Y$
+      - One of the most important rules in probabilities  is
+	+ $\Prob{X,Y} = \Prob{X|Y}\,\Prob{Y} = \Prob{Y|X}\,\Prob{X}$
+	+ $f(x,y) = f(x|y)\,f(y) = f(y|x)\,f(x)$
+	+ Clearly this is where Bayes' rule comes from
+      - A second rule that we use all the time is
+	$$ \sum_y \Prob{X,Y=y} = \Prob{X} \quad\quad \int f(x,y) \, \dd y
+        = f(x) $$
+      - All this generalises to more the two random variables
+	+ $\Prob{X=x,Y=y|Z=z}$ is the probability that both $X=x$ and
+          $Y=y$ given that $Z=z$
+	+ $\Prob{X=x|Y=y,Z=z}$ is the probability that $X=x$ given
+          that $Y=y$ and $Z=z$
+      - Random variables are /independent/ of each other if
+	$\Prob{X,Y} = \Prob{X}\,\Prob{Y}$
+      - Random variables $X$ and $Y$ are conditionally independent of
+        each other given $Z$ if
+	$$ \Prob{X,Y|Z} = \Prob{X|Z} \, \Prob{Y|Z} $$
+    * We often consider /random vectors/ $\bm{X} = (X_1,
+     X_2,\ldots,X_n)$ where each component is a random variable
+    * I am expecting to you to know this material
+	
+** Probabilistic Inference
+   * Most probabilistic inference involves constructing a model of the
+     underlying data generation process and using Bayes' rule or
+     maximum likelihood to learn unknown parameters of the model
+   * In modelling physical processes it is often easier to specify
+     conditional probabilities where the there is some causal relationship
+   * *Discriminative Models*
+     - Often in machine learning our goal is to learn the probability
+       distribution $\Prob{Y|\bm{X}}$ where $Y$ is our target and
+       $\bm{X}$ is a data point
+     - We may parameterise this distribution with some
+       parameters $\bm{\Theta}$ and our task would be to learn these
+       parameters based on training data
+   * *Generative Models*
+     - Surprisingly it is  often easier to model the joint probability
+       $\Prob{Y,\bm{X}}$
+     - This means that we model the process of both generating the
+       targets and the feature vectors together
+     - These are known as /generative models/ as they allow us to
+       generate random examples
+     - We don't necessary want to use them to generate random samples;
+       it just makes the modelling process easier (although you need
+       to get used to this as it feel counter-intuitive)
+     - We can use generative models to do discrimination since
+       $\Prob{Y|\bm{X}} = \Prob{Y,\bm{X}}/\Prob{Y}$ where
+       $\Prob{Y}=\sum_{\bm{X}} \Prob{Y,\bm{X}}$
+     - Examples of generative models include /Hidden Markov Models/
+       and /Topic Models/ (covered later)
+   * *Latent Variables*
+     - In building probabilistic models we often model quite
+       complicated processes
+     - To do this we introduce intermediate processes described by
+       random variables that we never observe
+     - These are known as *latent variable*
+     - Often our model will involve many different layers between the
+       inputs $\bm{X}$ and targets $Y$: this construction is sometimes
+       known as a /hierarchical  model/
+   * *Difficulty of Bayes*
+     - Bayesian inference is difficult because for most likelihoods
+       there is no conjugate prior and the posterior is a mess
+     - In this case it can be very difficult to compute the /evidence/
+       or /marginal likelihood/
+      $$ \Prob{\mathcal{D}} = \sum_{\bm{\Theta}} \Prob{\mathcal{D}|\bm{\Theta}} \, \Prob{\bm{\Theta}} $$
+      or
+      $$ f(\mathcal{D}) = \int  f(\mathcal{D}|\bm{\theta}) \, f(\bm{\theta})\,\dd \bm{\theta} $$
+       + this is hard when $\bm{\Theta}$ takes on too many values (e.g. it might
+         be a high dimensional vector or a continuous variable)
+     - One solution to this is to obtain samples from the
+       posterior distribution (this approach uses Monte Carlo methods
+       which are very powerful, but can be slow)
+     - Another approach is to seek the *maximum a-posterirori* or
+       *MAP* solution
+       $$ \bm{\theta}_{\text{\small MAP}} = \argmax_{\bm{\theta}}
+       f(\mathcal{D}|\bm{\theta})\, f(\bm{\theta})  =
+       \argmax_{\bm{\theta}} \logg{\mathcal{D}|\bm{\theta})} +
+       \logg{f(\bm{\theta})} $$
+       + this is much easier than the full Bayesian approach as we
+         don't need to compute the marginal likelihood $f(\mathcal{D})$
+       + but it isn't really Bayesian (although some users will claim it is)
+       + it throws away the posterior and replaces this with its mode
+       + we have lost a measure of uncertainty
+     - We can go one step further and assume a uniform prior
+       - This leads to the *maximum likelihood estimate*
+       - This was first proposed by Ronald Fisher in the time when
+         Bayesian inference was considered taboo
+       - Despite its strong connection to Bayesian inference it was
+         accepted by the statistical community
+
+** Mixtures of Gaussians
+    * To illustrate latent variables and a simple hierarchical model
+      we consider a classic probabilistic model known as /mixture of Gaussians/
+    * We consider a concrete scenario
+    * We suppose we are observing the decay of two types ($A$ and
+      $B$) of short-lived particles [fn:1]
+    * We can measure their half lives, $X_i$, but we don't know the type
+      of particle
+    * We have a measurement error of the half-life
+    * Let $Z_i \in \{0,1\}$ equal 1 if  particle $i$ is of type $A$
+      and 0 if it is of type $B$
+    * The probability distribution of the half-life measurement is
+      therefore
+      $$ f(X_i|Z_i,\bm{\Theta}) = Z_i\,\normal{X_i}{\mu_A,\sigma_A^2} +
+        (1-Z_i)\,\normal{X_i}{\mu_B,\sigma_B^2} $$
+      * where $\mu_A$ and $\mu_B$ are the expected half-lives for
+        particles of type $A$ and $B$ respectively
+      * $\sigma_A$ and $\sigma_B$ are the standard deviations in the measurements
+      * this says that if the $i^{th}$ particle is of type $A$
+        then the probability of $X_i$ is
+        $\normal{X_i}{\mu_A,\sigma_A^2}$, while if it of type $B$,
+        then $X_i$ is distributed according to $\normal{X_i}{\mu_B,\sigma_B^2}$
+    * We show some typical data  from $m=1\,000$ observations in
+      Figure \ref{fig:data}
+      #+ATTR_LATEX: :width 0.6\textwidth
+      #+CAPTION: Example of data measuring the half-lives of two types of particles\label{fig:data}
+	[[./figures/mog-0.pdf]]
+    * Our job is to infer the random variables $\bm{\Theta}=(\mu_1,
+      \mu_2, \sigma_1, \sigma_2, p)$, where $p=\Prob{Z_i=1}$ is the
+      probability of the particle being type $A$
+    * We can do a full Bayesian calculation, but let us just use maximum likelihood
+    * The maximum likelihood of the data
+      $\mathcal{D}=\{X_i|i=1,2,\ldots,m\}$ is
+       \begin{align*}
+       f(\mathcal{D}|\bm{\Theta}) 
+       &\eq \sum_{\bm{Z}\in\{0,1\}^m}  f(\mathcal{D},\bm{Z}|\bm{\Theta}) \\
+       &\eq \prod_{i=1}^m \sum_{Z_i\in\{0,1\}} f(X_i, Z_i | \bm{\Theta})
+       \eq \prod_{i=1}^m  \sum_{Z_i\in\{0,1\}}
+       f(X_i | Z_i, \bm{\Theta}) \, \Prob{Z_i}
+       \end{align*}
+       \explanation
+      1) where we marginalise out the latent variables
+         $\bm{Z}=(Z_1,Z_2,\ldots Z_n)$
+      2) we assume the data is independent
+      3) we use the identity $f(X_i, Z_i | \bm{\Theta})= f(X_i | Z_i, \bm{\Theta}) \, \Prob{Z_i}$
+    * It is usually easier working with the log-likelihood
+      \begin{align*}
+      \logg{f(\mathcal{D}|\bm{\Theta})} &= \sum_{i=1}^m
+      \logg{\strut f(X_i|Z_i=1) \, \Prob{Z_i=1} + f(X_i|Z_i=0) \,
+      \Prob{Z_i=0} }\\
+       &=\sum_{i=1}^m
+      \logg{p\,\normal{X_i}{\mu_A,\sigma_A}+(1-p)\,\normal{X_i}{\mu_B,\sigma_B}}
+      \end{align*}
+    * We could do gradient descent on this, but it is an ugly
+      expression to work with
+
+** Expectation Maximisation
+    - Rather than maximise the likelihood directly we can iteratively
+      maximise the expected log-likelihood starting form some initial guess
+      $\bm{\Theta}^{(0)}$; we get an improved guess
+      \begin{equation}
+      \bm{\Theta}^{(t+1)} = \argmax_{\bm{\Theta}}
+      \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+      \logg{f(\mathcal{D},\bm{Z} | \bm{\Theta})} \label{eq:em}
+      \end{equation}
+    - This is a general optimisation strategy that is regularly used
+      when we have latent variables
+    - It is known as *expectation maximisation* or the *EM-algorithm*
+    - This looks very different to maximising the log-likelihood: it
+      takes some effort to understand why this works
+    - To understand this we note
+      $$f(\mathcal{D},\bm{Z}|\bm{\Theta}) =
+      f(\mathcal{D}|\bm{Z},\bm{\Theta}) \, \Prob{\bm{Z}|\bm{\Theta}}  $$
+      From which we can deduce (taking logs and rearranging)
+      $$ \logg{f(\mathcal{D}|\bm{Z},\bm{\Theta})} = \logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})} - \logg{\Prob{\bm{Z}|\bm{\Theta}} } $$
+    - We now consider the probability distribution
+      $\Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}$, that
+      tells us the probability that $Z_i=1$ given $X_i$ and the
+      parameters $\bm{\Theta}^{(t)}$ (this is different to the prior
+      distribution $\Prob{\bm{Z}|\bm{\Theta}^{t}} = p^{(t)}$)
+    - If we not take expectations of
+      $\logg{f(\mathcal{D}|\bm{\Theta})}$ give above with respect to
+      this distribution then
+      \begin{align*}
+        \logg{f(\mathcal{D}|\bm{\Theta})}
+         &= \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})}}
+      - \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{\Prob{\bm{Z}|\bm{\Theta}} }}
+        \\
+	&= Q(\bm{\Theta}|\bm{\Theta}^{(t)}) +
+        S(\bm{\Theta}|\bm{\Theta}^{(t)})
+      \end{align*}
+      + Note that the left-hand side does not involve the latent
+	variables so when we take the expectation we get itself
+      + The first term on the right-hand side is
+	$$ Q(\bm{\Theta}|\bm{\Theta}^{(t)}) =
+        \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})}}
+	=  \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{f(\mathcal{D}|\bm{Z}, \bm{\Theta})} $$
+      + This is the term we are optimising in equation (\ref{eq:em})
+      + The second term is
+	$$ S(\bm{\Theta}|\bm{\Theta}^{(t)}) = - \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{\Prob{\bm{Z}|\bm{\Theta}} }}
+	=  - \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{\Prob{\bm{Z}|\bm{\Theta}}} $$
+    - Using the identity for the log-likelihood we can write the
+      change in log-likelihood when we update our
+      parameters 
+      \begin{align*}
+      \Delta L &=
+      \logg{f(\mathcal{D}|\bm{\Theta}^{(t+1)})} -
+      \logg{f(\mathcal{D}|\bm{\Theta}^{(t)})} \\
+      &= Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})
+      + S(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      S(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)}) \\
+      &= Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})
+      + \mathrm{KL}\!\left( \Prob{\bm{Z}|\bm{\Theta}^{(t)}} \middle\|
+        \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} \right)
+       \end{align*}
+	+ where
+        \begin{align*}
+        \mathrm{KL}\!\left( \Prob{\bm{Z}|\bm{\Theta}^{(t)}} \middle\|
+        \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} \right) &=
+	S(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+	S(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)}) \\
+	&= -  \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{\frac{ \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} }{ \Prob{\bm{Z}|\bm{\Theta}^{(t)}} }} 
+	\end{align*}
+      + We have shown in a previous lecture that KL-divergences are non-negative
+    - Now in expectation maximisation we choose
+      $$ \bm{\Theta}^{(t+1)} = \argmax_{\bm{\Theta}}
+      Q(\bm{\Theta}|\bm{\Theta}^{(t)}) $$
+      which implies $Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) \geq
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})$
+    - Thus $\Delta L\geq 0$, so in each step we increase the log-likelihood
+    - This gives us a relative simple procedure for maximising the likelihood
+      (we can also use this to maximise the /a posteriori/ solution);
+      we choose $\bm{\Theta}$ to maximise
+      $$ Q(\bm{\Theta}|\bm{\Theta}^{(t)}) = \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+      \logg{f(\mathcal{D}|\bm{Z}, \bm{\Theta})} $$
+    - Let us return to the problem of working out the half-life statistics of
+      our two types of particles $A$ and $B$
+    - Recall $f(\mathcal{D},\bm{Z} |\bm{\Theta}) =
+      \prod\limits_{i=1}^m  f(X_i|Z_i,\bm{\Theta}) \, \Prob{Z_i}$ where
+      $$ f(X_i,Z_i|\bm{\Theta}) = p\, Z_i\,\normal{X_i}{\mu_A,\sigma_A^2} +
+        (1-p)\,(1-Z_i)\,\normal{X_i}{\mu_B,\sigma_B^2} $$
+    - Let 
+      \begin{align*}
+      p_i^{(t)} &= \Prob{Z_i=1\middle|X_i, \bm{\Theta}^{(t)}} = 
+      \frac{p^{(t)}\, \normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} }
+     { p^{(t)}\,\normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} + (1-p^{(t)})\, \normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}} } \\
+      q_i^{(t)} &= \Prob{Z_i=0\middle|X_i, \bm{\Theta}^{(t)}} =
+      \frac{(1-p^{(t)})\,\normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}}}
+     {p^{(t)}\, \normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} + (1-p^{(t)})\, \normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}} }
+      = 1-p_i^{(t)}
+      \end{align*}
+    - Then
+      \begin{align*}
+      Q(\bm{\Theta}|\bm{\Theta}^{(t)}) &= \sum_{i=1}^m \;
+      p_i^{(t)} \logg{p^{(t)}\,\normal{X_i}{\mu_A,\sigma_A^{2}}}
+      + q_i^{(t)}  \logg{(1-p^{(t)})\,\normal{X_i}{\mu_B,\sigma_B^{2}}} \\ 
+      &= \sum_{i=1}^m \;
+      p_i^{(t)}\left(\log(p) -
+      \frac{(X_i-\mu_A)^2}{2\sigma_A^{2}}
+	- \frac{1}{2} \logg{2\,\pi\,\sigma_A^{2}} \right) \\
+	&\hspace{1cm}
+	+ q_i^{(t)}\left(\log(1-p) -
+	\frac{(X_i-\mu_B)^2}{2\sigma_B^{2}}
+	- \frac{1}{2} \logg{2\,\pi\,\sigma_B^{2}} \right) 
+	\end{align*}
+    - To optimise this we just set the derivatives to 0
+      + Optimising with respect to $p$
+         $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial p}
+          = \frac{1}{p} \sum_{i=1}^m \; p_i^{(t)} - \frac{1}{1-p}
+          \sum_{i=1}^m \; q_i^{(t)} =0 $$
+         solving for $p$
+         $$ p^{(t+1)} = \frac{\sum\limits_{i=1}^m 
+         p_i^{(t)}}{\sum\limits_{i=1}^m (p_i^{(t)}+q_i^{(t)})} =
+         \frac{1}{m} \sum\limits_{i=1}^m  p_i^{(t)}$$
+      + Optimising with respect to $\mu_A$
+        $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial \mu_A} 
+	= - \sum\limits_{i=1}^m p_i^{(t)} \frac{X_i-\mu_A}{\sigma_A^{2}} $$
+	solving for $\mu_A$ (and performing a similar optimisation
+        for $\mu_B$)
+	$$ \mu_A^{(t+1)} = \frac{ \sum\limits_{i=1}^m
+        p_i^{(t)} X_i }{\sum\limits_{i=1}^m p_i^{(t)}} ,\quad\quad
+	\mu_B^{(t+1)} = \frac{ \sum\limits_{i=1}^m
+        q_i^{(t)} X_i }{\sum\limits_{i=1}^m q_i^{(t)}} $$
+      + Putting in the optimal value for $\mu^{(t)}_A$ and optimising with respect to $\sigma_A^2$
+         $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial \sigma^2_A}
+	 = \frac{1}{2\,\sigma^4_A}\sum_{i=1}^m p_i^{(t)}
+         (X_i-\mu^{(t)}_A)^2- \frac{1}{\sigma_A^{2}}\sum_{i=1}^m p_i^{(t)}$$
+	Solving for $\sigma^2_A$ (and performing a similar optimisation
+        for $\sigma^2_B$)
+	$$ \sigma_A^2 = \frac{ \sum\limits_{i=1}^m
+        p_i^{(t)} (X_i-\mu^{(t)}_A)^2 }{\sum\limits_{i=1}^m p_i^{(t)}}
+        ,\quad\quad
+	 \sigma_B^2 = \frac{ \sum\limits_{i=1}^m
+        q_i^{(t)} (X_i-\mu^{(t)}_B)^2 }{\sum\limits_{i=1}^m q_i^{(t)}}$$
+    - These are very natural update equations
+      + we make an estimate, $p_i^{(t)$ of the probability that observation $X_i$
+        is a particle of type $A$ or $B$ base on our current parameters
+      + we then update all our parameters based on these estimates
+    - We are guaranteed that our EM-algorithm never decreases the
+      likelihood (although it could reach a local rather than global optimum)
+    - For the data set we showed earlier (which was a random sample
+      of size 1000 generated using $p=0.3$, $\mu_A=4$,
+      $\sigma_A=0.8$, $\mu_B=8$ and $\sigma_B=2$) we get the results
+      shown in Figure \ref{fig:mog}
+      #+ATTR_LATEX: :width 0.95\textwidth
+      #+CAPTION: Example of EM algorithm to compute the statistics for the half-lives of our two particles \label{fig:mog}
+	[[./figures/mog-1.pdf]]
+    - The EM algorithm often leads to very natural update equations,
+      but its convergence is often rather slow
+
+* Exercises
+
+** Mysterious Disease
+   - We assume that we are tracking some disease
+   - Let $Z(t)$ be the number of people that catch the
+     disease on day $t$, but this is unknown (a latent variable)
+   - We assume the rate of growth of the disease is
+     $$ \Prob{Z(t+1)} = \mathrm{Poi}\!\left(Z(t+1)\middle|
+     \frac{r_0}{3}\, (Z(t)+Z(t-1)+Z(t-2)) \right) $$
+     + We are assuming that someone is virulent for the first three
+       days after catching the disease
+     + We assume $Z(1)=1$ and $Z(0)=Z(-1)=0$
+     + In expectation everyone with the disease will infect $r_0$ new people
+   - We observe $X(t)$ which is some proportion of new patients such that
+     $$ \Prob{X(t) = k} = \mathrm{Binom}(k|Z(t), p) = \binom{Z(t)}{k}
+     p^k\,(1-p)^{Z(t)-k} $$
+     + We assume that each patient will be tested with a probability $p$
+     + We are given a time series $(X(1), X(2), \ldots, X(T))$
+   - Build a probabilistic model to estimate $p$ and $k_0$
+   - See answers
+
+** Experiments
+
+** Mysterious Disease
+   + Build a simulator of your models (assume you know $p$ and $r_0$)
+   + Choose any language you are comfortable with
+   + If you are feeling very adventurous you could try to solve your
+     model to predict $p$ and $r_0$, but be warned this is hard (you
+     probably need to use MCMC, but you could try an EM algorithm)
+
+#+name: setup-minted
+#+BEGIN_SRC octave :file src/disease.m
+r0 = 2
+r = r0/3
+p = 0.2
+T = 20
+Z(1) = 1;
+Z(2) = poissrnd(r*Z(1));
+Z(3) = poissrnd(r*(Z(1)+Z(2)));
+for t = 4:T
+   Z(t) = poissrnd(r*(Z(t-1)+Z(t-2)+Z(t-3)));
+endfor
+
+for t= 1:T
+  X(t) = binornd(Z(t),p);
+endfor
+#+END_SRC
+
+* Answers
+
+** Mysterious Disease
+   - We want to compute $f(p,k_0|\mathcal{D})$ where
+     $\mathcal{D}=(X(1), X(2), \ldots, X(T))$
+   - We have a likelihood of 
+     $$ \Prob{X(t)\middle|Z(t),p} = \mathrm{Binom}(X(t)|Z(t), p) $$
+     where
+     $$ \Prob{Z(t+1)|r_0,Z(t),Z(t-1),Z(t-2)} = \mathrm{Poi}\!\left(Z(t+1)\middle|
+     \frac{r_0}{3}\, (Z(t)+Z(t-1)+Z(t-2)) \right) $$
+   - To perform a Bayesian calculation we would have to put priors,
+     $f(p)$ and $f(r_0)$, on $p$ and $r_0$
+     + A reasonable prior to use for $p$ is \(f(p) =
+       \mathrm{Beta}(p|a,b)\)---you could use $a=b=0$ as an uninformative
+       priors, but you might have some prior knowledge, e.g. $a=b=2$ say
+       which says $f(p)=6\,p\,(1-p)$
+     + A reasonable prior for $r_0$ would be
+       \(\mathrm{Gamma}(r_0|a,b)\)---you could use $a=b=0$ as an
+       uninformative prior but again you might have some prior belief, e.g. $a=2$, $b=1$
+   - Bayes rule tells us
+     $$ f(p,r,\bm{Z}|\bm{X}) = \frac{\Prob{X(t)\middle|Z(t),p}\, \prod\limits_{t=1}^T
+     \Prob{Z(t)|Z(t-1),Z(t-2),Z(t-3),r_0} \,
+     f(r_0)\,f(p)}{\Prob{\bm{X}}} $$
+   - To get estimates of $p$ and $r_0$ we have to marginalise out $\bm{Z}$
+   - Now the problem is this is rather horrible to compute (your
+     priors are not conjugate priors in this problem and the posterior
+     is very complicated)
+   - Probably the best way to do this is to use Markov Chain Monte
+     Carlo (MCMC), but you will have to wait before I get there
+     
+
+
+* COMMENT [[file:pdf/ProbabilisticInference.pdf][PDF]] [[file:pdf/ProbabilisticInference_prn.pdf][Print]]
+* COMMENT [[file:gaussianProcesses-subsidiary.org][Previous]] [[file:graphicalModels-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+END_OPTIONS
+
+* Footnotes
+
+[fn:1] If you prefer, you can think of an autonomous vehicle using lidar
+      where it detects reflections from two different, but close by,
+      objects, $A$ and $B$.  We make multiple noisy measurements of the distance
+      from the two objects.
+

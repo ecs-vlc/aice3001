@@ -1,0 +1,530 @@
+%Master File:lectures.tex
+
+\lesson{Vector Spaces}
+\vspace{-2cm}
+\begin{center}
+  \setlength{\unitlength}{1bp}
+  \begin{picture}(500,200)
+    \put(0,40){\textcolor{red}{\begin{rotate}{15}$\displaystyle
+          \begin{pmatrix}
+            1 & 1 & 1 & 1 & 1 \\
+            1 & 2 & 4 & 8 & 16 \\
+            1 & 3 & 9 & 27 & 81 \\
+            1 & 4 & 16 & 64 & 256 \\
+            1 & 5 & 25 & 125 & 625
+          \end{pmatrix}
+          \begin{pmatrix}
+            a_0 \\ a_1 \\ a_2 \\ a_3 \\ a_4
+          \end{pmatrix}
+          =
+          \begin{pmatrix}
+            1 \\ 1 \\ 2 \\ -3 \\ 1
+          \end{pmatrix}$\end{rotate}}}
+    \put(180,30){\textcolor{green}{\begin{rotate}{-15}$\displaystyle
+          \bm{\nabla}_{\mat{X}} \mathrm{Tr} (\mat{X}^{-1} \mat{A})
+          = -\mat{X}^{-1} \mat{A}\mat{X}^{-1}$\end{rotate}}}
+    \put(50,-100){\includegraphics[width=18cm]{linalg.eps}}
+  \end{picture}
+\end{center}
+\keywords{Vectors, metric spaces, norms}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{12cm}
+  \begin{enumerate}\squeeze
+    \outlineitem{Vector Spaces}{vectorspaces}
+    \outlineitem{Metrics (distances)}{metrics}
+    \outlineitem{Norms}{norms}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{10cm}
+  \includegraphics[height=10cm]{linalg}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Vector Spaces
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Matrices, Vectors and All That}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The language of machine learning is mathematics\pause
+  \item Sometimes we draw pretty pictures to explain the mathematics\pause
+  \item Much of the mathematics we will use involves vectors, matrices
+    and functions\pause
+  \item You need to master the language of mathematics, otherwise you
+    won't understand the algorithms\pause
+  \item I'm going to spend this lecture and the next revising the
+    mathematics you need to know\pause{} (but I'm going use a slightly posher
+    language than you are probably used to)\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Scalars (Fields)}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Vector spaces involve \emph{fields} (numbers)\pause---aka \emph{scalars}\pauseb
+  \item These are quantities we can add together ($a+b$) and
+    multiply together ($a\times b$)\pause
+  \item Formally they form an Abelian group under addition with an identity $0$\pauseb{}
+    and excluding $0$ an Abeilian group under multiplication\pauseb{} and they are distributive
+    \begin{align*}
+      a\times (b + c) = a\times b + a\times c\pauseb
+    \end{align*}
+  \item Although this sounds rather daunting don't panic\pauseb.  They behave
+    like numbers.\pauseb  The field might be integers, rational numbers,
+    reals, complex numbers or something a bit more exotic\pauseb---but
+    we will almost always consider reals\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+  
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Vectors}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We often work with objects with many components (features)\pause
+  \item To help handle this we will use vector notation\pause
+  \end{itemize}
+  \begin{minipage}{0.29\linewidth}
+    \begin{align*}
+      \bm{x} =
+      \begin{pmatrix}
+        x_1 \\ x_2 \\ \vdots \\ x_n
+      \end{pmatrix}\pause
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}{0.69\linewidth}
+    \begin{itemize}
+    \item We represent vectors by bold symbols\pause
+    \item All our vectors are column vectors by default\pause
+    \item We treat them as $n\times 1$ matrix\pause
+    \end{itemize}
+  \end{minipage}
+  \begin{itemize}
+  \item We write row vectors as transposes of column vectors
+    \begin{align*}
+      \bm{y}^\tr = (y_1, y_2, \ldots, y_n)\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Basic Vector Operations}
+
+\pb
+\begin{itemize}
+\item The basic vector operations are adding\pauseh\pauselevel{=1}
+  \begin{center}
+    \multipdf[width=0.4\linewidth]{addingVectors}\pause
+  \end{center}
+\item multiplying by a scalar (a number)\pauseh\pauselevel{=5}
+  \begin{center}
+    \multipdf[width=0.5\linewidth]{multiplyVector}\pause
+  \end{center}
+\end{itemize}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Vector Space}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A vector space, $\mathcal{V}$, is a set of vectors which satisfies
+    \begin{enumerate}\squeeze
+    \item if $\bm{v}, \bm{w}\in\mathcal{V}$ then
+      $a\,\bm{v}\in\mathcal{V}$ and $\bm{v}+\bm{w}\in\mathcal{V}$\hfill
+      (closure)\pause 
+    \item $\bm{v} + \bm{w} = \bm{w} + \bm{v}$\hfill (commutativity of
+      addition)\pause 
+    \item $(\bm{u}+\bm{v}) + \bm{w} = \bm{u} + (\bm{v} + \bm{w})$\hfill
+      (associativity of addition)\pause
+    \item $\bm{v} + \bm{0} = \bm{v}$ \hfill(existence of additive identity
+      $\bm{0}$)\pause 
+    \item $1 \, \bm{v} = \bm{v}$\hfill (existence of multiplicative identity
+      $1$)\pause
+    \item $a\,(b\,\bm{v}) = (a\,b)\,\bm{v}$\hfill (distributive properties)
+    \item $a\,(\bm{v} + \bm{w}) = a\,\bm{v} + a\,\bm{w}$
+    \item $(a+b)\,\bm{v} = a\,\bm{v} + b\,\bm{v}$\pause
+    \end{enumerate}
+    (You don't need to remember these)\pause
+  \item Just from these properties we can deduce other properties\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{$\mathbb{R}^n$}
+
+\begin{PauseHighLight}
+  \begin{minipage}{0.8\linewidth}
+    \begin{itemize}
+    \item When we first learn about vectors we think of them arrows in 3-D
+      space\pause
+    \item If we centre them all at the origin then there is a one-to-one
+      correspondence between vectors and points in space\pause
+    \item We call this vector space $\mathbb{R}^3$\pause
+    \item Any set of quantities $\bm{x} = (x_1, x_2, \ldots,
+      x_n)^\tr$ which satisfy the axioms above form a vector space
+      $\mathbb{R}^n$\pause
+    \item Of course, we can't so easily draw pictures of
+      high-dimensional vectors\pause
+    \end{itemize}
+  \end{minipage}
+  \begin{minipage}{0.18\linewidth}
+    \begin{center}
+      \includegraphics[width=0.9\linewidth]{vectorsR3}\\
+      \includegraphics[width=0.9\linewidth]{R3}
+    \end{center}
+  \end{minipage}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Other Vector Spaces}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Any set of object that satisfies the axioms of a vector spacer
+    are \textit{vectors}\pause---not just $\bm{v}\in \mathbb{R}^n$\pauseb
+  \item Matrices satisfy all the conditions of a vector space\pause
+  \item Infinite sequences form a vector space\pause
+  \item Functions form a vector space\pause
+    \begin{itemize}\squeeze
+    \item Let $C(a,b)$ be the set of functions defined on the interval
+      $[a,b]$
+    \item Note that if $f(x), g(x) \in C(a,b)$ then $a\,f(x) \in C(a,b)$
+      and $f(x)+g(x) \in C(a,b)$\pause
+    \end{itemize}
+  \item Bounded vectors in $\mathbb{R}^n$ \emph{don't} form a vector space\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Metrics}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Vector spaces become more interesting if we have a notion of distance\pause
+  \item We say $d(\bm{x}, \bm{y})$ is a \emph{proper distance} or \emph{metric} if
+    \begin{enumerate}\squeeze
+    \item $d(\bm{x}, \bm{y}) \geq 0$ \hfill (non-negativity)\pause
+    \item $d(\bm{x}, \bm{y}) = 0$ iff $\bm{x} =\bm{y}$\hfill  (identity
+      of indiscernibles)\pause
+    \item $d(\bm{x}, \bm{y}) = d(\bm{y}, \bm{x})$\hfill (symmetry)\pause
+    \item $d(\bm{x}, \bm{y}) \leq d(\bm{x}, \bm{z}) +d(\bm{z}, \bm{y})$
+      \hfill(triangular inequality)\pause
+    \end{enumerate}
+  \item There are typically many possible distances (e.g. Euclidean
+    distance, Manhattan distance, etc.)\pause
+  \item Often one or more condition isn't satisfied then we have a
+    \emph{pseudo-metric}\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Mappings and Functions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A function defines a mapping from one vector space to another
+    (although the spaces might be the same)\pause, e.g.
+    \begin{align*}
+      f: \mathbb{R} \rightarrow \mathbb{R}\pauseb
+    \end{align*}
+    ($f$ maps the reals onto reals, i.e. $f(x)$ takes a real $x$ and
+    gives you a new real number $y=f(x)$)\pauseb
+  \item We are often interested in functions that behave nicely\pauseb
+  \item E.g. They are continuous\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Lipschitz Function}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item One way to characterise well behaved function, $f(x)$ is if there
+    exists a number $K<\infty$ such that for all $x$ and $y$
+    \begin{align*}
+      d(f(x), f(y)) \leq K\, d(x,y)\pause
+    \end{align*}
+  \item This is known as a \emph{Lipschitz condition} and the function is
+    said to be $K$-Lipschitz\pause{} or Lipschitz continuous\pauseb
+  \item Note that such functions cannot have any jumps (i.e. they are
+    continuous)\pause
+  \item The size of $K$ measures the limit on the amplifying effect of
+    the function\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Lipschitz Continuous Functions}
+  
+\pb\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=\linewidth]{discontinuous_func}\pause
+\end{center}
+\begin{itemize}
+\item Definition is applicable to any function defined in a
+  metric space\pause
+\end{itemize}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Contractive Mappings}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item An interesting class of function are those for which
+    $K<1$\pause
+  \item These are said to be contractive mappings\pause
+  \item A famous theorem that applies to contractive mappings is the
+    Banach fixed-point theorem which says there exists a unique fixed
+    point such that $f(x) = x$\pause
+  \item This is used for example in showing that various algorithms
+    will converge\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Norms}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Vector spaces are even more interesting with a notion of length\pause
+  \item \emph{Norms} provide some measure of the size of a vector\pause
+  \item To formalise this we define the \emph{norm} of an object
+    $\bm{v}$ as  $\|\bm{v}\|$ satisfying
+    \begin{enumerate}
+    \item $\| \bm{v} \| >0$ if $\bm{v}\neq\bm{0}$\hfill(non-negativity)\pause
+    \item $\| a\,\bm{v} \| = a \| \bm{v} \|$\hfill(linearity)\pause
+    \item $\| \bm{u} + \bm{v} \| \leq \| \bm{u} \| + \| \bm{v} \|$
+      \hfill (triangular inequality)\pause
+    \end{enumerate}
+  \item When some criteria aren't satisfied we have a
+    \emph{pseudo-norms}\pause
+  \item Norms provide a metric $d(\bm{x}, \bm{y}) = \|\bm{x}-\bm{y}\|$
+    (they are metric spaces)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Vector Norms}
+
+\begin{PauseHighLight}\small
+  \begin{itemize}\squeeze
+  \item The familiar vector norm is the (Euclidean) two norm
+    \begin{align*}
+      \| \bm{v} \|_2 = \sqrt{v_1^2 + v_2^2 + \cdots + v_n^2}\pause
+    \end{align*}
+  \item Other norms exist, such as the $p$-norm ($p\geq1$)
+    \begin{align*}
+      \| \bm{v} \|_p = \left(\sum_{i=1}^n | v_i |^p \right)^{1/p}\pause
+    \end{align*}
+  \item Special cases include the 1-norm and the infinite norm
+    \begin{align*}
+      \| \bm{v} \|_1 &= \sum_{i=1}^n | v_i |\pause & \| \bm{v} \|_{\infty} &= \max_i |v_i|\pause
+    \end{align*}
+  \item The 0-norm is a pseudo-norm as it does not satisfy condition 2
+    \begin{align*}
+      \| \bm{v} \|_0 = \text{number of non-zero components}\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Matrix Norms}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can define norms for other objects\pause
+  \item The norm of a matrix encodes how large the mapping is\pause
+  \item The Frobenius norm is defined by
+    \begin{align*}
+      \| \mat{A} \|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n |A_{ij}|^2}\pause
+    \end{align*}
+  \item Many other norms exist including 1-norm, max-norm, etc.\pause
+  \item For square matrices, some, but not all, norms satisfy the
+    inequality
+    \begin{align*}
+      \| \mat{A}\,\mat{B} \| \leq \| \mat{A} \| \times \| \mat{B} \|\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Compatible Norms}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A vector and matrix norm are said to be compatible if
+    \begin{align*}
+      \| \mat{M} \bm{v} \|_b \leq \| \mat{M} \|_a \times \| \bm{v} \|_b
+    \end{align*}
+    (Spectral and Euclidean norms are compatible)\pause
+  \item Norms provide quick ways to bound the maximum growth of a vector
+    under a mapping induced by the matrix\pause
+  \item We will see that a measure of the sensitivity of a mapping is in
+    terms of the ratio of its maximum effect to its minimum effect on a
+    vector\pause
+  \item This is known as the \emph{conditioning}, given by
+    $\|\mat{M}\| \times \|\mat{M}^{-1}\|$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Why Should You Care?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Deep learning involves multiply the input (which we can think
+    of as a vector $\bm{x}$) by many layers\pause
+  \item In CNNs we have convolutional layers and dense layers\pause
+  \item The effect of applying these layers can be represented by a
+    matrix multiplication $\bm{x}_n = \mat{L}_n \bm{x}_{n-1}$\pause
+  \item We also do other things like applying ReLU's or pooling that
+    changes the magnitude, $\bm{x}_n$, of our representation\pause
+  \item If you are developing new architectures you want
+    $\len{\bm{x}_n}$ neither to blow up or vanish\pause
+  \item This can be controlled by carefully choosing $\len{\mat{L}_n}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Function Norms}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Functions can also have norms, for example, if $f(x)$ is defined
+    in some interval $\mathcal{I}$ {\small
+    \begin{align*}
+      \| f \|_{L_2} = \sqrt{\int_{x\in\mathcal{I}} f^2(x) \, \dd x}\pause
+    \end{align*}}
+  \item The $L_2$ vector space is the set of function where $\|
+    f \|_{L_2}<\infty$\pause
+  \item The $L_1$-norm is given by
+    $\| f \|_{L_1} = \int_{x\in\mathcal{I}} |f(x)| \, \dd x$\pause
+  \item The infinite-norm is given by
+    $\| f \|_{\infty} = \max_{x\in\mathcal{I}} |f(x)|$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Summary}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Vector spaces with a distance (metric spaces) and vector spaces
+    with a norm (normed vector spaces) are interesting objects\pause
+  \item They allow you to define a topology (open/closed sets, etc.)\pause
+  \item You can build up ideas about connectedness, continuity,
+    contractive maps, fixed-point theorems, \ldots\pause
+  \item For the most part we are going to consider an even more powerful
+    vector space that has an inner-product defined\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+
+%%% Local Variables:
+%%% TeX-master: "lectures"
+%%% End:

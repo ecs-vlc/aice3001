@@ -1,0 +1,286 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 18: Generative Models
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( \strut#1 \right)}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \newcommand{\beq}{\setcounter{eqCounter}{0}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+
+
+
+* Keywords
+  * Generative models, graphical models, LDA
+
+* Main Points
+
+** Bayesian Inference
+   * Most Bayesian inference involves constructing a model of the
+     underlying data generation process and  using Bayes' rule to
+     learn unknown properties of the model
+   * In building models we use random variables, $X$, $Y$, $Z$,
+     etc. to model quantities we are uncertain about
+   * We associate /probability mass functions/ $\Prob{X,Y,Z}$ (for
+     discrete random variable) or /probability densities/
+     $f_{X,Y,Z}(x,y,z)$ (for continuous random variables)
+   * Often our tasks will be to infer these probability distributions
+     (or parameters of these probability distribution) for quantities
+     of interest
+   * In classical machine learning we may think the feature vector
+     $\bm{X}$ as being a random variable and the prediction $Y$ as
+     being a second random variable
+   * *Discriminative Models*
+     - Often our goal is to learn the probability distribution $\Prob{Y|\bm{X}}$
+     - Very often we would parameterise this distribution with some
+       parameters $\bm{\Theta}$ and our task would be to learn these
+       parameters based on training data
+   * *Generative Models*
+     - Surprisingly it is  often easier to model the joint probability
+       $\Prob{Y,\bm{X}}$
+     - This means that we model the process of both generating the
+       targets and the feature vectors together
+     - These are known as /generative models/ as they allow us to
+       generate random examples
+     - We don't necessary want to use them to generate random samples
+       it just makes the modelling process easier (although you need
+       to get used to this as it feel counter-intuitive)
+     - we can use generative models to do discrimination
+     - Examples of generative models include /Hidden Markov Models/
+       and /Topic Models/ (covered later)
+   * *Latent Variables*
+     - In building probabilistic models we often model quite
+       complicated processes
+     - To do this we often introduce intermediate processes
+     - This leads to introduce other random variables that we actually
+       never observe
+     - These are known as *latent variable*
+     - Often our model will involve many different layers between the
+       inputs $\bm{X}$ and targets $Y$: this process is sometimes
+       known as /hierarchical  modelling/
+   * *Mixtures of Gaussians*
+     - To illustrate latent variables and a simple hierarchical model
+       we consider a classic probabilistic model known as /mixture of Gaussians/
+     - We consider a concrete scenario
+     - We suppose we are observing the decay of two types ($A$ and
+       $B$) of short-lived particles
+     - We can measure their half lives, $X_i$, but we don't know the type
+       of particle
+     - We have a measurement error of the half-life
+     - Let $Z_i \in \{0,1\}$ equal 1 if  particle $i$ is of type $A$
+       and 0 if it is of type $B$
+     - The probability distribution of the half-life measurement is
+       therefore
+       $$ f(X_i|Z_i,\bm{\Theta}) = Z_i\,\normal{X_i}{\mu_A,\sigma_A^2} +
+         (1-Z_i)\,\normal{X_i}{\mu_B,\sigma_B^2} $$
+       * where $\mu_A$ and $\mu_B$ are the expected half-lives for
+         particles of type $A$ and $B$ respectively
+       * $\sigma_A$ and $\sigma_B$ are the standard deviations in the measurements
+       * this just says that if the $i^{th}$ particle is of type $A$
+         then the probability of $X_i$ is
+         $\normal{X_i}{\mu_A,\sigma_A^2}$ and if it is of type $B$ it
+         is $\normal{X_i}{\mu_B,\sigma_B^2}$
+     - We assume that we have $m$ observations (e.g. $m=1\,000$)
+       #+ATTR_LATEX: :width 0.6\textwidth
+       #+CAPTION: Example of distribution of half-lives
+	 [[./figures/mixtureOfGaussiansData.pdf]]
+     - Our job is to infer the random variables $\bm{\Theta}=(\mu_1,
+       \mu_2, \sigma_1, \sigma_2, p)$, where $p=\Prob{Z_i=1}$ is the
+       probability of the particle being type $A$
+     - We can do a full Bayesian calculation, but let us just use a
+       maximum likelihood
+     - The maximum likelihood of the data
+       $\mathcal{D}=\{X_i|i=1,2,\ldots,m\}$ is
+        \begin{align*}\beq
+        f(\mathcal{D}|\bm{\Theta}) 
+        &\eq \sum_{\bm{Z}\in\{0,1\}^m}  f(\mathcal{D},\bm{Z}|\bm{\Theta}) \\
+        &\eq \prod_{i=1}^m \sum_{Z_i\in\{0,1\}} f(X_i, Z_i | \bm{\Theta})
+	\eq \prod_{i=1}^m  \sum_{Z_i\in\{0,1\}}
+        f(X_i | Z_i, \bm{\Theta}) \, \Prob{Z_i}
+        \end{align*}
+       1) where we marginalise out the latent variables
+          $\bm{Z}=(Z_1,Z_2,\ldots Z_n)$
+       2) we assume the data is independent
+       3) we use the identity $f(X_i, Z_i | \bm{\Theta})= f(X_i | Z_i, \bm{\Theta}) \, \Prob{Z_i}$
+     - It is usually easier working with the log-likelihood
+       \begin{align*}
+       \logg{f(\mathcal{D}|\bm{\Theta})} &= \sum_{i=1}^m
+       \logg{\strut f(X_i|Z_i=1) \, \Prob{Z_i=1} + f(X_i|Z_i=0) \,
+       \Prob{Z_i=0} }\\
+        &=\sum_{i=1}^m
+       \logg{p\,\normal{X_i}{\mu_A,\sigma_A}+(1-p)\,\normal{X_i}{\mu_B,\sigma_B}}
+       \end{align*}
+     - We could do gradient descent on this, but it is an ugly
+       expression to work with
+** Expectation Maximisation
+    - Rather than maximise the likelihood directly we iteratively
+      maximise the expected log-likelihood starting form some guess
+      $\bm{\Theta}^{(0)}$ we get an improved guess
+      $$ \bm{\Theta}^{(t+1)} = \mathop{\mathrm{argmax}}_{\bm{\Theta}}
+      \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+      \logg{f(\mathcal{D},\bm{Z} | \bm{\Theta})} $$
+    - This is a general optimisation strategy that is regularly used
+      when we have latent variables
+    - It is known as *expectation maximisation* or the *EM-algorithm*
+    - This looks very different to maximising the log-likelihood: it
+      takes some effort to understand why this works
+    - To understand this we note
+      $$f(\mathcal{D},\bm{Z}|\bm{\Theta}) =
+      f(\mathcal{D}|\bm{Z},\bm{\Theta}) \, \Prob{\bm{Z}|\bm{\Theta}}  $$
+      From which we can deduce
+      $$ \logg{f(\mathcal{D}|\bm{\Theta})} = \logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})} - \logg{\Prob{\bm{Z}|\bm{\Theta}} } $$
+    - We now consider the probability distribution
+      $\Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}$, that
+      tells us the probability that $Z_i=1$ given $X_i$ and the
+      parameters $\bm{\Theta}^{(t)}$
+    - If we not take expectations of
+      $\logg{f(\mathcal{D}|\bm{\Theta})}$ give above with respect to
+      this distribution then
+      \begin{align*}
+        \logg{f(\mathcal{D}|\bm{\Theta})}
+         &= \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})}}
+      - \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{\Prob{\bm{Z}|\bm{\Theta}} }}
+        \\
+	&= Q(\bm{\Theta}|\bm{\Theta}^{(t)}) +
+        S(\bm{\Theta}|\bm{\Theta}^{(t)})
+      \end{align*}
+      + Note that the left-hand side does not involve the latent
+	variables so when we take the expectation we get itself
+      + The first term on the right-hand side is
+	$$ Q(\bm{\Theta}|\bm{\Theta}^{(t)}) =
+        \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{f(\mathcal{D},\bm{Z}|\bm{\Theta})}}
+	=  \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{f(\mathcal{D}|\bm{Z}, \bm{\Theta})} $$
+      + This is the term we are optimising in /expectation maximisation/
+      + The second term is
+	$$ S(\bm{\Theta}|\bm{\Theta}^{(t)}) = - \av[\bm{Z}|\bm{\Theta}^{(t)}]{\logg{\Prob{\bm{Z}|\bm{\Theta}} }}
+	=  - \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{\Prob{\bm{Z}|\bm{\Theta}}} $$
+    - Using the identity for the log-likelihood we can write the
+      change in log-likelihood when we update our
+      parameters 
+      \begin{align*}
+      \Delta f &=
+      \logg{f(\mathcal{D}|\bm{\Theta}^{(t+1)})} -
+      \logg{f(\mathcal{D}|\bm{\Theta}^{(t)})} \\
+      &= Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})
+      + S(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      S(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)}) \\
+      &= Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})
+      + \mathrm{KL}\!\left( \Prob{\bm{Z}|\bm{\Theta}^{(t)}} \middle\|
+        \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} \right)
+       \end{align*}
+	+ where
+        \begin{align*}
+        \mathrm{KL}\!\left( \Prob{\bm{Z}|\bm{\Theta}^{(t)}} \middle\|
+        \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} \right) &=
+	S(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) -
+	S(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)}) \\
+	&= -  \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+        \logg{\frac{ \Prob{\bm{Z}|\bm{\Theta}^{(t+1)}} }{ \Prob{\bm{Z}|\bm{\Theta}^{(t)}} }} 
+	\end{align*}
+      + We shown in a previous lecture that KL-divergences are non-negative
+    - Now in expectation maximisation we choose
+      $$ \bm{\Theta}^{(t+1)} = \mathop{\mathrm{argmax}}_{\bm{\Theta}}
+      Q(\bm{\Theta}|\bm{\Theta}^{(t)}) $$
+      which implies $Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)}) \geq
+      Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})$
+    - Thus $\Delta f\geq 0$
+    - This gives us a relative simple procedure we need to maximise
+      $$ Q(\bm{\Theta}|\bm{\Theta}^{(t)}) = \sum_{\bm{Z}\in\{0,1\}^m} \Prob{\bm{Z}\middle|\mathcal{D},\bm{\Theta}^{(t)}}\,
+      \logg{f(\mathcal{D}|\bm{Z}, \bm{\Theta})} $$
+    - Let us return to the problem of working out the half-life statistics of
+      our two types of particles $A$ and $B$
+    - Recall $f(\mathcal{D},\bm{Z} |\bm{\Theta}) =
+      \prod\limits_{i=1}^m  f(X_i|Z_i,\bm{\Theta}) \, \Prob{Z_i}$ where
+      $$ f(X_i,Z_i|\bm{\Theta}) = p\, Z_i\,\normal{X_i}{\mu_A,\sigma_A^2} +
+        (1-p)\,(1-Z_i)\,\normal{X_i}{\mu_B,\sigma_B^2} $$
+    - Let 
+      \begin{align*}
+      p_i^{(t)} &= \Prob{Z_i=1\middle|X_i, \bm{\Theta}^{(t)}} = 
+      \frac{p^{(t)}\, \normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} }
+     { p^{(t)}\,\normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} + (1-p^{(t)})\, \normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}} } \\
+      q_i^{(t)} &= \Prob{Z_i=0\middle|X_i, \bm{\Theta}^{(t)}} =
+      \frac{(1-p^{(t)})\,\normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}}}
+     {p^{(t)}\, \normal{X_i}{\mu_A^{(t)},\sigma_A^{2(t)}} + (1-p^{(t)})\, \normal{X_i}{\mu_B^{(t)},\sigma_B^{2(t)}} }
+      = 1-p_i^{(t)}
+      \end{align*}
+    - Then
+      \begin{align*}
+      Q(\bm{\Theta}|\bm{\Theta}^{(t)}) &= \sum_{i=1}^m \;
+      p_i^{(t)} \logg{p^{(t)}\,\normal{X_i}{\mu_A,\sigma_A^{2}}}
+      + q_i^{(t)}  \logg{(1-p^{(t)})\,\normal{X_i}{\mu_B,\sigma_B^{2}}} \\ 
+      &= \sum_{i=1}^m \;
+      p_i^{(t)}\left(\log(p) -
+      \frac{(X_i-\mu_A)^2}{2\sigma_A^{2}}
+	- \frac{1}{2} \logg{2\,\pi\,\sigma_A^{2}} \right) \\
+	&\hspace{1cm}
+	+ q_i^{(t)}\left(\log(1-p) -
+	\frac{(X_i-\mu_B)^2}{2\sigma_B^{2}}
+	- \frac{1}{2} \logg{2\,\pi\,\sigma_B^{2}} \right) 
+	\end{align*}
+    - To optimise this we just set the derivatives to 0
+      + Optimising with respect to $p$
+         $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial p}
+          = \frac{1}{p} \sum_{i=1}^m \; p_i^{(t)} - \frac{1}{1-p}
+          \sum_{i=1}^m \; q_i^{(t)} =0 $$
+         solving for $p$
+         $$ p^{(t+1)} = \frac{\sum\limits_{i=1}^m 
+         p_i^{(t)}}{\sum\limits_{i=1}^m (p_i^{(t)}+q_i^{(t)})} =
+         \frac{1}{m} \sum\limits_{i=1}^m  p_i^{(t)}$$
+      + Optimising with respect to $\mu_A$
+        $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial \mu_A} 
+	= - \sum\limits_{i=1}^m p_i^{(t)} \frac{X_i-\mu_A}{\sigma_A^{2}} $$
+	solving for $\mu_A$ (and performing a similar optimisation
+        for $\mu_B$)
+	$$ \mu_A^{(t+1)} = \frac{ \sum\limits_{i=1}^m
+        p_i^{(t)} X_i }{\sum\limits_{i=1}^m p_i^{(t)}} ,\quad\quad
+	\mu_B^{(t+1)} = \frac{ \sum\limits_{i=1}^m
+        q_i^{(t)} X_i }{\sum\limits_{i=1}^m q_i^{(t)}} $$
+      + Putting in the optimal value for $\mu^{(t)}_A$ and optimising with respect to $\sigma_A^2$
+         $$ \frac{\partial Q(\bm{\Theta}|\bm{\Theta}^{(t)})}{\partial \sigma^2_A}
+	 = \frac{1}{2\,\sigma^4_A}\sum_{i=1}^m p_i^{(t)}
+         (X_i-\mu^{(t)}_A)^2- \frac{1}{\sigma_A^{2}}\sum_{i=1}^m p_i^{(t)}$$
+	Solving for $\sigma^2_A$ (and performing a similar optimisation
+        for $\sigma^2_B$)
+	$$ \sigma_A^2 = \frac{ \sum\limits_{i=1}^m
+        p_i^{(t)} (X_i-\mu^{(t)}_A)^2 }{\sum\limits_{i=1}^m p_i^{(t)}}
+        ,\quad\quad
+	 \sigma_B^2 = \frac{ \sum\limits_{i=1}^m
+        q_i^{(t)} (X_i-\mu^{(t)}_B)^2 }{\sum\limits_{i=1}^m q_i^{(t)}}$$
+    - These are very natural update equations
+      + we make an estimate, $p_i^{(t)$ of the probability that observation $X_i$
+        is a particle of type $A$ or $B$ base on our current parameters
+      + we then update all our parameters based on these estimates
+    - We are guaranteed that our EM-algorithm always involves an
+      improving step
+    - For the data set we showed earlier (which was a random sample
+      of size 1000 generated using $p=0.3$, $\mu_A=4$,
+      $\sigma_A=0.8$, $\mu_B=8$ and $\sigma_B=2$ we get the results
+      shown in figure \ref{fig:mog}
+      #+ATTR_LATEX: :width 0.8\textwidth
+      #+CAPTION: Example of EM algorithm to compute the statistics for the half-lives of our two particles \label{fig:mog}
+	[[./figures/mixtureOfGaussians-50.pdf]]
+ 
+* Exercises
+
+**
+
+* Experiments
+
+**
+
+* COMMENT [[file:pdf/generativeModels.pdf][PDF]] [[file:pdf/generativeModels_prn.pdf][Print]]
+* COMMENT [[file:gaussianProcesses-subsidiary.org][Previous]] [[file:-subsidiary.org][Next]]

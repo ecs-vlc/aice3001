@@ -1,0 +1,704 @@
+%Master File:lectures.tex
+
+\lesson{Constrained Optimisation}
+\vspace{-1cm}
+\begin{center}
+  \includegraphics[width=0.5\linewidth]{ineqcon}
+\end{center}
+\keywords{Lagrangians, Inequalities, KKT, Linear Programming,
+  Quadratic Programming, Duality}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{12cm}\raggedright
+  \begin{enumerate}\squeeze
+    \outlineitem{Constrained Optimisation}{constrained}
+    \outlineitem{Inequalities}{inequalities}
+    \outlineitem{Duality}{duality}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{10cm}
+  \includegraphics[width=10cm]{ineqcon}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Constrained Optimisation
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Optimisation with Constraints}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item There are a number of important applications where we wish to
+    minimise an objective function subject to inequality
+    constraints\pause
+  \item A prominent example of this is support vector machines\pause
+  \item More generally there are a large number of kernel models that
+    involve constraints\pause
+  \item However, constraints are ubiquitous in machine learning (e.g.{} in
+    Wasserstein GANs)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Solving Constrained Optimisation Problems}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose we have a problem
+    \begin{align*}
+      \min_{\bm{x}} f(\bm{x}) \quad \mbox{subject to $g(\bm{x})=0$}\pause
+    \end{align*}
+  \item A standard procedure is to define the Lagrangian
+    \begin{align*}
+      \mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \alpha\, g(\bm{x})
+    \end{align*}
+    where $\alpha$ is known as a Lagrange multiplier\pause
+  \item In the extended space $(\bm{x},\alpha)$ we have to solve
+    \begin{align*}
+      \max_{\alpha} \, \min_{\bm{x}} \mathcal{L}(\bm{x},\alpha)\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Conditions on Optimum}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The optimisation problem is
+    \begin{align*}
+      \max_{\alpha} \, \min_{\bm{x}} \mathcal{L}(\bm{x},\alpha)
+      \quad \mbox{where} \quad \mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \alpha\,
+      g(\bm{x}) \pause
+    \end{align*}
+  \item Assuming differentiability
+    \begin{align*}
+      \gradx \mathcal{L}(\bm{x},\alpha) &= \gradx f(\bm{x}) - \alpha\,\gradx g(\bm{x}) =0\\
+      \pd{\mathcal{L}}{\alpha} &=  -g(\bm{x}) =0\pause
+    \end{align*}
+  \item The second condition is just the constraint\pause
+  \item But what about first condition: $\gradx f(\bm{x}) = \alpha\,\gradx g(\bm{x})$?\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Note on Gradients}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Note that for any function $f(\bm{x})$ we can Taylor expand
+    around $\bm{x}_0$
+    \begin{align*}
+      f(\bm{x}) = f(\bm{x}_0) + (\bm{x}-\bm{x}_0)^\tr \gradx f(\bm{x}_0) + 
+      \frac{1}{2}(\bm{x}-\bm{x}_0)^\tr \mat{H} (\bm{x}-\bm{x}_0) + \ldots
+    \end{align*}
+    where $\mat{H}$ is a matrix of second derivative known as the
+    Hessian\pause
+  \item If we consider the set of points perpendicular to $\gradx f(\bm{x}_0)$ which
+    go through $\bm{x}_0$ (the tangent plane), these will have values
+    \begin{align*}
+      f(\bm{x}) &= f(\bm{x}_0) + O(\|\bm{x}-\bm{x}_0\|^2) & &
+      \includegraphics[width=10cm]{perp}
+    \end{align*}
+    thus $\gradx f(\bm{x})$ is always orthogonal to the contour lines\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Constrained Optima}
+\pb
+\pause
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{constrainedopt0}\mypl{1}
+  \multido{\ia=1+1,\ib=2+1}{2}{%
+    \llap{\includegraphics[width=0.8\linewidth]{constrainedopt\ia}}\mypl{\ib}}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Example}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Minimise $f(\bm{x}) = x^2 + 2\,y^2 - x\,y$
+  \item Subject to $g(\bm{x}) = x - 2\,y -3 = 0$\pause
+  \item Writing $\mathcal{L} = f(\bm{x}) - \alpha\,g(\bm{x})$\pause
+  \item Condition for minima is $\gradx \mathcal{L} = 0$
+    \begin{align*}
+      \gradx f(\bm{x}) = 
+      \begin{pmatrix}
+        2\,x -y \\ -x + 4\,y
+      \end{pmatrix} =
+      \alpha \gradx g(\bm{x}) = \alpha
+      \begin{pmatrix}
+        1 \\ -2
+      \end{pmatrix}
+    \end{align*}
+    and $\pd{\mathcal{L}}{\alpha} = -g(\bm{x}) = -x + 2\,y +3 = 0$\pause
+  \item Solving simultaneous equations gives minima at $(x,y)=(\frac{3}{4}, -
+  \frac{9}{8})$ with $\alpha= \frac{21}{8}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Surface}
+
+\begin{center}
+  \includegraphics[width=\linewidth]{lagrange3d}
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Saddle-Point $y=-9/8$}
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{lagrange3d-1}
+\end{center}
+
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2.4]{Multiple Constraints}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Given an optimisation problem with multiple constraints
+    \begin{align*}
+      \min_{\bm{x}} f(\bm{x}) \quad \mbox{subject to $g_k(\bm{x})=0$ for
+      $k=1,\,2,\,\ldots,\,m$}\pause
+    \end{align*}
+  \item We introduce multiple Lagrange multipliers
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) 
+      = f(\bm{x}) - \sum_{k=1}^m \alpha_k\, g_k(\bm{x})\pause
+    \end{align*}
+  \item The condition for an optima is $\gradx
+    \mathcal{L}(\bm{x},\bm{\alpha}) =0$ which implies
+    \begin{align*}
+      \gradx f(\bm{x}) = \sum_{k=1}^m  \alpha_k \, \gradx g_k(\bm{x})\pause
+    \end{align*}
+    plus the original constraints
+    $\pd{\mathcal{L}(\bm{x},\bm{\alpha})}{\alpha_k}= -g_k(\bm{x})=0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Example}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Minimise $f(\bm{x}) = x^2 + 2\,y^2 + 5\,z^2- x\,y -x\,z$ subject
+  to $g_1(\bm{x}) = x - 2\,y -z -3 = 0$ and $g_2(\bm{x}) = 
+  2\,x + 3\,y +z - 2 = 0$ \pause
+  \item Writing $\mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \alpha_1\,g_1(\bm{x}) 
+    - \alpha_2\,g_2(\bm{x})$\pause
+  \item Condition for minima is $\gradx \mathcal{L} = 0$ or $\gradx
+  f(\bm{x}) = \sum_{k=1}^2 \alpha_k \gradx g_k(\bm{x})$
+    \begin{align*}
+      \begin{pmatrix}
+        2\,x -y -z\\ -x + 4\,y \\ 10\,z -x
+      \end{pmatrix}
+      = \alpha_1 
+      \begin{pmatrix}
+        1 \\ -2 \\ -1
+      \end{pmatrix}
+      + \alpha_2
+      \begin{pmatrix}
+        2 \\ 3 \\ 1
+      \end{pmatrix}
+    \end{align*}
+    and $\pd{\mathcal{L}}{\alpha_i} = -g_i(\bm{x}) = 0$\pause
+  \item Solving simultaneous equations gives minima at $(\frac{37}{20}, -
+  \frac{11}{20}, -\frac{1}{20})$ with $\alpha_1=3$ and
+  $\alpha_2=\frac{13}{20}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Inequality Constraints
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Inequality Constraints}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose we have the problem
+    \begin{align*}
+      \min_{\bm{x}} f(\bm{x}) \quad \mbox{subject to $g(\bm{x})\geq 0$}\pause
+    \end{align*}
+  \item Looks much more complicated, but\pause
+  \item Only two things can happen
+    \begin{itemize}
+    \item Either a minimum, $\bm{x}^*$, of $f(\bm{x})$ satisfies
+    $g(\bm{x}^*)>0$ 
+      \begin{itemize}
+      \item We then have an unconstrained optimisation problem\pause
+      \end{itemize}
+    \item Otherwise, it satisfies  $g(\bm{x}^*)=0$
+      \begin{itemize}
+      \item We have a constrained optimisation problem\pause
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Inside Region}
+
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{ineqcon1}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{On the Boundary}
+
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{ineqcon}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{KKT Conditions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item To minimise $f(\bm{x})$ subject to $g(\bm{x})\geq0$
+    \begin{align*}
+      \mathcal{L}(\bm{x},\alpha) =  f(\bm{x}) - \alpha\, g(\bm{x})\pause
+    \end{align*}
+  \item Then $\gradx \mathcal{L}=0$ or
+    \begin{align*}
+      \gradx \mathcal{L} = \gradx f(\bm{x}) - \alpha\,\gradx g(\bm{x}) =0\pause
+    \end{align*}
+  \item where either
+    \begin{itemize}
+    \item $\alpha = 0$ and the solutions in the interior\pause\ or
+    \item $\alpha>0$ and $g(\bm{x})=0$, i.e. the solution is on the
+      boundary\pause
+    \end{itemize}
+  \item These conditions are known as the Karush-Kuhn-Tucker
+    conditions\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Many Inequalities}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Given the problem
+    \begin{align*}
+      \min_{\bm{x}} f(\bm{x}) \quad \mbox{subject to $g_k(\bm{x})\geq 0$ for
+      $k=1,\,2,\,\ldots,\,m$}\pause
+    \end{align*}
+  \item We introduce multiple Lagrange multipliers
+    \begin{align*}
+      \mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \sum_{k=1}^m \alpha_k\,
+      g_k(\bm{x})\pause 
+    \end{align*}
+  \item The condition for an optima is
+    \begin{align*}
+      \gradx f(\bm{x}) = \sum_{k=1}^m  \alpha_k \, \gradx g_k(\bm{x})\pause
+    \end{align*}
+  \item Plus the constraints that either $\alpha_k=0$ or $\alpha_k>0$ and
+    $g_k(\bm{x})=0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline %  Duality
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Solving the Lagrangian for $\bm{x}$}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Consider minimising a function $f(\bm{x})$ subject to a set of
+    constraints $g_i(\bm{x})=0$ or $g_i(\bm{x})\leq 0$\pause
+  \item We can consider this a double optimisation problem
+    \begin{align*}
+      \max_\alpha \, \min_{\bm{x}} \mathcal{L}(\bm{x},\bm{\alpha})
+      = \max_\alpha \, \min_{\bm{x}} \left( f(\bm{x}) + \sum_i \alpha_i
+      g_i(\bm{x}) \right)
+    \end{align*}
+    where there would be constraints on $\alpha_i$ if we had an
+    inequality constraint\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dual Problem}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If $f(\bm{x})$ and $g_i(\bm{x})$ are simple we can sometimes
+    find a set of variables $\bm{x}^*(\bm{\alpha})$ that minimises the
+    Lagrangian
+    \begin{align*}
+      \grad_{\bm{x}} \mathcal{L}(\bm{x}^*(\bm{\alpha}),\bm{\alpha}) = 0\pause
+    \end{align*}
+  \item This leaves us with the \emph{dual problem}
+    \begin{align*}
+      \max_\alpha \mathcal{L}(\bm{x}^*(\bm{\alpha}),\bm{\alpha})\pause
+    \end{align*}
+  \item If we had an inequality constraint $g_i(\bm{x})\geq 0$ then we
+    would have the additional constraint in the dual problem
+    $\alpha_i\geq0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Linear Programming}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item In linear programming we minimise a linear objective function
+    $\bm{c}^\tr \bm{x}$ subject to linear constraints $\bm{g}(\bm{x}) =
+    \mat{M}\, \bm{x} - \bm{b} =0$ (or $\bm{g}(\bm{x})\geq0$)\pause
+  \item The Lagrangian becomes
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{c}^\tr \bm{x} - \bm{\alpha}^\tr
+      \left( \mat{M}\, \bm{x} - \bm{b} \right) \pause
+    \end{align*}
+  \item An equivalent way of writing the Lagrangian is
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) 
+      = \bm{b}^\tr\bm{\alpha} - \bm{x}^\tr\left( \mat{M}^\tr\, \bm{\alpha}
+      - \bm{c}\right)\pause
+    \end{align*}
+  \item An entirely equivalent interpretation is that we maximise an
+    objective function $\bm{b}^\tr\bm{\alpha}$ subject to constraints
+    $\mat{M}^\tr \bm{\alpha} - \bm{c} = 0$ (or $\mat{M}^\tr
+    \bm{\alpha} - \bm{c} \leq 0$)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Linear Programming Example}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose we eat potatoes and rice and we want to ensure that we
+    get enough vitamin A and C\pause
+    \begin{center}
+      \begin{tabular}{|r|c|c|c|}\hline
+     &Potatoes& Rice& Daily Requirement \\ \hline
+        Vitamin A & 3 & 5 & 20 \\ \hline
+        Vitamin C & 5 & 2 & 24 \\ \hline
+        Price & 5 & 4 & \\ \hline
+      \end{tabular}\pause
+    \end{center}
+  \item We want to buy $P$ kg potatoes and $R$ kg of rice as cheaply as
+    possible subject to fulfilling our vitamin requirement\pause
+    \begin{align*}
+      \min_{P,R} 5\,P + 4\,R\hspace{8cm} \\
+      \text{subject to} \quad P,R\geq0, \quad 3 P + 5 R \geq 20 \quad \text{and} \quad
+      5 P + 2 R \geq 24\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Linear Programming}
+
+\pb
+\begin{minipage}{0.4\linewidth}
+    \begin{itemize}
+    \item Minimise $5\,P + 4\,R$
+    \item Subject to
+      \begin{itemize}
+      \item $3 P + 5 R \geq 20$
+      \item $5 P + 2 R \geq 24$
+      \item $P, R \geq 0$\pause
+      \end{itemize}
+    \end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.55\linewidth}
+  \multipdf[width=\linewidth]{lp}\pause
+\end{minipage}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Lagrangian}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can write the problem as a Lagrange problem
+    \begin{align*}
+      \min_{P,R} \max_{A,C} \quad 5\,P + 4\,R - A\,(3 P + 5 R - 20)
+      - C \, (5 P + 2 R - 24)\pause
+    \end{align*}
+  \item subject to $P,R,A,B \geq 0$\pause
+  \item $A$ and $C$ are Lagrange multipliers for vitamin A and C\pause
+  \item We can rearrange the Lagrangian to obtain
+    \begin{align*}
+      \max_{A,C} \min_{P,R} \quad 20\, A + 24\, C - P \, (3 A + 5 C - 5)
+      - R \, (5 A + 2 C - 4)\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dual Problem}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The Lagrangian
+    \begin{align*}
+      \max_{A,C} \min_{P,R} \quad 20\, A + 24\, C - P \, (3 A + 5 C - 5)
+      - R \, (5 A + 2 C - 4)\pause
+    \end{align*}
+    leads to the dual problem
+    \begin{align*}
+      \max_{A,C}\; 20\, A + 24\, C \hspace{6cm} \\
+      \text{subject to} \quad 3 A + 5 C \leq 5 \quad 5 A + 2 C \leq 4
+      \quad A, C \geq 0\pause
+    \end{align*}
+  \item Consider someone selling vitamins A and C.  They want
+    to maximise the price of vitamins A and C, but their prices cannot
+    exceed the price of the vitamins in potatoes or rice\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dual Linear Programme}
+
+\pb
+\begin{minipage}{0.4\linewidth}
+    \begin{itemize}
+    \item Maximise $20\,A + 24\,C$
+    \item Subject to
+      \begin{itemize}
+      \item $3 A + 5 C \leq 5$
+      \item $5 A + 2 C \leq 4$
+      \item $A, C \geq 0$\pause
+      \end{itemize}
+    \end{itemize}
+\end{minipage}\hfill
+\begin{minipage}{0.55\linewidth}
+  \multipdf[width=\linewidth]{dualLp}\pause
+\end{minipage}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Why?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Why are we bothered about translating one linear programme
+    into another?\pause
+  \item Sometime one form is massively easier to solve than the
+    other\pause
+  \item This is because the first linear programme depends on the
+    dimensionality of $\bm{x}$ while the second linear programme
+    depends on the number of constraints (or dimensionality of
+    $\bm{\alpha}$)\pause
+  \item This is important, for example, in Wasserstein GANs\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Quadratic Programming}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A quadratic programme involves minimising a quadratic function
+    $\bm{x}^\tr \mat{Q} \bm{x}$ (with $\mat{Q}\succ 0$) subject to
+    linear constraints $\mat{M}\,\bm{x} = \bm{b}$ (or
+    $\mat{M}\,\bm{x} \leq \bm{b}$)\pause
+  \item We can define the Lagrangian
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{x}^\tr \mat{Q}\, \bm{x} -
+      \bm{\alpha}^\tr \left( \mat{M}\,\bm{x} - \bm{b}\right)\pause
+    \end{align*}
+  \item Where the solution is given by $\max\limits_{\bm{\alpha}} \,
+    \min\limits_{\bm{x}}  \mathcal{L}(\bm{x},\bm{\alpha})$\pause
+  \item If the constraints are inequality constraints then
+    $\alpha_i\geq0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Solution to Quadratic Programming Problem}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Using
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{x}^\tr \mat{Q}\, \bm{x} -
+      \bm{\alpha}^\tr \left( \mat{M}\,\bm{x} - \bm{b}\right)\pause
+    \end{align*}
+  \item Then
+    \begin{align*}
+      \grad_{\bm{x}} \mathcal{L}(\bm{x},\bm{\alpha}) =  2\, \mat{Q}\,
+      \bm{x} - \mat{M}^\tr \bm{\alpha}\pause
+    \end{align*}
+  \item So $\grad_{\bm{x}} \mathcal{L}(\bm{x},\bm{\alpha}) = 0$
+    implies
+    \begin{align*}
+      \bm{x}^* = \frac{1}{2} \mat{Q}^{-1} \mat{M}^\tr \bm{\alpha}\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dual Quadratic Programming Problem}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Substituting $\bm{x}^* = \frac{1}{2} \mat{Q}^{-1} \mat{M}^\tr
+    \bm{\alpha}$ into
+    \begin{align*}
+      \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{x}^\tr \mat{Q}\, \bm{x} -
+      \bm{\alpha}^\tr \left( \mat{M}\,\bm{x} - \bm{b}\right)\pause
+    \end{align*}
+  \item We get the dual problem
+    \begin{align*}
+      \max_{\bm{\alpha}}
+      \;\;-\frac{1}{4} \bm{\alpha}^\tr \mat{M} \mat{Q}^{-1} \mat{M}^\tr
+      \bm{\alpha} + \bm{\alpha}^\tr \bm{b}\pause
+    \end{align*}
+  \item If the constraints were inequality constraints then we have
+    $\alpha_i\geq 0$\pause
+  \item We have exchanged one quadratic programme for another, but
+    sometimes that very useful (e.g. SVMs)\pause    
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Lessons}
+\label{last}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A useful tool for performing constrained optimisation is the
+    introduction of Lagrange multipliers\pause
+  \item This is particularly useful for problems with unique solutions
+    (it will work when there are multiple solutions, but
+    finding many saddle points is a pain)\pause
+  \item For inequality constraints we need to satisfy KKT conditions\pause
+  \item For simple situations (linear and quadratic programming) we can
+    eliminate the original variables to obtain the dual problem\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%% Local Variables:
+%%% TeX-master: "lectures"
+%%% End:

@@ -1,0 +1,390 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 18: Kernel Trick
+
+
+* Keywords
+  * The Kernel Trick, SVMs, Regression
+
+* Main Points
+
+** Kernels
+   * SVM kernels are symmetric functions of two variable that can be
+     factorised as an inner-product
+     $$  K(\bm{x},\bm{y}) = \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{y}) =
+     \sum_{i=1}^{p'} \phi_i(\bm{x})\,\phi_i(\bm{y})$$
+     - $\bm{\phi}(\bm{x})$ are vectors whose elements,
+       $\phi_i(\bm{x})$, are real-valued functions of
+       the features $\bm{x}$ (every different feature will correspond
+       to a different vector $\bm{\phi}(\bm{x})$)
+     - $p'$ is the dimensionality of the extended feature space which
+       might be infinite
+     - An immediate consequence of this is that the vectors are
+       positive semi-definite
+       - This follows because for any function $f(\bm{x})$ the
+         quadratic form is non-negative 
+	 \begin{align*}
+	 \int\!\! \int f(\bm{x})\,K(\bm{x},\bm{y}) \, f(\bm{y}) \dd \bm{x}\, \dd \bm{y}
+         &= \int\!\! \int f(\bm{x})\, \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{y})\, f(\bm{y)}\, \dd \bm{x}\, \dd \bm{y}\\
+         &=\sum_{i=1}^{p'}  \left(\int f(\bm{x})\, \phi_i(\bm{x}) \dd
+         \bm{x}\right)^2 \geq 0
+	 \end{align*}
+   * *Eigenfunctions and Mercer's Theorem*
+     * Kernel functions play the same role for functions as matrices
+       do for normal vectors
+       - that is they describe general linear transformations
+       - for a function $f(\bm{x})$ the argument $\bm{x}$ can be seen
+         as an index just like $i$ is the index of element $v_i$ of a
+         vector $\bm{v}$
+       - we will consider only symmetric kernels (that is, where
+         $K(\bm{x},\bm{y})=K(\bm{y},\bm{x})$
+       - these play a similar role as symmetric matrices
+     * Eigensystems for Kernels
+       - $\psi(\bm{y})$ is said to be an eigenfunction of a kernel
+         functions if
+	 $$  \int K(\bm{x}, \bm{y})\, \psi(\bm{y}) \, \dd \, \bm{y} =
+         \lambda \, \psi(\bm{x}) $$
+       - In an analogy to the eigen-decomposition of a symmetric
+         matrix we can define the eigen-decomposition of a symmetric
+         kernel function
+	 $$  K(\bm{x}, \bm{y}) = \sum_i \lambda_i\,
+         \psi_i(\bm{x})\,\psi_i(\bm{y}) $$
+       - This is known as *Mercer's Theorem*
+       - We proved the decomposition for matrices
+	 + the difficult part in the proof is that you need the
+           eigenvectors to span the vector space
+	 + this is intuitively obvious if there are $n$ orthogonal
+           eigenvectors in an \(n\)-dimensional space
+	 + it is harder in functions spaces and you need to define the
+           vector space you are modelling (e.g. $L_2$)
+	 + if you assume that the set of eigenvectors span the
+           function space then the rest of the proof is the same as
+           for matrices
+	 + don't worry if you don't understand this it is enough to
+           remember Mercer's Theorem
+       - Mercer's Theorem holds for any symmetric kernel function (it
+         does not have to be positive semi-definite)
+       - But if $K(\bm{x},\bm{y})$ are positive semi-define then there
+         exist real functions $\phi_i(\bm{x}) = \sqrt{\lambda_i}
+         \psi_i(\bm{x})$ such that
+	 $$ K(\bm{x}, \bm{y}) &= \sum_i \lambda_i \,
+          \psi_i(\bm{x})\,\psi_i(\bm{y}) = \sum_i \phi_i(\bm{x})\,\phi_i(\bm{y}) $$
+	 - if $K(\bm{x},\bm{y})$ was not positive semi-definite then
+           some of the eigenvalues would be negative and the functions
+           $\psi_i(\bm{x})$ would not be real-valued
+	
+** SVM Kernels
+   * SVM Kernels are positive semi-definite symmetric functions
+     - There are four necessary and sufficient conditions that hold
+       for any positive semi-definite kernel
+       1. All their eigenvalues are non-negative (i.e. either zero or positive)
+       2. They can be decomposed as
+	  $$  K(\bm{x},\bm{y}) = \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{y}) =
+          \sum_{i=1}^{p'} \phi_i(\bm{x})\,\phi_i(\bm{y})$$
+	  where $\phi_i(\bm{x})$ are real-valued functions
+       3. Their quadratic form with any function $f(\bm{x})$ is non-negative
+       4. For any set of points $\{\bm{x}_1, \bm{x}_2, \ldots,
+          \bm{x}_n\}$ the matrix
+	  $$ \mat{K} = \begin{pmatrix} K(\bm{x}_1, \bm{x}_1) &
+          K(\bm{x}_1, \bm{x}_2) &\cdots &  K(\bm{x}_1, \bm{x}_n) \\
+          K(\bm{x}_2, \bm{x}_1) &
+          K(\bm{x}_2, \bm{x}_2) &\cdots &  K(\bm{x}_2, \bm{x}_n) \\
+	  \vdots & \vdots & \ddots & \vdots \\
+          K(\bm{x}_n, \bm{x}_1) &
+          K(\bm{x}_n, \bm{x}_2) &\cdots &  K(\bm{x}_n, \bm{x}_n) 
+	  \end{pmatrix} $$
+	  is a positive semi-definite matrix
+	  + such matrices are known as *Gram matrices*
+	  + I didn't mention this in the lecture and won't use this
+            property, but for completeness I mention it here (you
+            won't be tested on it)
+	  + the proof that this is a necessary condition follows
+            rather simply from the fact that if we define a matrix
+            $\mat{\Phi}$ with elements $\Phi_{ik} = \phi_i(\bm{x}_k)$
+            then $\mat{K} = \mat{\Phi}^\tr \mat{\Phi}$ and we have
+            seen many times any such matrix is positive semi-definite
+   * Recall from the previous lecture that any kernel function that
+     allows a decomposition in terms of positive functions can be used
+     an SVM where we can use the kernel trick
+     - If we don't use positive semi-definite kernels then our
+       "distances" (used in computing margins) are no-longer proper
+       distances and can be negative (invalidating everything)
+
+** Constructing SVM Kernel
+   * Most functions of two variable won't be positive semi-definite
+   * Given a function of two variables it is hard to determine if it
+     is positive-semi definite (none of the definitions are
+     particularly easy to use)
+   * However we can use simple rules to build positive-semi definite (PSD)
+     kernels from other positive semi-definite kernels
+     1. Our starting point is to note the inner produce $\langle \bm{x},
+	\bm{y} \rangle = \bm{x}^\tr \bm{y}$ is positive semi-definite
+	- as an aside we don't necessarily need to use normal vectors as
+	  our features so long as we objects with an inner-product
+     2. Adding PSD kernels\\
+	/if $K_1(\bm{x},\bm{y})$ and $K_2(\bm{x}, \bm{y})$ are PSD kernels then so is $K_3(\bm{x}, \bm{y}) = K_1(\bm{x}, \bm{y}) + K_2(\bm{x}, \bm{y})$/
+	- To prove this we can use the property that PSD have
+	  non-negative quadratic form
+	  \begin{align*}
+	  Q &= \int f(\bm{x})\, K_3(\bm{x}, \bm{y}) \, f(\bm{y})
+           \, \dd \bm{x}  \, \dd \bm{y} \\
+           &=\int f(\bm{x})\, \left( \strut K_1(\bm{x}, \bm{y}) + K_2(\bm{x},
+           \bm{y}) \right)  f(\bm{y}) \, \dd \bm{x}  \, \dd \bm{y} \\
+           &=\int f(\bm{x})\, K_1(\bm{x}, \bm{y}) \, f(\bm{y}) \, \dd \bm{x}  \, \dd \bm{y} +
+           \int f(\bm{x})\, K_2(\bm{x}, \bm{y}) \, f(\bm{y}) \, \dd \bm{x}  \, \dd \bm{y}
+           \geq 0
+           \end{align*}
+     3. Multiplication by a positive scalar\\
+	/if $K_1(\bm{x},\bm{y})$ is a PSD kernels and $c>0$ then so is $K_3(\bm{x}, \bm{y}) = c\,K_1(\bm{x},,\bm{y})$/
+	- We can prove this in a similar way to the last proof
+     4. Multiply PSD kernels\\
+	/if $K_1(\bm{x},\bm{y})$ and $K_2(\bm{x}, \bm{y})$ are PSD kernels then so is $K_3(\bm{x}, \bm{y}) = K_1(\bm{x}, \bm{y}) \,K_2(\bm{x}, \bm{y})$/
+	- This is easy to prove using the decomposition of PSD to
+           inner products
+	   \begin{align*}
+            K_3(\bm{x}, \bm{y})
+            = \sum_{i,j} \phi_i^1(\bm{x})\,\phi_i^1(\bm{y})\,
+                 \phi_j^2(\bm{x})\,\phi_j^2(\bm{y}) \pause
+            = \sum_{i,j} \phi_{ij}^3(\bm{x})\,\phi_{ij}^3(\bm{y})
+            \end{align*}
+	    where $\phi_{ij}^3(\bm{x}) = \phi_i^1(\bm{x})\,\phi_j^2(\bm{x})$
+	  + this (double) sum we can treat as an inner-product
+	  + if is easy to show that the quadratic form with any
+            function $f(\bm{x})$ is non-negative
+     5. Powers of PSD kernels\\
+	/if $K_1(\bm{x},\bm{y})$ is a PSD kernels then so is $K_1^n(\bm{x},\bm{y})$ for any natural number $n$/
+	- Since the product of any two PSD kernels are PSD then the
+          square of a PSD kernel is PSD
+	- But by an inductive argument this holds for any integer power
+     6. Exponentiial of PSD kernels\\
+	/The exponential of a PSD kernel is also a PSD kernel/
+	- convergent Taylor expansions allow us to approximate a
+          function to any degree of accuracy
+	- often Taylor expansions aren't everywhere convergent (so we
+          have to be careful
+	- but Taylor expansions of exponentials are everywhere convergent
+	- further Taylor expanding an exponential of a PSD kernel
+          involves a sum of PSD kernels
+	  $$\e{K(\bm{x}, \bm{y})} = \sum_i \frac{1}{i!} K^i(\bm{x}, \bm{y})
+          = 1 + K(\bm{x}, \bm{y}) + \frac{1}{2} K^2(\bm{x}, \bm{y}) +
+           \cdots $$
+	  - each term is a PSD kernel
+     7. If  $K(\bm{x},\bm{y})\succeq0$ then
+        $K_{1}(\bm{x}, \bm{y}) = g(\bm{x})\,K(\bm{x},\bm{y})\,g(\bm{y})
+         \succeq 0$
+	- Consider the quadratic form for any function $f(\bm{x})$
+	   \begin{align*}
+	   Q &= \int f(\bm{x})\, K_{1}(\bm{x}, \bm{y})\, f(\bm{y}) \, \dd
+	   \bm{x} \, \dd \bm{y}
+	   = \int f(\bm{x})\, g(\bm{x})\,K(\bm{x},\bm{y})\,g(\bm{y})\, f(\bm{y}) \, \dd
+	   \bm{x} \, \dd \bm{y} \\
+	   &=  \int h(\bm{x})\, K(\bm{x}, \bm{y})\, h(\bm{y}) \, \dd
+	   \bm{x} \, \dd \bm{y} > 0
+	   \end{align*}
+	   where $h(\bm{x}) = f(\bm{x})\,g(\bm{x})$ and we used the fact
+	   that $K(\bm{x}, \bm{y})\succeq 0$ so that its quadratic form
+	   with any function (in this case $h(\bm{x})$) is non-negative.
+	- As $Q\geq0$ then $K_{1}(\bm{x}, \bm{y}) \succeq0$
+   * Using these properties we see that $K(\bm{x}, \bm{y}) =
+     \e{-\gamma\,\len{\bm{x}-\bm{y}}^2}$ is a PSD kernel if $\gamma>0$
+     - Now $\bm{x}^\tr \bm{y}$ is and inner product so a PSD kernel
+     - Since $2\,\gamma>0$ then $2\,\gamma\,\bm{x}^\tr \bm{y}$ is a
+       PSD kernel
+     - But then so is $\e{2\,\gamma\,\bm{x}^\tr \bm{y}}$ as it is the
+       exponential of a PSD kernel
+     - Now
+       $$ K_{1}(\bm{x},\bm{y}) = \e{-\gamma\,\len{\bm{x}-\bm{y}}^2} =
+       \e{-\gamma\,\|\bm{x}\|^2}\,\e{2\,\gamma\,\bm{x}^\tr \bm{y}} \,
+       \e{-\gamma\,\|\bm{y}\|^2} $$
+       is of the form $g(\bm{x})\,K(\bm{x},\bm{y})\,g(\bm{y})$ where
+       $K(\bm{x},\bm{y}) = \e{2\,\gamma\,\bm{x}^\tr \bm{y}}\succeq 0$
+       and $g(\bm{x}) = \e{-\gamma\,\|\bm{x}\|^2}$ so
+       $K_{1}(\bm{x},\bm{y})  \succeq0$
+     - This kernel is known as the /radial basis function/ or /RBF/ or
+       /Gaussian kernel/
+     - It has a hyper-parameter, $\gamma$ that determines the length
+       scale in the problem (or rather inverse-length scale)
+     - this is a very important kernel as it often (but certainly not
+       always) gives good performance (if $\gamma$ is appropriately chosen)
+   * *Non-numerical Kernels*
+     - When SVMs were fashionable there was a whole industry of
+       researchers finding clever kernels
+     - When working with language or trees or graphs it paid to create
+       bespoke kernels for these structures
+     - Typically these would all be built up from inner-products
+     - Using clever algorithms you can build very clever kernels
+       functions
+     - One down side of SVM kernels is they don't naturally capture
+       prior knowledge about the problem being tackled
+       + a clever work around is to build SVMs based on other learning
+         machines that are trained the problem
+       + an example of this is the use of /Fisher kernels/ based on
+         Fisher information
+** Why SVM kernels need to be positive semi-definite
+   - Recall that we required $K(\bm{x}, \bm{y}) = \langle
+     \bm{\phi}(\bm{x}), \bm{\phi}(\bm{y}) \rangle$ where the
+     components of $\bm{\phi}(\bm{x})$ are real, i.e.  $\phi_{k}(x)$
+     is a real number.
+   - We used the inner product to compute the separation between the
+     data points $\bm{\phi}(\bm{x}_{i})$ and the separating plan given by
+     $\bm{w}^{\tr}\bm{\phi}(\bm{x}) =b$ in the extended feature space.
+   - But this only makes sense if $\langle \bm{\phi}(\bm{x}),
+     \bm{\phi}(\bm{y}) \rangle$ defines a proper inner produce.  In
+     particular $\langle \bm{\phi}(\bm{x}), \bm{\phi}(\bm{x}) \rangle
+     = \len{\bm{\phi}(\bm{x})}^{2} \geq 0$ (with equality only if
+     $\bm{\phi}(\bm{x})=\bm{0}$).
+   - Now by Mercer's theorem $\phi_{i}(\bm{x}) =
+     \sqrt{\lambda_{i}}\,\psi_{i}(\bm{x})$ where $\psi_{i}(\bm{x})$ is
+     the $i^{th}$ eigenfunction of $K(\bm{x}, \bm{y})$ with
+     eigenvalue $\lambda_{i}$.  But if $\lambda_{i}<0$ then
+     $\sqrt{\lambda_{i}}$ is imaginary.  Note that
+     $$\len{\bm{\phi}(\bm{x})}^{2} = \langle \bm{\phi}(\bm{x}),
+     \bm{\phi}(\bm{x}) \rangle = \sum_{i} \lambda_{i}\,
+     \psi_{i}^{2}(\bm{x})$$
+     but this is not guaranteed to be non-negative for every value of
+     $\bm{x}$ if some eigenvalues are negative.
+   - You can also show that the Hessian of the dual objective function
+     is equal to $-y_{i}\,y_{j}\,K(\bm{x}_{i}, \bm{x}_{j})$ which is
+     negative semi-definite provided $K(\bm{x},\bm{y})\succeq 0$.
+     If this is not the case there will be a maximum as some
+     combination of the Lagrange multipliers that goes to infinity.
+
+** Beyond SVMs
+   * There are a lot of other kernel based learning machines
+   * Many of these use constraints
+   * They often involve linear operations between vectors where the
+     optimum depends on the inner-product of vectors
+     - thus we can use the kernel trick
+   * /SVR/ are support vector machines for regression
+     - here we try to find a dividing plane so that all points lie
+       within a margin (the exact opposite of what we had)
+     - We can introduce slack variables to allow some points to lie
+       outside the margin
+       + the slack variables much be non-negative
+       + we can use a linear punishment $s_i$ or quadratic punishment $s_i^2$
+   * We can also do /kernel  ridge regression/
+     $$ \min_{\bm{w}} \lambda\,\| \bm{w} \|^2 + \sum_i \left( y_i -
+      \bm{w}^\tr \bm{\phi}(\bm{x_i}) \right)^2 $$
+     - $\| \bm{w} \|^2$ is a regularisation term
+     - The weights must lie in the space spanned by the set of extended
+       feature vectors $\{\bm{\phi}(\bm{x}_k) | k=1,2,\ldots,m\}$
+     - Thus we can write
+       $$ \bm{w} = \sum_i \alpha_i \,\bm{\phi}(\bm{x}_i) $$
+       + Note that here $\alpha_i$ are just parameters; they are not
+         Lagrange multipliers and they can be negative
+     - Substituting this into the objective function for ridge
+       regression we get a quadratic optimisation problem in
+       $\bm{\alpha}$ that just depends on the inner products
+       $\bm{\phi}^\tr(\bm{x}_i)\,\bm{\phi}(\bm{x}_j)$
+     - We can use the kernel trick
+   * /Kernel PCA/
+     - For kernel PCA we map features into an external feature space
+     - We then use the dual form of PCA (which we've done in an
+       earlier lecture)
+     - This allows us to find non-linear manifolds where the data varies
+   * /Kernel Canonical Correlation Analysis/
+     - Canonical correlation analysis finds correlations between datasets
+     - The linear form is a bit naff
+     - But the kernel form can give nice results
+   * /Gaussian Processes/
+     - Gaussian Processes also use kernels
+     - They are a bit different to other kernel methods
+       + we don't think of the working in an extended feature space
+       + but they are PSD
+     - They are one of the most successful methods for doing
+       regression
+     - We will look at them later
+
+* Exercises
+
+** Quadratic Kernels
+   * Show that the kernel function $K(\bm{x},\bm{y}) =
+      \bm{\phi}^\tr(\bm{x}) \,\bm{\phi}(\bm{y})$, where
+     $$ \bm{\phi}(\bm{x}) = (x_1^2, x_2^2, x_3^2, \sqrt{2}\, x_1 x_2,
+      \sqrt{2}\,x_1x_3, \sqrt{2}\,x_2x_3) $$
+      can be written as
+      $(\bm{x}^\tr\bm{y})^2$ is $\bm{x}$ and $\bm{y}$ are vectors of
+      length 3.
+   * Answer below
+ 
+** Kernel Ridge Regression 
+   * Work out the details for kernel ridge regression
+   * Have a go at implementing kernel ridge regression on a real data set
+   * I'll leave you to work this out
+
+* Experiments
+
+** Gram Matrix
+   * Generate ten random vectors $(\bm{x}_1,\bm{x}_2, \ldots,
+     \bm{x}_{10})$ where $\bm{x}_k \in \mathbb{R}^5$
+   * Compute the Gram matrix $\mat{K}$ with components
+     $$ K_{kl} = K(\bm{x}_k,\bm{x}_l) = \e{-\|\bm{x}_k-\bm{x}_l\|^2} $$
+   * Show that $\mat{K}$ is positive definite by computing its
+     eigenvalues
+#+BEGIN_SRC matlab
+n = 10;
+X=randn(n,5);                 % matrix of vectors
+K = zeros(n,n);                % define holder for Gram
+for i = 1:n
+  x = X(i,:);
+  for j = 1:n
+    y = X(j,:);
+    K(i,j) = exp(-norm(x-y)^2); % define elements of Gram matrix
+  endfor
+endfor
+
+K            % Gram matrix
+eig(K)     % Eigenvalues should all be non-negative
+#+END_SRC
+
+* Answers
+
+** Quadratic Kernel
+   * This is just straightforward algebra
+     \begin{align*}
+        \bm{\phi}^\tr(\bm{x}) \bm{\phi}(\bm{y}) &= x_1^2 y_1^2 + x_2^2
+        y_2^2 + x_3^2 y_3^2 + 2 x_1 x_2 y_1 y_2 + 2 \,x_1x_3y_1y_3
+     + 2 x_2x_3y_2y_3 \\
+       &= (x_1 y_1 + x_2 y_2 +x_3 y_2)^2 = (\bm{x}^\tr\bm{y})^2
+     \end{align*}
+   * In the lecture notes we did the 2-d case
+   * Note that the more general polynomial kernel is
+     $$ K_p(\bm{x},\bm{y})  = (1+\bm{x}^\tr \bm{y})^p $$
+     - this is more commonly used as it incorporates the lower
+       dimensional polynomial kernels
+
+* COMMENT [[file:kernelTrick.pdf][PDF]] [[file:pdf/kernelTrick_prn.pdf][print]]
+* COMMENT [[file:svm-subsidiary.org][Previous]] [[file:wasserstein-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\len}[1]{\left\| #1 \right\|}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

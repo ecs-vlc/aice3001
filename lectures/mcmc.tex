@@ -1,0 +1,712 @@
+%Master File:lectures.tex
+
+
+\lesson{MCMC}
+\vspace{-1cm}
+\begin{center}
+  \includegraphics[height=10cm]{trafficMCMC-9}
+\end{center}
+\keywords{Monte Carlo methods, MCMC, Variational Methods}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{10cm}\raggedright
+  \begin{enumerate}\squeeze
+    \outlineitem{Sampling}{sampling}
+    \outlineitem{Random Number Generation}{mc}
+    \outlineitem{MCMC}{mcmc}
+    \outlineitem{Quiz}{quiz}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{12cm}
+  \includegraphics[width=12cm]{mcmc5}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+\Outline % Motivation
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Bayesian Inference Gets Hard}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We saw that in some cases if we had a simple likelihood (normal,
+    binomial, Poisson, multinomial) you can choose a conjugate prior
+    (gamma-normal/Wishart, beta, gamma, Dirchlet) so that the posterior
+    has the same form as the prior\pause
+  \item Very often we are working with more complex models where no
+    conjugate prior exists\pause
+  \item The posterior is not described by a known distribution\pause
+  \item We have to work a lot harder---particularly with multivariate
+    distributions\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Bayesian Inference}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall our problem is that we are given some data
+    $\data$\pause
+  \item Our posterior is given by
+    \begin{align*}
+      \Prob{\bm{\theta}|\data} &= \frac{\Prob{\data|\bm{\theta}} \,
+                                 \Prob{\bm{\theta}}}{ \Prob{\data} } &
+      &\text{or}&
+      f\brackets{\bm{\theta}|\data} &= \frac{f\brackets{\data|\bm{\theta}} \,
+                                 f\brackets{\bm{\theta}}}{ f\brackets{\data} }
+    \end{align*}
+  \item Where $\bm{\theta}$ are the parameters we are trying to infer\pause
+  \item But our likelihood (and/or prior) might be quite
+    complicated\pause
+  \item Typically we don't have a closed form representation for our
+    posterior distibution\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Complex Likelihoods}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item In the classical problems with parameters,
+    $\bm{\theta}$, that are well known statistics such as the mean and
+    variance\pause
+  \item But suppose we are trying to distinguish between different
+    models of cosmological inflation (physics models of the early
+    Universe)\pause
+  \item Our data is the Cosmic Microwave Background measure by a
+    satellite telescope\pause
+  \item Our parameter, $\bm{\theta}$, might represent unknown
+    parameters of the early universe (width of surface of scattering,
+    number of e-foldings, primordial perturbations, amount of
+    cool dark matter)\pause
+  \item Here the likelihood $\Prob{\text{CMB} \mid \bm{\theta}}$ is
+    far from a well known probability distribution\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Histograms, Samples and Means}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We could represent our posterior as a histogram, although for
+    multivariate distributions (i.e. when we are modelling more than one
+    variable) a histogram can be unwieldy\pause
+  \item A sample from the posterior distribution is often sufficient
+    e.g. in our topic models (LDA) a typical set of topics is what we
+    are after\pause
+  \item However, when samples vary a lot, often the most useful quantities
+    are expectation, e.g.
+    \begin{align*}
+      &\av{\bm{\Theta}} & &\av{\Theta_i^2}-\av{\Theta_i}^2 \\
+      &\av{\Theta_i\,\Theta_j} - \av{\Theta_i}\,\av{\Theta_j}
+      && \av{\bm{\Theta}\,\bm{\Theta}^\tr} -\av{\bm{\Theta}}\,\av{\bm{\Theta}}^\tr\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Sample Estimation}
+
+\pb\pause\pauselevel{=1}
+\begin{itemize}
+\item If we can draw independent samples (aka \emph{deviates} or
+  \emph{variates}), $\bm{\Theta}_i$, from our posterior distribution then we can
+  obtain an estimate of our expectation
+  \begin{align*}
+    \av{g(\bm{\Theta})} \approx \frac{1}{n} \sum_{i=1}^n g(\bm{\Theta}_i)\pauseh
+  \end{align*}
+\item Provided our posterior distribution is well behaved the
+  relative error in our estimate will drop off as $1/\sqrt{n}$\pauseh
+  \begin{center}
+    \multipdf[width=\linewidth]{wellBehaved}\pause   
+  \end{center}
+\end{itemize}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % MC
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Drawing Random Samples}
+
+\pb
+\begin{itemize}
+\item Drawing (pseudo) random variables from a distribution is known
+  as \emph{Monte Carlo}\pauseh
+\item For some very simple distributions we can use the \emph{transformation
+  methods} to transform a uniform distribution\pauseh
+\end{itemize}
+\begin{center}
+  \multipdf[width=\linewidth]{exponentialDeviates}\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Rejection Method}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The transformation method only works when we can easily compute
+    the inverse \textit{cumulative distribution function} (CDF)\pause
+  \item A more general technique is the \emph{rejection method} where we
+    generate deviates from $g_Y(y)$ such that $c\,g_Y(x)\geq f_X(x)$\pause
+  \item To draw deviates from $f_X(x)$ we draw a deviate $Y\sim g_Y$ and
+    then accept the deviate with probability $f_X(Y)/(c\,g_Y(Y))$\pause
+  \item The expected rejection rate is $c-1$\pause
+  \item Need to choose a good distribution $g_Y(y)$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Drawing Normal Deviates}
+
+\pause
+\pb
+\pauselevel{=1}
+\begin{center}
+  \multipdf[width=\linewidth]{rejectionSampling}\pause
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Problems with Rejection}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The rejection method is very general and often the method of
+    choice (although for normal deviates there is a clever
+    transformation method which is faster)\pause
+  \item However, for complicated probability distributions it can be
+    difficult to find a good proposal distribution $g_Y(y)$\pause
+  \item This is particular true for multivariate distributions\pause
+  \item If the proposal distribution is poor $c$ might be very high and
+    the number of rejections is stupidly high\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % MCMC
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Detailed Balance}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose we have a set of states $\mathcal{S}$ and want to draw
+    sample from a probability distribution $\bm{\pi} = (\pi_i | i \in
+    \mathcal{S})$\pause
+  \item We invent a dynamical system with a transition probability $M_{ij}$ from state $j$ to
+    state $i$ such that
+    \begin{align*}
+      M_{ij} \, \pi_j = M_{ji} \pi_i
+    \end{align*}
+  \item This is known as \emph{detailed balance}\pause
+  \item Summing both sides over $j$
+    \begin{align*}
+      \sum_{j} M_{ij}\,\pi_j &= \sum_{j} M_{ji}\,\pi_i \pause = \pi_i\pauseb
+      &
+        \mat{M} \bm{\pi} = \bm{\pi}\pauseb
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Convergence of MCMC}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose we start from a state $\bm{x}(0) = \sum_{i} c_i\,\bm{v}^{(i)}$
+    where the $\bm{v}^{(i)}$'s are an eigenvectors of the
+    transition matrix $\mat{M}$ with eigenvalues $\lambda_i$\pause
+  \item It I apply $\mat{M}$ many times then
+    \begin{align*}
+      \bm{x}(t) = \mat{M}^t \bm{x}(0)\pause
+      =  \mat{M}^t \sum_{i} c_i\,\bm{v}^{(i)}\pauseb
+      = \sum_{i} \lambda_i^{t} c_i\,\bm{v}^{(i)}\pauseb
+    \end{align*}
+  \item And $\lim\limits_{t\rightarrow\infty} \bm{x}(t) = \bm{v}^*$
+    where $\bm{v}^*$ is the eigenvector with the maximum
+    eigenvalue\pause
+  \item Now $\|\mat{M}\,\bm{v}\|_1 \leq \|\mat{M}\|_1\,\|\bm{v}\|_1\pauseb =
+    \|\bm{v}\|_1$\pauseb{} so the maximum eigenvalue is $1$\pauseb{} with
+    eigenvector $\bm{\pi}$\pauseb{} ($\mat{M}$ is known as a
+    \emph{stochastic matrix})\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Metropolis Algorithm}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A very easy way to achieve detailed balance is starting from
+    state $j$ choose a ``neighbouring'' state, $i$ with equal
+    probability\pause
+  \item We accept the move if either
+    \begin{itemize}
+    \item $\pi_i>\pi_j$ or
+    \item we make the move with a probability $\pi_i/\pi_j$\pause
+    \end{itemize}
+  \item If $\pi_i>\pi_j$ then $M_{ij}=1$ and $M_{ji} =
+    \pi_j/\pi_i$. Thus
+    \begin{align*}
+      M_{ij} \pi_j &= \pi_j \pause &
+                               M_{ji} \pi_i &=
+                                              \frac{\pi_j}{\pi_i}\,\pi_i \pauseb=\pi_j\pauseb 
+    \end{align*}
+  \item Note that we require the state $i$ to have the same number of
+    neighbours as state $j$ so that detailed balance is satisfied\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Continuous Variables}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If we are working with continuous variables $\bm{\theta}$ then
+    the equation for detailed balance for the transition probability
+    $W(\bm{\theta}\rightarrow \bm{\theta}')$ is
+    \begin{align*}
+      W(\bm{\theta}\rightarrow \bm{\theta}')\, \pi(\bm{\theta}) =
+      W(\bm{\theta}'\rightarrow \bm{\theta})\, \pi(\bm{\theta}') \pause
+    \end{align*}
+  \item where $\pi(\bm{\theta})$ is the probability distribution we wish
+    to sample from\pause
+  \item The update rule is to choose a nearby value $\bm{\theta}'$,
+    compute $r = \pi(\bm{\theta}')/\pi(\bm{\theta})$ and accept the
+    update with probability $\min(1,r)$\pause
+  \item We require that the probability of choosing $\bm{\theta}$ from
+    $\bm{\theta}'$ is the same as the reverse\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{What Makes MCMC Nice}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Because we are free to choose where we move (and choose close
+    by neighbours) $\pi(\bm{\theta}') \approx \pi(\bm{\theta})$ so that moves are not too
+    infrequent\pause
+  \item Also very importantly the updates depend only on the ratio
+    $\pi(\bm{\theta}')/\pi(\bm{\theta})$\pause
+  \item We only need to know our probabilities up to a multiplicative
+    scaling factor\pause
+  \item For sampling from the posterior we only need to know the
+    likelihood and prior $\Prob{\data| \bm{\theta}}\,\Prob{\bm{\theta}}$\pause{}
+    (or $f(\data| \bm{\theta})\,f(\bm{\theta})$)\pauseb
+  \item We don't need to know $\Prob{\data}$ which we generally don't
+    know\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{What Makes MCMC Nasty}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item It can take a long time until our states occur with the
+    probability $\bm{\pi}$ (i.e. we have forgotten our initial
+    state)\pause
+  \item We don't even know how long we have to wait\pause
+  \item Even when we have reached this \textit{equilibration time} each
+    sample is correlated with the previous sample\pause
+  \item To get a good approximation to the posterior expectation
+    requires running for many times the equilibration time\pause
+  \item Note, if we are just finding sample averages then we can use all
+    samples after equilibrating even if they are not independent\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Burn-In}
+\pb
+\pause
+\pauselevel{=1}
+\begin{center}
+  \multipdf[width=0.9\linewidth]{burnIn}\pause
+\end{center}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Proposals and Metropolis-Hastings}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We have some freedom in choosing a new proposal $\bm{\theta}'$
+    from our current position $\bm{\theta}$---a good choice can increase
+    the acceptance rate making the MCMC more efficient\pause
+  \item We define the proposal distribution
+    $p(\bm{\theta}'|\bm{\theta})$\pause
+  \item For the standard Metropolis algorithm to work we require
+    $p(\bm{\theta}'|\bm{\theta}) = p(\bm{\theta}|\bm{\theta}')$\pause
+  \item In some cases (e.g when $\theta_i\geq 0$) this can be hard to
+    achieve\pause
+  \item We can modify our update rule to accept a move with probability
+    \begin{align*}
+      \min\left(1, \frac{p(\bm{\theta}|\bm{\theta}')\,f(\data|
+      \bm{\theta}')\,f(\bm{\theta}')}{p(\bm{\theta}'|\bm{\theta})\,f(\data|
+      \bm{\theta})\,f(\bm{\theta})}\right)\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Traffic Rate}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Consider monitoring the flow of traffic where we have data
+    \begin{align*}
+      \data = (N_1,\,N_2,\,\ldots,\, N_n)
+    \end{align*}
+    where $N_i$ is the number of car that past on day $i$\pause
+  \item We assume $N_i\sim\mathrm{Poi}(\mu)$ and want to infer
+    $\mu$\pause
+  \item The Poisson distribution has a beta conjugate prior\pause
+  \item We don't have any prior knowledge on $\mu$ so we use a
+    non-informative prior $\mathrm{Gam}(\mu|0,0)=1/\mu$\pause
+  \item Note that we can solve this problem exactly---however, lets
+    compare with MCMC\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Proposal Distribution}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If we can choose our proposal distribution $p(\mu'|\mu)$ to be
+    close to the posterior distribution then our acceptance rate would
+    be close to 1\pause
+  \item We choose $p(\mu'|\mu) = \mathrm{Gam}(\mu'|\mu,\mu^2)$ which has
+    $\av{\mu'}=\mu$ and variance 1\pause
+  \item We update with probability $\min(1,r)$ where
+  \begin{align*}
+    r &= \frac{\mathrm{Gam}(\mu|\mu^{\prime2},\mu')
+        \tfrac{1}{\mu'} \prod_{i=1}^n \mathrm{Poi}(N_i|\mu')}
+        {\mathrm{Gam}(\mu'|\mu^2,\mu) \tfrac{1}{\mu}
+        \prod_{i=1}^n \mathrm{Poi}(N_i|\mu)}\pause
+    \\
+      &= \frac{\mu\,\mathrm{Gam}(\mu|\mu^{\prime2},\mu')}
+        {\mu'\,\mathrm{Gam}(\mu'|\mu^2,\mu)}
+        \e{- n (\mu'-\mu) + \sum\limits_{i=1}^n N_i \logg{
+        \frac{\mu'}{\mu}}}\pause
+  \end{align*}
+\end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{MCMC in Practice}
+
+\pause
+\pb
+\pauselevel{=1}
+\begin{center}
+  \multipdf[width=\linewidth]{trafficMCMC}\pause
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{MCMC Details}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item To compute correct histograms you need to count samples where no
+    move is made multiple times\pause
+  \item On modern computers its quite quick to compute millions of
+    samples\pause
+  \item The code is not very difficult to write (although care is need
+    to get everything correct)\pause
+  \item This can be used on complicated problems such as topic models
+    (LDA) with thousands of parameters\pause
+  \item The accuracy of MCMC is slow if it takes a long time to sample
+    the posterior distribution\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{slide}
+\section{The MCMC Industry}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item MCMC provides a means to accurately sample from very complex
+    models\pause
+  \item There have been many advanced techniques developed to improve
+    MCMC performance\pause
+  \item E.g. hybrid MCMC simulates a dynamics to find good proposals
+    with similar probability far from the starting point\pause
+  \item Often it seems that MCMC is complicated because there are so
+    many optimisations, but often simple implementations are
+    sufficient\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Conclusions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item As soon as we use complex models we are no longer able to
+    compute the posterior in closed form\pause
+  \item Monte Carlo techniques and particularly MCMC are a very general
+    method for computing samples from the posterior\pause
+  \item These techniques have been highly developed, but very frequently
+    even simple implementations are sufficient to do good
+    inference\pause
+  \item MCMC is very easy to use, although it can be slow\pause
+  \item There exist other methods such as variational approximations
+    that can be much quicker, but are approximations\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Quiz
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Question 1}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item How does the transformation method work to generate random
+    deviates?
+    \begin{enumerate}\setlength\itemsep{0.5em}
+    \item You transform from one distribution to another
+    \item You generate a uniformly distributed random number and apply
+      the inverse probability distribution function to it
+    \item You generate a uniformly distributed random number and apply
+      the inverse cumulative distribution function to it
+    \item You generate a uniformly distributed random number and apply
+      the probability distribution function to it\pause
+    \end{enumerate}
+  \item Answer: 3. You generate a uniformly distributed random number
+    and apply the inverse cumulative distribution function to
+    it\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+\begin{slide}
+\section[-2]{Question 2}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item How does the rejection method work to generate random
+    deviates?
+    \begin{enumerate}\setlength\itemsep{0.3em}
+    \item You generate from a nearby distribution and apply a
+      transformation to the actual distribution
+    \item You generate a random deviate, $Y$ with a distribution $g_Y$
+      such that $\forall x,\;c\, g_Y(x) \geq f_X(x)$ and then choose a uniform
+      deviate $U$ and accept $Y$ if $U\,c\,g_Y(Y) \leq f_X(Y)$
+    \item You generate a random deviate, $Y$ with a distribution $g_Y$
+      such that $\forall x,\;c\, g_Y(x) \leq f_X(x)$ and then choose a uniform
+      deviate $U$ and accept $Y$ if $U\,c\,g_Y(Y) \geq f_X(Y)$\pause
+    \end{enumerate}
+  \item Answer: 2. You generate a random deviate, $Y$ with a
+    distribution $g_Y$ such that $c\, g_Y(x) \geq f_X(x)$ and then
+    choose a uniform deviate $U$ and accept $Y$ if
+    $U\,c\,g_Y(Y) \leq f_X(Y)$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+\begin{slide}
+\section{Question 3}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item What is detailed balance?
+    \begin{enumerate}\setlength\itemsep{0.5em}
+    \item It means you visit all possible values of the random
+      variable equally often
+    \item It is a Markov Chain that converges to a particular
+      distribution
+    \item It is the condition that the transition matrix is stochastic
+    \item It is the equation $M_{ij} \, \pi_j = M_{ji} \pi_i$\pause
+    \end{enumerate}
+  \item Answer: 4. It is the equation
+    $M_{ij} \, \pi_j = M_{ji} \pi_i$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+\begin{slide}
+\section{Question 4}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item What statement is \emph{false} about the transition matrix
+    $M_{ij}$?
+    \begin{enumerate}\setlength\itemsep{0.5em}
+    \item Each column sums to one, i.e. it is a stochastic matrix
+    \item The absolute size of the eigenvalues are all less than or
+      equal to~1
+    \item Both its rows and columns sum to one, i.e. it is doubly
+      stochastic
+    \item The equilibrium state correspond to the eigenvectors with
+      eigenvalue 1\pause
+    \end{enumerate}
+  \item Answer: 3. Both its rows and columns sum to one, i.e. it is
+    doubly stochastic---\emph{this is not true}\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+
+\begin{slide}
+\section[-2]{Question 5}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item What is the difference between the Metropolis algorithm
+    and Metropolis-Hastings
+    \begin{enumerate}\setlength\itemsep{0.3em}
+    \item They are the same algorithm
+    \item In Metropolis-Hastings you chose the proposal move from a
+      non-symmetric distribution which you compensate for in the
+      acceptance criteria
+    \item You choose a transition probability that does not satisfy
+      detailed balance
+    \item You perform a molecular dynamics simulation to obtain the
+      proposal move\pause
+    \end{enumerate}
+  \item Answer: 2.In Metropolis-Hastings you chose the proposal move
+    from a non-symmetric distribution which you compensate for in the
+    acceptance criteria \pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+\begin{slide}
+\section[-2]{Question 6}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item What statement is \textit{false} about MCMC
+    \begin{enumerate}\setlength\itemsep{0.3em}
+    \item Once you have reached an equilibrium state every state after
+      that is an independent deviate
+    \item It is useful for Bayesian inference because you don't have
+      to compute the marginal likelihood
+    \item Generally it is difficult to determine if you have reached
+      an equilibrium state
+    \item To compute expectation you can use every state once you have
+      reached equilibrium, but you need to count states if they are
+      accepted or rejected, as well as run for a long time\pause
+    \end{enumerate}
+  \item Answer: 1. Once you have reached an equilibrium state every state after
+      that is an independent deviate---this is \emph{false}\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+
+
+%%% Local Variables:
+%%% TeX-master: "lectures"
+%%% End:

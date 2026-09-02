@@ -1,0 +1,302 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 14: Stochastic Gradient Descent
+#+OPTIONS: toc:nil
+
+
+* Keywords
+  * SGD, momentum, step size, ADAM
+
+* Main Points
+
+** Stochastic Gradient Descent
+   * One can estimate the gradient from a mini-batch
+     $\mathcal{B}\subset\mathcal{D}$
+     $$ \grad L_B(\bm{w}) = \grad \sum_{(\bm{x},y)\in\mathcal{B}} L(\bm{x},y|\bm{w}) $$
+     where $L(\bm{x},y|\bm{w})$ is the loss for example $(\bm{x},y)$ with weights $\bm{w}$
+   * If $|\mathcal{B}| \ll |\mathcal{D}|$ this is massively faster
+     than computing the full gradient
+   * This allows us to make relatively small steps very quickly
+   * By making lots of steps we average out the random errors
+   * *Comparison to 2nd order methods*
+     * Newton and Quasi-Newton methods converge faster
+     * But you only care when you are close to a minimum
+     * Away from a minimum 2nd order methods can lead you astray
+     * When using ReLUs the Loss landscape does not have a continuous
+       first derivative so second order methods might not work
+     * We want to minimise the generalisation error so reaching the
+       minimum of the training error is perhaps not that important
+     * In high dimensions 2nd order methods are impractical
+   * Automatic differentiation allow us to compute gradients for
+     complicated loss functions for free (this is often a game changer)
+   * However, you still need to decide on the step size and you can diverge
+ 
+** Momentum
+   * By using "momentum" we remember our earlier movements
+     * Allows us to take large steps in directions with small curvature
+     * Cancels zig-zagging in directions with high curvature
+   * Introduce a "velocity"
+     \begin{align*}
+      \bm{v}^{(t+1)} &= (1-\gamma)\, \bm{v}^{(t)} - \gamma\,r\,\grad L_{\mathcal{B}}(\bm{w}^{(t)}) \\
+      \bm{w}^{(t+1)} &= \bm{x}^{(t)}  + \bm{v}^{(t+1)}
+     \end{align*}
+     * $\gamma$ might be small 0.1
+     * $r$ is the usual step size
+
+** Adaptive Methods
+   * The difficulty of high dimensional optimisation is there are different curvatures
+     * Where there is high curvature we want to make small steps
+     * Where there is low curvature we want to make large steps
+   * In adaptive methods we change our step size for each variables
+   * We could measure the curvature in different directions
+     $$ \frac{\partial^2 L(\bm{w})}{\partial w_i^2} $$
+     but most adaptive algorithms don't do this
+   * *AdaDelta*
+     * AdaDelta is an algorithm  that estimates the curvature by computing
+       a running mean squared gradient
+       \begin{align*}
+          S^g_i^{(t+1)} = (1-\gamma) S^g_i^{(t)} + \gamma \left(
+          \frac{\partial L_{\mathcal{B}}(\bm{w}^{(t)})}{w_i^{(t)}} \right)^2
+       \end{align*}
+       * This is a running average (it slowly forgets the past)
+     * We also computes a running average of the squared weight
+	\begin{align*}
+          S^w_i^{(t+1)} = (1-\gamma) S^w_i^{(t)} + \gamma  \, (w_i^{(t)})^2
+	\end{align*}
+     * It then updates each weight according to
+       \begin{align*}
+	 w_i^{(t+1)} = w_i^{(t)} - \eta \,
+         \sqrt{\frac{S^w_i(t+1)+\epsilon}{S^g_i(t+1)+\epsilon}}\,
+         \frac{\partial L_{\mathcal{B}}(\bm{w}^{(t)})}{\partial w_i^{(t)}}
+       \end{align*}
+     * This ensures invariance in two ways
+       * If we multiply our weights by a factor we get the same relative change
+       * If we multiply our gradients by a factor we get the same change
+   * *ADAM*
+     * AdaDelta doesn't use momentum
+     * Adaptive Moment Estimation (ADAM) does both adaptive step-size
+       per feature and it uses momentum
+     * It computes a running average momentum and squared gradient
+       $$ M_i^{(t+1)} = (1-\beta)\,M_i^{(t)} + \beta \,
+          \frac{\partial L_{\mathcal{B}}(\bm{w}^{(t)})}{\partial w_i^{(t)}} $$
+       $$ S_i^{(t+1)} &= (1-\gamma)\,S_i^{(t)} + \gamma \,
+          \left( \frac{\partial L_{\mathcal{B}}(\bm{w}^{(t)})}{\partial w_i^{(t)}} \right)^2 $$
+     * Running averages suffer from time-lag (it takes time for them to build-up)
+     * In ADAM we remove the time lag
+       \begin{align*}
+	\hat{M}_i^{(t+1)} &= \frac{M_i^{(t+1)}}{1-(1-\beta)^t}
+      	&
+        \hat{S}_i^{(t+1)} &= \frac{S^{(t+1)}}{1-(1-\gamma)^t}\pause
+       \end{align*}
+     * We then update the weights
+       \begin{align*}
+       w_i^{(t+1)} = w_i^{(t)} - \frac{\eta}{\sqrt{\hat{S}_i^{(t+1)}} + \epsilon}\,
+       \hat{M}_i^{(t+1)}
+       \end{align*}
+     * ADAM and its variants are very successful: often giving
+       state-of-the-art performance
+   * *Covariance*
+     * The adaptive schemes works independently on each coordinate
+     * Covariance properties of vectors
+       * If we act on vectors using standard operations
+	 * scalar multiplication
+	 * addition
+	 * matrix multiplication
+	 then the results are invariant of the coordinate system we use
+       * In particular they will be translation and rotation invariant
+       * When we do elementwise multiplication this invariance is lost
+       * More generally this is true for tensors
+       * In machine learning although we call multi-dimensional arrays
+         tensors we usually apply elementwise operations rather than
+         proper tensor operations (we loose invariance to coordinate
+         transformations)
+     * Because the adaptive schemes are elementwise they are not
+       invariant to rotation
+     * If $\bm{e}_i$ is the direction of increasing weight $w_i$ the
+       if two weights interact we could have high curvature in a
+       direction $\bm{e}_i+\bm{e}_j$ and low curvature in a direction
+       $\bm{e}_i-\bm{e}_j$.  We cannot adapt the weights individually
+       to equalise the curvature.
+
+** Loss Landscapes
+   * In modern machine learning we are often perform minimisation of
+     the loss function in a massive search space
+   * Unless the search space has a simple structure (e.g. is convex)
+     there are likely to be many local optima
+   * There is no algorithm that is guaranteed to find the global minimum
+   * In such large spaces we might never get near to a minimum
+   * *Symmetries*
+     * The loss landscape will typically have many symmetries
+     * If we permute the nodes of an MLP or feature maps of a CNN we
+       get the same solution
+     * There may also be continuous symmetries
+     * Most directions might not change the loss at all
+     * Symmetries complicated the loss landscape
+       * If you have two local minima there will be a saddle-point in
+         between
+     * Adding skip connections removes permutation symmetries which
+       seems to make optimisation simpler
+
+
+* Exercises
+
+** Removing Lag
+   * Consider a running average
+     $$ a^{(t+1)} = (1-\gamma) \,a^{(t)} + \gamma \,x^{(t)} $$
+   * Assume $x^{(t)} = x$ (i.e. constant)
+     1. Calculate $a^{(t)}$ if $a^{(0)}=0$ as a sum
+     2. Using the fact that the sum of a geometric series can be written as
+	$$ \sum_{i=0}^{t-1} z^i = 1 + z+ \cdots + z^{t-1}= \frac{1-z^t}{1-z} $$
+	write $a^{(t)}$ in closed form
+     3. Compute the correction to the running mean so that the
+        corrected running mean equals $x$ for all $t$
+
+** Gradient Descent in a Quadratic Minimum
+   * Consider minimising a quadratic function
+     $$ f(\bm{x}) = \frac{1}{2}(\bm{x}-\bm{x}^{*})^{\tr} \mat{Q} (\bm{x}-\bm{x}^{*}) $$
+   * Using gradient descent
+     $$ \bm{x}(t+1) = \bm{x}(t) - r\, \grad f(\bm{x}) $$
+     1. Using the definition of $f(\bm{x})$ write down the update
+        equation
+     2. Subtract $\bm{x}^{*}$ from both sides of the equation and
+        write down an update equation for $\bm{x}(t)-\bm{x}^{*}$
+     3. Write a closed from solution for $\bm{x}(t)-\bm{x}^{*}$
+     4. Using the eigen-decomposition 
+        $\mat{Q} = \mat{V}\,\mat{\Lambda}\,\mat{V}^{\tr}$
+	rewrite the closed from solution
+     5. Defining $\bm{u}(t) = \mat{V}^{\tr}(\bm{x}(t)-\bm{x}^{*})$ write the update
+        equation for the components $u_{i}(t)$ and explain what
+        happens when $\lambda_i > 2/r$
+ 
+* Experiments
+
+** Gradient Descent
+   * Write a Matlab/Octave or python programme
+   * Compute a random $5\times4$ matrix $\mat{X}$
+   * Let $\mat{M} = \mat{X}^\tr\mat{X}$
+   * Consider minimising $f(\bm{w}) = \frac{1}{2} \bm{w}^\tr \mat{M} \bm{w}$
+     1. Find the Hessian of $f(\bm{w})$
+     2. Compute the eigenvalues of the Hessian
+     3. Compute the gradient of $f(\bm{x})$
+     4. From a random starting point $\bm{x}^{(0)}$ follow the negative gradient
+       $$ \bm{x}^{(t+1)} = \bm{x}^{(t)} - r\,\grad f(\bm{x}^{(t)}) $$
+     5. For what value of $r$ do you converge?
+     6. Repeat this using momentum
+	\begin{align*}
+	\bm{v}^{(t+1)} &= (1-\gamma) \bm{v}^{(t)} -\gamma\, r\,\grad f(\bm{x}^{(t)}) \\
+	\bm{x}^{(t+1)} &= \bm{x}^{(t)} + \bm{v}^{(t+1)}
+	\end{align*}
+	Using $\gamma=0.1$ and $r=1$
+
+#+BEGIN_SRC matlab
+X = rand(5,4)
+M = X'*X             % This is the Hessian
+eig(M)               % Eigenvalues of momentum
+
+w = rand(4,1)        % x0
+r = 0.01
+for t = 1:10
+  f = w'*M*w/2       % current function value
+  w = w - r*M*w;     % gradient is M*w
+endfor               % I use octave
+
+
+%%% Experiment with different values of r
+for r = 0.05:0.05:0.5
+  w = rand(4,1);
+  for t = 1:100
+    w = w - r*M*w;
+  endfor
+  [r, w'*M*w/2]      % function value after 100 iterations
+endfor
+
+%%% Using Momentum
+w = rand(4,1);
+v = zeros(4,1);
+f = []
+gamma = 0.1
+for t = 1:100
+  v = (1-gamma)*v - gamma*M*w;
+  w = w + v;
+  f(end+1) = w'*M*w/2;
+endfor
+plot(1:100,f)
+#+END_SRC
+   
+
+* Solutions
+
+** Removing Lag
+   1. Writing $a^{(t)}$ as a sum
+     \begin{align*}
+      a^{(1)} &= (1-\gamma)\, a^{(0)} + \gamma \, x = \gamma \, x\\
+      a^{(2)} &= (1-\gamma)\, a^{(1)} + \gamma \, x = (1-\gamma)\,\gamma \, x + \gamma \, x\\
+      a^{(3)} &= (1-\gamma)\, a^{(2)} + \gamma \, x = (1-\gamma)^2\,\gamma \, x +  (1-\gamma)\,\gamma \, x + \gamma \, x  \\
+      a^{(t)} &= \gamma\,x\sum_{i=0}^{t-1} (1-\gamma)^i
+     \end{align*}
+   2. 
+      * Geometric series
+	* As an aside we can prove the identity just multiply the geometric series by $1-z$
+	$$ (1-z) (1 + z+ \cdots + z^{t-1}) = (1 + z+ \cdots + z^{t-1}) - (z + z^2+ \cdots + z^t) = 1-z^t $$
+	* Dividing both sides by $(1-z)$ we obtain our identity
+      * Applying the identity to $a^{(t)}$ we find
+	$$ a^{(t)} &= \gamma\,x \frac{1-(1-\gamma)^t}{1-(1-\gamma)} = x\,(1-(1-\gamma)^t) $$
+	Note that as $t\rightarrow\infty$ then $a^{(t)}$ approaches $x$
+   3. Dividing through by $1-(1-\gamma)^t$ i.e.
+      $$ \bar{a}^{(t)} = \frac{a^{(t)}}{1-(1-\gamma)^t} $$
+      we lose the lag
+
+** Gradient Descent in a Quadratic Minimum
+   1. $\bm{x}(t+1) = \bm{x}(t) - r\,\mat{Q} (\bm{x}(t)-\bm{x}^{*})$
+   2. $\bm{x}(t+1) - \bm{x}^{*} = (\mat{I}- r\,\mat{Q}) (\bm{x}(t)-\bm{x}^{*})$
+   3. $\bm{x}(t) - \bm{x}^{*} = (\mat{I}- r\,\mat{Q})^t (\bm{x}(0)-\bm{x}^{*})$
+   4. $\bm{x}(t) - \bm{x}^{*} = \mat{V}(\mat{I}- r\,\mat{\Lambda})^t\mat{V}^{\tr} (\bm{x}(0)-\bm{x}^{*})$
+      see note below
+   5. $\bm{u}(t) = (\mat{I}-r\,\mat{\Lambda})^t \bm{u}(0)$ or 
+      $u_i(t) = (1-r\,\lambda)^t u_i(0)$.  If $\lambda_i > 2/r$ then
+      $u_i(t)$ diverges exponentially fast.  That is any component in
+      the direction of $\bm{v}_{i}$ away from the optimum will diverge
+      if the curvature (i.e. second derivative) in that direction
+      exceeds $2/r$, where $r$ is the step size.
+   Note that $\mat{I}- r\,\mat{Q} =  \mat{V}(\mat{I}-r\,\mat{\Lambda})\mat{V}^{\tr}$ so
+   $$ (\mat{I}- r\,\mat{Q})^2 =   \mat{V}(\mat{I}-r\,\mat{\Lambda})\mat{V}^{\tr}  \mat{V}(\mat{I}-r\,\mat{\Lambda})\mat{V}^{\tr}$$
+   but $\mat{V}^{\tr} \mat{V} = \mat{I}$ as they are orthogonal matrix
+   thus
+   $$ (\mat{I}- r\,\mat{Q})^2 =   \mat{V}(\mat{I}-r\,\mat{\Lambda})^{2}\mat{V}^{\tr}$$
+   and similarly
+   $$ (\mat{I}- r\,\mat{Q})^t =   \mat{V}(\mat{I}-r\,\mat{\Lambda})^{t}\mat{V}^{\tr}.$$
+
+* COMMENT [[file:sgd.pdf][PDF]] [[file:pdf/sgd_prn.pdf][print]]
+* COMMENT [[file:optimisation-subsidiary.org][Previous]] [[file:constrainedOpt-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

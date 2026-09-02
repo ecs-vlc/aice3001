@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+from read_yaml import data
+from ask import Ask
+import os
+import re
+from pathlib import Path
+import psutil
+
+
+def newer(file1 , file2):
+    if os.path.exists(file1) and os.path.exists(file2):
+        return os.path.getmtime(file1) > os.path.getmtime(file2)
+    else:
+        return True
+
+
+problems = []
+for sheet in data["sheets"]:
+    problems.append(sheet['name'])
+    print(f"{sheet['week']}: {sheet['name']} ({sheet['keywords']})")
+
+query = Ask()
+
+ans = int(query("What problem do you want to see", 1, problems))-1
+
+tex = f"{problems[ans]}.tex"
+answer = f"{problems[ans]}_answers.tex"
+pdf = f"{problems[ans]}.pdf"
+pdf_answer = f"{problems[ans]}_answers.pdf"
+
+
+if newer(tex, pdf) or newer("macros_gen.tex", pdf):
+    if os.system(f"echo {tex} | /Library/TeX/texbin/pdflatex -shell-escape")!=0:
+        print("Latex failed on questions")
+        exit(1)
+    os.system(f"echo {tex} | /Library/TeX/texbin/pdflatex -shell-escape")
+    file = Path(tex)
+
+    text = file.read_text()
+    text = re.sub(r'\\documentclass(\[[^]]*\])?', r'\\documentclass[answers]', text, count=1)
+
+    Path(answer).write_text(text)
+    if os.system(f"echo {answer} | /Library/TeX/texbin/pdflatex -shell-escape")!=0:
+        print("Latex failed on answers")
+        exit(1)
+    os.system(f"echo {answer} | /Library/TeX/texbin/pdflatex -shell-escape")
+
+for proc in psutil.process_iter():
+    running = False
+    if proc.name() == "papers":
+        running = True
+        break
+
+if not running:
+    os.system(f"papers {pdf} 2> /dev/null &")
+    os.system(f"papers {pdf_answer} 2> /dev/null &")
+

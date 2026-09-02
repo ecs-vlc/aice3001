@@ -1,0 +1,8 @@
+#! /bin/bash
+
+files='*-questions.pdf *-answers.pdf'
+
+for f in $files
+do
+    cp ${f} /home/apb/teaching/courses/comp6208/github/site/problems
+done

@@ -1,0 +1,100 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 4: Ensemble Methods
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+
+* Keywords
+  * Decision Trees, Bagging, Boosting
+
+* Main Points
+
+** Understand Decision Trees
+    * Binary tree where a set of data is partitioned into two at each step
+    * Rule for partition deeps on a single feature
+    * Tree grown greedily
+    * All possible rules test to maximise purity
+    * Gini or Entropy or variance used to measure purity
+    * Can handle categorical or numerical data
+    * Useful for understanding new data sets
+    * Can have high bias and high variance
+** Ensembling
+    * Understand how averaging reduces variance
+    * Understand the need to uncorrelated decisions
+    * Coming to a consensus
+      * Vote on category
+      * Average for regression
+*** Bagging
+    * Understand bootstrap aggregation
+    * Random Forest
+      * Uses decision trees with bootstrap aggregation
+      * But also use different random subsets of features
+*** Boosting
+    * Construct a /strong learner/ as a weighted sum of /weak learners/
+    * Adaboost
+      * Used for binary decisions
+      * Start with a set of weak learners, $\mathcal{W}$
+      * Each weak learner $h_i(\bm{x})$ outputs $\pm1$
+      * Greedily build the strong learner by adding $\alpha_t
+        h_t(\bm{x})$ at iteration $t$
+      * Define an exponential "error"
+	* Define a weight, $w_t^\mu$, for each training example
+          $(\bm{x}^\mu,y^\mu)$
+	* Large weight implies the training example is poorly predicted
+	* Choose the weak learner, $h_t$ that fails only where prediction is good
+	* Choose the weight $\alpha_t$ that minimises the error
+      * Need to understand derivation and resulting algorithm (this is
+        complicated)
+    * Gradient Boosting
+      * Used on regression problems
+      * Iterative algorithm where we learn a new weak learner that
+        minimises the residual errors
+      * Uses very small decision trees for regression
+    * Performance of Boosting
+      * Can over-fit (use early stopping)
+      * Only works for very simple weak-learners (strong learners will
+        over-fit)
+      * Can give state-of-the-art performance
+
+* Exercises
+
+** Compute expected error in mean for correlated variables
+   * We look at estimating the mean by sampling $n$ random variables
+     \begin{equation*}
+     \hat{\mu} = \frac{1}{n} \sum_{i=1}^n X_i
+     \end{equation*}
+   * In expectation $\mathbb{E}[X_i]=\mu$
+   * Thus in expectation $\mathbb{E}[\hat{\mu}]=\mu$
+   * But there will be typical fluctuations which we can compute using
+     \begin{equation*}
+     \sigma^2_{\hat{\mu}} = \mathbb{E}\left[ \left(\strut \hat{\mu} - \mu \right)^2 \right]
+     \end{equation*}
+   * *Compute this* using
+     \begin{align*}
+     \mathbb{E}[(X_i-\mu)^2] &= \sigma^2 & 
+        \mathbb{E}[(X_i-\mu)\,(X_j-\mu)] &= \rho\,\sigma^2
+     \end{align*}
+   * Answer given in lecture notes
+   * Note that the estimated error in the mean is $\sigma_{\hat{\mu}$ (this is
+     what you use when you compute error-bars)
+
+* Experiments
+
+** Visualise a decision tree
+
+#+NAME: DecisionTreeExample.py
+#+BEGIN_SRC python
+from sklearn.datasets import load_iris
+from sklearn import tree
+X, y = load_iris(return_X_y=True)
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X, y)
+
+tree.plot_tree(clf.fit(iris.data, iris.target))
+#+END_SRC
+
+** Write your own
+
+* COMMENT [[file:ensembleLearning.pdf][PDF]]
+* COMMENT [[file:vectorSpaces-subsidiary.org][Next]]

@@ -1,0 +1,300 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 16: Convexity
+
+
+* Keywords
+  * Convex sets, convex functions, Jensen's inequality
+
+* Main Points
+
+** Convex Sets
+   * We are familiar geometrically with convex regions
+   * To define convexity we need to define an intermediate point
+     $\bm{z} = a\,\bm{x} + (1-a)\,\bm{y}$
+     - we requires $a\in[0,1]$ (i.e. $x$ is in the interval between 0 and 1)  for $\bm{z}$ to be between $\bm{x}$ and $\bm{y}$
+     - to define convexity we only need to have addition and scalar multiplication
+   * We can the define convexity in a very general way: a set
+     $\mathcal{S}$ is convex if for every pair of points
+     $\bm{x},\bm{y}\in \mathcal{S}$ and for every possible $a\in[0,1]$ then
+     $\bm{z} = a\,\bm{x} + (1-a)\,\bm{y} \in \mathcal{S}$
+   * We can apply convexity to sets of complicated objects
+   * For example the set of positive semi-definite matrices forms a convex set
+     * This follows from the fact the sum of two positive
+       semi-definite matrices is also positive semi-definite and if we
+       multiply a positive semi-definite matrix by a positive number
+       then the matrix is still positive semi-definite
+
+** Convex Functions
+   * We can define a function, $f(\bm{x})$, to be a /convex function/
+     if for all pairs of points in the domain of the function and all
+     $a\in[0,1]$ $$ f(a \,\bm{x} + (1-a)\, \bm{y}) \leq a \,
+     f(\bm{x}) + (1-a) \, f(\bm{y}) $$
+   * This means that the function sits on or below the linear chord
+     connecting any two points in the domain of the function
+   * The epigraph of a function is the area that lies on or above the
+     functions
+     - The epigraph of a convex function forms a convex region
+     - If the epigraph of a function forms a convex region then the
+       function is convex
+   * We can define /convex-down/ or /concave/ functions by inverting the constraint
+     $$  f(a \,\bm{x} + (1-a)\, \bm{y}) \geq  a \, f(\bm{x}) + (1-a) \, f(\bm{y}) $$
+     - for clarity I will sometimes refer to "convex" functions as
+       /convex-up/ functions
+     - convex-down functions have similar (but opposite) properties to
+       convex up functions
+   * A function where for every pair of points and for any $a$ such
+     that $0<a<1$ (i.e. a lies strictly between 0 and 1) then if
+     $$  f(a \,\bm{x} + (1-a)\, \bm{y}) < a \, f(\bm{x}) + (1-a) \, f(\bm{y}) $$
+     then function is said to be /strictly convex/
+   * Linear functions $f(\bm{x}) = a\,\bm{x} +c$ are both convex-up
+     and convex-down functions
+     - For a function to be a strictly convex function it cannot have
+       a linear section
+   * Convex functions lie on or above their tangent plane
+     - The tangent plane to a function $f(\bm{x})$ at a point
+       $\bm{x}_0$ is the plane orthogonal to the gradient, $\grad
+       f(\bm{x}_0)$ that goes through the point $\bm{x}_0$
+   * A necessary and sufficient condition for a function to be convex
+     is that its second derivative is non-negative or for
+     multi-dimensional functions the Hessian is positive semi-definite
+     - If the second derivative is positive (i.e. always greater
+       than 0) or the Hessian is positive definite then the function
+       is strictly positive
+   * Examples
+     * Convex-up Functions
+       * $f(x) = x^2$  is strictly convex since $f''(x)=2>0$
+       * $f(x) = x^{-2}$  is strictly convex since $f''(x)=2\,x^{-4}>0$
+       * $f(x) = x^4$  is convex since $f''(x)=12\,x^2\geq0$
+       * $f(x) = \e{c\,x}$ is strictly convex for all $c$ as $f''(x)=c^2\,\e{c\,x}>0$
+       * $f(\bm{x}) = \|\bm{x}\|^2$  is strictly convex since $\mat{H}(x)=\mat{I}\succ0$
+       * $f(x) = |x|$ is convex since for $a\in[0,1]$ we have $|a\,x +
+         (1-a)\,y| \leq a\,|x| + (1-a)\,|y|$ with equality only when
+         $x\,y\geq 0$
+     * Convex-down Functions
+       1. $f(x) = -x^2$  is strictly convex-down since $f''(x)=-2<0$
+       2. $f(x) = \sqrt{x}$  (for $x>0$) is strictly convex-down since $f''(x)=-x^{-3/2}/4<0$
+       3. $f(x) = \log(x)$  is strictly convex-down since $f''(x)=-1/x^2<0$
+   * A function $f(\bm{x})$ that is constrained to a convex domain
+     ($\bm{x}\in\mathcal{S}$, where $\mathcal{S}$ is a convex set) is
+     convex in that domain if for all pairs
+     $\bm{x},\bm{y}\in\mathcal{S}$ and all $a\in[0,1]$ we have
+      $$  f(a \,\bm{x} + (1-a)\, \bm{y}) \leq  a \, f(\bm{x}) + (1-a)  \, f(\bm{y}) $$
+     - This is just a more precise definition of a convex function
+     - Note that by limiting the domain of a function some non-convex
+       functions may be convex over that domain
+       - e.g. $\cos(x)$ is convex in the interval $[-\pi/2,3\pi/3]$
+     - A convex function constrained to lie in a convex set will still
+       be convex
+     - Any combination of linear constraints will form a convex set
+     - Therefore convex functions restricted to satisfy linear
+       constraints will be convex
+   * The minimum of a convex function will form a convex set
+     - There can be no local minima
+     - For a strictly convex function the minimum will be unique
+   * The sum of convex functions will be convex
+   * *Linear regression*
+     - The loss function of linear regression is convex
+       $$ L(\bm{w}) = \| \mat{X}\bm{w} - \bm{y} \|^2 $$
+       - The Hessian is $\mat{X}^\tr\mat{X}$ which is positive
+         semi-definite which is a sufficient condition for $L(\bm{w})$
+         to be convex
+     - Both the $L_2$ regulariser and the $L_1$ regulariser are convex
+     - The $L_2$ regulariser is strictly convex so there will be a
+       unique solution
+     - Many machine learning algorithms are chosen because they
+       involve minimising a convex function leading to a unique minimum
+
+** Jensen's Inequality
+   * For any convex-up function, if $\bm{x}$ is a random variable then
+      $$ \av{f(\bm{x})} \geq f(\av{\bm{x}}) $$
+     - $\av{\cdots}$ denotes the expectation
+   * For any convex-down function
+     $$ \av{f(\bm{x})} \leq f(\av{\bm{x}}) $$
+   * These are known as /Jensen's Inequality/
+   * *Proof*
+     * We can prove this starting from the fact that $f(\bm{x})$ lies
+       above the tangent plane at any point
+       $$ f(\bm{x}) \geq f(\bm{x}^*) + (\bm{x}-\bm{x}^*)^\tr \grad
+       f(\bm{x}^*) $$
+     * This has to be true at the point $\bm{x}^*=\av{\bm{x}}$
+       $$ f(\bm{x}) \geq f(\av{\bm{x}}) + (\bm{x}-\av{\bm{x}})^\tr
+       \grad f(\av{\bm{x}}) $$
+     * Taking expectations of both sides of the equation
+         $$ \av{f(\bm{x})} \geq f(\av{\bm{x}}) +
+	 (\av{\bm{x}}-\av{\bm{x}})^\tr \grad f(\av{\bm{x}})\\
+	 &= f(\av{\bm{x}}) \hspace{2cm} \square $$
+   * Using Jensen's Inequality
+     * Consider the strictly convex function $f(\bm{x})=x^2$ by
+       Jensen's inequality
+       $$ \av{x^2} \geq \av{x}^2$$
+       - or $\av{x^2}-\av{x}^2 \geq 0$
+	 - the left-hand side is the variance so we see variances are non-negative
+	 - because $f(\bm{x})=x^2$ is strictly convex we only get
+           equality where $\bm{x}$ doesn't vary at all
+     * Consider the Kullback-Liebler (KL) divergence defined for
+       discrete probability probability distributions defined over the
+       same range as
+       $$ \mathcal{KL}(f \| g) = - \sum_i f_i \,  \logg{\frac{g_i}{f_i}} $$
+       - This is often used to measure how different distribution are
+         from each other
+       - Note if $g_i=f_i$ then $\mathcal{KL}(f \| g) =0$ since $\log(1)=0$
+       - Now we can use Jensen's inequality to show that
+         $\mathcal{KL}(f \| g) \geq 0$
+	 \begin{align*}
+         \mathrm{KL}(f \| g) &= - \sum_i f_i \, \logg{\frac{g_i}{f_i}}
+         =- \av[f]{\logg{\frac{g_i}{f_i}}}\\
+         &\geq -\logg{\av[f]{\frac{g_i}{f_i}}} \\
+         &= - \logg{\sum_i f_i \frac{g_i}{f_i}} = -\logg{\sum_i g_i} = -\log(1)  = 0
+         \end{align*}
+	 - Here we are assuming we have random variable that take
+           values $X_i=g_i/f_i$ that occur with probability $f_i$
+	 - The KL-divergence is therefore equal to $\av{-\log(X_i)}$
+	 - Since $-\log(x)$ is convex up we have by Jensen's
+           inequality that the KL-divergences is greater than or equal
+           to $-\logg{\av{X_i}} = -\logg{\sum_i f_i\,X_i}$
+	 - But $X_i=g_i/f_i$ so the KL-divergence is greater than
+           $-\logg{\sum_i g_i}$
+	 - But $g_i$ is a probability so $\sum_i g_i=1$ giving us our result
+       - This is known as the Gibbs' inequality after the mathematical
+         physicist, J. Willard Gibbs, (founder of modern statistical
+         mechanics) who first proved it
+       - We often use KL-divergences when we want to choose the
+         parameters of one probability distribution so that it
+         approximates a second probability distribution
+
+* Exercises
+
+** Positive quadrant
+   * Prove that the set of vectors with non-negative elements form a
+     convex set
+
+** Inverse of Convex Functions
+   1. Use the chain rule to compute the second derivative of $f(g(x))$
+   2. If $g(x) = f^{-1}(x)$ show that the second derivative of
+      $f(g(x))$ vanishes
+   3. Use these results to derive an identity for the second derivative
+      of $f^{-1}(x)$
+   4. Derive a condition for $f^{-1}(x)$ to be a
+      convex-down function given that $f(x)$ is convex-up
+   5. Use this to show
+      1. $\sqrt{x}$ is a convex-down function
+      2. $\log(x)$ is a convex-down function
+
+** Cumulant Generating Function
+   * Here is something a bit harder (which you don't need to know)
+   * The cumulant generating function of a probability distribution
+     $p(x)$ is defined as
+     $$ G(\lambda) = \logg{\av{\e{\lambda\,x}}} $$
+     - the expectation is over the random variable $x$ drawn from $p(x)$
+   * It is called the cumulant generating function because it we take
+     then $n^{th}$ derivative and set $\lambda$ to zero we obtain the
+     $n^{th}$ cumulant (i.e. $\kappa_n = G^{(n)}(0)$)
+   * The first cumulant is the mean, the second the variance while the
+     third and forth are proportional to the skewness and kurtosis
+   * Cumulant generating functions appear a lot when you work with
+     probabilities, but go beyond this course
+   * Nevertheless let's show they are convex
+     1. Find the second derivative
+     2. Show that if $p(x)$ is a probability distribution then $q(x) =
+        p(x)\,\e{\lambda\,x}/\av{\e{\lambda\,x}}$ is also a
+        probability distribution
+     3. Hence show that the cumulant generating function is convex
+   * See answers
+
+
+* Answers
+
+** Positive quadrant
+   * Let $\mathcal{P}$ be the set of vectors with non-negative elements
+   * If $\bm{x}\in\mathcal{P}$ then if $c\geq0$ we have
+     $\bm{v} = c\,\bm{x}\in\mathcal{P}$ since each element of $\bm{v}$ will
+     be non-negative (i.e. $v_i=c\,x_i\geq0$)
+   * Also for any two vectors $\bm{x},\bm{y}\in\mathcal{P}$ clearly
+     $\bm{w} = \bm{x} + \bm{y} \in \mathcal{P}$ since $w_i=x_+y_i$
+   * Thus for any two vectors  $\bm{x},\bm{y}\in\mathcal{P}$ and any
+     $a\in\{0,1\}$ the vector $\bm{z} = a\,\bm{x} +(1-a)\,\bm{y}$ will
+     be in $\mathcal{P}$
+
+** Inverse of Convex Functions
+   1. Taking derivatives
+      $$ \frac{\dd^2 f(g(x))}{\dd x^2} = \frac{\dd
+      f'(g(x))\,g'(x)}{\dd x} = f''(g(x))\, (g'(x))^2 + f'(g(x))\,
+      g''(x) $$
+   2. If $g(x) = f^{-1}(x)$ then $f(g(x))=x$ and the second derivative vanishes
+   3. Using 1. and 2. we find (writing $f^{-1}(x)$ as $g(x)$)
+      $$ g''(x) = - \frac{f''(g(x))\, (g'(x))^2}{f'(g(x))} $$
+   4. If $f(x)$ is convex then $f''(y)\geq0$ for any $y$ (including
+      $y=f^{-1}(x)$) also $(g'(x))^2\geq0$ so for the inverse of
+      $f(x)$ to be convex down we require $f'(f^{-1}(x))>0$
+   5. Use this to show
+      1. Let $f(x)=x^2$, so that $f''(x)=2>0$ and $f'(y)=y$ which is
+         non-negative if $y\geq0$, but $f^{-1}(x)=\sqrt{x}>0$ so
+         $f'(f^{-1}(x))\geq0$ and consequently $\sqrt{x}$ is
+         convex-down
+      2. Let $f(x)=\exp(x)$, so that $f''(x) = \exp(x) >0$.  But
+         $f'(y) = \exp(y)>0$ for all $y$ so $f'(f^{-1}(x))>0$ which is
+         sufficient to show $f^{-1}(x)=\log(x)$ is a convex-down
+         function
+ 
+** Cumulant Generating Function
+   1. If $G(\lambda) = \logg{\av{\e{\lambda\,x}}}$ then
+      $$ G'(\lambda) = \frac{ \av{x\,\e{\lambda\,x}} }{
+      \av{\e{\lambda\,x}} } $$
+      and
+      $$ G''(\lambda) = \frac{ \av{x^2\,\e{\lambda\,x}} }{
+      \av{\e{\lambda\,x}} } - \frac{ \av{x\,\e{\lambda\,x}}^2 }{
+      \av{\e{\lambda\,x}}^2 } $$
+   2. 
+      * Now if $p(x)$ is a probability distribution is will be
+	non-negative for all $x$ and sum or integrate to 1
+      * But then $q(x) = p(x)\,\e{\lambda\,x}/\av{\e{\lambda\,x}}$
+        will be non-negative as $\e{\lambda\,x}>0$ and
+        $\av{\e{\lambda\,x}}>0$ (the expectation of positive
+        quantities will be positive)
+      * But
+	$$ \int q(x) \, \dd x = \frac{1}{\av{\e{\lambda\,x}}} \int
+        p(x)\, \e{\lambda\,x}\,\dd x=
+        \frac{\av{\e{\lambda\,x}}}{\av{\e{\lambda\,x}}} = 1 $$
+      * So $q(x)$ is non-negative and normalised so is a well defined
+        probability distribution
+   3. Using the result of 1. and 2
+      $$ G''(\lambda) = \frac{ \av[p]{x^2\,\e{\lambda\,x}} }{
+      \av[p]{\e{\lambda\,x}} } - \frac{ \av[p]{x\,\e{\lambda\,x}}^2 }{
+      \av[p]{\e{\lambda\,x}}^2 } = \av[g]{x^2} - \av[g]{x}^2 \geq 0 $$
+      - since variances are non-negative
+
+* COMMENT [[file:convexity.pdf][PDF]] [[file:pdf/convexity_prn.pdf][print]]
+* COMMENT [[file:constrainedOpt-subsidiary.org][Previous]] [[file:svm-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

@@ -1,0 +1,445 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 20: Probability
+
+* Keywords
+  * Probability, Random variable, Expectations
+
+* Main Points
+** Basic Language
+   - Probability is the process of modelling a world with uncertain outcomes
+   - The model is not perfect, but reflects what we care about
+   - Mathematicians model the possible outcomes of the world they are
+     considering in terms of a set of /elementary events/
+   - This set is frequently called $\Omega$ (but you are free to give
+     it any name)
+   - The elementary events are /mutual exclusive/ so that if
+     $\omega_{i}, \omega_{j} \in \Omega$ then $\omega_{i} \cap
+     \omega_{j} = \emptyset$ (this just means there is no intersection
+     between elementary events)
+   - The set is exhaustive so that $\bigcup_i \omega_i= \Omega$
+   - This means in our model of the world every possible outcome is
+     included in $\Omega$
+   - Now we are often not interested in elementary events (they may be
+     too small)
+   - Instead we consider *events* $\mathcal{E}=
+      \bigcup\limits_{i\in\mathcal{I}}\omega_i$ where $\mathcal{I}$ is
+     some /index set/
+   - Suppose we are modelling the probability of a darts match
+   - $\Omega$ might represent every location where a dart might land
+   - $\omega_{i}\in \Omega$ is a particular position
+   - I might be interested in the probability of a bull's eye
+     $\mathcal{B}= \bigcup\limits_{i\in\mathcal{I}}\omega_i$
+   - In this particular case this is a union of an uncountable
+     infinity of points
+   - In this case I might represent the elementary events by a 2-d vector
+     $\bm{x}$
+   - The event of getting a bull's eye corresponds to $\bm{x}$ being
+     within the region that defines the bull's eye
+** Probability and Random Variables
+   - We can attribute a *probability*,  $\Prob{\mathcal{E}}$, to an event,
+    $\mathcal{E}$
+   - Probabilities are number between 0 and 1: $0\leq
+     \Prob{\mathcal{E}} \leq 1$
+   - 0 means the event never occurs, 1 means the event definitely will occur
+   - $\Prob{\mathcal{E}} + \Prob{\neg\mathcal{E}} = 1$ where
+        $\neg\mathcal{E} = \Omega \setminus \mathcal{E}$
+   - That is, the probability of an event occurring and the event not
+     occurring is 1
+   - In some cases we can interpret $\Prob{\mathcal{E}}$ as the
+    expected frequency of occurrence of a repetitive trial
+   - E.g. If the event, $\mathcal{E}$ is rolling an (honest) dice and getting
+     an even number then $\Prob{\mathcal{E}}=\tfrac{1}{2}$ can be seen
+     as saying that on average this will happen half the time if you
+     repeat the experiment often enough
+   - However how to we interpret $\Prob{\text{Pass COMP6208 exam}}$?
+   - Hopefully, this is something you only attempt once
+   - We can think of probability as encoding our informed belief that
+     something will happen
+   - When our knowledge changes our probability will change
+   - Random variables, $X$, are numbers we assign to each elementary
+     event (many events can have the same number assigned)
+   - That is we partition the set of outcomes $\Omega$ and assign a
+     numbers to each partition
+   - E.g. for a dice
+      \begin{align*}
+        X =
+        \begin{cases}
+          0 & \text{if $\omega\in\{1,3,5\}$}\\
+          1 & \text{if $\omega\in\{2,4,6\}$}
+        \end{cases}
+      \end{align*}
+   - If we let $\mathcal{E}_i$ be the event that corresponding to the
+     partition with value $x_i$ then $\Prob{X=x_i} = \Prob{\mathcal{E}_i}$
+   - It is common practice (though not universal) to denote random
+     variables with capital letters
+   - The correspond to events with uncertain outcomes (things that
+     happen in the future)
+   - We distinguish the scalar that we assign to random variables by
+     writing them in lower case, e.g. $x_{i}$
+   - When we write $\Prob{X}$ we can view this as short-hand for
+    \begin{align*}
+      \bra{\Prob{X=x} \mid x \in \mathcal{X}}
+      = \bra{\Prob{X=x_1}, \Prob{X=x_2},\ldots\Prob{X=x_n}}
+    \end{align*}
+    where $\mathcal{X}$ is the set of possible values that $X$
+    can take
+   - That is, $\Prob{X}$, is the probability mass function which tells
+     us the probability of the random variable $X$ for all possible
+     values it can take
+   - We differentiate between random variables (capitals) and scalars
+     (lower case) because they behave very differently when we take expectations
+   - A function, $Y=g(X)$, of a random variable $X$ is a random
+     variable
+   - *Continuous random variables*
+     - When we consider random variables with continuous outcomes (e.g. the
+       time I go to bed, $T$) then there is an uncountable infinity of possible
+       outcomes and $\Prob{T=t}=0$
+     - Here we can consider the probability of a random variable,
+       $\bm{X}$ occurring in a ball, $\mathcal{B}(\bm{x}, \epsilon)$,
+       of radius $\epsilon$ around the point $\bm{x}$
+     - Taking the ratio of that probability to the volume of the ball
+       in the limit $\epsilon\rightarrow0$ defines a *probability
+       density*
+       \begin{align*}
+       f_{\bm{X}}(\bm{x}) = \lim_{\epsilon\rightarrow 0}
+       \frac{\Prob{\bm{X}\in\mathcal{B}(\bm{x},
+       \epsilon)}}{|\mathcal{B}(\bm{x}, \epsilon)|}
+       \end{align*}
+     - Probability densities are not probabilities (they are positive,
+       but not necessarily less than 1)
+     - Because they are densities, if I change the way I measure
+       volumes then the numeric values of the density will change
+       (probability density measured in units of probability
+       per cm is different to that measured in units of probability
+       per inch)
+     - A consequent is that if we do a change of variables then
+       often the probability density will change
+     - Consider a region $\mathcal{R}$---we can describe this using
+       different coordinate systems $x$ or $y= g(x)$
+       \begin{align*}
+       \Prob{X\in\mathcal{R}}
+       = \int_{\mathcal{R}} f_{X}(x) \, \dd x
+       =  \Prob{Y\in\mathcal{R}}
+       = \int_{\mathcal{R}} f_{Y}(y) \, \dd y
+       \end{align*}
+       (that is the probability of the event occurring in some region
+       should not depend on coordinate region we use)
+     - Thus $f_{X}(x)\, |\dd x| = f_{Y}(y) \, |\dd y|$ or
+       \begin{align*}
+        f_{X}(x)  = f_{Y}(y) \, \left| \frac{\dd y}{\dd x}
+        \right| = f_{Y}(g(x)) \, | g'(x) |
+       \end{align*}
+     - In high dimensions if we make a change of variables
+       $\bm{x} \rightarrow \bm{y}(\bm{x})$ (which can be seen as a change
+       of random variables $\bm{X}\rightarrow\bm{Y}(\bm{X})$) then
+       \begin{align*}
+       f_{\bm{X}}(\bm{x}) = f_{\bm{Y}}(\bm{y}) \, |\det(\mat{J})| 
+       \end{align*}
+       where $\mat{J}$ is the Jacobian matrix
+       \begin{align*}
+         \mat{J} =
+         \begin{pmatrix}
+          \pd{y_1}{x_1} & \pd{y_1}{x_2} & \cdots & \pd{y_1}{x_n} \\
+          \pd{y_2}{x_1} & \pd{y_2}{x_2} & \cdots & \pd{y_2}{x_n} \\
+          \vdots & \vdots & \ddots & \vdots \\
+          \pd{y_n}{x_1} & \pd{y_n}{x_2} & \cdots & \pd{y_n}{x_n}
+         \end{pmatrix}
+       \end{align*}
+     - An alternative definition of probability densities in 1-d is
+       \begin{align*}
+       f_X(x) = \lim_{\delta x\rightarrow 0}
+       \frac{\Prob{x \leq X < x + \delta x}}{\delta x}\pause
+       \end{align*}
+     - Thus
+       $$f_X(x)\,\delta x \approx \Prob{x \leq X < x + \delta x}$$
+       so that $f_X(x)\,\delta x\leq 1$ (since this is a probability)
+   - *Cumulative Distribution Functions (CDF)*
+     \begin{align*}
+      F_X(x) = \Prob{X\leq x} =
+      \begin{cases}
+        \sum\limits_{i: x_i\leq x} \Prob{X=x_i} \\
+        \int_{-\infty}^x f_X(y) \, \dd y
+      \end{cases}
+     \end{align*}
+     - This is a function that goes from 0 to 1 as $x$ goes from 
+       $-\infty$ to $\infty$
+     - For continuous random variables
+      \begin{align*}
+        f_X(x) = \frac{\dd F_X(x)}{\dd x}
+      \end{align*}
+     - Sometimes it is easy working with the CDF than the PDF
+** Expectations
+  - Expectations compute the average value of a quantity (it is a number)
+  - Mathematicians write expectations as $\av[\bm{X}]{\cdots}$ (note
+    that physicist often use $\langle \cdots \rangle$)
+  - We can define the expectation of $\bm{Y}=g(\bm{X})$ as
+    \begin{align*}
+      \av[\bm{X}]{g(\bm{X})} =
+      \begin{cases}
+        \displaystyle \sum_{\bm{x}\in\mathcal{X}} g(\bm{x})\, \Prob{\bm{X}=\bm{x}} \\
+        \displaystyle \int g(\bm{x})\, f_{\bm{X}}(\bm{x}) \, \dd \bm{x}
+      \end{cases}
+    \end{align*}
+  - The expectation of a constant $c$ is $c$
+    \begin{align*}
+      \av[\bm{X}]{c} =
+      \begin{cases}
+        \displaystyle \sum_{\bm{x}\in\mathcal{X}} c\,
+        \Prob{\bm{X}=\bm{x}}
+        = c \sum_{\bm{x}\in\mathcal{X}}  \Prob{\bm{X}=\bm{x}}
+        = c \\
+        \displaystyle \int c\, f_{\bm{X}}(\bm{x}) \, \dd \bm{x}
+        = c \int  f_{\bm{X}}(\bm{x}) \, \dd \bm{x} =c 
+      \end{cases}
+    \end{align*}
+  - A consequence of this is that $\av[X]{\av[X]{g(X)}} =
+    \av[X]{g(X)}$
+  - Summations and integrals are linear operators
+    \begin{align*}
+      \sum_i \bra{a\,x_i + b\,y_i}
+      &= a\,\bra{ \sum_i  x_i} +  b\,\bra{\sum_i y_i} \\
+      \int \bra{a\,f(\bm{x}) + b\, g(\bm{x})} \dd \bm{x}
+      &=a \, \bra{ \int f(\bm{x})\, \dd \bm{x}} + b \,  \bra{ \int g(\bm{x})\, \dd \bm{x}}
+    \end{align*}
+    from which it follows that expectations are linear
+    \begin{align*}
+      \av{a\,X + b\,Y} = a\,\av{X} + b\, \av{Y}
+    \end{align*}
+  - Beware usually $\av{X\,Y}\neq \av{X}\,\av{Y}$ (unless $X$ and
+    $Y$ are independent)
+  - *Indicator Functions*
+    - Indicator functions are functions that take on the value of 0 or 1
+    - They are written in different ways.  One nice form is the
+      Iverson notation
+      \begin{align*}
+        \pred{\text{\it predicate}} =
+        \begin{cases}
+          1 & \text{if \textit{predicate }is True}\\
+          0 & \text{if \textit{predicate} is False}
+        \end{cases}
+     \end{align*}
+    - Sometimes it is written $\bm{I}_A(x)$ where $A(x)$ is the predicate
+    - Donald Kunth is a champion of the Iverson notation (it is easy
+      to manipulate)
+    - For probabilities
+      \begin{align*}
+        \Prob{\text{\it predicate}} = \av{\pred{\text{\it predicate}}}\pause
+      \end{align*}
+      it is not too difficult to convince yourself that this is
+      correct as you are summing the probabilities where the predicate
+      is true
+    - As an example the CDF is given by
+      \begin{align*}
+        F_X(x) = \Prob{X\leq x} = \av{\pred{X\leq x}}
+      \end{align*}
+** Calculus of Probabilities
+  - When we model the world it is common to consider different random variables
+  - In this case we can consider the *joint probability*
+    \begin{align*}
+      p_{X,Y}(x, y) = \Prob{X=x, Y=y}
+    \end{align*}
+    i.e. the probability of the event where both $X=x$ and $Y=y$
+  - $\Prob{X=x,Y=y} = \Prob{Y=y,X=x}$ the order in which you write the
+    random variables in a joint distribution function doesn't matter
+  - There are really only a couple of ways you can manipulate
+    probabilities (this defines the calculus of probability)
+  - The first is known as \emph{marginalisation}.  Given $\Prob{X,Y}$
+    \begin{align*}
+      \Prob{X=x} = \sum_{y\in\mathcal{Y}} \Prob{X=x, Y=y}
+    \end{align*}
+    where $\mathcal{Y}$ is the set of values that the random variable
+    $Y$ takes
+  - Often we will just write
+    \begin{align*}
+      \Prob{X} = \sum_{Y} \Prob{X, Y}
+    \end{align*}
+  - *Conditional Probability*
+    - The other rule of probability involves introducing *conditional
+      probabilities*
+    - We can also define the probability of an event $X$ given that
+      $Y=y$ has occurred
+      \begin{align*}
+        \Prob{X\mid Y=y} = \frac{\Prob{X,Y=y}}{\Prob{Y=y}}
+      \end{align*}
+    - This is a probability over $X$.  If we marginalise over $X$ then
+      $$ \sum_{x\in \mathcal{X}} \Prob{X=x\mid Y=y}
+      =  \frac{\sum_{x\in \mathcal{X}} \Prob{X=x,Y=y}}{\Prob{Y=y}}
+      = \frac{\Prob{Y=y}}{\Prob{Y=y}} = 1 $$
+    - In constructing a model it is often much easier to specify
+      conditional probabilities (because you know something) rather
+      than joint probabilities
+    - When manipulating probabilities it is often easier to work
+      with joint probabilities because we can simplify them by
+      marginalising out random variables we are not interested in
+    - To obtain the joint probability from a conditional probability
+      we use
+      \begin{align*}
+        \Prob{X,Y} = \Prob{X|Y}\,\Prob{Y} = \Prob{Y|X}\,\Prob{X}\pause
+      \end{align*}
+    - This generalises to more random variables
+      \begin{align*}
+        \Prob{X,Y,Z} = \Prob{X,Y|Z}\, \Prob{Z}
+        = \Prob{X|Y,Z}\,\Prob{Y|Z}\,\Prob{Z}
+      \end{align*}
+    - This way of breaking down probabilities in not unique. For
+      example, we could have written
+      \begin{align*}
+        \Prob{X,Y,Z} = \Prob{Y,Z|X}\, \Prob{X}
+        = \Prob{Z|Y,X}\,\Prob{Y|X}\,\Prob{X}\pause
+      \end{align*}
+    - Note that $\Prob{A,B \mid X,Y}$ means the probability of
+      random variables $A$ and $B$ given that $X$ and $Y$ take
+      particular values
+    - *Beware*: conditional probabilities, $\Prob{X\mid Y}$ are probabilities
+      for $X$, but not $Y$
+      \begin{align*}
+        \sum_{x\in\mathcal{X}} \Prob{X=x\mid Y} &= 1 \\
+        \sum_{y\in\mathcal{Y}} \Prob{X\mid Y=y} &\neq 1
+      \end{align*}
+      (in general)
+    - Note that
+      \begin{align*}
+        \av[Y]{\Prob{X\mid Y}} &= \sum_{y\in\mathcal{Y}} \Prob{Y=y}\,
+                                 \Prob{X|Y=y}\pause \\
+        &= \sum_{y\in\mathcal{Y}} \Prob{X,Y=y}\pause = \Prob{X}
+      \end{align*}
+      that is taking the expectation of $\Prob{X\mid Y}$ with respect
+      to $Y$ is the same as marginalising the joint probability
+      $\Prob{X,Y}$ with respect to $Y$
+    - Joint probabilities does not imply causality
+    - We might believe there is a causal relationship between getting
+      very cold and catching a cold $\Prob{\text{Catch cold} \mid
+      \text{freezing}} > \Prob{\text{Catch cold}}$
+    - However we can use Bayes' rule (see next lecture) to compute
+      $\Prob{\text{freezing}\mid \text{Catch cold}}$
+    - That is, given all I know is that Bob has a cold I can deduce
+      the probability that he was freezing shortly before catching the
+      cold. This is a perfectly sensible thing to consider, but
+      clearly it does not imply that freezing yesterday was caused by
+      him catching a cold today
+  - *Independence*
+    - Random variables $X$ and $Y$ are said to be \emph{independent} if
+      \begin{align*}
+        \Prob{X, Y} = \Prob{X}\,\Prob{Y}
+      \end{align*}
+    - Because $\Prob{X,Y}= \Prob{X|Y}\,\Prob{Y}$ and $\Prob{X,Y}=
+      \Prob{Y|X}\,\Prob{X}$ independence implies
+      \begin{align*}
+        \Prob{X|Y} &= \Prob{X} & \Prob{Y|X} = \Prob{Y}
+      \end{align*}
+    - Probabilistic independence only implies a mathematical co-incident not
+      necessarily causal independence.  There are examples of events
+      that are causally dependent but nevertheless statistical
+      independent (although such cases are rare)
+    - However causal independence always implies probabilistic independence
+    - If $X\in\{0,1\}$ represents the outcome of tossing a coin and
+      $Y\in\{1,2,3,4,5,6\}$ the outcome of rolling a dice then $X$ and $Y$
+      are independent
+    - In well conducted experiments we expect the results we obtain
+      are independent (that is the outcome of one experiment should
+      not affect the outcome of another experiment)
+    - Let $\mathcal{D} = (X_1, X_2, \ldots, X_m)$ represents
+      possible outcomes from a set of $m$ well conducted
+      experiments then
+      \begin{align*}
+        \Prob{\mathcal{D}} = \prod_{i=1}^m \Prob{X_i}
+      \end{align*}
+    - Denoting a possible sentence I might say by
+       $\mathcal{S}=(W_1, W_2,\ldots,W_m)$ then
+       \begin{align*}
+         \Prob{\mathcal{S}} \neq  \prod_{i=1}^m \Prob{W_i}
+       \end{align*}
+    - If this is not the case they you expect my sentences to be
+      equally likely irrespective of the order of my words (I
+      certainly home this is not the case)
+    - Independence is a very useful condition that substantially
+      simplifies probabilistic calculations
+    - Independence is a strong condition that does not happen in many
+      models. However, a far more likely condition is *conditional
+      independence*.  For example, $X$ and $Y$ are conditionally
+      independent given $Z$ if
+      $$ \Prob{X, Y |Z} = \Prob{X|Z} \, \Prob{Y|Z}$$
+    - Me working today, $W$, and me getting stuck in a traffic jam,
+      $J$, are not statistically independent events, but they are
+      statistically independent (at least in a simple of model of the
+      world) given the day of the week, $D$
+      $$ \Prob{W, J |D} = \Prob{W|D} \, \Prob{J|D}$$
+ 
+
+
+* Exercises
+  1. Suppose I make an investment of capital $C_{0}$ and each day I
+     get a random return $R_{t}$ such that $C_{t} =
+     (1+r_{t})\,C_{t-1}$. Taking logs
+     $$ \logg{C_{t}} = \log(1 + R_{t}) + \log{C_{t-1}} \approx
+     R_{r}+\logg{C_{t-1}}$$
+     where we assume $|R_{t}| \ll 1$.  Rearranging $\logg{C_{t}} -
+     \logg{C_{t-1}} \approx R_{t}$ and summing
+     \begin{align*}
+     \sum_{t=1}^{T} \bra{\logg{C_{t}} - \logg{C_{t-1}}} =
+     \logg{C_{T}} - \logg{C_{0}} = \sum_{{t=1}}^{T} R_{t}
+     \end{align*}
+     Now $\logg{C_{T}} - \logg{C_{0}} = \logg{C_{T}/C_{0}} =
+     \logg{G_{T}}$ where $G_{T}=C_{T}/C_{0}$ is the multiplicative
+     gain (or loss) in the investment. Let $L_{T} = \logg{G_{T}}$.
+     Assuming we live in a random world so that $R_{t} \sim
+     \mathcal{N}(0,\epsilon)$. That is, the return each day is
+     normally distributed with mean 0 and variance $\epsilon$.
+     Furthermore, let us assume that $R_{t}$ is independent of
+     $R_{t'}$ then $L_{T}$ is the sum of $T$ normal independent
+     variables so that $L_{T}\sim \mathcal{N}(0, \sqrt{T}\,\epsilon)$.
+     That is, $f_{L}(\ell) = \mathcal{N}(\ell\mid 0,
+     \sqrt{T}\,\epsilon)$. Compute the PDF of $G_{T}$ using
+     $$f_{G}(g) = f_{L}(\ell) \, \frac{\dd \ell}{\dd g}$$
+     where $\ell = \log(g)$
+
+* Answers
+  1. This may seem a crazy model, but it is very commonly used in
+     finance and models stock prices extremely well.  I'm not going to
+     give the answer, but the distribution is a log-normal
+     distribution which you can look up on Wikipedia.  It occurs
+     frequently when a random variable is equal to a product of random
+     variables (taking the logarithm and using the central limit
+     theorem---i.e. the sum of many random variables is approximately
+     normally distributed---gives rise to a log-normal distribution).
+
+
+# * Experiments
+
+
+* COMMENT [[file:wasserstein.pdf][PDF]] [[file:pdf/wasserstein_prn.pdf][print]]
+* COMMENT [[file:wasserstein-subsidiary.org][Previous]] [[file:bayes-subsidiary.org][Next]]
+
+* Options  :ARCHIVE:noexport:
+
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\bra}[1]{\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\pd}[3][\,]{\frac{\partial^{#1}{#2}}{\partial\,{#3}}}
+
+#+END_OPTIONS
+

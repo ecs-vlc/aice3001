@@ -1,0 +1,724 @@
+%Master File:lectures.tex
+
+\lesson{Kernel Trick}
+\vspace{-1cm}
+\begin{center}
+  \includegraphics[height=12cm]{svm-data1}\
+\end{center}
+
+\keywords{The Kernel Trick, SVMs, Regression}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[-1]{Outline}
+
+\begin{minipage}{8cm}\raggedright
+  \begin{enumerate}
+    \outlineitem{The Kernel Trick}{kernels}
+    \outlineitem{Positive Semi-Definite Kernels}{psdk}
+    \outlineitem{Kernel Properties}{eigen}
+    \outlineitem{Beyond Classification}{beyond}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{15cm}
+  \includegraphics[width=15cm]{svm-data1}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline %  Kernels
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{slide}
+\section[-2]{SVM Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item SVM Kernels are functions of two variables that can be factorised
+    \begin{align*}
+      K(\bm{x},\bm{y}) = \inner{\bm{\phi}(\bm{x})}{\bm{\phi}(\bm{y})} =
+      \sum_{i} \phi_i(\bm{x})\,\phi_i(\bm{y})
+    \end{align*}
+  \item where $\bm{\phi}(\bm{x}) = (\phi_1(\bm{x}),\, \phi_2(\bm{x}),\,
+    \ldots)^\tr$ and $\phi_i(\bm{x})$ are real valued functions of
+    $\bm{x}$\pause
+  \item $K(\bm{x},\bm{y})$ will be positive semi-definite (because it
+    is an inner-product)\pause
+  \item Furthermore, any positive semi-definite function will
+    factorise\pause
+  \item This factorisation is not always obvious (we return to this
+    later)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Dual Form}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall that the dual problem for an SVM is
+    \begin{align*}
+      \max_{\bm{\alpha}} \sum_{k=1}^m \alpha_k - \frac{1}{2}
+      \sum_{k,l=1}^m \alpha_k\,\alpha_l\, y_k\,y_l\,
+      \inner{\bm{\phi}(\bm{x}_k)}{\bm{\phi}(\bm{x}_l)}
+    \end{align*}
+  \item subject to $\sum\limits_{k=1}^m y_k\,\alpha_k=0$ and $0\leq \alpha_k (\leq C)$\pause
+  \item But since $K(\bm{x}_k,\bm{x}_l) = \inner{\bm{\phi}(\bm{x}_k)}{\bm{\phi}(\bm{x}_l)}$ the dual problem
+    becomes
+    \begin{align*}
+      \max_{\bm{\alpha}} \sum_{k=1}^m \alpha_k - \frac{1}{2}
+      \sum_{k,l=1}^m \alpha_k\,\alpha_l\, y_k\,y_l\,K(\bm{x}_k,\bm{x}_l)\pause
+    \end{align*}
+  \item This is the \emph{kernel trick}\pause---we never have to
+    compute $\bm{\phi}(\bm{x})$!\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Classifying New Data}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Having trained the SVM we now have to use it\pause
+  \item Given a new input $\bm{x}$ we decide on the class
+    \begin{align*}
+      &y=\mathrm{\mathop{sgn}}\!\left(\inner{\bm{w}}{\bm{\phi}(\bm{x})}-b\right)\pause
+        & \text{but}&& \bm{w} = \sum_{k=1}^m
+    \alpha_k\,y_k \, \bm{\phi}(\bm{x}_k)\pause
+    \end{align*}
+  \item In the dual representation this becomes
+    \begin{align*}
+      \mathrm{\mathop{sgn}}\!\left(\sum_{k=1}^m \alpha_k\, y_k \,
+      K(\bm{x}_k,\bm{x})-b\right)
+    \end{align*}
+    where we only need to sum over the non-zero $\alpha_k$ (i.e. the
+    support vectors SVs)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline %  Kernels
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Recap on Eigen Systems}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall for a symmetric ($n\times n$) matrix $\mat{M}$ an
+    eigenvector, $\bm{v}$
+    \begin{align*}
+      \mat{M} \, \bm{v} = \lambda \bm{v}\pause
+    \end{align*}
+  \item There are $n$ independent eigenvectors $\bm{v}^{(i)}$ with
+    real eigenvalues $\lambda^{(i)}$\pause
+  \item The eigenvectors are orthogonal so that
+    $\bm{v}^{(i)\tr}\bm{v}^{(j)}=0$  if $i\neq j$\pause
+  \item Forming a matrix of eigenvectors
+    $\mat{V}=(\bm{v}^{(1)},\,\bm{v}^{(2)},\, \ldots\,\bm{v}^{(n)})$ the matrix
+    satisfies
+    \begin{align*}
+      \mat{V}^\tr \mat{V} = \mat{V}\,\mat{V}^\tr = \mat{I}\pause
+    \end{align*}
+  \item Such matrices are said to be orthogonal\pause
+      \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Eigen Decomposition}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item From the eigenvalue equation $\mat{M} \, \bm{v}^{(k)} = \lambda^{(k)}
+    \bm{v}^{(k)}$
+     \vspace*{-0.5em}
+    \begin{align*}
+      \mat{M} \mat{V} &= \mat{V} \, \mat{\Lambda} & \mbox{where}\quad
+      \mat{\Lambda} &= {\small
+      \begin{pmatrix}
+        \lambda_1 & 0 & \cdots & 0 \\
+        0 & \lambda_2 & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & \lambda_n
+      \end{pmatrix}}\pause
+    \end{align*}                         \vspace*{-2em}
+  \item Multiplying on the right by $\mat{V}^\tr$ we get
+    \begin{align*}
+      \mat{M} &= \mat{V} \, \mat{\Lambda} \mat{V}^\tr = \sum_{k=1}^n
+      \lambda^{(k)}\, \bm{v}^{(k)}\, \bm{v}^{(k)\tr}\pause 
+    \end{align*}
+    Or \vspace*{-1em}
+    \begin{align*}
+      M_{ij} = \sum_{k=1}^n \lambda^{(k)}\, v^{(k)}_i\, v^{(k)}_j
+      \pause = \sum_{k=1}^n u^{(k)}_i\, u^{(k)}_j = \langle \bm{u}_i, \bm{u}_j \rangle
+    \end{align*}
+    $u^{(k)}_i = \sqrt{\lambda^{(k)}}\,v^{(k)}_i$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Eigenfunctions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item By analogy for a symmetric function of two variables we can
+    define an \textit{eigenfunction}
+    \begin{align*}
+      \int K(\bm{x}, \bm{y})\, \psi(\bm{y}) \, \dd \, \bm{y} = \lambda
+      \, \psi(\bm{x})\pause
+    \end{align*}
+  \item In general there will be a denumerable set of eigenfunctions
+    $\psi^{(k)}(\bm{x})$ where
+    \begin{align*}
+      K(\bm{x}, \bm{y}) = \sum_k \lambda^{(k)}\,
+      \psi^{(k)}(\bm{x})\,\psi^{(k)}(\bm{y})\pause
+    \end{align*}
+  \item This is known as Mercer's theorem\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Limit Process}
+
+\pb\pause
+\begin{itemize}
+\item Consider sampling a function at a set of
+  points\pauseh\pauselevel{=1}
+  \begin{center}
+    \multipdf[width=0.8\linewidth]{sampleFunction}\pause
+  \end{center}
+\item In the limit where the number of sample points goes to infinity
+  the vector more closely approximates a function\pauseh
+\item The $k^{th}$ component of the vector corresponds to $f(x_k)$\pauseh
+\end{itemize}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Linear Operators}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Recall a linear function $\mathcal{T}[f(x)]$ can be
+    represented by a kernel
+    \begin{align*}
+      \mathcal{T}[f(x)] = \int_{y\in\mathcal{I}} K(x,y)\,f(y)\,\dd
+      y\pause \approx \Delta \sum_{j=1}^n K(x, y_j)\, f(y_j)\pauseb
+    \end{align*}
+    \begin{center}
+      \multipdf[width=0.7\linewidth]{approxKernel}\pauseb
+    \end{center}
+  This is just a matrix equation with $M_{ij}=\Delta\,K(x_i, y_j)$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{SVM Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If we define $\phi^{(k)}(\bm{x}) = \sqrt{\lambda^{(k)}} \psi^{(k)}(\bm{x})$
+    then
+    \begin{align*}
+      K(\bm{x}, \bm{y}) &= \sum_k \lambda^{(k)}\,
+      \psi^{(k)}(\bm{x})\,\psi^{(k)}(\bm{y})
+      = \sum_k \phi^{(k)}(\bm{x})\,\phi^{(k)}(\bm{y})\pause
+    \end{align*}
+  \item This is the definition of a SVM kernel we started with\pause
+  \item Note that for $\phi^{(k)}(\bm{x})$ to be real $\lambda^{(k)}\geq 0$ for
+    all $k$\pause
+  \item If $\lambda^{(k)} < 0$ then $\langle \bm{\phi(\bm{x})},
+    \bm{\phi}(\bm{x}) \rangle = \len{\phi(\bm{x})}^2$ might be
+    negative and  ``distance'' between points in the
+    extended feature space can be negative!\pause
+  \item If we use a kernel that isn't positive semi-definite then the
+    Hessian of the dual objective function will not be negative
+    semi-definite and there will be a maximum where $\bm{\alpha}$
+    diverges\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline %  Kernels
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Positive Semi-Definite Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Kernels (or matrices) that have eigenvalues $\lambda^{(k)}\geq0$ are
+    called positive semi-definite\pause
+  \item (If the eigenvalues are strictly positive $\lambda^{(k)}>0$ the
+    kernels or matrices are called positive definite)\pause
+  \item Positive semi-definite kernels can always be decomposed into a
+    sum of real functions
+    \begin{align*}
+      K(\bm{x}, \bm{y}) &= \inner{\bm{\phi}(\bm{x})}{\bm{\phi}(\bm{y})}\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Properties of Positive Semi-Definiteness}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Since 
+    \begin{align*}
+      K(\bm{x}, \bm{y}) =  \inner{\strut\bm{\phi}(\bm{x})}{\bm{\phi}(\bm{y})}\pause
+    \end{align*}
+  \item An immediate consequence is that for any function $f(\bm{x})$
+   \begin{align*}
+      \hspace*{-2em}\int f(\bm{x})\, K(\bm{x}, \bm{y})\, f(\bm{y})\,\dd\bm{x}\, \dd
+       \bm{y} &= \int f(\bm{x}) \,
+                \inner{\strut\bm{\phi}(\bm{x})}{\bm{\phi}(\bm{y})}
+                \, f(\bm{y})\,\dd\bm{x}\, \dd \bm{y}\pause  \\
+      &=\inner{\int f(\bm{x})\,
+        \bm{\phi}(\bm{x})\,\dd\bm{x}}{\int f(\bm{y})\,
+        \bm{\phi}(\bm{y})\,\dd\bm{y}}\pauseb \\
+     &= \left\| \int f(\bm{x})\,
+        \bm{\phi}(\bm{x})\,\dd\bm{x}\right\|^2 \pauseb \geq 0\pauseb
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Positive Semi-Definiteness}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The following statements are equivalent
+    \begin{itemize}
+    \item $K(\bm{x}, \bm{y})$ is positive semi-definite (written
+      $K(\bm{x}, \bm{y})\succeq 0$)\pause
+    \item The eigenvalues of $K(\bm{x}, \bm{y})$ are non-negative\pause
+    \item The kernel can be written
+      \begin{align*}
+        K(\bm{x}, \bm{y}) =  \inner{\strut\bm{\phi}(\bm{x})}{\bm{\phi}(\bm{y})}
+      \end{align*}
+      where the $\phi^{(k)}(\bm{x})$'s are real functions\pause
+    \item For any real function $f(x)$
+      \begin{align*}
+        \int f(\bm{x})\, K(\bm{x}, \bm{y}) \, f(\bm{y})
+         \, \dd \, \bm{x}  \, \dd \, \bm{y} \geq 0\pause
+      \end{align*}
+    \end{itemize}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Adding Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can construct SVM kernels from other kernels\pause
+  \item If $K_1(\bm{x}, \bm{y})$ and  $K_2(\bm{x}, \bm{y})$ are valid
+    kernels then so is $K_3(\bm{x}, \bm{y}) = K_1(\bm{x}, \bm{y}) +
+    K_2(\bm{x}, \bm{y})$
+    \begin{align*}
+      \hspace*{-1em}Q &= \int f(\bm{x})\, K_3(\bm{x}, \bm{y}) \, f(\bm{y})
+      \, \dd \bm{x}  \, \dd \bm{y} \\
+      &=\int f(\bm{x})\, \left( \strut K_1(\bm{x}, \bm{y}) + K_2(\bm{x},
+      \bm{y}) \right)  f(\bm{y}) \, \dd \bm{x}  \, \dd \bm{y} \\
+      &=\int f(\bm{x})\, K_1(\bm{x}, \bm{y}) \, f(\bm{y})
+      \, \dd \bm{x}  \, \dd \bm{y} +
+      \int f(\bm{x})\, K_2(\bm{x}, \bm{y}) \, f(\bm{y})
+      \, \dd \bm{x}  \, \dd \bm{y}
+      \geq 0   \pause
+    \end{align*}
+  \item If $K(\bm{x}, \bm{y})$ is a valid kernel so is $c\,K(\bm{x},
+    \bm{y})$ for $c>0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Product of Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If $K_1(\bm{x}, \bm{y})$ and  $K_2(\bm{x}, \bm{y})$ are valid
+    kernels then so is $K_3(\bm{x}, \bm{y}) = K_1(\bm{x}, \bm{y})\,
+    K_2(\bm{x}, \bm{y})$\pause
+  \item Writing {\small
+    \begin{align*}
+      K_1(\bm{x}, \bm{y}) &= \sum_i \phi^{(1)}_i(\bm{x})\,
+    \phi^{(1)}_i(\bm{y}), &
+                           K_2(\bm{x}, \bm{y}) &= \sum_j \phi^{(2)}_j(\bm{x})\,
+    \phi^{(2)}_j(\bm{y})
+    \end{align*}}
+    then
+    \begin{align*}
+      K_3(\bm{x}, \bm{y})
+      &= \sum_{i,j} \phi^{(1)}_i(\bm{x})\,\phi^{(1)}_i(\bm{y})\,
+      \phi^{(2)}_j(\bm{x})\,\phi^{(2)}_j(\bm{y}) \pause\\
+      &= \sum_{i,j} \phi^{(3)}_{ij}(\bm{x})\,
+      \phi^{(3)}_{ij}(\bm{y})\pauseb = \inner{\bm{\phi}^{(3)}(\bm{x})}{\bm{\phi}^{(3)}(\bm{y})}\pauseb
+    \end{align*}\pauselevel{=3}
+    where $\phi^{(3)}_{ij}(\bm{x}) = \phi^{(1)}_i(\bm{x})\,\phi^{(2)}_j(\bm{x})$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Exponentiating Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If $K(\bm{x}, \bm{y})$ is a valid kernel so is 
+    $K^n(\bm{x}, \bm{y})$ (by induction)\pause
+    \begin{itemize}\squeeze
+    \item Assume $K(\bm{x}, \bm{y}) \succeq 0$ this satisfies base case\pause
+    \item If $K^{n-1} (\bm{x}, \bm{y})\succeq 0$ then
+      \begin{align*}
+        K^{n}(\bm{x}, \bm{y}) = K^{n-1} (\bm{x}, \bm{y}) \, K(\bm{x}, \bm{y})\succeq 0\pause
+      \end{align*}
+    \end{itemize}
+  \item and $\exp(K(\bm{x}, \bm{y}))$ is also a valid kernel since
+    \begin{align*}
+      \e{K(\bm{x}, \bm{y})} = \sum_{i=1} \frac{1}{i!} K^i(\bm{x}, \bm{y})
+      = 1 + K(\bm{x}, \bm{y}) + \frac{1}{2} K^2(\bm{x}, \bm{y}) + \cdots
+    \end{align*}
+    but each term in the sum is a kernel\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{RBF Kernel}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Now $\bm{x}^\tr\bm{y} = \inner{\bm{x}}{\bm{y}}$ is a valid
+    kernel because it is an inner product of functions $\bm{\phi}(\bm{x}) =
+    \bm{x}$\pause
+  \item For $\gamma>0$ we have $2\,\gamma\,\bm{x}^\tr\bm{y}\succeq 0$\pause
+  \item Thus $\exp(2\,\gamma\,\bm{x}^\tr\bm{y}) \succeq 0$\pause
+  \item If $K(\bm{x},\bm{y})\succeq0$ then
+    $g(\bm{x})\,K(\bm{x},\bm{y})\,g(\bm{y}) \succeq 0$\pause
+    {\small
+    \begin{align*}
+      \int f(\bm{x})\, g(\bm{x})\,K(\bm{x}, \bm{y}) \,g(\bm{y})\,
+      f(\bm{y}) \, \dd \bm{x} \dd \bm{y}  \pause= \int
+      h(\bm{x})\,K(\bm{x}, \bm{y}) \,h(\bm{y})\, \dd \bm{x} \dd
+      \bm{y}\pauseb \geq 0 \pauseb \pauselevel{=6}
+    \end{align*}}
+    where $f(\bm{x})\, g(\bm{x})= h(\bm{x})$\pauseb\pauselevel{=8}
+    \begin{align*}
+      \e{-\gamma\,\bm{x}^\tr\bm{x}}\,\e{2\,\gamma\,\bm{x}^\tr\bm{y}}
+      \,\e{- \gamma\,\bm{y}^\tr\bm{y}}\pauseb
+      &= \e{-\gamma\,\|\bm{x}-\bm{y}\|^2}\pauseb \succeq
+        0\pauseb
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Other Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The success of SVMs has meant that researchers try to increase
+    the area of application\pause
+  \item The condition that a SVM kernel must be positive semi-definite
+    is quite restrictive\pause
+  \item There has been a cottage industry of researchers finding smart kernels for
+    solving complicated problems\pause
+  \item The key to finding new kernels is to use the properties of
+    kernels to build more complicated kernels from simpler ones\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{String Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item One area where SVMs were very important is in document
+    classification\pause
+  \item This requires comparing strings\pause
+  \item There are a large number of kernels developed to do this\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Spectrum Kernel}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A simple way to compare documents is to collect a histogram of
+    all occurrences of substrings of length $p$\pause
+  \item This is known as a $p$-spectrum\pause
+  \item A $p$-spectrum kernel counts the number of common substrings
+    {\small
+    \begin{align*}
+      s &= \mbox{\tt statistics} & \mathcal{S}_3(s) &= \{\mathtt{sta, tat, ati, tis,
+      ist, sti, tic, ics}\}
+      \\
+      t &= \mbox{\tt computation} & \mathcal{S}_3(t) &= \{\mathtt{com, omp,
+      mpu, put, uta, tat, ati, tio, ion}\}\pause
+    \end{align*}}
+  \item $K(s,t) = 2$ (``\texttt{tat}'' and ``\texttt{ati}'')\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{All Subsequences Kernel}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A more sophisticated kernel is to count all of the common
+    subsequences that occur in two documents\pause
+  \item Naively this would take an exponential amount of time to
+    compute\pause
+  \item Using clever dynamic-programming techniques this can be done
+    relatively efficiently\pause
+  \item This can even be extended to include sub-sequence matches with
+    possible gaps between words\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Other Kernel Applications}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item String kernels for comparing subsequences are used in
+    bioinformatics\pause
+  \item Kernels have been developed for comparing trees (e.g. for
+    computer program evaluation, XML, etc.)\pause
+  \item Kernels have also been developed for comparing graphs (e.g. for
+    comparing chemicals based on their molecular graph)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Fisher Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item In an attempt to build kernels that capture more domain
+    knowledge, kernels are constructed from other learning
+    machines\pause
+  \item An example of this are ``Fisher kernels'' whose features come
+    from an Hidden Markov Model (HMM) trained on the data\pause
+  \item These tend to have better discriminative power than the
+    underlying model (HMM), and has a better feature set than a SVM
+    using a generic kernel\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Beyond
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{slide}
+\section[-2]{Regression with Margins}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item SVMs can be modified to perform regression
+    \begin{center}
+      \includegraphics[width=0.9\linewidth]{svm-regress}
+    \end{center}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Error Functions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Can introduce slack variables with different errors
+    \begin{center}
+      \includegraphics[width=0.9\linewidth]{svm-regression}
+    \end{center}
+  \item This can be transformed to a quadratic programming problem
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+\begin{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Ridge Regression Using Kernels}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can also solve regression problems without using margins\pause
+  \item To solve a regression problem once again the problem is set up
+    as a quadratic programming problem
+    \begin{align*}
+      \min_{\bm{w}} \lambda\,\| \bm{w} \|^2 + \sum_{i=1}^m \left( y_i -
+      \bm{w}^\tr \bm{\phi}(\bm{x}_i) \right)^2\pause
+    \end{align*}
+  \item the $\| \bm{w} \|^2$ is a regularisation term\pause
+  \item By assuming $\bm{w} = \sum_i \alpha_i \,\bm{\phi}(\bm{x}_i)$ we
+    obtain a quadratic equation for the $\alpha_i$'s which we can
+    solve\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Kernel Methods}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Kernel methods where we project into an extended feature space
+    are used with other linear algorithms
+    \begin{itemize}
+    \item Kernel Fisher discriminant analysis (KFDA)
+    \item Kernel principle component analysis (KPCA)
+    \item Kernel canonical correlation analysis (KCCA)
+    \item Gaussian Processes\pause
+    \end{itemize}
+  \item These are also extremely powerful machine learning algorithms\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Summary}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item SVMs require a positive definite kernel function\pause
+  \item These can be built from simpler function\pause
+  \item There was a cottage industry of people creating new kernels
+    for different application\pause
+  \item SVMs are just one example of a host of machine that
+    \begin{itemize}
+    \item use the kernel trick
+    \item often use linear constraints
+    \item tend to be convex optimisation problems\pause
+    \end{itemize}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+
+
+
+%%% Local Variables:
+%%% TeX-master: "lectures"
+%%% End:

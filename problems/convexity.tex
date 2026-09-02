@@ -1,0 +1,223 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+\newcommand{\bra}[1]{\left(#1\right)}
+\newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Convexity Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[4]{Starting from the definition of a convex function
+      \begin{align}\label{eq:convex1}
+        f\bra{a\,x + (1-a)\,y} \leq a\,f(x) + (1-a) \, f(y)
+      \end{align}
+      Let $a = \epsilon/(x-y)$ and rearrange the
+      inequality to give
+      \begin{align*}
+        (x-y)\,\bra{\frac{f(y+\epsilon) - f(y)}{\epsilon}}
+      \end{align*}
+      on the left-hand side.  Taking the limit $\epsilon \rightarrow 0$
+      show that the function $f(x)$ lies above the tangent line
+      $t(x) = f(y) + (x-y)\,f'(y)$ going through the point $y$.}{\lines{12}}
+      \begin{answer}
+        Rearranging the Equation~\ref{eq:convex1}
+        \begin{align*}
+          f\bra{y + a(x-y)} \leq f(y) + a\,\bra{f(x) - f(y)}.
+        \end{align*}
+        Or
+        \begin{align*}
+          \frac{f\bra{y + a(x-y)} - f(y)}{a} \leq f(x) - f(y).
+        \end{align*}
+        Letting $a =\epsilon/(x-y)$ then
+        \begin{align*}
+          (x-y) \,  \frac{f\bra{y + \epsilon} - f(y)}{\epsilon} \leq
+          f(x) - f(y)
+        \end{align*}
+        Taking the limit $\epsilon \rightarrow 0$ then using
+        \begin{align*}
+          \lim_{\epsilon \rightarrow 0} \frac{f\bra{y + \epsilon} -
+          f(y)}{\epsilon}  = f'(y)
+        \end{align*}
+        So that
+        \begin{align*}
+           (x-y) \, f'(y) \leq f(x) - f(y)
+        \end{align*}
+        or
+        \begin{align*}
+          f(x) \geq f(y) + (x-y)\,f'(y) = t(x).
+        \end{align*}
+      \end{answer}
+      \clearpage
+      \qpart[1]{Sketch the tangent line, $t(x)$, at the point $y$ in the graph
+        shown below.}{\qfig[7cm]{tangentline_q}}
+      \begin{answer}
+        \afig[7cm]{tangentline_a}
+      \end{answer}
+      \qpart[4]{Starting from the inequality for a convex function
+        \begin{align}\label{eq:convex2}
+          f(x) \geq f(y)  + (x-y)\, f'(y)
+        \end{align}
+        consider the case $y = x+\epsilon$, then by Taylor expanding $f(x+\epsilon)$
+        and $f'(x+\epsilon)$ around $x$ and keeping all terms up to
+        order $\epsilon^2$ show that for a convex function $f''(x)\geq0$.
+      }{\lines{8}}
+      \begin{answer}
+        We use the expansions
+        \begin{align*}
+          f(x+\epsilon) &= f(x) + \epsilon\,f'(x) +
+                          \frac{\epsilon^2}{2} f''(x) + O(\epsilon^3) \\
+          f'(x+\epsilon) &= f'(x) + \epsilon\,f''(x) +
+                           O(\epsilon^2) 
+        \end{align*}
+        Using $y=x+\epsilon$ and substituting into the Equation~(\ref{eq:convex2})
+        \begin{align*}
+          f(x) &\geq f(x+\epsilon)  - \epsilon \, f'(x+\epsilon) \\
+          f(x) &\geq f(x) + \epsilon\,f'(x) +
+          \frac{\epsilon^2}{2} f''(x) + O(\epsilon^3)
+          - \epsilon\,\bra{f'(x) + \epsilon\,f''(x) +
+                           O(\epsilon^2) }
+        \end{align*}
+        Or subtraction $f(x)$ on both sides
+        \begin{align*}
+          0 \geq - \frac{\epsilon^2}{2} \, f''(x) + O(\epsilon^3)
+        \end{align*}
+        Since this has to be true for all $\epsilon>0$ this requires $f''(x)\geq0$.
+      \end{answer}
+      \qpart[1]{Prove that $-\log(x)$ is convex-up for $x>0$.}{\lines{1}}
+      \begin{answer}
+        \begin{align*}
+          \frac{\dd^2 (-\log(x))}{\dd \, x^2} = \frac{1}{x^2} \geq 0
+        \end{align*}
+      \end{answer}
+  \end{qparts}
+\end{question}
+\clearpage
+
+
+% ***************************** question 2 **************************
+
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[5]{If $\len{\bm{x}}$ is a proper norm use the triangular
+      inequality
+      ($\len{\bm{x} + \bm{y}}\leq \len{\bm{x}} + \len{\bm{y}}$),
+      linearity of a norm ($\len{a\,\bm{x}} = a\,\len{\bm{x}}$) and
+      the definition of convexity, to show that the norm is
+      convex.}{\lines{12}}
+    \begin{answer}
+      For any vectors, $\bm{x}$, and $\bm{y}$ and any scale
+      $a\in[0,1]$ then
+      \begin{align*}
+        \len{a\, \bm{x} + (1-a)\, \bm{y}} \leq \len{a\,\bm{x}} +
+        \len{(1-a)\,\bm{y}} = a\, \len{\bm{x}} + (1-a)\, \len{\bm{y}}
+      \end{align*}
+      where the first inequality follows from the triangular
+      inequality and the second equality from the linearity of the
+      norm.  However,
+      \begin{align*}
+         \len{a\, \bm{x} + (1-a)\, \bm{y}} \leq a\, \len{\bm{x}} + (1-a)\, \len{\bm{y}}
+      \end{align*}
+      is the defining equation of convexity.
+    \end{answer}
+    \clearpage
+
+    \newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
+     \newcommand{\mm}{\hat{m}_c(\bm{x})}
+
+     \qpart[5]{Consider a classification problem where $\ml$ is the
+       probability that a learning machine with parameters
+       $\bm{\theta}$ predicts that input $\bm{x}$ belongs to class
+       $c\in\mathcal{C}$.  Assume the training is stochastic so the
+       probability of obtaining parameters $\bm{\theta}$ is
+       $\rho(\bm{\theta})$. Let $\mm = \av[\bm{\theta}]{\ml}$ be the output
+       of the mean machine for class $c$.  Assuming that
+       for a data point $(\bm{x}, y)$, where $y$ is a
+       class label, we use a cross entropy loss
+       \begin{align*}
+         L(\bm{x}, y, \bm{\theta}) = -\sum_{c \in \mathcal{C}}
+         \pred{y=c} \logg{\ml},
+       \end{align*}
+       show that  the expected loss over inputs and parameters can be
+       written as the expected loss of the mean machine plus a second
+       loss.  Use Jensen's inequality ($\av{\log(X)}\leq\logg{\av{X}}$) to
+       show the second term is positive.}{\lines{15}}
+     \begin{answer}
+       \begin{align*}
+         \bar{L} &= \av[(\bm{x},y)]{\av[\bm{\theta}]{  -\sum_{c \in \mathcal{C}}
+                       \pred{y=c} \logg{\ml}}}
+         \\
+         &=  -\av[(\bm{x},y)]{\sum_{c \in \mathcal{C}} \pred{y=c} \logg{\mm}}
+           - \av[(\bm{x},y)]{\av[\bm{\theta}]{  \sum_{c \in \mathcal{C}}
+                       \pred{y=c} \logg{\frac{\ml}{\mm}}}}
+       \end{align*}
+       The first terms acts like a bias.  The second  (variance-like) term is
+       \begin{align*}
+         - \av[(\bm{x},y)]{ \sum_{c \in \mathcal{C}}
+         \pred{y=c} \av[\bm{\theta}]{ \logg{\ml}}}
+         + \av[(\bm{x},y)]{\sum_{c \in \mathcal{C}} \pred{y=c} \logg{\mm}}
+       \end{align*}
+       But using Jensen's inequality $\av[\bm{\theta}]{ \logg{\ml}}
+     \leq \logg{\av[\bm{\theta}]{\ml}} = \logg{\mm}$. Thus this second
+     term is positive.
+     \end{answer}
+  \end{qparts}
+\end{question}
+
+\end{document}
+
+
+
+

@@ -1,0 +1,158 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 3: Project
+
+
+
+* Keywords
+  * Details, Ideas, Research Methods
+
+* Main Points
+
+** Project
+   * You are going to projects in groups of 3-5
+   * This is worth 40% of the course
+   * You should submit two report of no more than 4 pages
+     1. A description of your exploration of the data
+     2. A description of running machine learning
+   * A good place for finding projects is =//www.kaggle.com/=
+
+** How to do a machine learning project
+
+   This is taken from the course text /Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow: Concepts, Tools, and Techniques to Build Intelligent Systems/ by Aurélien Géron
+
+  1. Frame the Problem and Look at the Big Picture
+     1. Define the objective in business terms
+     2. How will your solution be used?
+     3. What are the current solutions/workarounds (if any)?
+     4. How should you frame this problem (supervised/unsupervised, online/offline, etc.)?
+     5. How should performance be measured?
+     6. Is the performance measure aligned with the business objective?
+     7. What would be the minimum performance needed to reach the business objective?
+     8. What are comparable problems? Can you reuse experience or tools?
+     9. Is human expertise available?
+     10. How would you solve the problem manually?
+     11. List the assumptions you (or others) have made so far
+     12. Verify assumptions if possible
+  2. Get the Data
+     1. List the data you need and how much you need
+     2. Find and document where you can get that data
+     3. Check how much space it will take
+     4. Check legal obligations, and get authorization if necessary
+     5. Get access authorisations
+     6. Create a workspace (with enough storage space)
+     7. Get the data
+     8. Convert the data to a format you can easily manipulate (without changing the data itself)
+     9. Ensure sensitive information is deleted or protected (e.g., anonymized)
+     10. Check the size and type of data (time series, sample, geographical, etc.)
+     11. Sample a test set, put it aside, and never look at it (no data snooping!)
+  3. Explore the Data\\
+     *Note: try to get insights from a field expert for these steps*
+     1. Create a copy of the data for exploration (sampling it down to a manageable size if necessary)
+     2. Create a Jupyter notebook to keep a record of your data exploration
+     3. Study each attribute and its characteristics:
+	* Name
+	* Type (categorical, int/float, bounded/unbounded, text, structured, etc)
+	* Number of missing values
+	* Noisiness and type of noise (stochastic, outliers, rounding errors, etc.)
+	* Possibly useful for the task?
+	* ype of distribution (Gaussian, uniform, logarithmic, etc.)
+     4. For supervised learning tasks, identify the target attribute(s)
+     5. Visualise the data
+     6. Study the correlations between attributes
+     7. Study how you would solve the problem manually
+     8. Identify the promising transformations you may want to apply
+     9. Identify extra data that would be useful
+     10. Document what you have learned
+  4. Prepare the Data
+     1. Notes:
+	* Work on copies of the data (keep the original dataset intact)
+	* Write functions for all data transformations you apply, for five reasons:
+	  ∗ So you can easily prepare the data the next time you get a fresh dataset
+	  ∗ So you can apply these transformations in future project
+	  ∗ To clean and prepare the test set
+	  ∗ To clean and prepare new data instances once your solution is live
+	  ∗ To make it easy to treat your preparation choices as hyperparameters
+
+     2. Data cleaning
+	* Fix or remove outliers (optional)
+	* Fill in missing values (e.g., with zero, mean, median. . . ) or drop their rows (or columns)
+     3. Feature selection (optional):
+	* Drop the attributes that provide no useful information for the task
+     4. Feature engineering, where appropriate:
+        * Discretise continuous features
+        * Decompose features (e.g., categorical, date/time, etc.)
+	* Add promising transformations of features (e.g., $\log(x)$, etc.)
+	* Aggregate features into promising new features
+     5. Feature scaling: standardise or normalise features
+  5. Short-List Promising Models
+     1. Train many quick and dirty models from different categories (e.g., linear, naive Bayes, SVM, Random Forests, neural net, etc.) using standard parameters
+     2. Measure and compare their performance
+	* For each model, use N-fold cross-validation and compute the mean and standard deviation of the performance measure on the N folds
+     3. Analyse the most significant variables for each algorithm
+     4. Analyse the types of errors the models make
+	* What data would a human have used to avoid these errors?
+     5. Have a quick round of feature selection and engineering
+     6. Have one or two more quick iterations of the five previous steps
+     7. Short-list the top three to five most promising models, preferring models that make different types of errors
+  6. Fine-Tune the System
+     Note 1: You will want to use as much data as possible for this step, especially as you move toward the end of fine-tuning
+     Note 2: As always automate what you can
+     1. Fine-tune the hyperparameters using cross-validation
+	* Treat your data transformation choices as hyperparameters, especially when you are not sure about them (e.g., should I replace missing values with zero or with the median value? Or just drop the rows?)
+	* Unless there are very few hyperparameter values to explore, prefer random search over grid search. If training is very long, you may prefer a Bayesian optimisation approach
+     2. Try Ensemble methods. Combining your best models will often perform better than running them individually
+     3. Once you are confident about your final model, measure its performance on the test set to estimate the generalization error
+  7. Present Your Solution
+     1. Document what you have done
+     2. Create a nice presentation
+	* Make sure you highlight the big picture first
+     3. Explain why your solution achieves the business objective
+     4. Don’t forget to present interesting points you noticed along the way
+	* Describe what worked and what did not
+	* List your assumptions and your system’s limitations
+     5. Ensure your key findings are communicated through beautiful visualisations or easy-to-remember statements (e.g., “the median income is the number-one predictor of housing prices”)
+  8. Launch
+     1. Get your solution ready for production (plug into production data inputs, write unit tests, etc.)
+
+     2. Write monitoring code to check your system’s live performance at regular intervals and trigger alerts when it drops
+	* Beware of slow degradation too: models tend to “rot” as data evolves
+	* Measuring performance may require a human pipeline (e.g., via a crowd-sourcing service)
+	* Also monitor your inputs’ quality (e.g., a malfunctioning sensor sending random values, or another team’s output becoming stale). This is particularly important for online learning systems
+     3. Retrain your models on a regular basis on fresh data (automate as much as possible)
+
+
+* COMMENT [[file:projects.pdf][PDF]] [[file:pdf/projects_prn_8.pdf][Print Version]]
+* COMMENT [[file:overfitting-subsidiary.org][Previous]] [[file:ensembleLearning-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

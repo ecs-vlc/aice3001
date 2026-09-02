@@ -1,0 +1,120 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 9: Understand Mappings
+
+
+* Keywords
+  * Mappings, Eigenvectors
+
+* Main Points
+
+** Inverse Problems
+   * Much of machine learning can be viewed as solving an inverse problem
+   * We collect data about the world by performing a series of measurements
+   * Our task is to infer properties of the world from the data
+
+** Over-Constrained Problems
+   * We can have contradictory data that our model cannot explain
+   * This may arise because
+     * We have errors in the data
+     * Our data contains insufficient information
+     * Our model is too simple
+   * If we have more training data than free parameters this is likely to occur
+   * We typically solve this by introducing a loss function we minimise
+   * A classic example is to minimise the squared error
+
+** Under-Constrained Problems
+   * We can also be in a situation when many models (learning
+     machines) explain the data
+   * This will typically happen when we have more free parameters than data
+   * Here we have to choose a particular model
+   * To do this requires (implicitly or explicitly) making additional
+     assumptions
+   * For high-dimensional inputs we can be over-constrained
+     in some directions and under-constrained in others
+
+** Ill-Conditioning
+   * Even when we are not under-constrained our inverse can be very sensitive to the data
+   * That is small errors can be strongly magnified
+   * Ill-condition leads to high variance in the bias-variance sense and hence poor generalisation
+
+** Linear Regression
+   * In linear regression we try to fit a linear model $y_i = \bm{x}_i^\tr\,\bm{w}$
+     (or in matrix form $\bm{y} = \mat{X}\,\bm{w}$)
+   * We use a squared error (so can cope with conflicting constraints)
+   * If we have more training examples than parameters the solution is given by the pseudo-inverse
+     $\bm{w} = (\mat{X}^\tr \mat{X})^{-1} \mat{X}^\tr \bm{y}$
+   * It we have less training examples than parameters (or we are
+     unlucky in that the training examples don't span the full space)
+     then the problem is under-constrained and there are an infinity
+     of solutions
+   * Even when we have more training examples than parameters the
+     problem can be ill-conditioned
+
+
+* Exercises
+
+** Linear Regression
+   * Derive the formula for the weight vector in linear regression
+
+* Experiments
+
+** Eigensystems
+   * In either Matlab/Octave or python generate random matrices and check
+     the matrix identities
+
+#+BEGIN_SRC matlab
+X = randn(5,4)  % generate a mock designer matrix with 5 inputs of length 4 
+M = X'*X        % compute a symmetrix matrix
+[V.L] = eig(M)  % compute eigenvalues
+V*L*V'          % should be identical to M
+V*V'            % should be the identity matrix (up to rounding precision)
+V'*V            % should be the identity matrix (up to rounding precision)
+x = randn(4,1)  % generate a random column matrix of length 4
+y = randn(4,1)  % generate another random column matrix of length 4
+xp = V*x        % apply V to x
+yp = V*y        % apply V to y
+norm(x)         % compute Euclidean norm of x
+norm(xp)        % should be the same as Euclidean nor of xp
+x'*y            % compute inner product of x and y
+xp'*yp'         % compute inner produce of xp and yp (should be the same as above)
+
+Z = rand(4,5)   % consider a designer matrix where we would have more unknowns the examples
+W = Z'*Z        % compute a covariance type matrix (except we don't subtract the mean
+eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
+#+END_SRC
+
+* COMMENT [[file:mappings.pdf][PDF]] [[file:pdf/mappings_prn.pdf][Print]]
+* COMMENT [[file:innerProduct-subsidiary.org][Previous]] [[file:eigensystems-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

@@ -1,0 +1,398 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass[answers]{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+\newcommand{\bra}[1]{\left( #1 \right)}
+\usepackage{parskip}
+\AddToHook{env/samepage/begin}{%
+\AddToHook{para/before}{\nopagebreak}%
+\AddToHook{para/after}{\nopagebreak}%
+}
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Vector Space Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{20}
+  \begin{qparts}
+    
+      \qpart[3]{Show that if the columns, $\bm{m}_j$, of an $n\times n$ matrix,
+        $\mat{M}$, are not independent then $\mat{M}$ does not have a
+        unique inverse.  For the columns to not be independent implies
+        there exists some set of coefficients $c_j$ such that
+        \begin{align*}
+          \sum_{i=1}^n c_j\, \bm{m}_j = \bm{0}.
+        \end{align*}
+        We note that the $i^{th}$ element of $\bm{m}_j = M_{ij}$ so
+        \begin{align*}
+          \sum_{i=1}^n c_j\, M_{ij} = 0
+        \end{align*} 
+      \begin{answer}
+        We consider the vector $\bm{c}$ with elements $c_i$, then the
+        $i^{th}$ component of $\mat{M}\,\bm{c}$ is equal to
+        \begin{align*}
+          [\mat{M}\,\bm{c}]_i = \sum_{i=0}^n M_{ij}\, c_j = 0
+        \end{align*}
+        or $\mat{M}\, \bm{c} = \bm{0}$.  Consequently for any vector
+        $\bm{x}$ and any scalar $b$ we have that
+        \begin{align*}
+          \mat{M}\, \bra{\strut \bm{x} + b\, \bm{c}} =  \mat{M}\, \bm{x}
+        \end{align*}
+        if we denote $\bm{y} = \mat{M}\, \bm{x}$, then there is not a
+        unique vector $\bm{x}$ such that $\bm{y} = \mat{M}\, \bm{x}$,
+        but rather a family of vectors $\bm{x} + b\, \bm{c}$ for any $b$.
+      \end{answer}}{\lines{5}}
+    
+        
+      \qpart[3]{Show that for three $n\times n$ matrices $\mat{A}$,
+        $\mat{B}$ and $\mat{C}$ the inverse of
+        $\mat{A}\,\mat{B}\,\mat{C}$ is
+        $\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$.  You can do this by
+        multiplying the product of matrices, but its inverse and use
+        associativity of matrix multiplication
+      \begin{answer}
+        \begin{align*}
+          \bra{\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}} \bra{\strut
+          \mat{A}\,\mat{B}\,\mat{C}}
+          &=
+            \mat{C}^{-1}\mat{B}^{-1}\bra{\mat{A}^{-1}\mat{A}}\,\mat{B}\,\mat{C}
+          \\
+          &= \mat{C}^{-1}\bra{\mat{B}^{-1}\mat{B}}\,\mat{C} =
+            \mat{C}^{-1}\mat{C} = \mat{I}
+        \end{align*}
+      \end{answer}}{\lines{3}}
+    
+
+    
+      \qpart[3]{For non-square matrices, $\mat{A}$ and $\mat{B}$ we can
+        have $\mat{A}\,\mat{B} = \mat{I}$ while $\mat{B}\,\mat{A} \neq
+        \mat{I}$.  Show this is the case for the matrices
+        \begin{align*}
+          \mat{A} &=
+                    \begin{pmatrix}
+                      1 & 0
+                    \end{pmatrix}
+          & \mat{B} &=
+                      \begin{pmatrix}
+                        1 \\ 0
+                      \end{pmatrix}
+        \end{align*}
+      \begin{answer}
+        \begin{align*}
+          \mat{A}\,\mat{B} &=
+                             \begin{pmatrix}
+                               1 & 0
+                             \end{pmatrix}
+                             \begin{pmatrix}
+                               1 \\ 0
+                             \end{pmatrix}
+                             = (1) = \mat{I}_1
+          &
+            \mat{B}\,\mat{A} &=
+                               \begin{pmatrix}
+                                 1 \\ 0
+                               \end{pmatrix}
+                               \begin{pmatrix}
+                                 1 & 0
+                               \end{pmatrix} 
+                               =
+                               \begin{pmatrix}
+                                 1 & 0 \\ 0 & 0
+                               \end{pmatrix}
+        \end{align*}
+      \end{answer}}{\lines{5}}
+
+    
+      \qpart[2]{For finite-dimensional square matrices if
+        $\mat{A}\mat{B}= \mat{I}$ then $\mat{B}\mat{A}= \mat{I}$. Thus
+        $\mat{B} = \mat{A}^{-1}$.  This is not entirely trivial to
+        prove.  We break the proof down.
+
+        Show that if $\mat{A}\mat{B}= \mat{I}$ then $\mat{B}$ is
+        injective (one-to-one).  This mean that for two different
+        vectors $\bm{x}$ and $\bm{y}$ then
+        $\mat{B}\, \bm{x} \neq \mat{B} \bm{y}$.  Equivalently
+        $\mat{B}\, (\bm{x} - \bm{y}) \neq \bm{0}$, unless $\bm{x}=\bm{y}$,
+        but as $\bm{x}$ and $\bm{y}$ are arbitrary the only vector for
+        which $\mat{B}\,\bm{x}=\bm{0}$ is the vector $\bm{x}=\bm{0}$.
+        Prove that if $\mat{A}\mat{B}= \mat{I}$ and
+        $\mat{B}\,\bm{x}=\bm{0}$ then $\bm{x}=\bm{0}$.
+      \begin{answer}
+        Suppose $\mat{B}\,\bm{x}=\bm{0}$ then multiply by $\mat{A}$
+        \begin{align*}
+          \mat{A}\, \mat{B}\,\bm{x} &= \bm{0} \\
+          \mat{I}\,\bm{x} &= \bm{0}
+        \end{align*}
+        Thus $\bm{x} = \bm{0}$.
+      \end{answer}}{\lines{8}}
+    
+
+    
+      \qpart[5]{Next we want to show that in a finite dimensional space
+        a square matrix that is injective is also surjective (onto).
+        That is, if $\mat{B}$ is injective then for any vector $\bm{y}$
+        there exists a vector $\bm{x}$ such that
+        $\bm{y}= \mat{B}\bm{x}$.  The reason a finite dimensional square
+        matrix that is injective is also surjective is not so obvious.
+        To prove this we consider a set of $n$ \textbf{basis} vectors
+        that span the entire space $\mathbb{R}^n$.  We call these
+        $\bm{v}_1$, $\bm{v}_2$, \ldots, $\bm{v}_n$.  Because these are
+        independent the only set of numbers $c_i$ such that
+        $\sum_i c_i \bm{v}_i=\bm{0}$ are when $c_1=c_2=\ldots=c_n=0$.
+        Show that the set of vectors $\bm{v}_i' = \mat{B}\, \bm{v}_i$
+        form a set of basis vectors (i.e. they are linear
+        independent).  This is easily proved by contradiction.
+      \begin{answer}
+        Since $\mat{B}$ is injective and $\bm{v}_i\neq \bm{0}$ (since
+        basis vectors are non-zero), clearly $\bm{v}_i' = \mat{B}\,
+        \bm{v}_i$ are non-zero.  The non-trivial part is to show these
+        vectors are linear independent.  Suppose this is no the case and
+        there exists a set of coefficients $c_i'$ such that
+        \begin{align*}
+          \sum_{i=1}^n c_i'\, \bm{v}_i' &= \bm{0} \\
+          \sum_{i=1}^n c_i'\, \mat{B} \, \bm{v}_i &= \bm{0} \\
+          \mat{B} \, \sum_{i=1}^n c_i'\, \bm{v}_i &= \bm{0}.      
+        \end{align*}
+        But, as $\mat{B}$ is injective this implies
+        \begin{align*}
+          \sum_{i=1}^n c_i'\, \bm{v}_i &= \bm{0}.
+        \end{align*}
+        Since the vectors $\bm{v}_i$ are linear independent, so
+        this is a contradiction.
+      \end{answer}}{\lines{8}}
+    
+
+    
+      \qpart[2]{Use the fact that the vectors $\bm{v}_i'$ are linearly
+        independent to show that, for any vector $\bm{y}$, we can find a
+        vector $\bm{x}$ such that $\bm{y} = \mat{B}\,\bm{x}$
+      \begin{answer}
+        For any vector $\bm{y}$ can be represented by a weighted sum of
+        $n$ independent vectors.  In particular we can write
+        \begin{align*}
+          \bm{y} &= \sum_{i=1}^n c_i\, \bm{v}'_i = \sum_{i=1}^n c_i\,
+                   \mat{B} \, \bm{v}_i  \\
+                 &= \mat{B} \bra{\sum_{i=1}^n c_i\, \bm{v}_i} = \mat{B}\,\bm{x}
+        \end{align*}
+        where $x = \sum_{i=1}^n c_i\, \bm{v}_i$.
+      \end{answer}}{\lines{6}}
+    
+
+    
+      \qpart[2]{Using the fact that $\mat{A}\,\mat{B}= \mat{I}$ and
+        $\mat{B}$ is surjective show $\mat{B}\,\mat{A} =
+        \mat{I}$
+      \begin{answer}
+        We not that for all $\bm{x}$
+        \begin{align*}
+          \mat{A}\,\mat{B}\,\bm{x} &= \bm{x} \\
+          \mat{B}\,\mat{A}\,\mat{B}\,\bm{x} &= \mat{B}\,\bm{x} 
+        \end{align*}
+        But as $\mat{B}$ is surjective for any vector $\bm{y}$ there
+        exists a vector $\bm{x}$ such that $\bm{y} = \mat{B}\,\bm{x}$.
+        Thus,
+        \begin{align*}
+          \mat{B}\,\mat{A}\,\bm{y} = \bm{y},
+        \end{align*}
+        but as this is true for eany vector $\bm{y}$ it follows that $\mat{B}\,\mat{A}=\mat{I}$.
+      \end{answer}}{\lines{5}}
+    
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 2 **************************
+
+\begin{question}{20}
+  We want to compute the derivative of $\logg{\det(\mat{X})}$ with
+  respect to the matrix $\mat{X}$.  Our strategy will be to use the
+  fact that
+  \begin{align*}
+    \lim_{\epsilon\rightarrow 0} \frac{\logg{\det(\mat{X} + \epsilon\, \mat{U})} -
+    \logg{\det\bra{\mat{X}}}}{\epsilon} = \mathrm{tr} \, \mat{U}^\tr \frac{\partial
+    \logg{\det(\mat{X})}}{\partial \mat{X}}.
+  \end{align*}
+  We therefore expand $\logg{\det(\mat{X}+ \epsilon\, \mat{U}))}$ to
+  first order in $\epsilon$, subtract $\logg{\det\bra{\mat{X}}}$, divide by
+  $\epsilon$, rearrange and read off $\frac{\partial
+    \logg{\det(\mat{X})}}{\partial \mat{X}}$.  However, rearranging in
+  this case is quite complicated.
+  
+  \begin{qparts}
+    \qpart[5]{Using $\det(\mat{A}\,\mat{B}) =
+      \det(\mat{A})\,\det(\mat{B})$ and $\log(a\,b)= \log(a) +
+      \log(b)$ expand $\logg{\det(\mat{X}+ \epsilon \mat{U}))}$ as a
+      sum of $\logg{\det(\mat{X})}$ and another logarithm.
+      \begin{answer}
+        \begin{align*}
+          \logg{\det\bra{\strut \mat{X}+\epsilon\,\mat{U}}}
+          &= \logg{\det\bra{\mat{X}\,\bra{\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}}}}\\
+          &= \logg{\det(\mat{X}) \, \det(\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U})}\\
+          &= \logg{\det(\mat{X})} + \logg{\det\bra{\mat{I} +
+            \epsilon\,\mat{X}^{-1}\mat{U}}}
+        \end{align*}
+      \end{answer}}{\lines{5}}
+
+    \qpart[2]{The hard part is to expand $\det\bra{\mat{I} +
+        \epsilon\,\mat{M}}$. Write out $\det\bra{\mat{I} +
+        \epsilon\,\mat{M}}$ explicitly for a 2 
+      dimensional matrix and expand to first order in $\epsilon$
+      \begin{answer}
+        \begin{align*}
+          \det\bra{\mat{I}+\epsilon\,\mat{M}}
+          &=
+            \det\begin{pmatrix}
+              1+\epsilon\, M_{11} & \epsilon\, M_{12}\\
+              \epsilon\, M_{21} & 1+\epsilon\, M_{22}
+            \end{pmatrix}
+            = (1+\epsilon\, M_{11})\,(1+\epsilon\, M_{22}) -
+            \epsilon^2\, M_{21}\,M_{12}\\
+          &= 1 + \epsilon \bra{M_{11} + M_{22}} + O(\epsilon^2)
+        \end{align*}
+      \end{answer}}{\lines{8}}
+
+    \qpart[5]{For an $n\times n$ matrix $\mat{M}$ compute the
+      determinant of
+      \begin{align*}
+        \det\bra{\mat{I} + \epsilon\, \mat{M}} = \det
+        \begin{pmatrix}
+          1 + \epsilon\, M_{11} & \epsilon\, M_{12} & \ldots & \epsilon\,M_{1n}  \\
+          \epsilon \, M_{21} & 1 + \epsilon\, M_{22} & \ldots &\epsilon\,M_{2n}\\
+          \vdots & \vdots & \ddots & \vdots \\
+          \epsilon \, M_{n,1} &  \epsilon\, M_{n2} & \ldots &1+\epsilon\,M_{nn}
+        \end{pmatrix}
+      \end{align*}
+      up to first order in $\epsilon$.  Recall we can compute the
+      determinant a matrix $\mat{X}$ as
+      \begin{align*}
+        \det(\mat{X}) = \sum_{i=1}^n (-1)^j\, X_{1j} \, \det(\hat{\mat{X}}_{1j})
+      \end{align*}
+      where $\hat{\mat{X}}_{1j}$ is the matrix obtained
+      by removing row 1 and column $j$ from the matrix $\mat{X}$.
+      \begin{answer}
+        Expanding the determinant we get a term equal to the
+        product of the diagonal elements
+        \begin{align*}
+          \prod_{i=1}^n (1+\epsilon \, M_{ii}) = 1 +\epsilon\,
+          \sum_{i=1}^n M_{ii} + O(\epsilon^2)
+        \end{align*}
+        all other terms in the determinant involve at least terms of
+        order $\epsilon^2$ so do not contribute to order $\epsilon$.
+        In consequence
+        \begin{align*}
+          \det\bra{\mat{I} + \epsilon\, \mat{M}} = 1 + \epsilon
+          \mathrm{tr} \, \mat{M} + O(\epsilon^2)
+        \end{align*}
+      \end{answer}}{\lines{8}}
+
+    \qpart[3]{For a more elegant proof we can use the fact that
+      \begin{align*}
+        \det(\mat{M}) &= \prod_{i=1}^n \lambda_i& \mathrm{tr}\,\mat{M} &=
+                                                                \sum_{i=1}^n \lambda_i
+      \end{align*}
+      where $\lambda_i$ are the eigenvalues of the matrix $\mat{M}$.
+      We will prove these results later when we look at eigen-systems.
+      Note that if $\bm{v}_i$ is an eigenvector of the matrix
+      $\mat{M}$, with eigenvalue $\lambda_i$ then it is an eigenvector
+      of $\mat{I} + c\, \mat{M}$ with eigenvalue $1+c\,\lambda_i$
+      since
+      \begin{align*}
+        (\mat{I} + c\, \mat{M})\, \bm{v}_i = \bm{v}_i + c\,\lambda_i\,
+        \bm{v}_i
+        = (1+c\,\lambda_i)\, \bm{v}_i.
+      \end{align*}
+      Using these results show that $\det\bra{\mat{I} + \epsilon\, \mat{M}} = 1 + \epsilon\,
+      \mathrm{tr} \, \mat{M} + O(\epsilon^2)$.
+      \begin{answer}
+        \begin{align*}
+          \det\bra{\mat{I} + \epsilon\, \mat{M}}
+          &= \prod_{i=1}^n (1+\epsilon\, \lambda_i)
+            = 1 + \epsilon\, \sum_{i=1}^n \lambda_i + O(\epsilon^2) \\
+          &= 1 + \epsilon\, \mathrm{tr}\, \mat{M} + O(\epsilon^2) \\
+        \end{align*}
+      \end{answer}}{\lines{5}}
+
+    \qpart[5]{Using the results
+      \begin{align*}
+        \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
+        &= \logg{\det\bra{\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}}} \\
+        \det\bra{\mat{I} + \epsilon\, \mat{M}} &= 1 + \epsilon
+      \mathrm{tr} \, \mat{M} + O(\epsilon^2)
+      \end{align*}
+      together with the fact that $\log(1+x) = x + O(x^2)$, 
+      compute $\frac{\partial \logg{\det(\mat{X})}}{\partial
+        \mat{X}}$.  You may use the fact that $\log(1+x) = x +
+      O(x^2)$ and $\mathrm{tr}\, \mat{A} = \mathrm{tr}\, \mat{A}^\tr$.
+      \begin{answer}
+        We note that
+        \begin{align*}
+          \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
+          &= \logg{1 + \epsilon\, \textrm{tr} \, \mat{X}^{-1}\mat{U} +
+          O(\epsilon^2)}
+          = \epsilon\,  \textrm{tr} \, \mat{X}^{-1}\mat{U} +
+          O(\epsilon^2) = \epsilon\, \textrm{tr} \mat{U}^\tr (\mat{X}^{-1})^\tr
+        \end{align*}
+        Thus,
+        \begin{align*}
+          \frac{\partial \logg{\det(\mat{X})}}{\partial \mat{X}} =  (\mat{X}^{-1})^\tr
+        \end{align*}
+      \end{answer}}{\lines{7}}
+  \end{qparts}
+\end{question}
+
+% ***************************** question 3 **************************
+
+
+
+% ***************************** End of exam *****************************
+\end{document}
+
+
+
+

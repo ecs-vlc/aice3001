@@ -1,0 +1,110 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 11: Principal Component Analysis (PCA)
+
+
+* Keywords
+  * Covariance matrices, dimensionality reduction, PCA, Duality
+
+* Main Points
+
+** PCA
+   * This is revision as you should have all seen this in foundations of ML
+   * The covariance matrix is defined as 
+     $$ \mat{C}= \frac{1}{m-1} \sum_{i=1}^m
+     (\bm{x}_i-\hat{\bm{\mu}})\,(\bm{x}_i-\hat{\bm{\mu}})^\tr $$ 
+   * Defining the matrix $\mat{X}$ as
+     \begin{align*}
+       \mat{X} = \frac{1}{\sqrt{m-1}}\left( \strut \bm{x}_1-\bm{\mu},
+       \bm{x}_2-\bm{\mu}, \cdots \bm{x}_m-\bm{\mu} \right)
+     \end{align*}
+     then $\mat{C} = \mat{X} \, \mat{X}^\tr$
+   * The /principal components/ are the eigenvectors of the covariance
+     matrix with the largest eigenvalues
+   * We can reduce the dimensionality of the inputs by projecting into
+     the subspace spanned by the principal components
+   * We can reconstruct a vector from its principal component projection
+     \begin{align*}
+       \hat{\bm{x}} = \sum_i z_i \, \bm{v}_i
+     \end{align*}
+     - $\bm{v}_i$ are the principal components (eigenvectors of the
+       covariance matrix with largest eigenvalues)
+     - $z_i = \bm{v}_i^\tr \bm{x}$ are the values of the new features
+     - the sum is over the principal  components that we
+   * The expected squared error reconstruction loss
+     $\mathbb{E}\left[(\hat{\bm{x}}-\bm{x})^2\right]$ is equal to the
+     sum of the eigenvalues we ignore
+
+** Duality
+   * We can define the dual matrix, $\mat{D}= \mat{X}^\tr\mat{X}$ with
+     components $D_{kl} = (\bm{x}_k-\bm{\mu})^\tr(\bm{x}_k-\bm{\mu})$
+   * If $\bm{v}_i$ is and eigenvector of $\mat{D}$ with eigenvalue
+     $\lambda_i$ then $\bm{u}_i = \mat{X} \, \bm{v}_i$ is an
+     eigenvector of $\mat{C}$ with the same eigenvalue
+   * Matrix $\mat{C}$ and $\mat{D}$ have exactly the same non-zero
+     eigenvalues
+   * If we have more features than training example it is more
+     efficient to work with $\mat{D}$ than $\mat{C}$
+   * Note in this case the training examples will not span the feature
+     space.  $\mat{D}$ describes the fluctuations in the space spanned
+     by the examples
+
+* Exercises
+
+** Duality
+   * Show that if $\bm{v}_i$ is and eigenvector of $\mat{D}$ with eigenvalue
+     $\lambda_i$ then $\bm{u}_i = \mat{X} \, \bm{v}_i$ is an
+     eigenvector of $\mat{C}$ with the same eigenvalue
+   * Answer in the lecture notes
+
+* Experiments
+
+** Duality
+   * Using Matlab/Octave of python illustrate that the dual matrix and
+     covariance matrix have the same eigenvalues
+#+BEGIN_SRC matlab
+X = randn(5,3)   % construct a random matrix
+C = X*X'         % compute a sort of covariance matrix (haven't bothered removing mean
+D = X'*X         % compute dual
+[V,LC] = eig(C)  % compute eigensystem of C
+[U,LD] = eig(D)  % compute eigensystem of D should have the same non-zero eigenvalues
+u1 = X*U(:,1)    % left multiply and eigenvector or D by X
+u1/norm(u1)      % normalise above should be the same as V(:,3) (could be V(:,4) or V(:,5))
+#+END_SRC
+
+
+* COMMENT [[file:pca.pdf][PDF]] [[file:pdf/pca_prn.pdf][print]]
+* COMMENT [[file:eigensystems-subsidiary.org][Previous]] [[file:svd-subsidiary.org][Next]]
+
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

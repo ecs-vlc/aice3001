@@ -1,0 +1,412 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 25: MCMC
+
+* Keywords
+  * Monte Carlo methods, MCMC, Variational Methods
+
+* Main Points
+
+** Monte Carlo
+   - Except in a few cases Bayesian inference is hard
+     + It is easy when we have a conjugate prior giving us a simple posterior
+     + But, when we want to model complicated situations our
+       likelihood function usually doesn't have a conjugate prior
+     + This means the posterior is not expressible as a simple
+       probability distribution
+     + Furthermore it is usually impossible to compute the marginal
+       likelihood or evidence
+       $$ \Prob{\mathcal{D}} = \sum_{\bm{\Theta}}
+       \Prob{\bm{\Theta}|\mathcal{D}} \, \Prob{\bm{\Theta}} $$
+     + The sum or integral over variables $\bm{\Theta}$ is often too
+       large to make this the feasible
+     + You could try to obtain a histogram for the posterior, but if
+       $\bm{\Theta}$ has many components the curse of dimensionality
+       makes this difficult
+   - There is a simple answer which is to obtain samples from the posterior
+     + We can use this to estimate expectations of any function,
+       $g(\bm{\Theta})$, of $\bm{\Theta}$
+       $$ \av[\bm{\Theta}|\mathcal{D}]{g(\bm{\Theta})} \approx
+       \frac{1}{n} \sum_{i=1}^{n}   g(\bm{\Theta}_{i}) $$
+       * $\bm{\Theta}_{i}$ are random deviates drawn from
+         the posterior $\Prob{\bm{\Theta}_{i}|\mathcal{D}}$
+       * (random deviates or random variates are values drawn from a
+         probability distibution)
+       * When the posterior distribution is well behaved (doesn't have a
+	 thick tail) then the error in the approximation fall off as $1/\sqrt{n}$
+   - The problem is you have to be able to sample random deviates
+     from $P(\mathcal{D}|\bm{\Theta})\,f(\bm{\Theta})$
+   - For simple distributions there are two classic solutions to
+     generating random deviates
+     1. /Transformation Methods/
+	+ If we can compute the cumulative probability function
+          $$ F_{X}(x) = \int_{-\infty}^{x} f(t)\,\dd t $$
+          and invert $F_{X}(x)$, then $X=F^{-1}_{X}(U)$ will be a
+          random deviate with density $f$, where $U$
+          is a uniform standard deviate between 0 and 1
+	+ This only works for a few classic distributions
+     2. /Rejection Method/
+	+ In the rejection methods we find another distribution
+          $g_{Y}(y)$ that we can sample from that satisfies
+	  $$ c\, g_{Y}(x) > f_{X}(x) $$
+	+ Then we generate a deviate $Y\sim g_{Y}$ and accept it with
+          a probability $f_{X}(Y)/(c\,g_{Y}(Y))$
+	+ The expected rejection rate is $c-1$
+	+ This is a more general method, but is efficient only if we
+          have a good approximating function $g_{Y}(y)$ (good in the
+          sense that $c$ is not too large)
+	+ Particularly for multivariate (i.e. high dimensional) random
+          variables it is often very hard to find a good approximating
+          function
+
+** Markov-Chain Monte Carlo (MCMC)
+   - Fortunately there is another method for generating random
+     deviates which is very general
+   - This uses a Markov-Chain where we update an initial state of our system
+   - If we choose the dynamics correctly eventually we will reach a
+     state that is correctly distributed
+   - Suppose we have a set of states, $\mathcal{S}$, and we want to choose a random
+     sample from a distribution $\bm{\pi} = (\pi_{i}|i\in\mathcal{S}})$
+     + $\pi_{i}$ is the probability of being in state \(i\)---we get to
+       choose this (for Bayesian inference we will want to choose the
+       posterior probability)
+   - Let $M_{ij}$ be the transition probability from state $j$ to
+     state $i$
+     + $\sum_{i} M_{ij} =1$ (if we start any state, $j$ say, we have
+       to end up in another state)
+     + $M_{ij}\geq0$ (it is a probability)
+     + Matrices of non-negative elements whose rows sum to one are
+       known as *stochastic matrices*
+   - If we choose $M_{ij}$ so that
+     $$ M_{ij} \, \pi_{j} = M_{ji} \, \pi_{i} $$
+     + then after some time the probability of being in state $i$ will
+       be $\pi_{i}$ (there are some mild conditions on $\mat{M}$ for
+       this to be true)
+     + This condition is known as *detailed balance*
+     + Note that if we sum the detailed balance equation then
+       $$ \sum_{j\in\mathcal{S}} M_{ij} \, \pi_{j} =
+       \sum_{j\in\mathcal{S}} M_{ji} \, \pi_{i}  = \pi_{j}
+       \label{eq:stochastic} $$
+       * since $\sum_{j} M_{ji} = 1$
+     + Writing this in matrix form
+       $$ \mat{M} \bm{\pi} = \bm{\pi} $$
+       * That is, $\bm{\pi}$ is an eigenvalue of $\mat{M}$ with
+         eigenvalue 1
+     + Because $\mat{M}$ is a stochastic matrix all eigenvalues will
+       be less than or equal to 1
+       * To prove this let $\bm{v}$ be an eigenvector of $\mat{M}$
+         with eigenvalue $\lambda$
+	 $$  \sum_{j\in\mathcal{S}} M_{ij} \, v_{j} = \lambda \, v_{i} $$
+	 taking the absolute value of both sides
+	 $$ \biggl| \sum_{j\in\mathcal{S}} M_{ij} \, v_{j} \biggr|
+         = |\lambda\, v_{i}| = |\lambda| \, |v_{i}| $$
+       * But
+	 $$ \biggl| \sum_{j\in\mathcal{S}} M_{ij} \, v_{j} \biggr|
+	 \leq \sum_{j\in\mathcal{S}}\left| M_{ij} \, v_{j} \right|
+	 = \sum_{j\in\mathcal{S}} M_{ij} \, |v_{j}| $$
+	 where we have used $M_{ij}\geq0$ (and essentially $|a + b| \leq |a| + |b|$)
+       * Thus
+	 $$ \sum_{j\in\mathcal{S}} M_{ij} \, |v_{j}|  \geq |\lambda|
+         \, |v_{i}| $$
+       * Summing both sides with respect to $i$
+	 \begin{align*}
+	 \sum_{i\in\mathcal{S}} \sum_{j\in\mathcal{S}}
+         M_{ij}\, |v_{j}|  &\geq |\lambda| \,
+         \sum_{i\in\mathcal{S}} |v_{i}|  \\
+	 \sum_{j\in\mathcal{S}} \sum_{i\in\mathcal{S}}
+         M_{ij}\, |v_{j}|  &\geq |\lambda| \,
+         \sum_{i\in\mathcal{S}} |v_{i}|  \\
+	 \sum_{j\in\mathcal{S}}  |v_{j}| &\geq |\lambda| \,
+         \sum_{i\in\mathcal{S}} |v_{i}| 
+         \end{align*}
+         where we used $\sum_{i\in\mathcal{S}}M_{ij} = 1$
+       * It follows that $\lambda\leq 1$
+       * Let $\bm{p}(t)$ be a vector whose elements $p_{i}(t)$
+         equal the probability of being in state $i$ at time $t$
+       * If the set of eigenvectors span the whole space, then any
+         starting vector $\bm{p}(0)$ can be written in terms of the
+         eigenvectors 
+	 $$ \bm{p}(0) = \sum_{i} c_{i}\,\bm{v}_{i} $$
+	 (this is just a change of basis)
+       * The probability vector after one step is given by
+	 $$ \bm{p}(1) = \mat{M} \, \bm{p}(0) = \mat{M} \sum_{i} c_{i}\,\bm{v}_{i} 
+	 =  \sum_{i} c_{i}\,\mat{M}\,\bm{v}_{i} 
+         =  \sum_{i} c_{i}\,\lambda_{i}\,\bm{v}_{i} $$
+       * After $t$ steps
+	 $$ \bm{p}(t) = \mat{M}^{t} \, \bm{x} = \sum_{i}
+         c_{i}\,\lambda_{i}^{t}\,\bm{v}_{i} $$
+       * If $|\lambda|<1$ will then $\lambda_{i}^{t}$ will shrink
+         exponentially fast so that
+	 $$ \lim_{t\rightarrow\infty} \bm{p}(t) =
+         \sum_{i:\lambda_{i}=0} c_{i} \bm{v}_{i} $$
+       * That is we converge onto the set of eigenvectors with
+         eigenvalue 1
+       * But if detailed balance is conserved then $\bm{\pi}$
+         satisfies this
+       * There are some conditioned to ensure that there is only one
+         such eigenvector with eigenvalue 1
+	 - We have to ensure that we can get from any state to any
+           other through some series of transitions
+	 - We have to prevent periodic behaviour (e.g. if our set of
+           states where from 1 to n and we could only move from state
+           $i$ to state $i-1$ or $i+1$ then if we started on an odd
+           state we would always be on an odd state after an even
+           number of moves)
+	 - It is very easy to insure both conditions
+   - Now the problem is to choose the transition probabilities to
+     satisfy detailed balance
+   - This is easy and can be done in different ways
+   - *Metropolis Algorithm*
+     + A very easy way to achieve detailed balance is that starting
+       from state $i$ we choose a neighbouring state $j$
+       * We have to make sure the probability of choosing state $i$
+         when in state $j$ is the same as the probability of choosing
+         state $j$ when starting in state $i$
+     + We now move to state $j$ if
+       * $\pi_{j} \geq \pi_{i}$
+       * or we move anyway with a probability $\pi_{i}/\pi_{j}$
+     + It is a simple exercise to show that this satisfies detailed balance
+   - *Metropolis-Hastings Algorithm*
+     + Sometimes it is difficult to insure that choosing state $i$
+       form state $j$ is the same as choosing state $j$ from state $i$
+       * As an example considering our states were non-negative
+         integers, we move from state $i$ to state $i-1$ and $i+1$
+         with probability $\tfrac{1}{2}$, but we have a problem at
+         state 0 where we can't move to state $i-1$
+     + We can modify the Metropolis algorithm.  Suppose $p(i|j)$ is
+       the probability of choosing state $i$ starting is state $j$
+       then let $r = p(j|i) \, \pi_{i}/ (p(i|j)\,\pi_{j})$
+       * we accept the move if $r>1$
+       * or with a probability $r$
+       * in practice we can just just draw a random number $U$
+         uniformly between 0 and 1 and accept the move if $U<r$
+       * this is the same as the Metropolis algorithm if $p(j|i) = p(i|j)$
+   - We can equally well apply this to (multi-dimensional) continuous
+     variables, $\bm{\theta}$
+     + If $\bm{\theta}$ is our current set of parameters, we choose a
+       new set of parameter $\bm{\theta}'$ with probability
+       $p(\bm{\theta}'|\bm{\theta})$ and then accept this proposal if
+       $r = (p(\bm{\theta}|\bm{\theta}') \, \pi(\bm{\theta}'))/
+       (p(\bm{\theta}'|\bm{\theta}) \, \pi(\bm{\theta})) \geq 0$ or
+       with a probability $r$
+     + We now choose $p(\bm{\theta}'|\bm{\theta})$ so that with high
+       probability $\bm{\theta}'$ is close to $\bm{\theta}$, this
+       ensures that there is a reasonable high acceptance rate
+   - For Bayes calculations then $\pi(\bm{\theta})$ would be our
+     posterior $f(\bm{\theta}|\mathcal{D})$
+     + MCMC has the nice property that the update depends only on the
+       ratio
+       $$ \frac{\pi(\bm{\theta}')}{ \pi(\bm{\theta})} =
+       \frac{f(\bm{\theta}'|\mathcal{D})}{f(\bm{\theta}|\mathcal{D})} 
+       =
+       \frac{f(\mathcal{D}|\bm{\theta}')\,f(\mathcal{D}|\bm{\theta}')}
+       {f(\mathcal{D}|\bm{\theta})\,f(\mathcal{D}|\bm{\theta})} $$
+     + That is, the normalising factor $f(\mathcal{D})$ that appears
+       in Bayes' rule cancels
+     + This is important because this is usually incomputable
+       (although we can use MCMC to estimate this)
+     + There is also often another advantage of this ratio: if
+       we only change one variable at a time then frequently we can
+       compute the ratio much more efficiently than the full
+       likelihood and priors
+     + When this happens then it pays to choose a single variable, $\theta_{i}$, at a
+       time, chose a neighbour $\theta'_{i}$ from a distribution
+       $p(\theta'_{i}|\theta_{i})$ and decide whether to accept this update
+     + This one-variable-at-a-time procedure goes by the name of
+       /Gibbs' sampling/
+   - *Convergence*
+     + A problem with MCMC is that your initial parameter, $\bm{p}(0)$,
+       is different from $\bm{\pi}$ so you have to wait
+       some considerable time before your samples are from posterior distribution
+     + As we saw earlier the convergence rate is determined by the
+       second largest eigenvalue of the transition matrix $\mat{M}$
+       (we never explicit calculate $\mat{M}$ so we don't know what
+       this eigenvalue is)
+       * If it is very close to 1 then your convergence can be slow
+     + Furthermore if you posterior distribution is broad you need
+       lots of independent sample to accurately compute expectations
+     + To obtain an independent sample we have to run our MCMC a long time
+     + In practice you have to throw away some samples in a /burn-in/ period
+     + You can then average over all the remaining samples you have (including
+       repetitions where you don't accept a move)
+     + If you do this long enough then you should get samples that
+       cover values of $\bm{\theta}$ with a high posterior probability
+     + MCMC is slow because of this
+     + There are a lot of clever tricks to speed up convergence and
+       decorrelation times
+   - Often MCMC seems daunting because of the apparent difficulties
+     + But don't be put off
+     + You only need to use the tricks for extremely complicated problems
+     + Usually a simple implementation works fine
+     + Modern computers are so fast that convergence isn't usually a problem
+       * Convergence can be a problem in pathological cases---these
+         occur when using MCMC to model some physical systems---but
+         for many Bayesian problems the Markov Chain is /rapidly
+         mixing/ meaning the convergence time is not excessively long
+
+** Variational Techniques
+   - This is a completely different approach to MCMC, but it tries to
+     solve the same problem, but uses a different strategy
+   - This is again technically challenging and I don't expect you to
+     memorise the derivation
+   - We saw in earlier lectures that we can cheat by seeking the parameters that maximise
+     the posterior (the, so called, MAP solution)
+   - But this sacrifices all the probabilistic information
+   - In variational techniques we try to approximate the posterior
+     with a simpler distribution
+   - That is, we approximate the prior $f(\bm{\theta}|\mathcal{D})$
+     with a simpler distribution $q(\bm{\theta}|\bm{w})$ where we get
+     choose $\bm{w}$ to make $q$ close to $f$
+   - Usually we choose $q$ to be a factorisable distribution
+     $$ q(\bm{\theta}|\bm{w}) = \prod_{i} q(\theta_{i}|w_{i}) $$
+   - These techniques were first developed in the physics community
+     and so come with a strange language
+   - In the /variational approximations/ we consider the *variational free
+     energy*
+     $$ \Phi(\bm{w}) = \int q(\bm{\theta}|\bm{w}) \,
+     \logg{\frac{q(\bm{\theta}|\bm{w})}{f(\bm{\theta},\mathcal{D})}}
+     \dd \bm{\theta} $$
+     + writing $f(\bm{\theta},\mathcal{D}) =
+       f(\bm{\theta}|\mathcal{D})\, f(\mathcal{D})$ we can rearrange the
+       variational free energy as
+       \begin{align*}
+        \Phi(\bm{w}) &= \int q(\bm{\theta}|\bm{w}) \, \left(
+        \logg{\frac{q(\bm{\theta}|\bm{w})}{f(\bm{\theta}|\mathcal{D})}} -
+        \logg{f(\mathcal{D})} \right) \, \dd \bm{\theta} \\
+        &= \mathrm{KL}\!\left(q(\bm{\theta}|\bm{w}) \big\|
+        f(\bm{\theta}|\mathcal{D})\right)  - \logg{f(\mathcal{D})} 
+        \end{align*}
+     + where $\mathrm{KL}\!\left(q(\bm{\theta}|\bm{w}) \big\|
+        f(\bm{\theta}|\mathcal{D})\right)$ is the KL divergence that
+        measures the "distance" between $q(\bm{\theta}|\bm{w})$ and
+       $f(\bm{\theta}|\mathcal{D})$
+     + we have previously shown that the KL-divergence is
+       non-negative and equal to zero if the two distributions are
+       the same
+     + The term $\logg{f(\mathcal{D})}$ is the /marginal likelihood/
+       or /evidence/ and does not depend on the parameters $\bm{w}$
+     + If we choose $\bm{\theta}$ to minimise $\Phi(\bm{w})$ then we
+       minimise the KL-divergence and force $q(\bm{\theta}|\bm{w})$
+       to approximate the posterior $f(\bm{\theta}|\mathcal{D})$
+     + The variational free energy can also be written as
+       \begin{align*}
+        \Phi(\bm{w}) &= -\int q(\bm{\theta}|\bm{w}) \,
+        \logg{f(\bm{\theta},\mathcal{D})}   \dd \bm{\theta} +
+        \int q(\bm{\theta}|\bm{w}) \,\logg{q(\bm{\theta}|\bm{w})}
+        \dd \bm{\theta} \\
+        &= - \left( \strut L_{q}(\bm{w}) + H_{q}(\bm{w}) \right)
+       \end{align*}
+     + Minimising the variational free energy is equivalent to
+       maximising $L_{q}(\bm{w}) + H_{q}(\bm{w})$
+     + $L_{q}(\bm{w}) = \int q(\bm{\theta}|\bm{w}) \,
+        \logg{f(\bm{\theta},\mathcal{D})}   \dd \bm{\theta}$
+	is the expected log-likelihood of the data, where we have
+       marginalised with respect to our approximate posterior
+       $q(\bm{\theta}|\bm{w})$
+     + $H_{q}(\bm{w}) = - \int q(\bm{\theta}|\bm{w})
+       \,\logg{q(\bm{\theta}|\bm{w})} \dd \bm{\theta}$ is the entropy
+       of our approximate posterior (this measure the uncertainty in
+       $\bm{\theta}$)
+     + We thus balance maximising the likelihood of the data with
+       maximising the uncertainty in our approximate posterior
+     + This means we fit the data, but guard against over fitting by
+       allowing there to be a non-zero probability wherever it does
+       not strongly contradict the data
+     + In practice both $L_{q}(\bm{w})$ and $H_{q}(\bm{w})$ tend to be
+       quite easy to compute
+     + We are left with an optimisation problem for the parameters,
+       $\bm{w}$, but this is usually quite quick to compute
+
+* Exercise
+
+** Mysterious Disease
+   - Recall in the lecture on probabilistic inference, we defined $Z(t)$
+     to be the number of people that catch a disease on day $t$
+   - We assumed the growth rate is given by
+     $$ \Prob{Z(t+1)} = \mathrm{Poi}\!\left(Z(t+1)\middle|
+     \frac{r_0}{3}\, (Z(t)+Z(t-1)+Z(t-2)) \right) $$
+     + that is people of contagious for three days
+   - The observed number of new people with the disease, $X(t)$, on
+     day $t$ is 
+     $$ \Prob{X(t) = k} = \mathrm{Binom}(k|Z(t), p) = \binom{Z(t)}{k}
+     p^k\,(1-p)^{Z(t)-k} $$
+   - Here is $X(t)$ for the first 30 days\\
+     0,0,0,0,1,1,2,1,0,0,3,10,19,34,44,93,117,221,376,633,\\
+     1021,1643,2701,4503,7414,12091,19999,33286,54612,90283\\
+   - Estimate $p$ and $r_{0}$ from the data
+   - (If you prefer simulate your own data and estimate your parameters)
+
+* Answers
+
+** Mysterious Disease 
+   - We need to decide on a prior
+     + A reasonable prior for $p$ is a Beta distribution perhaps with
+       $a=b=1$ (this is a uniform prior)
+     + For $r_{0}$ we could use a Gamma prior with $a=2$ and $b=1$,
+       this has a mean of $r_{0} =2$ (it seems to be considerably
+       greater than 1)---we need to include $r_{0}^{19}\e{-20\,r_{0}}}$ as our
+       prior (the normalisation is irrelevant)
+   - Now we have to choose proposal distributions for the new values
+      of $p$ and $r_{0}$
+     + You could use $p' = p + U(-0.01,0.01)$ and $r_{0}' = r_{0} +
+       U(-0.1,0.1)$ where $U(a,b)$ is a uniform random deviate
+       between $a$ and $b$
+     + This could have a problem in that $p$ and $r_{0}$ could take
+       illegal values (i.e. we should have $0\leq r \leq 1$ and
+       $r_{0} \geq0$), but for my data this is unlikely to happen
+     + We could choose $p' \sim \mathrm{Beta}(10\,p, 10-10\,p)$ and
+       $r_{0}' \sim r_{0}\,\mathrm{Gamma}(5,5) =
+       \mathrm{Gamma}(5,5.r_{0})$, this ensures that in expectation
+       $p'$ equals $p$ and $r_{0}'$ equals $r_{0}$ with small
+       variations
+       * Beware that there are two common definitions of Gamma
+         distributions
+	 \begin{align*}
+	 \mathrm{Gamma}(z|,a,b) &= \frac{b^{a}}{\Gamma(a)}\,
+         z^{a-1}\,\e{-b\,z} \\
+	 \mathrm{Gamma}^{*}(z|,\alpha,\beta) &= 
+         \frac{1}{\beta^{\alpha}\,\Gamma(\alpha)}
+         z^{\alpha-1}\,\e{-z/\beta}
+         \end{align*}
+       * You have to check which of these your libraries use
+       * In this case we would have Metropolis-Hastings to ensure we get
+	 unbiased samples
+   - The variables $Z(t)$ are latent variables (they will vary for
+     each iteration) we can ignore them, but we could also estimate
+     their mean as they tell us the actual number of cases of people with
+     the virus
+     - My data was generated with $p=0.1$ and $r_{0}=2.5$
+
+* COMMENT [[file:pdf/mcmc.pdf][PDF]] [[file:pdf/mcmc_prn.pdf][Print]]
+* COMMENT [[file:graphicalModels-subsidiary.org][Previous]] [[file:entropy-subsidiary.org][Next]]
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

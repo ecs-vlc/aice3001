@@ -1,0 +1,36 @@
+#! /bin/bash
+
+files=`grep "\\lecture{" lectures.tex | grep -v % | sed 's/\\\lecture{//g' | sed 's/}//g'`
+
+dir="/Users/apb1/Documents/teaching/courses/AICE3001/github/site/lecture_pdf/"
+
+for f in $files
+do
+    if [ ${dir}/${f}_prn_8.pdf  -nt $f.tex ]; then
+        continue
+    fi
+    echo "Processing $f"
+    if echo $f | pdflatex -shell-escape lectures; then
+	echo "OK"
+    else
+	echo "Error"
+	exit 1;
+    fi
+    echo $f | pdflatex lectures &> /dev/null
+    ppower4 lectures.pdf $f.pdf
+    outf=${dir}/${f}_prn.pdf
+    mv lectures.pdf $outf
+    cp ${f}.pdf ${dir}
+    pdfjam --nup 2x4 --no-landscape --outfile ${dir}/${f}_prn_8.pdf $outf
+    pdfjam --nup 2x2  --landscape --outfile ${dir}/${f}_prn_4.pdf $outf
+done
+cmd="pdftk "
+for f in $files; do
+    cmd="$cmd ${dir}/${f}_prn_8.pdf "
+done
+cmd="$cmd cat output pdf/lectures_8.pdf"
+echo $cmd
+$cmd
+cp pdf/lectures_8.pdf ${dir}
+#lecturehtml
+python lecturehtml

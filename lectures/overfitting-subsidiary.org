@@ -1,0 +1,171 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 2: Over-Fitting
+
+
+* Keywords
+  * Overfitting, regularisation, feature selection
+
+* Main Points
+
+  * Over-fitting
+    * Over-fitting is when we learn *spurious rules* that explain the
+      training set
+    * If we use an infinitely flexible machine then we can't
+      generalise at all
+  * Controlling Complexity
+    * More training example improves generalisation by allowing us to
+      eliminate spurious rules
+    * To achieve good generalisation performance machine must match
+      the underlying structure of the problem
+    * By preprocessing or careful feature engineering you can sometimes
+      make the learning task easier
+    * Deep learning works because
+      * It uses a lot of training data
+      * They use convolutions that
+	* have many fewer parameter to learn than fully connected layers
+	* respect translation invariance
+	* find local features (at different scales through the network)
+    * We usually don't know the structure of the inputs (they are too
+      high dimensional)
+      * Try different machines to see what fits
+      * Fine-tune the models (adjusting hyper-parameters)
+      * Feature Engineering very often help
+	* Feature selection
+	* Using PCA or clustering
+	* Normalise your input features
+      * Need a validation set to do this
+      * Beware you are very likely to over-estimate your generalisation error
+	if you use your test set  to select your model
+      * Can use \(K\)-fold cross-validation to get a better estimate of
+        generalisation error
+  * Regularisation
+    * Adding regularisation terms can help choose a simpler model
+    * $L_2$ regularisers punish large weights making the fitting
+      function smoother
+    * $L_1$ regularisers can do automatic feature selection
+    * Can do subtle forms of regularisation such as choosing a maximum
+      margin solution
+
+* Exercises
+
+** Estimating the error in the mean
+
+     * Consider a binary classification problem
+     * Suppose we measure the accuracy on a validation set of size $n=10\,000$
+     * If we correctly predict $8\,000$ of the validation set what is
+       1. an estimate of the mean accuracy?
+       2. the accuracy of this estimate?
+     * State you assumptions
+     * What would the answer be if $n=100$ and we got 80 correct on 
+       the validation set?
+     * Answer at the end
+
+
+* Experiments
+
+** Overfitting Game
+   * Write your own simulation (see lecture notes)
+   * Generate $n$ random numbers $X_i\sim U(0,3)$ (you can try different distributions)
+   * Add some noise to generate $Y_i = X_i + Z_i$ where $Z_i\sim\mathcal{N}(0,1)$
+   * Choose $i^*$ with the largest value of $Y_i$
+   * Compute $\Delta = Z_{i^*}= Y_{i^*}-X_{i^*}$ 
+   * Repeat many times and plot a histogram
+
+** Cross-validation
+   * Try using cross validation
+
+#+name: setup-minted
+#+BEGIN_SRC python
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn import datasets
+from sklearn import svm
+
+X, y = datasets.load_iris(return_X_y=True)
+X.shape, y.shape
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.4, random_state=0)
+
+X_train.shape, y_train.shape
+
+X_test.shape, y_test.shape
+
+
+clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
+clf.score(X_test, y_test)
+#+END_SRC
+
+** Practical work
+
+  * There are a lot of practical tips that you can use in your project
+    * Try them out and see what works and what doesn't
+    * Many modifications won't make much difference, but occasionally one
+      will make a lot of difference
+    * Be very wary of estimating your generalisation performance
+      * You are measuring on a finite validation set so you will have errors
+      * Once you've used your validation set for selecting models,
+        your likely to over-estimate your generalisation performance
+        (under-estimate the generalisation error)
+
+
+* Answers
+
+** Estimating the error in the mean
+
+   * We assume that the examples in the validation set are independent so
+     the number of successes, $k$, will be binomially distributed
+     \begin{align*}
+      \mathrm{Bin}(k|n,p) = \binom{n}{k} p^k\,(1-p)^{n-k}
+     \end{align*}
+   * We don't know the success probability $p$, but an unbiased estimate of
+     it is the number of observed success divided by $n$, that is $0.8$
+   * For a binomial the variance in $k$ is given by $n\,p\,(1-p)$ or 1600 
+     if $p=0.8$ and $n=10\,000$
+   * The typical size of the fluctuations in $k$ would be $\sqrt{n\,p\,(1-p)}=40$
+   * Our estimate of $p$ would therefore typically have fluctuations
+     of size $40/n =0.004$
+   * Thus our estimated success rate is $0.8\pm0.004$ or 80% with an error 
+     of about half a percent
+   * This is small because we used a large validation set.  If $n=100$ and
+     we got 80 successes then we would have an error of $0.8\pm0.04$ so we have
+     an error of 4%.
+   * Note that by choosing the best of 10 machines we might expect to 
+     over-estimate the performance by around 5% in this case
+
+
+
+* COMMENT [[file:overfitting.pdf][PDF]]
+* COMMENT [[file:biasVariance-subsidiary.org][Previous]] [[file:symmetry-subsidiary.org][Next]]
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

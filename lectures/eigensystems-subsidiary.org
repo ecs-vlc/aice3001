@@ -1,0 +1,127 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 10: Eigensystems
+
+
+* Keywords
+  * Eigenvectors, Orthogonal Matrices, Eigenvector Decomposition
+
+* Main Points
+
+** Eigen-Systems
+   * We can understand ill-conditioning for linear regression by the
+     eigen-decomposition of $\mat{M}=\mat{X}^\tr \mat{X}$
+   * This should be revision
+   * You know that an /eigenvector/, $\bm{v}$, satisfies $\mat{M}\,\bm{v}=\lambda\,\bm{v}$
+   * For a symmetric matrix there are $n$ real orthogonal eigenvectors
+   * You can prove they are orthogonal
+   * *Orthogonal Matrices*
+     * Putting the $n$ eigenvectors into a matrix $\mat{V}$ with
+
+       columns $\bm{v}_i$ we obtain an orthogonal matrix
+     * The defining property of an orthogonal matrix is
+       $\mat{V}^\tr\mat{V} = \mat{V}\mat{V}^\tr=\mat{I}$
+     * They correspond to rotations (with a possible reflection)
+   * *Matrix Decomposition*
+     * We can decompose a symmetric matrix, $\mat{M}$ as
+       \begin{align*}
+         \mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr
+       \end{align*}
+     * Where $\mat{\Lambda}$ is a diagonal matrix of eigenvalues of $\mat{M}$ 
+       (i.e. $\Lambda_{ii}=\lambda_i$)
+     * $\mat{V}$ is the orthogonal matrix made up of the eigenvectors of $\mat{M}$
+     * We can interpret the mapping of a symmetric matrix $\mat{M}$ as
+       equivalent to
+       1. a rotation defined by $\mat{V}^\tr$
+       2. scaling of the $i^{th}$ component by $\lambda_i$ and
+       3. a rotation backwards given by $\mat{V}$
+     * Equivalently if we work in a coordinate system defined by the
+       eigenvectors of $\mat{V}$ (this forms an orthonormal basis set)
+       then we just rescale in the directions $\bm{v}_i$ by $\lambda_i$
+       * A symmetric matrix just squashes or expands in different
+         orthogonal directions (this is what  the eigensystem captures)
+
+   * *Inverse Matrices*
+     * The inverse of a symmetric matrix $\mat{M}$ is given by
+       \begin{align*}
+         \mat{M} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr
+       \end{align*}
+     * Where $\mat{\Lambda}^{-1}$ is a diagonal matrix with elements $\Lambda_{ii}^{-1}=1/\lambda_i$
+     * This is only defined if $\mat{M}$ if all the eigenvalues of
+       $\mat{M}$ are non-zero  ($\mat{M}$ is said to be full rank)
+     * If $\lambda_i$ is very small then $1/\lambda_i$ is large and in
+       taking the inverse $\mat{M}^{-1}\bm{x}$ any component of $\bm{x}$
+       in the direction $\bm{v}_i$ will get magnified by $1/\lambda_i$
+     * For linear regression we invert $\mat{M} = \mat{X}^\tr\mat{X}$
+       * in directions where the training examples don't vary much the
+	 associated eigenvalue will be small and the inverse inherently
+	 unstable
+
+
+* Exercises
+
+** Linear Regression
+   * Derive the formula for the weight vector in linear regression
+
+* Experiments
+
+** Eigensystems
+   * In either Matlab/Octave or python generate random matrices and check
+     the matrix identities
+
+#+BEGIN_SRC matlab
+X = randn(5,4)  % generate a mock designer matrix with 5 inputs of length 4 
+M = X'*X        % compute a symmetrix matrix
+[V.L] = eig(M)  % compute eigenvalues
+V*L*V'          % should be identical to M
+V*V'            % should be the identity matrix (up to rounding precision)
+V'*V            % should be the identity matrix (up to rounding precision)
+x = randn(4,1)  % generate a random column matrix of length 4
+y = randn(4,1)  % generate another random column matrix of length 4
+xp = V*x        % apply V to x
+yp = V*y        % apply V to y
+norm(x)         % compute Euclidean norm of x
+norm(xp)        % should be the same as Euclidean nor of xp
+x'*y            % compute inner product of x and y
+xp'*yp'         % compute inner produce of xp and yp (should be the same as above)
+
+Z = rand(4,5)   % consider a designer matrix where we would have more unknowns the examples
+W = Z'*Z        % compute a covariance type matrix (except we don't subtract the mean
+eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
+#+END_SRC
+
+* COMMENT [[file:mappings.pdf][PDF]] [[file:pdf/mappings_prn.pdf][Print]]
+* COMMENT [[file:mappings-subsidiary.org][Previous]] [[file:pca-subsidiary.org][Next]]
+
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

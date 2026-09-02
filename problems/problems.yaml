@@ -1,0 +1,12 @@
+course:
+  code: AICE3001/AICE6002
+  title: Mathematics of Machine Learning
+  author: Adam Prugel-Bennett
+
+sheets:
+  - week: 1
+    name: calculus
+    keywords: math 101, matrices, differentiation
+  - week: 2
+    name: vectorSpaces
+    keywords: Cauchy-Schwarz, Inner-product spaces, induced norms

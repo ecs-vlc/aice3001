@@ -1,0 +1,47 @@
+\documentclass{sotonExamBoxes}
+
+\begin{document}
+    \newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
+     \newcommand{\mm}{\hat{m}_c(\bm{x})}
+
+     \qpart[10]{Consider a classification problem where $\ml$ is the
+       probability that a learning machine with parameters
+       $\bm{\theta}$ predicts that input $\bm{x}$ belongs to class
+       $c\in\mathcal{C}$.  Assume the training is stochastic so the
+       probability of obtaining parameters $\bm{\theta}$ is
+       $\rho(\theta)$. Let $\mm = \av[\bm{\theta}]{\ml}$ be the output
+       of the mean machine for class $c$.  Assuming that
+       for a data point $(\bm{x}, y)$, where $y$ is a
+       class label, we use a cross entropy loss
+       \begin{align*}
+         L(\bm{x}, y, \bm{\theta}) = -\sum_{c \in \mathcal{C}}
+         \pred{y=c} \logg{\ml},
+       \end{align*}
+       show that  the expected loss over inputs and parameters can be
+       written as the expected loss of the mean machine plus a second
+       loss.  Use Jensen's inequality ($\av{\log(X)}\leq\logg{\av{X}}$) to
+       show the second term is positive.}{\lines{15}}
+     \begin{answer}
+       \meta{Students have not  have seen this although it is not difficult
+         to prove.}
+
+       \begin{align*}
+         \mathcal{E} &= \av[(\bm{x},y)]{\av[\bm{\theta}]{  -\sum_{c \in \mathcal{C}}
+                       \pred{y=c} \logg{\ml}}}
+         \\
+         &=  -\av[(\bm{x},y)]{-\sum_{c \in \mathcal{C}} \pred{y=c} \logg{\mm}}
+           - \av[(\bm{x},y)]{\av[\bm{\theta}]{  -\sum_{c \in \mathcal{C}}
+                       \pred{y=c} \logg{\frac{\ml}{\mm}}}}
+       \end{align*}
+       The first terms acts like a bias.  The second  (variance-like) term is
+       \begin{align*}
+         - \av[(\bm{x},y)]{ -\sum_{c \in \mathcal{C}}
+         \pred{y=c} \av[\bm{\theta}]{ \logg{\ml}}}
+         + \av[(\bm{x},y)]{-\sum_{c \in \mathcal{C}} \pred{y=c} \logg{\mm}}
+       \end{align*}
+       But using Jensen's inequality $\av[\bm{\theta}]{ \logg{\ml}}
+     \leq \logg{\av[\bm{\theta}]{\ml}} = \logg{\mm}$. Thus this second
+     term is positive.
+     \end{answer}
+   
+\end{document}

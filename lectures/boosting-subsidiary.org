@@ -1,0 +1,76 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 6: Boosting
+
+* Keywords
+  * Boosting, AdaBoost, Gradient Boosting
+
+* Main Points
+
+
+*** Boosting
+    * Boosting constructs a /strong learner/ as a weighted sum of /weak learners/
+    * Adaboost
+      * Used for binary decisions
+      * Start with a set of weak learners, $\mathcal{W}$
+      * Each weak learner $h_i(\bm{x})$ outputs $\pm1$
+      * Greedily build the strong learner by adding $\alpha_t\,
+        h_t(\bm{x})$ at iteration $t$
+      * Uses an exponential "error" to choose the weak learner and $\alpha_t$
+      * Algorithm does the following
+	* Define a weight, $w_t^\mu$, for each training example
+          $(\bm{x}^\mu,y^\mu)$
+	  - initially these are set to 1
+	  - Large weight implies the training example is poorly predicted
+	* Choose the weak learner, $h_t$ that fails only where prediction is good
+	  - it decides this by summing the weights of training
+            examples where the weak learner makes an error
+	  - it choose the weak learner with the smallest sum
+	* Choose the parameter $\alpha_t$ to minimises the error
+      * Need to understand derivation and resulting algorithm (this is
+        complicated)
+    * Gradient Boosting
+      * Used on regression problems
+      * Iterative algorithm where we learn a new weak learner that
+        minimises the residual errors
+      * Uses very small decision trees for regression
+    * Performance of Boosting
+      * Can over-fit (use early stopping)
+      * Only works for very simple weak-learners (strong learners will
+        over-fit)
+      * Can give state-of-the-art performance
+
+* COMMENT [[file:boosting.pdf][PDF]]
+* COMMENT [[file:ensembleLearning-subsidiary.org][Previous]]   [[file:vectorSpaces-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

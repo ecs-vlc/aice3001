@@ -1,0 +1,82 @@
+#! /bin/bash
+
+files=`ls *.tex`
+filelist=($files)
+
+declare -a filelist=(
+    biasVariance.tex
+    ensembleLearning.tex
+    vectorSpaces.tex
+    convexity.tex
+)
+
+n=1
+for f in "${filelist[@]}"; do
+  echo "$n $f";
+  n=$(( $n + 1 ));
+done
+
+n=`cat .gono`
+echo -n "choose a file (${filelist[$n]})? ";
+   read m;
+
+if [ "${m}" != "" ]; then
+    n=$(( m - 1 ));
+fi
+
+echo $n > ".gono"
+f=${filelist[$n]}
+
+
+
+
+file=`basename ${f} .tex`
+if [ -e ${file}.tex ]; then
+    echo "processing $file.tex"
+else
+    echo "${file}.tex doesn't exist"
+    exit 1
+fi
+
+cd figures
+figs=`ls *.pdf`
+for fig in $figs
+{
+    base=`basename $fig .pdf`
+    if [[ $base.eps -nt $fig ]]; then
+	echo updating $fig
+	epstopdf $base.eps
+    fi
+}
+cd ..
+
+if pdflatex -shell-escape $file.tex; then
+    pdflatex $file.tex > /dev/null
+    mv $file.pdf $file-questions.pdf
+    evince $file-questions.pdf
+else
+    echo "Tex failed"
+    exit 1
+fi
+
+sed 's/documentclass/documentclass[answers]/' $file.tex > tmp.tex
+if pdflatex -shell-escape tmp.tex; then
+    pdflatex tmp.tex > /dev/null
+    mv tmp.pdf $file-answers.pdf
+    rm tmp.*
+    evince $file-answers.pdf
+else
+    echo "Tex failed"
+fi
+
+if grep -q hideanswer $file.tex; then
+    sed 's/documentclass/documentclass[fullanswers]/' $file.tex > tmp.tex
+    if pdflatex -shell-escape tmp.tex; then
+	pdflatex tmp.tex > /dev/null
+	mv tmp.pdf $file-full-answers.pdf
+	rm tmp.*
+	evince $file-full-answers.pdf
+    else
+	echo "Tex failed"
+    fi
+fi

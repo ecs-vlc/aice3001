@@ -1,0 +1,130 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 7: Vector Spaces
+
+
+
+* Keywords
+  * Vectors, vector spaces, operators
+
+* Main Points
+
+** Vector Spaces
+   * Any set of objects with addition between members of the set and
+     scalar multiplication forms a vector space if they satisfies 8 axioms
+   * Most of these axioms arise naturally if addition and scale multiplication
+     behave normally
+   * The only additional axiom is closure
+   * Normal vectors, matrices and functions all form vector spaces
+
+** Distances
+   * A /proper distance/ or /metric/ between objects in a vector space
+     satisfies 4 conditions
+     1. $d(\bm{x},\bm{y})\geq0$ (non-negativity)
+     2. $d(\bm{x},\bm{y}) = 0$ if and only if $\bm{x}=\bm{y}$ (identity of indiscernibles)
+     3. $d(\bm{x},\bm{y}) = d(\bm{y},\bm{x})$ (symmetry)
+     4. $d(\bm{x},\bm{y}) \leq d(\bm{x},\bm{z}) + d(\bm{z},\bm{y})$ (triangular inequality)
+   * You can define different distances for the same set of objects
+   * Often we use /pseudo-metrics/ that breaks one or other of the conditions
+   * Consider a function (mapping) $f:\mathbb{R}\right\mathbb{R}$ then
+     a useful quantification of how big a change a mapping can produce
+     is given by the Lipschitz condition
+     \begin{align*}
+      d(f(x), f(y)) \leq K\, d(x,y)
+     \end{align*}
+     This is useful if for all $x$ and $y$ there exists some fixed $K$
+   * Lipschitz functions are continuous (have no jumps)
+   * If $K<1$ the mapping is said to be a contractive mapping
+** Norms
+   * Norms provide a measure of the size of a vector
+   * They satisfy three conditions
+     1. $\| \bm{v} \| >0$ if $\bm{v}\neq\bm{0}$ (non-negativity)
+     2. $\| a\,\bm{v} \| = a \| \bm{v} \|$ (linearity)
+     3. $\| \bm{u} + \bm{v} \| \leq \| \bm{u} \| + \| \bm{v} \|$ (triangular inequality)
+   * Again if not all of these conditions are true we have /pseudo-norms/
+   * Norms provide a metric $d(\bm{x}, \bm{y}) = \|\bm{x}-\bm{y}\|$
+   * We will meet norms very often in this course
+   * *Vector Norms*
+     * There are a large number of norms for normal vectors that people use
+       1. Euclidean or 2-norm: $\| \bm{v} \|_2 = \sqrt{v_1^2 + v_2^2 + \cdots + v_n^2}$
+       2. \(p\)-norm: $\| \bm{v} \|_p = \left(\sum_{i=1}^n | v_i |^p \right)^{1/p}$
+       3. 1-norm: $\| \bm{v} \|_1 &= \sum\limits_{i=1}^n | v_i |$
+       4. \(\infty\)-norm or max-norm: $\| \bm{v} \|_{\infty} &= \max_i |v_i|$
+     * Note the 1-norm, 2-norm and \(\infty\)-norm are all \(p\)-norms with different $p$
+     * The 0-norm counts the number of non-zero components (it is a
+       pseudo-norm as it is not linear)
+   * *Matrix Norms*
+     * Matrices also have norm
+       1. The Frobenius norm is \(\| \mat{A} \|_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n |A_{ij}|^2}\)
+       2. Also have 1-norm, max-norm, Hilbert-norm (the maximum absolute eigenvalue), nuclear-norm, etc.
+     * Note that the determinant is not a norm because it can be negative and is not linear
+     * Many of the commonly used matrix norms satisfy
+	\begin{align*}
+           \| \mat{A}\,\mat{B} \| \leq \| \mat{A} \| \times \| \mat{B} \|\pause
+	\end{align*}
+     * This is really useful because we can quickly bound norms of products of matrices
+     * Many matrix and vector norms are compatible
+	\begin{align*}
+            \| \mat{M} \bm{v} \|_b \leq \| \mat{M} \|_a \times \| \bm{v} \|_b
+	 \end{align*}
+     * E.g. Frobenius and Euclidean norms are compatible
+     * One of the main uses of matrix norms is to understand by how much it
+       can potentially increase the size of a vector
+   * *Function Norms*
+     * The most common function norms are
+       1. The \(L_2\)-norm
+	  \begin{align*}
+          \| f \|_{L_2} = \sqrt{\int_{\bm{x}\in\mathcal{R}} f^2(\bm{x}) \, \dd \bm{x}}
+          \end{align*}
+	  where $\mathcal{R}$ is the region over which the function is define
+       2. The \(L_1\)-norm
+	  \begin{align*}
+          \| f \|_{L_1} = \int_{\bm{x}\in\mathcal{R}} |f(\bm{x})| \, \dd \bm{x}
+          \end{align*}
+       3. The $\infty$ or max-norm
+	  \begin{align*}
+          \| f \|_{\infty} = \max_{\bm{x}\in\mathcal{R}} f(\bm{x})
+          \end{align*}
+     * Function norms are also used to define vector spaces
+       1. The $L_2$ vector space is the set of functions such that all 
+          functions satisfy $\| f \|_{L_2}<\infty$
+       2. The $L_1$ vector space is the set of functions such that all 
+          functions satisfy $\| f \|_{L_1}<\infty$
+     * In these vector spaces we only consider functions that measurable in
+       the sense that $\|f\|>0$ for any non-zero function
+	  
+
+* COMMENT [[file:vectorSpaces.pdf][PDF]]
+* COMMENT [[file:boosting-subsidiary.org][Previous]] [[file:innerProduct-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

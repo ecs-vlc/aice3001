@@ -1,0 +1,85 @@
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{Log Determinants}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We often come across logarithms of determinants of matrices,
+    $\logg{|\mat{M}|}$\pause 
+  \item For GP we want to choose $\mat{K}$ to maximise the marginal likelihood,
+    $\logg{|\mat{K}+\sigma^2\mat{I}|}$\pause 
+  \item To find the derivative of $\logg{|\mat{X}|}$ we consider
+    \begin{align*}
+      \logg{|\mat{X}+\epsilon\,\mat{U}|}
+      &= \logg{|\mat{X}(\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U})|}
+        \pause\\
+      &= \logg{|\mat{X}| \, |\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}|}
+        \pauseb\\
+        &= \logg{|\mat{X}|} + \logg{|\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}|}\pauseb
+    \end{align*}{\small
+    \begin{itemize}\squeeze
+    \item Using $|\mat{A}\mat{B}| = |\mat{A}| \, |\mat{B}|$
+      \pauselevel{=4, build}\pause
+    \item Using $\log(a\,b) = \log(a) + \log(b)$  \pauselevel{=5, build}\pause
+    \end{itemize}}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Determinants}
+
+\pb \pause
+{\small
+\begin{align*}
+  |\mat{I}+\epsilon\,\mat{M}| &=
+  \begin{vmatrix}
+    1+\epsilon\, M_{11} & \epsilon\, M_{12}\\
+    \epsilon\, M_{21} & 1+\epsilon\, M_{22}
+  \end{vmatrix}\pauseh
+                        = (1+\epsilon\, M_{11})\,(1+\epsilon\, M_{22}) -
+                        \epsilon^2\, M_{21}\,M_{12}\pause \\
+  &= 1 + \epsilon \bra{M_{11} + M_{22}} + O(\epsilon^2)\pause
+\end{align*}}
+\begin{center}
+  \multipdf[width=0.7\linewidth]{diffdet}\pause
+\end{center}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Putting it Together}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall
+    \begin{align*}
+      \logg{|\mat{X}+\epsilon\,\mat{U}|} - \logg{|\mat{X}|}
+      &= \logg{|\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}|}\pause \\
+      &= \logg{1 + \epsilon \, \mathrm{tr}\; \mat{X}^{-1}\mat{U}+
+        O(\epsilon)^2}\pauseb\\
+        &=  \epsilon \, \mathrm{tr}\; \mat{X}^{-1}\mat{U}+
+        O(\epsilon)^2\pauseb\\
+        &= \epsilon \, \mathrm{tr}\; \mat{U}^\tr \bra{\mat{X}^{-1}}^\tr+ O(\epsilon)\pauseb
+    \end{align*}
+    using $\log(1+x) = x + \tfrac{x^2}{2} +
+    \cdots$\pauselevel{=3, build, highlight}\pause \pauselevel{=5}
+    \item Thus $\partial_{\mat{U}} \logg{|\mat{X}|} = \mathrm{tr}\;
+      \mat{U}^\tr \bra{\mat{X}^{-1}}^\tr$\pauseb
+    \item Or
+      \begin{align*}
+        \frac{\partial \logg{|\mat{X}|}}{\partial \mat{X}} =  \bra{\mat{X}^{-1}}^\tr\pauseb
+      \end{align*}
+
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+

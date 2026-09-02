@@ -1,0 +1,33 @@
+#+TITLE: Trial Notes
+#+SUBTITLE: Lecture 17: Gaussian Processes
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\E}[1]{{\rm e}^{\displaystyle #1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\vl}{\bm{\ell}}
+#+LATEX_HEADER: \newcommand{\vb}{\bm{b}}
+
+* Playing with asymptote
+  - Try this
+    1. here
+    #+BEGIN_SRC asymptote :file circle.pdf
+    settings.outformat="pdf";
+    size(100,0);
+
+    draw(circle((0,0),4));
+    #+END_SRC
+    #+ATTR_LATEX: :width 0.2\textwidth
+    #+RESULTS:
+    [[file:circle.pdf]]
+    1. [@2] hi
+
+    2. 

@@ -1,0 +1,174 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Bias Variance Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+When modelling systems with uncertainty it is convenient to define
+\textit{random variables}.  The are numbers that we associate with the
+outcome of some stochastic event.  We associate a probability (or
+probability density) with the set out outcomes such that the random
+variables take a particular value.  We often write random
+variables using capital letters (e.g. $X$) while the actual values the
+$X$ takes we write with small letters $x$.  Thus $\Prob{X=x}$ is the
+probability that the random value, $X$, takes value, $x$.  We write
+non-random variables (scalars) with a small letter (e.g. $c$).  Note
+that for most continuous random variables $\Prob{X=x}=0$ so instead we
+define the probability density
+\begin{align*}
+  f_X(x) = \lim_{\delta x \rightarrow 0} \frac{\Prob{x\leq X \leq
+  x+\delta x}}{\delta x}.
+\end{align*}
+
+The expectation (or average value) of some function, $g$, of $X$ is
+written as
+\begin{align*}
+  \av[X]{g(X)} =
+  \begin{cases}
+    \sum_{x\in \mathcal{X}} \Prob{X=x}\, g(x) \\
+    \int f_X(x) \, g(x)\, \dd x
+  \end{cases}
+\end{align*}
+depending on whether $X$ is a continuous or discrete random variable.
+Note $\mathcal{X}$ is the possible values that the random variable can take.
+When it is clear what random variables we are taking expectation with
+respect to then we will often write $\av{\cdot}$ for $\av[X]{\cdot}$.
+
+
+%\blankpage
+
+
+%% ----------------------------------------------------------------
+%\section
+% -----------------------------------------------------------------------
+% *************************  Section A  *********************************
+% -----------------------------------------------------------------------
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{10}
+  \begin{qparts}
+    \qpart[3]{Let $X$ be outcome of an honest dice
+      ($\mathcal{X}=\{1,2,3,4,5,6\}$).  What is
+      \begin{enumerate}
+      \item $\av{X}$
+      \item $\av{2\,X}$
+      \item $\av{X^2}$
+      \end{enumerate}}{\inumberedlines[2]{3}}
+    \begin{answer}
+      \begin{enumerate}
+      \item $\av{X} = \frac{1+2+3+4+5+6}{6} = 3.5$
+      \item $\av{2\,X} = 2\,\av{X} = 7$
+      \item $\av{X^2} = \frac{1+4+9+16+25+36}{6} = \frac{91}{6} = 15.1666$
+      \end{enumerate}
+    \end{answer}
+    \freshpage
+    \qpart[4]{Let $X$ be a random variable as before and $Y$ be a
+      random variable for a second independent dice. What is
+      \begin{enumerate}
+      \item $\av[X]{X + Y}$
+      \item $\av[X,Y]{X + Y}$
+      \item $\av[X]{X\,Y}$
+      \item $\av[X,Y]{X\,Y}$
+      \end{enumerate}
+    }{\inumberedlines[1]{4}}
+    \begin{answer}
+      \begin{enumerate}
+      \item $\av[X]{X + Y} = \av[X]{X} + Y = 3.5 + Y$
+      \item $\av[X,Y]{X + Y} = \av[X]{X} + \av[Y]{Y} = 7$
+      \item $\av[X]{X\,Y} = \av[X]{X}\,Y = 3.5\,Y$
+      \item $\av[X,Y]{X\,Y} = \av[X]{X} \, \av[Y]{Y} = 3.5^2 = 12.25$
+      \end{enumerate}
+    \end{answer}
+    \qpart[3]{Let $X$ be the random variable as before and $E$ be a
+      random variable equal to 0 if $X$ is odd and 1 if $X$ is even.
+      Note that $E$ is not independent of $X$.  What is
+      \begin{enumerate}
+      \item $\Prob{E=1} (= \av[X]{E})$
+      \item $\av[X]{X + E}$
+      \item $\av[X]{X\,E}$
+      \end{enumerate}
+    }{\inumberedlines[1]{3}}
+    \begin{answer}
+      \begin{enumerate}
+      \item $\Prob{E=1} = \av[X]{E} = \frac{0+1+0+1+0+1}{6} = 0.5$
+      \item $\av[X]{X + E} = \av[X]{X} + \av[X]{E} = 3.5 + 0.5 = 4$
+      \item $\av[X]{X\,E} = \frac{0 +2 + 0 +4 +0 +6}{6} = 2$
+      \end{enumerate}
+    \end{answer}
+    \end{qparts}
+\end{question}
+\begin{answer}
+  Note that expectations are \textit{linear operators} so that
+  \begin{align*}
+    \av[x]{a\,g(X) + b\,h(X)} = a\,\av[X]{g(X)} + b\,\av[x]{h(X)}.
+  \end{align*}
+  Note that this also means
+  \begin{align*}
+    \av[X]{\sum_{i=1}^n g_i(X)} = \sum_{i=1}^n \av[X]{g_i(X)}.
+  \end{align*}
+  If $X$ and $Y$ are independent (so $\Prob{X=x, Y=y}=
+  \Prob{X=x}\,\Prob{Y=y}$) then
+  \begin{align*}
+    \av[X,Y]{g(X)\, h(Y)} = \av[X]{g(X)} \, \av[Y]{h[Y]}.
+  \end{align*}
+  However is $X$ and $Y$ are not independent random variables then
+   \begin{align*}
+    \av[X,Y]{g(X)\, h(Y)} = \sum_{x\in\mathcal{X}}
+     \sum_{y\in\mathcal{Y}} \Prob{X=x,Y=y} g(X)\, h(Y)
+   \end{align*}
+   and usually $\av[X,Y]{g(X)\, h(Y)} \neq \av[X]{g(X)} \, \av[Y]{h[Y]}$.
+\end{answer}
+
+\end{document}
+
+
+
+

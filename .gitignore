@@ -1,0 +1,32 @@
+# editor / OS cruft
+*~
+#*#
+.#*
+.DS_Store
+.saveAsk
+__pycache__/
+*.pyc
+
+# timetable / attendance exports (contain attendance QR links)
+*.csv
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.old
+_region_.*
+texput.*
+supp-pdf.*
+
+# asymptote intermediates
+*.pre

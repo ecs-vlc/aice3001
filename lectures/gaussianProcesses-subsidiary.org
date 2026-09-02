@@ -1,0 +1,736 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 22: Gaussian Processes
+
+
+* Keywords
+  * Gaussian Processes, regression
+
+* Main Points
+
+** The Big Picture
+   * Gaussian processes are a machine learning method for regression
+     - You can use them for classification but it is regression where they excel
+   * They put a prior on functions (preferring smooth functions)
+   * Conceptually they are easy
+   * They are easy to use
+   * But they are mathematically fiddly to understand
+   * Gaussian processes were first used for spatial modelling where
+     the technique was know as /krigging/
+   * They are one of the most powerful methods we have of doing regression
+   * They are quite general purpose as the prior we use is reasonable
+     for a large number of applications
+
+** Gaussian Processes
+   * Gaussian Processes are also mathematical objects
+   * A Gaussian Process assigns a  probability to functions
+     depending on their spatial smoothness
+     - We assume that the probability of $f(\bm{x})$ taking a
+       particular value is normally/Gaussian distributed in a way that
+       depends on the value of  value of the function at other points
+   * This will be governed by a /covariance/ or /kernel/ function
+     $k(\bm{x},\bm{y})$  which tells us the covariance of the prior
+     $$ \av[f]{ (f(\bm{x})-m(\bm{x})) \, (f(\bm{y})-m(\bm{y}))\strut } =
+     k(\bm{x},\bm{y}) $$
+     - This is an expectation over all functions from our probability distribution
+     - $m(\bm{x})$ encodes a prior belief in the value of
+       \(f(\bm{x})\)---normally we choose this to be 0 as most often
+       we don't have any prior knowledge of the function
+     - Because the covariance is quadratic it will be positive semi-definite
+     - The kernel function is critical to determining the type of
+       function we will learn
+     - Choosing this kernel function correctly is essential to make GP work
+   * The values at each point $\bm{x}$ is normally or Gaussianly
+     distributed
+     $$ p(f|m,k) \propto \E{-\tfrac{1}{2} \int (f(\bm{x})-m(\bm{x})) 
+      \, k^{-1}(\bm{x},\bm{y}) \, (f(\bm{y}) -m(\bm{y})) \, \dd \bm{x}
+      \, \dd \bm{y}} $$
+     - It is a little unclear exactly what this means for functions: working
+      with function spaces one has to be very careful (e.g. to
+      normalise this we have to sum over all functions)
+     - Nevertheless it is clear that we can use this for comparing the
+       likelihood of different functions
+     - If you discretise the domain of $\bm{x}$ then
+       $$ p(f|m,k) \propto \E{-\tfrac{1}{2} \sum_{i,j} (f(\bm{x}_i)-m(\bm{x}_i)) 
+        \, k^{-1}(\bm{x}_i,\bm{x}_j) \, (f(\bm{x}_j) -m(\bm{x}_j)) } $$
+       + the probability function is now a well-define  multi-dimensional
+         normal distribution
+       + here it is clear that the value at each point is normally
+         distributed
+       + to get back to the integral form we have to take a limit where our
+	    discrete points become every closer together (this stresses out
+	    mathematicians who point out that nasty things can happen, but
+	    for the rest of us we just go ahead)
+     - We can sample Gaussian processes from this distribution
+       + in low dimensions this allows us to visualise the type of
+         functions we are likely to learn
+       + you can try this out in the experiment section 
+
+** Bayesian Inference
+   * We can use Gaussian Processes as a prior for performing regression
+   * We assume we have a set of data points $\mathcal{D} = \left( (\bm{x}_i, y_i)
+      \big\vert i=1,\ldots, m \right)$
+   * The likelihood for data  is taken to be a normal distribution
+     $$ p(\mathcal{D}| f) = \prod_{i=1}^m 
+      \mathcal{N}\left(y_i \big\vert f(\bm{x}_i), \sigma^2\right) $$
+     - We assume that $f(\bm{x}_i)$ is the true value of the function
+       at $\bm{x}_i$, but, because of measurement error, $y_i$ will be
+       distributed according to a normal distribution
+     - $\sigma$ is the accuracy of our measured data (it is another
+       hyper-parameter we must choose)
+     - Note we are assuming the data points are independent of each other
+       (which is usually a good approximation)
+   * We can now compute a posterior
+     $$ p(f|\mathcal{D}, m, k, \sigma) = \frac{p(\mathcal{D}| f, \sigma)  \,
+     p(f|m,k)}{p(\mathcal{D}|m,k,\sigma)}  $$ 
+     - I have explicitly written in the dependencies on they
+       hyper-parameters $m$, $k$ and $\sigma$
+     - The Gaussian Process prior is a conjugate distribution for the
+       normal likelihood
+     - Computing probabilities over functions is slightly wild
+   * It is more useful to compute the probability at a particular
+     point $\bm{x}^*$
+     - To compute this we marginalise over all other points
+       + This is non-trivial but doable
+       + If you have a multivariate normal distribution
+         $$ \mathcal{N}(\bm{x}| \bm{\mu},\mat{C}) =
+         \frac{1}{\sqrt{|2\,\pi\, \mat{C}|}} \e{-\tfrac{1}{2}
+         (\bm{x}-\bm{\mu})^\tr \mat{C}^{-1}\, (\bm{x}-\bm{\mu})} $$
+	 and you integrate over $x_i$ (marginalise it out) then
+	 $$ \int_{-\infty}^{\infty} \mathcal{N}(\bm{x}|
+         \bm{\mu},\mat{C}) \, \dd x_i = \mathcal{N}(\hat{\bm{x}}|
+         \hat{\bm{\mu}},\hat{\mat{C}}) $$
+	 where $\hat{\bm{x}}$ and $\hat{\bm{\mu}}$ are identical to
+         $\bm{x}$ and $\bm{\mu}$ except with their $i^{th}$ component
+         removed and $\hat{\mat{C}}$ is identical to $\mat{C}$ except
+         with the $i^{th}$ row and column removed
+       + Intuitively this seems very natural (if $x_i$ can take any value it
+         doesn't change the mean or covariance between other random
+         variables )
+       + You can prove this algebraically but it is not a trivial calculation
+       + Because of this for a Gaussian Process we only care about
+         those set of points where we have data values
+     - For all point $\bm{x}$ (except the point $\bm{x}^*$) we
+       integrate over the possible values that $f(\bm{x})$ can take
+     - Where we have no prior this integral is just a constant---and
+       will cancel with the denominator $p(\mathcal{D}|m,k,\sigma)$
+     - We are left with
+       \begin{align*}
+       p(f(\bm{x}^*)|\mathcal{D}) \propto \left(\prod_i \int \dd
+       f(\bm{x}_i)\right) &
+       \e{- \tfrac{1}{2\sigma^2} \sum\limits_{i=1}^m (y_i-f(\bm{x}_i))^2 } 
+       \, \e{-\tfrac{1}{2}\sum\limits_{i,j=1}^m
+       (f(\bm{x}_i)-m(\bm{x}_i))\, k^{-1}(\bm{x}_i,\bm{x}_j)  \,
+       (f(\bm{x}_j)-m(\bm{x}_j))}\\
+       & \e{-\sum\limits_{j=1}^m
+       (f(\bm{x}^*)-m(\bm{x}^*))\, k^{-1}(\bm{x}^*,\bm{x}_j)  \,
+       (f(\bm{x}_j)-m(\bm{x}_j)) } \\
+       & \e{ - \tfrac{1}{2} (f(\bm{x}^*)-m(\bm{x}^*))\, k^{-1}(\bm{x}^*,\bm{x}^*)
+       (f(\bm{x}^*)-m(\bm{x}^*))}
+       \end{align*}
+       - Writing $f^*=f(\bm{x}^*)$, $f_i=f(\bm{x}_i)$, $m_i=m(\bm{x}_i)$,
+         $k^{-1}_{ij} =k^{-1}(\bm{x}_i,\bm{x}_j)$,
+         $k^{*-1}_j=k^{-1}(\bm{x}^*,\bm{x}_j)$ and
+         $k^{*-1}=k^{-1}(\bm{x}^*,\bm{x}^*)$  then
+	 \begin{align*}
+	 p(f^*|\mathcal{D}) \propto  \e{-\tfrac{1}{2} k^{*-1}(f^*-m^*)^2} 
+          \left(\prod_i \int \dd f_i\right) &
+            \e{- \tfrac{1}{2\sigma^2} \sum\limits_{i=1}^m (y_i-f_i)^2
+             -\tfrac{1}{2}\sum\limits_{i,j=1}^m
+           (f_i-m_i)\, k^{-1}_{ij}  \, (f_j-m_j)} \\
+	   & \e{ -\sum\limits_{j=1}^m
+           (f^*-m^*)\, k^{*-1}_{j}  \, (f_j-m_j) }
+	   \end{align*}
+       - Doing Gaussian integrals is a pain---/I don't expect you to do this/
+       - But if you are brave enough to try let $g_i=f_i-m_i$, $g^*=f^*-m^*$ and
+         $\hat{y_i} = y_i-m_i$ then we can rewrite this as
+	 $$ p(f^*|\mathcal{D}) \propto \e{-\tfrac{1}{2} k^{*-1}g^{*2}}
+           \left(\prod_i \int \dd g_i\right) 
+            \e{- \tfrac{1}{2\sigma^2} \sum\limits_{i=1}^m (\hat{y}_i-g_i)^2
+             -\tfrac{1}{2}\sum\limits_{i,j=1}^m
+           g_i\, k^{-1}_{ij}  \, g_j -  g^* \sum\limits_{j=1}^m k^{*-1}_i \,g_j} $$
+	 + where we made a change of variable in the integral
+       - In matrix form we can write this as
+	 $$ p(f^*|\mathcal{D}) \propto \e{-\tfrac{1}{2} k^{*-1}g^{*2}}
+         \left(\prod_i \int  \dd g_i\right) 
+         \e{(\sigma^{-2}\, \hat{\bm{y}} - g^* \bm{k}^{*-1})^\tr \,\bm{g} -\tfrac{1}{2}
+         \bm{g}^\tr \, (\mat{k}^{-1}-\sigma^{-2}\mat{I}) \,\bm{g} } $$
+	 - I've dropped a term $\e{-\frac{ \|
+           \hat{\bm{y}}\|^2}{2\,\sigma^2}}$ since this is a constant
+           that can be absorbed into the constant of proportionality
+       - To perform the integrals over $g_i$ we /complete the
+         square/.  To make the algebra easier to follow we define
+         $\mat{M}=\mat{k}^{-1}-\sigma^{-2}\mat{I}$ and
+         $\bm{b}=\sigma^{-2}\, \hat{\bm{y}} - g^* \bm{k}^{*-1}$.  We
+         now rewrite  the exponent, $E$, of the  integral as
+	 \begin{align*}
+	 E &= (\sigma^{-2}\, \hat{\bm{y}} - 
+         g^* \bm{k}^{*-1})^\tr \,\bm{g} -\frac{1}{2}
+         \bm{g}^\tr  (\mat{k}^{-1}-\sigma^{-2}\mat{I})\, \bm{g}
+	 =  \bm{b}^\tr \,\bm{g} -\frac{1}{2}
+         \bm{g}^\tr \mat{M} \bm{g} \\
+	 &=   -\frac{1}{2} (\bm{g} - \mat{M}^{-1}\bm{b})^\tr \mat{M}\,
+         (\bm{g} - \mat{M}^{-1} \bm{b})
+         + \frac{1}{2} \bm{b}^\tr \mat{M}^{-1}\bm{b}
+	 \end{align*}
+	 + You simply have to expand out all the terms to see these
+           are the same
+       - Defining $\bm{h} = \bm{g} - \mat{M}^{-1}\bm{b}$ and
+         substituting this back into  $p(f^*|\mathcal{D})$ we get
+	 $$ p(f^*|\mathcal{D}) \propto \e{-\tfrac{1}{2} k^{*-1}g^{*2}+
+         \frac{1}{2} \bm{b}^\tr \mat{M}^{-1}\bm{b} }
+         \left(\prod_i \int  \dd h_i\right) \e{-\tfrac{1}{2}
+         \bm{h}^\tr\mat{M}\, \bm{h}} $$
+       - The last integral is a Gaussian integral that integrates to a
+         constant (and can be absorbed into the constant of proportionality)
+       - We are left with
+	 \begin{align*}
+	 p(f^*|\mathcal{D}) &\propto \e{-\tfrac{1}{2} k^{*-1}g^{*2}+
+         \frac{1}{2} \bm{b}^\tr \mat{M}^{-1}\bm{b}} \\
+	 &= \e{-\tfrac{1}{2} k^{*-1}g^{*2}+ \tfrac{1}{2}
+         (\sigma^{-2}\, \hat{\bm{y}} - g^* \bm{k}^{*-1})^\tr
+	 \mat{M}^{-1}
+         (\sigma^{-2}\, \hat{\bm{y}} - g^* \bm{k}^{*-1})}\\
+        & \propto \e{-\frac{1}{2}(k^{*-1} - \bm{k}^{*-1\tr}
+        \mat{M}^{-1} \bm{k}^{*-1}) g^{*2}
+         - \frac{g^*}{\sigma^2} \hat{\bm{y}}^\tr \mat{M}^{-1} \bm{k}^{*-1}}
+	 \end{align*}
+	 + where we have used $\bm{b}=\sigma^{-2}\, \hat{\bm{y}} - g^*
+           \bm{k}^{*-1}$
+	 + we have also thrown away terms not involving $g^*$ (as they
+           are constants that can be absorbed into the constant of proportionality)
+       - We can again /complete the square/ this time for $g^*$
+	 $$ p(f^*|\mathcal{D}) \propto \e{-\frac{1}{2}(k^{*-1} - \bm{k}^{*-1\tr}     \mat{M}^{-1} \bm{k}^{*-1}) (g^{*}- \frac{\hat{\bm{y}}^\tr \mat{M}^{-1} \bm{k}^{*-1}}{\sigma^2(k^{*-1} - \bm{k}^{*-1\tr}  \mat{M}^{-1} \bm{k}^{*-1})})} $$
+	 + We've again dropped terms that don't contain $g^*$
+       - But $g^*=f^*-m^*$ so we can write this as
+	 \begin{align*}
+	 p(f^*|\mathcal{D}) &\propto \e{-\frac{1}{2}(k^{*-1} -
+         \bm{k}^{*-1\tr}     \mat{M}^{-1} \bm{k}^{*-1}) (f^{*}-
+	 m^* -   \frac{\hat{\bm{y}}^\tr \mat{M}^{-1}
+         \bm{k}^{*-1}}{\sigma^2(k^{*-1} - \bm{k}^{*-1\tr}
+         \mat{M}^{-1} \bm{k}^{*-1})})} \\
+	 & \propto \mathcal{N}\!\left(f^*\bigg\vert m^* +  \frac{\hat{\bm{y}}^\tr \mat{M}^{-1}
+         \bm{k}^{*-1}}{\sigma^2(k^{*-1} - \bm{k}^{*-1\tr}
+         \mat{M}^{-1} \bm{k}^{*-1})}, k^{*-1} -
+         \bm{k}^{*-1\tr}     \mat{M}^{-1} \bm{k}^{*-1} \right)
+         \end{align*}
+	 + where we use the fact that we end up with a term that has
+           the form of a normal distribution
+	 + because the posterior term is normalise, in fact it has to
+           be exactly equal to this normal distribution
+       - Using $\mat{M}=\mat{k}^{-1}-\sigma^{-2}\mat{I}$ 
+	 $$ \hspace{-2cm} p(f^*|\mathcal{D}) =
+	 \mathcal{N}\!\left(f^*\bigg\vert m^* +
+         \frac{\hat{\bm{y}}^\tr
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1} 
+         \bm{k}^{*-1}}{\sigma^2(k^{*-1} - \bm{k}^{*-1\tr}
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1}
+         \bm{k}^{*-1})},\, \frac{1}{
+        k^{*-1} - \bm{k}^{*-1\tr}
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1}
+         \bm{k}^{*-1} } \right) $$
+       - In other words the expected mean value of $f^*=f(\bm{x}^*)$
+         is
+	 $$ \av{f(\bm{x}^*)} = m(\bm{x}^*) +
+         \frac{\hat{\bm{y}}^\tr
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1} 
+         \bm{k}^{*-1}}{\sigma^2(k^{*-1} - \bm{k}^{*-1\tr}
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1}
+         \bm{k}^{*-1})} $$
+	 (note that usually $m(\bm{x}^*)=0$)
+	 and the expected variance in the value is
+	 $$ \mathbb{V}\mathrm{ar}[f(\bm{x}^*)] 
+         = \frac{1}{k^{*-1} - \bm{k}^{*-1\tr}
+         \left(\mat{k}^{-1}-\sigma^{-2}\mat{I}\right)^{-1}
+         \bm{k}^{*-1}} $$
+       - The result is pretty horrible because it involves inverting
+         a matrix $\mat{K}$ with components $k(\bm{x},\bm{y})$
+         evaluated at the set of points
+         $\{\bm{x}_1,\bm{x}_2,\ldots,\bm{x}_m,\bm{x}^*\}$
+       - This is usually feasible but there is a simpler form
+         that occurs because of identities involving inverse matrices
+       - This is best obtained using a second way of deriving the results
+       - I went to the pain of deriving the result this way because it
+         is just a consequence of Bayes' rule
+   * In the second derivation we consider joint probability of the
+     observations $\{y_i| i=1,2,\ldots,m\}$ and $f^*=f(\bm{x}^*)$
+     - Even this derivation is a pain and you are *not* expected to
+       know it
+     - Now we assume $y_i = f(\bm{x}_i) + \epsilon_i$ where
+       $\epsilon_i\sim \mathcal{N}(0,\sigma^2)$ (that is our
+       observations have a normally distributed error) then
+       $$ \av{y_i \, y_j} =  \av{(f(\bm{x}_i) +
+       \epsilon_i)(f(\bm{x}_j) + \epsilon_j)} =
+       k(\bm{x}_i,\bm{x}_j) + \sigma^2 \,\delta_{ij} $$
+       + since the observation error, $\epsilon_i$, is assumed independent of the
+         function value, $f(\bm{x}_i)$
+       + here we assume $m(\bm{x})=0$ just to make life simple
+     - Similarly
+       $$ \av{y_i\,f^*} =  \av{(f(\bm{x}_i) + \epsilon_i) f(\bm{x}^*)} 
+       = k(\bm{x}_i,\bm{x}^*) $$
+       and
+       $$ \av{(f^*)^2} = k(\bm{x}^*,\bm{x}^*) $$
+     - Thus
+       $$ p(f^*, \bm{y}) = \mathcal{N}\!\left( \begin{pmatrix}  \bm{y}  \\ f_*  \end{pmatrix}
+        \bigg \vert \bm{0} ,
+        \begin{pmatrix}
+        \mat{K} + \sigma^2 \, \mat{I} & \bm{k}^* \\
+         \bm{k}^{*\tr} & k^*
+        \end{pmatrix}\right) $$
+       - where $\mat{K}$ is a matrix with components
+         $k(\bm{x}_i,\bm{x}_j)$, $\bm{k}^*$ is a vector with
+         components $k(\bm{x}_i,\bm{x}^*)$ and $k^*=k(\bm{x}^*,\bm{x}^*)$
+     - We now use an identity involving matrix inverses
+       $$  \begin{pmatrix}
+        \mat{K} + \sigma^2 \, \mat{I} & \bm{k}^* \\
+         \bm{k}^{*\tr} & k^*
+        \end{pmatrix}^{-1}
+	= \begin{pmatrix}
+        \left(\mat{K} + \sigma^2 \, \mat{I} -
+       \frac{\bm{k}^{*\tr}\bm{k}^*}{k^*}\right)^{-1}
+       & -\frac{ (\mat{K} + \sigma^2 \,
+       \mat{I})^{-1}\bm{k}^*}{k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \,
+       \mat{I})^{-1}\bm{k}^*} \\
+       -\frac{ \bm{k}^{*\tr}(\mat{K} + \sigma^2 \, \mat{I})^{-1}}{k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \, \mat{I})^{-1}\bm{k}^*} 
+         & \frac{1}{k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \, \mat{I})^{-1}\bm{k}^*} 
+        \end{pmatrix} $$
+       + these identities involving inverses of matrices seem to come
+         from nowhere---they make working with normal distributions a
+         real pain
+       + you can prove the identity by multiply the right-hand side by $\begin{pmatrix}
+        \mat{K} + \sigma^2 \, \mat{I} & \bm{k}^* \\
+         \bm{k}^{*\tr} & k^*
+        \end{pmatrix}$ and showing you get the identity
+       + if you are tempted to do this then set $\sigma^2=0$ and
+         rename $\bm{k}^*$ and $k^*$ so its easier to do the
+         algebra---it is a tedious calculation (see exercises)
+     - Now we use $p(f^*|\mathcal{D}) = p(f^*|\bm{y}) =
+       p(f^*,\bm{y})/p(\bm{y})$
+     - All you need to do is collect the terms in $p(f^*,\bm{y})$
+       involving $f^*$
+       $$ p(f^*|\mathcal{D})  \propto
+       \e{-\frac{f^{*2}}{2(k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \, \mat{I})^{-1}\bm{k}^*)}  + \frac{ f^*\,\bm{k}^{*\tr}(\mat{K} + \sigma^2 \, \mat{I})^{-1}\bm{y}}{k^*+\bm{k}^{*\tr}(\mat{K} + \sigma^2 \,  \mat{I})^{-1}\bm{k}^*}  } $$
+     - /Completing the square/
+      $$ p(f^*|\mathcal{D})  \propto
+       \e{-\frac{1}{2(k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \,
+       \mat{I})^{-1}\bm{k}^*)} \left( f^* - \bm{k}^{*\tr}(\mat{K} +
+       \sigma^2 \, \mat{I})^{-1}\bm{y}\right)^2} $$
+     - But as $p(f^*|\mathcal{D})$ must be normalised
+       $$ p(f(\bm{x}^*)|\mathcal{D})  = \mathcal{N}\left(f(\bm{x}^*)
+       \bigg\vert \bm{k}^{*\tr}(\mat{K} +
+       \sigma^2 \, \mat{I})^{-1}\bm{y},\, 
+       k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \,
+       \mat{I})^{-1}\bm{k}^*\right) $$
+     - That is the mean value of $f$ at a point $\bm{x}^*$ is
+       $$ \av{f(\bm{x}^*)} =  m(\bm{x}^*) + \bm{k}^{*\tr}(\mat{K} +
+       \sigma^2 \, \mat{I})^{-1}\bm{y} $$
+       + I've re-instated $m(\bm{x}^*)$ (even though it is usually
+         taken to be zero)
+     - The variance is given by
+       $$ \mathbb{V}\mathrm{ar}[f(\bm{x}^*)]  = k^*-\bm{k}^{*\tr}(\mat{K} + \sigma^2 \,
+       \mat{I})^{-1}\bm{k}^* $$
+     - This may look completely different from the previous expression
+       but surprisingly it is identical (you can demonstrate this numerically)
+     - The advantage over the previous methods is that we only need to
+       do one matrix inversion (and we get a slightly easier expression)
+     - Although the mathematics to get here was horrible the
+       expression is extremely easy to compute
+     - One of the advantages of Bayesian inference is it provides an
+       estimate of its own uncertainty (in this case $\mathbb{V}\mathrm{ar}[f(\bm{x}^*)]$)
+
+** Learning Hyperparameters
+   * *Hyperparameters in the Bayesian Framework*
+     - As I have said many times to get machine learning to work it is
+       vital to choose the hyperparameter properly (we will see this
+       is true for GPs)
+     - In the Bayesian framework if $\bm{\phi}$ are hyperparameters
+       then Bayes' rules says
+       $$ p(\bm{x}|\mathcal{D},\bm{\phi}) =
+       \frac{p(\mathcal{D}|\bm{x},\bm{\phi}) \,
+       p(\bm{x}|\bm{\phi})}{p(\mathcal{D}|\bm{\phi}) } $$
+       - this is just Bayes' rule with everything conditioned on the
+	 hyperparameters $\bm{\phi}$
+     - We can select hyperparameters by considering the *evidence*,
+       $p(\mathcal{D}|\bm{\phi})$
+       + when the hyperparameters are viewed as different models this is
+	 known as *model selection*
+       + this is also called the evidence framework
+       + We can view the relatively likelihood of one model,
+         $\bm{\phi}_1$ compare to a second, $\bm{\phi}_2$ by examining
+	 $$ \frac{p(\mathcal{D}|\bm{\phi}_1)}{p(\mathcal{D}|\bm{\phi}_2)} $$
+     - If we want to be hyper-Bayesian then we can put a prior,
+       $p(\bm{\phi})$, over our hyperparameters and the calculate the
+       joint posterior for the parameters of the likelihood
+       $\bm{\theta}$ and the hyper-parameters $\bm{\phi}$
+       $$ p(\bm{\theta},\bm{\phi}| \mathcal{D}) = \frac{p(\mathcal{D}|
+       \bm{\theta},\bm{\phi}) \, p(\bm{\theta}|\bm{\phi}) \, p(\bm{\phi})}{
+       p(\mathcal{D})} $$
+       + to compute the posterior we are interested in we marginalise
+         out the hyperparameters
+         $$ p(\bm{\theta}|\mathcal{D}) = \int
+         p(\bm{\theta},\bm{\phi}| \mathcal{D}) \,\dd \bm{\phi} $$
+       + Often this integral is not computable in closed form and we
+         are forced to estimate it using Monte-Carlo techniques
+   * *Hyperparameter for Gaussian Processes*
+     - For Gaussian Processes this means choosing the right kernel function
+     - Here we are in a better positions than in SVMs in that the kernel
+       represents the covariance function
+     - Given data we could estimate the kernel function using
+       $$ \av{y_i,y_j} = k(\bm{x}_i,\bm{x}_j) + \sigma^2 \delta_{ij} $$
+     - It would be an inverse problem to estimate $k(\bm{x}_i,\bm{x}_j)$
+     - Often we start with a guess of the form of the kernel
+     - A very common kernel function is the Gaussian kernel
+       $$ k(\bm{x},\bm{y}) = \e{-\frac{\|\bm{x}-\bm{y}\|^2}{2\ell^2}} $$
+     - Now $\ell$ is a /scale parameter/ that has to be determined
+     - However, a great advantage of Gaussian Processes is that we can
+       compute the evidence in closed form
+       $$  \logg{p(\mathcal{D}|\bm{\theta})} = - \frac{1}{2} \bm{y}^\tr (\mat{K}+\sigma^2\mat{I})^{-1} \bm{y} - \frac{1}{2}  \logg{|\mat{K}+\sigma^2\mat{I}|} - \frac{m}{2} \log(2\,\pi) $$
+       + This allows us to rapidly compare different hyperparameters
+         (kernels and noise level)
+       + We are not doing this in a fully Bayesian way (we are
+         maximising our evidence rather than updating a distribution
+         for the hyperparameters) therefore we could overfit
+       + However, usually we have relatively few hyperparameters so
+         overfitting is less severe
+
+* Exercises
+
+** Working with Gaussians
+
+   This is optional.  Learning to work with Gaussians allows you to
+   understand a lot of machine learning techniques, but it is not
+   going to be examined.
+
+   1. Integrals involving Gaussians can be done in closed form.  This
+      means that they are heavily used in machine learning.  It does,
+      however, take a lot of practice to learn how to do these
+      integrals.  The starting point is the integral
+      \begin{align*}
+       I_1 = \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x = \sqrt{2\,\pi}.
+      \end{align*}
+      This integral isn't easy.  The trick is to turn this into a two
+      dimensional integral and perform the integral in polar
+      coordinates. Have a go.
+   2. Show by a change of variables
+      \begin{align*}
+      I_2 = \int_{-\infty}^{\infty} \e{-x^2/(2\,\sigma^{2})} \, \dd x = \sqrt{2\,\pi}\,\sigma.
+      \end{align*}
+   3. Show that
+      \begin{align*}
+      I_3 = \int_{-\infty}^{\infty} \e{-x^2/2 + a \,x} \, \frac{\dd x}{\sqrt{2\,\pi}}
+      = \e{a^2/2}
+      \end{align*}
+      This involves completing the square and using a change of
+      variables.  It is probably the most frequently used trick
+      working with Gaussian integrals.
+   4. Show that
+      \begin{align*}
+      I_4 &= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty}
+       \e{-\tfrac{1}{2} \|\bm{x}\|^2} 
+      \dd \bm{x} = (2\,\pi)^{\tfrac{n}{2}}
+      \end{align*}
+      Often we don't bother writing all the integral signs (one will do)
+   5. By writing $\mat{M} =
+      \mat{V}\,\mat{\Lambda}\,\mat{V}^{\tr}$ show that
+      \begin{align*}
+      I_5 = \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \bm{x}^{\tr} \mat{M} \bm{x}}  \dd \bm{x} = 
+      (2\,\pi)^{\tfrac{n}{2}} \, \frac{1}{\sqrt{|\mat{M}|}}
+      \end{align*}
+      where $|\mat{M}|$ is the determinant of $\mat{M}$.  Note that
+      $|\mat{M}|=|\mat{\Lambda}| = \prod_i \lambda_{i}$.
+   6. Show that
+      \begin{align*}
+      I_6 = \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \bm{x}^{\tr} \mat{M}^{-1} \bm{x}}  \dd \bm{x} = 
+      (2\,\pi)^{\tfrac{n}{2}} \, \sqrt{|\mat{M}|}
+      \end{align*}
+      
+
+** Working with Matrix Inverses
+   * Modelling using normal (aka Gaussian) distributions is very
+     powerful because we can usually computer everything in closed
+     form---integrals involving Gaussians are always doable
+   * However, there is a twist which makes it extremely painful
+     + The normal distribution uses the inverse of the covariance matrix
+     + The inverse of matrices are a pain to work with
+   * To get nice results we often consider partition matrices into
+     four blocks---the inverse of the full matrix can be written in
+     terms of the inverse of each block
+   * Let's look at a very simple example
+     - Show that
+       $$ \begin{pmatrix} \mat{K} & \vl \\ \vl^\tr & m \end{pmatrix}^{-1} 
+       =  \begin{pmatrix} \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1}  &
+            -\frac{\mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl}  \\ 
+	    -\frac{\vl^\tr\mat{K}^{-1}}{m-\vl^\tr \mat{K}^{-1}\vl} &
+	    \frac{1}{m-\vl^\tr \mat{K}^{-1}\vl} 
+       \end{pmatrix} $$
+       + $\mat{K}$ is a symmetric matrix, $\ell$ is a vector and $m$ a
+         scalar
+       + Similar identities exist when $\ell$ and $m$ are matrices,
+         but let's keep thing simple
+     - Now we can show this by multiply both sides by $\begin{pmatrix}
+       \mat{K} & \vl \\ \vl^\tr & m \end{pmatrix}$ (the algebra is
+       easier if we multiply on the right)
+     - This is still very fiddly to show, so break it down
+       + Show that
+	 $$ \begin{pmatrix} \mat{A} & \vb \\ \vb^\tr & c \end{pmatrix}
+	 \begin{pmatrix} \mat{K} & \vl \\ \vl^\tr & m \end{pmatrix} =
+	 \begin{pmatrix} \mat{A}\,\mat{K} + \vb\,\vl^\tr &
+         \mat{A}\,\vl + m\,\vb \\ 
+         \vb^\tr\mat{K} + c\,\vl^\tr & \vb^\tr \vl + c\,m \end{pmatrix} $$
+       + Now you have to show that when $\mat{A} = 
+         \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1}$,
+         $\vb=-\frac{\mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl}$
+	 and $c=\frac{1}{m-\vl^\tr \mat{K}^{-1}\vl}$ that
+	 1. $\mat{A}\,\mat{K} + \vb\,\vl^\tr = \mat{I}$
+	 2. $\mat{A}\,\vl + m\,\vb = \bm{0}$
+	 3. $\vb^\tr\mat{K} + c\,\vl^\tr = \bm{0}^\tr$
+	 4. $\vb^\tr \vl + c\,m = 1$
+       + To show 1. and 2. take out $\mat{A}$ as a common factor using
+         $\mat{I}=\mat{A}\,\mat{A}^{-1}$ (answer below)
+	 
+* Experiments
+
+** Generate Samples from a Gaussian Processes
+   * To generate a Gaussian Process, $\mathcal{GP}(0,k)$, with
+     $m(\bm{x})=0$ and covariance
+     $$ k(\bm{x},\bm{y})=\e{-\frac{\|\bm{x}-\bm{y}\|^2}{2\,\ell^2}} $$
+     a points $\{\bm{x}_i|i=1, 2, \ldots, n\}$
+     1. We use first compute the covariance matrix $\mat{K}$ with
+        elements $K_{ij} = k(\bm{x}_i,\bm{x}_j)$
+     2. Compute the /Cholesky decompostion/ $\mat{L}$ such that
+        $\mat{K} = \mat{L}\,\mat{L}^\tr$
+	- For any positive definite matrices we can always compute a
+          Cholesky decomposition (although beware, due to numerical
+          rounding some matrices that should be positive definite,
+          appear not to have Cholesky decompositions---you can
+          $\epsilon \,\mat{I}$ to your matrix to help)
+	- The Cholesky decomposition is a lower diagonal matrix
+	- It is used to efficiently solve linear problems involving
+          positive definite matrices (it is more efficient and more
+          stable than Gaussian elimination)
+     3. Now let $\bm{f} = \mat{L}\,\bm{\eta}$ where $\bm{\eta}\sim
+        \mathcal{N}(\bm{0},\mat{I})$
+	- We note that
+	  $$ \av{\bm{f}\,\bm{f}^\tr} = \av{\mat{L}\,\bm{\eta}\,\bm{\eta}^\tr\mat{L}^\tr}
+	  = \mat{L}\,\av{\bm{\eta}\,\bm{\eta}^\tr} \mat{L}^\tr
+	  = \mat{L}\,\mat{I}\,\mat{L}^\tr =\mat{L}\,\mat{L}^\tr =
+          \mat{K} $$
+	- Thus $\bm{f}$ can be viewed as samples from a Gaussian Process
+	- Draw many different samples and plot them
+     4. Experiment with different values of $\ell$
+
+*1-d Gaussian Processes*
+
+#+name: setup-minted
+#+BEGIN_SRC octave
+x = [-10:0.2:10];    % define some points
+n = length(x)
+l = 1.0                      % define length scale
+K = zeros(n,n);         % define holder
+for i = 1:n
+  K(i,i) = 1;
+  for j = 1:i
+    K(j,i) = K(i,j) = exp(-(x(i)-x(j))^2/(2*l)); % define covariance matrix
+  endfor
+endfor
+L = chol(K+0.0001*eye(n));  % cheat to persuade octave K is positive definite
+f1 = L*randn(n,1);
+f2 = L*randn(n,1);
+f3 = L*randn(n,1);
+plot(x,f1,x,f2,x,f3)
+#+END_SRC
+
+*2-d Gaussian Process*
+
+#+NAME: another-listing
+#+BEGIN_SRC octave
+range = [-4:0.2:4];    % define some points
+n = length(range)
+X = zeros(n*n,2);
+for i = 1:n
+  for j = 1:n
+     X((i-1)*n+j,1) = range(i);
+     X((i-1)*n+j,2) = range(j);
+  endfor
+endfor
+l = 1.0                      % define length scale
+N =length(X)
+K = zeros(N,N);  
+for i = 1:N
+  K(i,i) = 1;
+  for j = 1:i
+    K(j,i) = K(i,j) = exp(-norm(X(i,:)-X(j,:))^2/(2*l)); % define covariance matrix
+  endfor
+endfor
+
+L = chol(K+0.0001*eye(N));  % cheat to persuade octave K is positive definite
+f = L*randn(N,1);
+fm = reshape(f,n,n);
+[xx, yy] = meshgrid(range, range);
+mesh(xx, yy, fm);
+xlabel ("x");
+ylabel ("y");
+zlabel ("f(x,y)");
+title ("2-d Gaussian Process");
+#+END_SRC
+
+
+
+* Answers
+** Working with Gaussians
+   1. The Gaussian Integral.
+      - We consider the two dimensional integral
+        \begin{align*}
+          I_1^2 &= \left( \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x \right)^2 
+          \eq \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+           \e{-x^2/2-y^2/2} \, \dd x  \, \dd y
+	  \\
+	   &\eq \int_0^{\infty} \int_0^{2\pi} r\, \e{-r^2} \dd r\, \dd
+           \theta
+	  \eq  \int_0^{\infty} r\, \e{-r^2} \dd r \int_0^{2\pi} \, \dd
+           \theta = 2\,\pi
+       \end{align*}
+	1) Changing the name of the dummy index from $x$ to $y$
+	2) Using the change of variable $x = r\,\cos(\theta)$ and
+           $y=r\,\sin(\theta)$ so that $\dd x \dd y = r \dd r\, \dd
+           \theta$ 
+	3) Reordering the integrals and using $\int_0^{\infty} r\,
+           \e{-r^2} \dd r=1$ (which you can prove by a change of
+           variables   $u = r^2/2$ so that $r\,\dd r = \dd u$)
+	Therefore $I_1 = \sqrt{2\,\pi}$.
+   2. \reseteq
+       \begin{align*}
+       I_2 = \int_{-\infty}^{\infty} \e{-x^2/(2\,\sigma^{2})} \, \dd x 
+       \eq \sigma \, \int_{-\infty}^{\infty} \e{-u^2/2} \, \dd u \eq \sqrt{2\,\pi}\,\sigma.
+       \end{align*}
+      1) Using $u = x/\sigma$ so that $\dd x = \sigma\,\dd u$
+      2) Using $I_{1}$
+   3. \reseteq
+      \begin{align*}
+      I_2 &=  \int_{-\infty}^{\infty} \e{-x^2/2 + a \,x} \, \frac{\dd x}{\sqrt{2\,\pi}}
+      \eq  \int_{-\infty}^{\infty} \e{-\tfrac{1}{2}(x- a)^2 + \tfrac{a^2}{2}} \, \frac{\dd x}{\sqrt{2\,\pi}}
+      \\
+      &\eq  \e{a^2/2} \int_{-\infty}^{\infty} \e{-\tfrac{1}{2}(x- a)^2} \, \frac{\dd x}{\sqrt{2\,\pi}}
+      \eq \e{a^2/2}
+      \end{align*}
+      1) Using $-x^2/2 + a \,x = -\tfrac{1}{2}(x- a)^2 +
+         \tfrac{a^2}{2}}$
+      2) Factoring out $\e{a^2/2}$
+      3) Making a change of variables $u=x-a$ and using integral $I_1$
+   4. \reseteq
+      \begin{align*}
+      I_4 &= \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty}
+       \e{-\tfrac{1}{2} \|\bm{x}\|^2} 
+      \dd \bm{x}
+      \eq \int_{-\infty}^{\infty} \cdots \int_{-\infty}^{\infty}
+      \e{-\tfrac{1}{2} \sum\limits_{i=1}^{n} x_i^2}
+      \, \prod_{i=1}^n \dd x_{i}
+      \\
+      &\eq  \prod_{i=1}^n \left( \int_{-\infty}^{\infty} \e{-\tfrac{x_i^2}{2}}
+      \, \dd x_{i} \right) \eq  (2\,\pi)^{\tfrac{n}{2}}
+      \end{align*}
+      1) Using $\|\bm{x}\|^2=\sum\limits_{i=1}^{n} x_i^2$
+      2) Using $\exp(\sum_i a_i) = \prod_i \e{a_i}$ and factoring out
+         the different terms
+      3) Using integral $I_1$
+   5. \reseteq
+      \begin{align*}
+      I_5 &= \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \bm{x}^{\tr}
+      \mat{M} \bm{x}}  \dd \bm{x}
+      \eq \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \bm{x}^{\tr}
+      \mat{V}\,\mat{\Lambda}\,\mat{V}^{\tr} \bm{x}}  \dd \bm{x}
+      \\
+      &\eq \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \bm{u}^{\tr}
+      \,\mat{\Lambda}\, \bm{u}} \,  \dd \bm{u}
+      \eq \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \sum_{i} \lambda_i u_i^2}\,  \dd \bm{u}
+      \\
+      &\eq \prod_{i} \left(  \int_{-\infty}^{\infty}  \e{-\tfrac{1}{2} \lambda_i u_i^2}\,  \dd u_i \right)
+      \eq \prod_i \left( \sqrt{\frac{2\pi}{\lambda_i}} \right)
+      \eq (2\,\pi)^{n/2} \frac{1}{\sqrt{\prod_i \lambda_i}}
+      \eq   \, \frac{(2\,\pi)^{\tfrac{n}{2}}}{\sqrt{|\mat{M}|}}
+      \end{align*}
+      1) Using $\mat{M} =  \mat{V}\,\mat{\Lambda}\,\mat{V}^{\tr}$ where
+      2) Writing $\bm{u} = \mat{V}^{\tr} \bm{x}$.  Note that $\dd
+         \bm{u} = |\mat{V}^{\tr}|\, \dd \bm{x}$, but $\mat{V}$ is an
+         orthogonal matrix so $|\mat{V}^{\tr}|=1$. So $\dd \bm{u} = \dd \bm{x}$.
+      3) $\mat{\Lambda}$ is a diagonal matrix with elements $\Lambda_{ii}=\lambda_i$
+      4) Rearranging
+      5) Using integral $I_2$ with $\sigma = 1/\sqrt{\lambda_i}$
+      6) Rearranging
+      7) Using $\prod_i \lambda_{i} = |\mat{M}|$.
+   6. This follows using $I_5$ because $|\mat{M}^{-1}|=\frac{1}{|\mat{M}|}$.
+
+
+** Working with Matrix Inverses
+   * Using $\mat{A} = 
+         \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1}$,
+         $\vb=-\frac{\mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl}$
+	 and $c=\frac{1}{m-\vl^\tr \mat{K}^{-1}\vl}$, we show the four identities
+     1. 
+        \begin{align*}
+        \mat{A}\,\mat{K} + \vb\,\vl^\tr
+        &= \mat{A}\,\left(\mat{K} + \mat{A}^{-1} \vb\,\vl^\tr\right) \\
+	&=\left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1} \,\left(\mat{K} +
+        \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)
+         \frac{(-\mat{K}^{-1} \vl\,\vl^\tr)}{m-\vl^\tr \mat{K}^{-1}\vl} \right) \\
+	 &= \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1} \,\left(\mat{K} 
+	- \frac{\vl\,\vl^\tr}{m-\vl^\tr \mat{K}^{-1}\vl}
+	+ \frac{\vl\,\vl^\tr\mat{K}^{-1}\vl\,\vl^\tr/m}{m-\vl^\tr \mat{K}^{-1}\vl} \right)\\
+	&= \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1} \,\left(\mat{K} 
+	- \frac{\vl\,\vl^\tr}{m} 
+          \frac{m-\vl^\tr \mat{K}^{-1}\vl}{m-\vl^\tr \mat{K}^{-1}\vl}\right) \\
+        &= \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)^{-1} \,\left(\mat{K} 
+	- \frac{\vl\,\vl^\tr}{m} \right) = \mat{I}
+	\end{align*}
+     2. 
+	\begin{align*}
+	\mat{A}\,\vl + m\,\vb 
+        &=  \mat{A} \left( \vl + m \,\mat{A}^{-1}\vb\right) \\
+	&= \mat{A} \left( \vl - m
+        \left(\mat{K}-\frac{\vl\,\vl^\tr}{m}\right)
+         \frac{\mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl} \right) \\
+	&=\mat{A} \left( \vl 
+        - \frac{m\,\vl}{m-\vl^\tr \mat{K}^{-1}\vl} (1 -\frac{\vl^\tr \mat{K}^{-1}\vl}{m}) \right)\\
+	&= \mat{A} \left( \vl -\vl \right) = \bm{0}
+	\end{align*}
+     3. 
+	$$ \vb^\tr\mat{K} + c\,\vl^\tr = -\frac{\vl^\tr}{m-\vl^\tr
+          \mat{K}^{-1}\vl} + \frac{\vl^\tr}{m-\vl^\tr
+          \mat{K}^{-1}\vl}= \bm{0}^\tr $$
+     4. 
+	$$ \vb^\tr \vl + c\,m =  -\frac{\vl^\tr \mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl} + \frac{m}{m-\vl^\tr \mat{K}^{-1}\vl} = 1 $$
+
+* COMMENT [[file:pdf/gaussianProcesses.pdf][PDF]] [[file:pdf/gaussianProcesses_prn.pdf][Print]]
+* COMMENT [[file:bayes-subsidiary.org][Previous]] [[file:ProbabilisticInference-subsidiary.org][Next]]
+
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\E}[1]{{\rm e}^{\displaystyle #1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \newcommand{\normal}[1]{\mathcal{N}\!\left( #1 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\reseteq}{\setcounter{eqCounter}{0}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\alph{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\vl}{\bm{\ell}}
+#+LATEX_HEADER: \newcommand{\vb}{\bm{b}}
+#+LATEX_CLASS: article
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+END_OPTIONS

@@ -1,0 +1,287 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Problem Sheet 1 for Advanced Machine Learning (COMP6208)}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+This paper asks you to prove some well known results.  Although the
+algebra is easy the proofs are not entirely straightforward.  There
+are marks assigned to the readability of the solution and also how
+well laid out and explained the steps you make are. (A good proof
+needs to be easy to follow: you need not comment on trivial algebra,
+but there should not be steps that are difficult to follow).
+
+This looks very mathematical, but it helps to develop the tools and
+language that is used to describe machine learning.
+
+%\blankpage
+
+
+%% ----------------------------------------------------------------
+%\section
+% -----------------------------------------------------------------------
+% *************************  Section A  *********************************
+% -----------------------------------------------------------------------
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{20}
+  An inner product $\inner{\bm{x}}{\bm{y}}$ between vectors in a
+  vector space $\mathcal{V}$ satisfies the following
+  properties
+  \begin{enumerate}\squeeze
+  \item $\inner{\bm{x}}{\bm{x}} \geq 0$ for all $\bm{x}\in\mathcal{V}$
+  \item $\inner{\bm{x}}{\bm{x}} = 0$  if and only if $\bm{x}=\bm{0}$
+  \item $\inner{\alpha\, \bm{x}}{\bm{y}} = \alpha\,
+    \inner{\bm{x}}{\bm{y}}$
+  \item $\inner{\bm{x}}{\bm{y}+\bm{z}} = \inner{\bm{x}}{\bm{y}} +
+    \inner{\bm{x}}{\bm{z}}$
+  \item $\inner{\bm{x}}{\bm{y}} = \inner{\bm{y}}{\bm{x}}$
+  \end{enumerate}
+  The question explores properties of inner products.
+  \clearpage
+  \begin{qparts}
+    \qpart[10]{Consider the quadratic
+      \begin{align*}
+        q(t ) = \inner{\bm{x} + t\, \bm{y}}{\bm{x} + t\, \bm{y}}
+      \end{align*}
+      By definition 1 of an inner product $q(t)$ must be non-negative
+      and will only be 0 when $\bm{x} + t\, \bm{y}=0$.
+
+      Expand $q(t)$ in the form $q(t) = A\,t^2 + 2\, B \, t +C$ to       
+      find $A$, $B$ and $C$.  For $q(t)$ to not change sign its roots
+      (values of $t$ such that $q(t)=0$) must be complex (i.e. have an
+      imaginary part), or possible have a double root. if there is a
+      value of $t$ such that $q(t)=0$.  Use the
+      standard solutions to a quadratic of the form $q(t) = A\,t^2 +
+      2\, B t + C$ to show that for our $q(t)$ to never become
+      negative then
+      \begin{align*}
+        \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
+        \inner{\bm{y}}{\bm{y}}.
+      \end{align*}
+      This is the famous Cauchy-Schwarz inequality written in a very
+      general form.}{\lines{17}}
+    \begin{answer}
+      \begin{align*}
+        q(t) = \inner{\bm{y}}{\bm{y}}  t^2 + 2\,
+        \inner{\bm{x}}{\bm{y}}\,t +  \inner{\bm{x}}{\bm{x}}
+      \end{align*}
+      So that $A= \inner{\bm{y}}{\bm{y}}$, $B= \inner{\bm{x}}{\bm{y}}$
+      and $C=\inner{\bm{x}}{\bm{x}}$.  The roots to the quadratic
+      equation $q(t)=A\,t^2 + 2\, B \, t + C = 0$ are
+      \begin{align*}
+        t = \frac{-B \pm \sqrt{B^2 - A\,C}}{A}.
+      \end{align*}
+      The condition that these roots are complex is that $B^2-A\,C<0$,
+      and where $B^2-A\,C=0$ indicating there is a double root.
+      Putting in the values of $A$, $B$ and $C$ then
+      \begin{align*}
+          \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
+        \inner{\bm{y}}{\bm{y}}.
+      \end{align*}
+    \end{answer}
+    \freshpage
+    \qpart[10]{From an inner product we can define a norm $\len{\bm{x}} =
+      \sqrt{\inner{\bm{x}}{\bm{x}}}$.  This clearly satisfies
+      non-negativity and linearity.  The only non-trivial property to
+      show is that this norm satisfies the triangular inequality.  Expand out
+      $\len{\bm{x} + \bm{y}}$ and hence show that
+      \begin{align*}
+        \len{\bm{x}+\bm{y}}^2 \leq \len{\bm{x}}^2 + \len{\bm{y}}^2 + 2
+        \, | \inner{\bm{x}}{\bm{y}} |
+      \end{align*}
+      Then use the Cauchy-Schwarz inequality to prove the triangular
+      inequality.}{\lines{17}}
+    \begin{answer}
+      We start form
+      \begin{align*}
+        \len{\bm{x}+\bm{y}}^2
+        &=  \inner{\bm{x} + \bm{y}}{\bm{x} + \bm{y}}
+        \\
+        &=  \inner{\bm{x}}{\bm{x}} + \inner{\bm{y}}{\bm{y}}
+          + 2 \, \inner{\bm{x}}{\bm{y}}
+        \\
+        &\leq \inner{\bm{x}}{\bm{x}} + \inner{\bm{y}}{\bm{y}}
+          + 2 \, |\inner{\bm{x}}{\bm{y}}|
+      \end{align*}
+      Using the Cauchy-Schwarz inequality $|\inner{\bm{x}}{\bm{y}}|^2
+      \leq \inner{\bm{x}}{\bm{x}}\, \inner{\bm{y}}{\bm{y}}$ so that
+      \begin{align*}
+         \len{\bm{x}+\bm{y}}^2
+        &\leq  \inner{\bm{x}}{\bm{x}} + \inner{\bm{y}}{\bm{y}}
+          + 2 \, \sqrt{\inner{\bm{x}}{\bm{x}}\, \inner{\bm{y}}{\bm{y}}}
+        \\
+        &= \len{\bm{x}}^2 + \len{\bm{y}}^2 + 2 \,
+          \len{\bm{x}}\,\len{\bm{y}}
+        = \left( \len{\bm{x}} + \len{\bm{y}}\right)^2
+      \end{align*}
+      Taking the square root (which is monotonic so does not change
+      the inequality)
+      \begin{align*}
+         \len{\bm{x}+\bm{y}} \leq  \len{\bm{x}} + \len{\bm{y}}
+      \end{align*}
+      Thus proving the triangular inequality for
+      $\len{\bm{x}} = \sqrt{\inner{\bm{x}}{\bm{x}}}$. 
+    \end{answer}
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 2 **************************
+
+\begin{question}{20}
+  Random variables, $X$, $Y$, etc.{} form a vector space (i.e. they
+  satisfy properties such as closure under addition and scalar
+  multiplication).   Furthermore we can define an inner product
+  between random variables as
+  \begin{align*}
+    \inner{X}{Y} = \av{X\,Y}
+  \end{align*}
+  (i.e. the expectation of the random variable $Z = X\,Y$)
+  \begin{qparts}
+    \qpart[10]{Use the Cauchy-Schwarz inequality to show that
+      \begin{align*}
+        \mathrm{Cov}(X,Y)^2 \leq \mathrm{Var}(X) \, \mathrm{Var}(Y)
+      \end{align*}
+      hence show that the Pearson correlation is between -1 and 1.
+    }{\lines{17}}
+    \begin{answer}
+      Let $\mu = \av{X}$ and $\nu = \av{Y}$ then
+      \begin{align*}
+        \mathrm{Cov}(X,Y) = \av{(X-\mu)(Y-\nu)}
+      \end{align*}
+      From the Cauchy-Schwarz inequality
+      \begin{align*}
+        \mathrm{Cov}(X,Y)^2
+        &= \av{(X-\mu)\,(Y-\nu)}^2
+        \\
+        &\leq \av{(X-\mu)^2} \, \av{(Y-\nu)^2} = \mathrm{Var}(X)\, \mathrm{Var}(Y).
+      \end{align*}
+      which proves the inequality.  The Pearson inequality is defined
+      as
+      \begin{align*}
+        \rho(X,Y) =  \frac{\mathrm{Cov}(X,Y)}
+        {\sqrt{\mathrm{Var}(X) \, \mathrm{Var}(Y)}}
+      \end{align*}
+      Thus $\rho(X,Y)^2= \mathrm{Cov}(X,Y) /\left( \mathrm{Var}(X) \,
+        \mathrm{Var}(Y)\right)$, but  we have already shown that
+      $\mathrm{Cov}(X,Y)^2 \leq \mathrm{Var}(X) \, \mathrm{Var}{Y}$ so
+      $\rho(X,Y)^2\leq 1$ and $\rho(X,Y)$ will lie in the interval $[-1,1]$.
+    \end{answer}
+    \freshpage
+    \qpart[10]{Show that for vectors $\bm{x}, \bm{y}\in\mathbb{R}^n$ that the
+      inner product
+      \begin{align*}
+        \inner{\bm{x}}{\bm{y}} = \sum_{i=1}^n w_i \, x_i \,y_i
+      \end{align*}
+      satisfies the condition of an inner product provided $w_i>0$ for
+      all $i$.  Write down the norm and distance induced by this
+      inner product and provide an interpretation of what this
+      distance means.}{\lines{19}}
+    \begin{answer}
+      We treat the five condition on the inner product
+      \begin{enumerate}
+      \item Non-negativity follows from
+        \begin{align*}
+          \inner{\bm{x}}{\bm{x}} = \sum_{i=1}^n w_i \, x_i ^2
+          \geq 0
+        \end{align*}
+        since for each term in the sum $w_i \, x_i ^2\geq0$.
+      \item For $ \inner{\bm{x}}{\bm{x}} = 0$ each term in the sum
+        must be zero.  Since $w_i>0$ this implies $x_i=0$ for all $i$,
+        that is, $\bm{x}=\bm{0}$.
+      \item Linearity follows trivially since
+        \begin{align*}
+          \inner{a\,\bm{x}}{\bm{y}}
+          &= \sum_{i=1}^n w_i \, (a\,x_i)  \,y_i \\
+          &= a\, \sum_{i=1}^n w_i \, x_i \,y_i = a\,\inner{\bm{x}}{\bm{y}}
+        \end{align*}
+      \item The distributive law again follows trivially
+        \begin{align*}
+          \inner{\bm{x}}{\bm{y}+\bm{z}}
+          &= \sum_{i=1}^n w_i \, x_i \,(y_i+z_i) \\
+          &= \sum_{i=1}^n w_i \, x_i \,y_i + \sum_{i=1}^n w_i \, x_i \,z_i 
+          \\
+          &=   \inner{\bm{x}}{\bm{y}} +   \inner{\bm{x}}{\bm{z}}
+        \end{align*}
+      \item Finally symmetry follows from the commutativity of
+        multiplication
+        \begin{align*}
+          \inner{\bm{x}}{\bm{y}} &=  \sum_{i=1}^n w_i \, x_i \,y_i
+          &=  \sum_{i=1}^n w_i \, y_i \,x_i =  \inner{\bm{y}}{\bm{x}} 
+        \end{align*}
+        The induced norm for this inner product is
+        \begin{align*}
+          \len{x} = \sqrt{\sum_{i=1}^n w_i \, x_i^2}
+        \end{align*}
+        while the induced distance is
+        \begin{align*}
+          d(\bm{x}, \bm{y}) = \sqrt{ \sum_{i=1}^n w_i \, (x_i-y_i)^2}
+        \end{align*}
+        A natural interpretation of this is that this is a
+        generalisation of the Euclidean distance where we rescale each
+        axis by a factor $w_i$ and then compute the normal Euclidean distance.
+      \end{enumerate}
+    \end{answer}
+  \end{qparts}
+  
+\end{question}
+
+% ***************************** question 3 **************************
+
+
+
+% ***************************** End of exam *****************************
+\end{document}
+
+
+
+

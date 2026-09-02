@@ -1,0 +1,512 @@
+%Master File:lectures.tex
+\newcommand{\rb}{\makebox(0,0){\textcolor{red}{$\bullet$}}}
+\newcommand{\yb}{\makebox(0,0){\textcolor{yellow}{$\bullet$}}}
+\newcommand{\wb}{\makebox(0,0){$\bullet$}}
+
+
+\lesson{Project}
+\vspace{-1cm}
+\begin{center}
+\noindent\includegraphics[height=90mm]{mad-scientist.jpg}
+\end{center}
+\keywords{Details, Ideas, Research Methods}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{8cm}\raggedright
+  \begin{enumerate}\squeeze
+    \outlineitem{Rules of the Game}{rules}
+    \outlineitem{Ideas}{ideas}
+    \outlineitem{How to Do a ML Project}{how}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{13cm}
+\ifnum\value{outlineitem}=1
+  \includegraphics[width=11cm]{project.jpg}
+\fi
+\ifnum\value{outlineitem}=2
+  \includegraphics[width=13cm]{frankenstein_alive.jpg}
+\fi
+\ifnum\value{outlineitem}=3
+  \includegraphics[width=9cm]{book.jpeg}
+\fi
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Motivation
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Rules}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item You will work in teams of 3-5\pause
+  \item Next week each team will email me a sheet with their team
+    members\pause\ and a team name\pauseb
+  \item You will give a brief presentation in week 2 (1 minute talk + 1
+    minutes of questions/suggestions)\pause
+  \item Write a project brief (1 page) for week 3\pause
+  \item In week 8 each team submits a 4 page report on data exploration\pause
+  \item In week 11 each team submits a 4 page report on using ML\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Help}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item There is a team of PhD students, Jon, Xiaohao and myself to help\pause
+  \item We are only going to help in the Monday afternoon lecture slot\pause
+  \item We will give you ideas and steer you in the right direction\pause
+  \item We are available (nearly) every week\pause
+  \item To give you useful feedback I've split your report\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Marking}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The project is worth 20\% (10\% and 10\%)\pause
+  \item The marks are assigned on the group reports\pause
+  \item If groups don't work I will split you up\pause
+  \item Each group can submit 1 page extra to indicate who should get the
+    credit (signed by all group members)\pause
+  \item The exam is worth 80\% and is the big differentiator\pause
+  \item You also get to give group presentations, just for the fun of it!\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Ideas
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Subject}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item There is no restriction, but we award marks for work on
+    ``advanced machine learning''\pause
+  \item We take a very broad view of what that constitutes---its the
+    whole process\pause
+  \item We are expecting you to go beyond taking a data set and applying
+    a machine learning tool out of the box\pause
+  \item You can use any tools and any programming language you like
+    (clearly acknowledging its use of course)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{What Should You Do?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Find a question, find a data set and make predictions\pause
+  \item There are lots of data sources available, datasets text/images
+    on the web\pause\ (decent please)\pauseb
+  \item Machine learning challenges
+    \begin{itemize}
+    \item //pascallin2.ecs.soton.ac.uk/Challenges/
+    \item //home.web.cern.ch/about/updates/2014/05/higgs-boson-machine-learning-challenge
+    \item //www.kaggle.com/\pause
+    \end{itemize}
+  \item Beat IBM Watson at Jeopardy\pause 
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Covering My Back}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Any projects involving
+    \begin{itemize}
+    \item Humans\pause
+    \item Personal data\pause
+    \item Creating new intelligent life forms\pauseb
+    \end{itemize}
+  \item Must have ethical approval\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % How
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{How to Do a Machine Learning Project?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item You are going to learn how to do a machine learning project by
+    doing it\pause
+  \item I'm asking you not only to do the project, but to find out how
+    to do a ML project\pause
+  \item The book ``Hands-on Machine Learning with Scikit-Learn, Keras,
+    and TensorFlow: Concepts, Tools, and Techniques to Build
+    Intelligent Systems'' by Aur\'elien G\'eron takes you through this
+    process\pause
+  \item In the Appendix there is a check list (also on a web
+    page---see course page)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Eight Steps}
+\begin{PauseHighLight}
+  \begin{enumerate}\squeeze
+  \item Frame the problem and look at the big picture\pause
+  \item Get the data\pause
+  \item Explore the data to gain insights\pause
+  \item Prepare the data to better expose the underlying data patterns
+    to Machine Learning algorithms\pause
+  \item Explore many different models and short-list the best ones\pause
+  \item Fine-tune your models and combine them into a great solution\pause
+  \item Present your solution\pause
+  \item Launch, monitor, and maintain your system\pause
+  \end{enumerate}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{1. Frame the Problem and Look at the Big Picture}
+
+  \begin{PauseHighLight}
+  \begin{enumerate}\squeeze
+  \item Define the objective in business terms\pause
+  \item How will your solution be used?\pause
+  \item What are the current solutions/workarounds (if any)?\pause
+  \item How should you frame this problem (supervised/unsupervised,
+    online/offline, etc.)?\pause
+  \item How should performance be measured?\pause
+  \item Is the performance measure aligned with the business
+    objective?\pause
+  \item What would be the minimum performance needed to reach the
+    business objective?\pause
+  \item What are comparable problems? Can you reuse experience or
+    tools?\pause
+  \item Is human expertise available?\pause
+  \item How would you solve the problem manually?\pause
+  \item List the assumptions you (or others) have made so far\pause
+  \item Verify assumptions if possible\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{2. Get the Data}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item \emph{Note: automate as much as possible so you can easily get fresh
+      data}\pause
+  \end{itemize}
+  \begin{enumerate}\squeeze
+  \item List the data you need and how much you need\pause
+  \item Find and document where you can get that data\pause
+  \item Check how much space it will take\pause
+  \item Check legal obligations, and get authorization if necessary\pause
+  \item Get access authorizations\pause
+  \item Create a workspace (with enough storage space)\pause
+  \item Get the data\pause
+  \item Convert the data to a format you can easily manipulate
+    (without changing the data itself)\pause
+  \item Ensure sensitive information is deleted or protected (e.g.,
+    anonymized)\pause
+  \item Check the size and type of data (time series, sample,
+    geographical, etc.)\pause
+  \item Sample a test set, put it aside, and never look at it (no data
+    snooping!)\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{3. Explore the Data}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item \emph{Note: try to get insights from a field expert for these
+      steps.}\pause
+  \end{itemize}
+  \begin{enumerate}\squeeze
+  \item Create a copy of the data for exploration (sampling it down to
+    a manageable size if necessary)\pause
+  \item Create a Jupyter notebook to keep a record of your data
+    exploration\pause
+  \item Study each attribute and its characteristics:
+    \begin{itemize}
+    \item Name
+    \item Type (categorical, int/float, bounded/unbounded, text,
+      structured, etc)
+    \item Number of missing values
+    \item Noisiness and type of noise (stochastic, outliers, rounding
+      errors, etc.)\pause
+    \item Possibly useful for the task?
+    \item Type of distribution (Gaussian, uniform, logarithmic, etc)\pause
+    \end{itemize}
+  \item For supervised learning tasks, identify the target
+    attribute(s)\pause
+  \item Visualise the data\pause
+  \item Study the correlations between attributes\pause
+  \item Study how you would solve the problem manually\pause
+  \item Identify the promising transformations you may want to
+    apply\pause
+  \item Identify extra data that would be useful\pause
+  \item Document what you have learned\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{4. Prepare the Data}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item Notes:
+    \begin{itemize}
+    \item Work on copies of the data (keep the original dataset
+      intact)\pause
+    \item Write functions for all data transformations you apply, for
+      five reasons:
+      \begin{itemize}
+      \item So you can easily prepare the data the next time you get a
+        fresh dataset
+      \item So you can apply these transformations in future project
+      \item To clean and prepare the test set
+      \item To clean and prepare new data instances once your solution
+        is live
+      \item To make it easy to treat your preparation choices as
+        hyperparameters\pause
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{4. Prepare the Data continued}
+
+\begin{PauseHighLight}\squeeze
+  \begin{enumerate}
+  \item Data cleaning
+    \begin{itemize}
+    \item Fix or remove outliers (optional)
+    \item Fill in missing values (e.g., with zero, mean, median…) or
+      drop their rows (or columns)\pause
+    \end{itemize}
+  \item Feature selection (optional):
+    \begin{itemize}
+    \item Drop the attributes that provide no useful information for
+      the task\pause
+    \end{itemize}
+  \item Feature engineering, where appropriate:
+    \begin{itemize}
+    \item Discretize continuous features
+    \item Decompose features (e.g., categorical, date/time, etc.)
+    \item Add promising transformations of features (e.g., $\log(x)$,
+      $\sqrt{x}$, $x^2$, $\e{x}$ , etc.)\pause
+    \item Aggregate features into promising new features\pause
+    \end{itemize}
+  \item Feature scaling: standardise or normalise features\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{5. Short-List Promising Models}
+
+\begin{PauseHighLight}
+  \begin{enumerate}\squeeze
+  \item Train many quick and dirty models from different categories
+    (e.g., linear, naiveBayes, SVM, Random Forests, neural net, etc.)
+    using standard parameters\pause 
+  \item Measure and compare their performance
+    \begin{itemize}
+    \item For each model, use N-fold cross-validation and compute the
+      mean and standard deviation of the performance measure on the N
+      folds\pause
+    \end{itemize}
+  \item Analyse the most significant variables for each
+    algorithm\pause
+  \item Analyse the types of errors the models make
+    \begin{itemize}
+    \item What data would a human have used to avoid these errors?\pause
+    \end{itemize}
+  \item Have a quick round of feature selection and engineering\pause
+  \item Have one or two more quick iterations of the five previous
+    steps\pause
+  \item Short-list the top three to five most promising models,
+    preferring models that make different types of errors\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{6. Fine-Tune the System}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item Notes:
+    \begin{itemize}
+    \item You will want to use as much data as possible for this step,
+      especially as you move toward the end of fine-tuning
+    \item As always automate what you can\pause
+    \end{itemize}
+  \end{itemize}
+  \begin{enumerate}
+  \item Fine-tune the hyperparameters using cross-validation
+    \begin{itemize}
+    \item Treat your data transformation choices as hyperparameters,
+      especially when you are not sure about them (e.g., should I
+      replace missing values with zero or with the median value? Or
+      just drop the rows?)
+    \item Unless there are very few hyperparameter values to explore,
+      prefer random search over grid search. If training is very long,
+      you may prefer a Bayesian optimisation approach\pause
+    \end{itemize}
+  \item Try Ensemble methods. Combining your best models will often
+    perform better than running them individually\pause
+  \item Once you are confident about your final model, measure its
+    performance on the test set to estimate the generalization error\pause
+  \end{enumerate}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{7. Present Your Solution}
+
+\begin{PauseHighLight}\squeeze
+  \begin{enumerate}
+  \item Document what you have done\pause
+  \item Create a nice presentation
+    \begin{itemize}
+    \item Make sure you highlight the big picture first\pause
+    \end{itemize}
+  \item Explain why your solution achieves the business
+    objective\pause
+  \item Don’t forget to present interesting points you noticed along
+    the way
+    \begin{itemize}
+    \item Describe what worked and what did not
+    \item List your assumptions and your system’s limitations\pause
+    \end{itemize}
+  \item Ensure your key findings are communicated through beautiful
+    visualizations or easy-to-remember statements (e.g., “the median
+    income is the number-one predictor of housing prices”)\pause
+  \end{enumerate}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{8. Launch}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item Get your solution ready for production (plug into production
+    data inputs, write unit tests, etc.)\pause
+  \item Write monitoring code to check your system’s live performance
+    at regular intervals and trigger alerts when it drops
+    \begin{itemize}
+    \item Beware of slow degradation too: models tend to “rot” as data
+      evolves
+    \item Measuring performance may require a human pipeline (e.g.,
+      via a crowd-sourcing service)
+    \item Also monitor your inputs’ quality (e.g., a malfunctioning
+      sensor sending random values, or another team’s output
+      becoming stale). This is particularly important for online
+      learning systems\pause
+    \end{itemize}
+  \item Retrain your models on a regular basis on fresh data (automate
+    as much as possible)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section{In Conclusion}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Its a long list\pause
+  \item Not everything might be relevant\pause
+  \item But there is quite a lot of wisdom, so review the list
+    regularly during the project\pause
+  \item You are doing this for you!\pause
+  \item For me, I only want two short reports\pauseb---I've got to
+    mark them\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}

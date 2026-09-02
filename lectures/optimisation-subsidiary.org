@@ -1,0 +1,114 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 13: Optimisation
+
+* Keywords
+  * Gradient descent, quadratic minima, differing length scales
+
+* Main Points
+
+** Optimisation
+   * Once you've designed your learning machine and chosen you loss
+     function the rest is optimisation
+   * A very general method is to iteratively reduce your loss function
+   * In high dimensions the gradient of the loss function points in
+     the direction of maximum increasing loss
+   * We still have the problem of determining the step size
+   * *Newton's Method*
+     * Uses the Hessian, $\mat{H}$, with elements
+       $$ H_{ij} = \frac{\partial^2 L(\bm{w})}{\partial w_i\,\partial w_j} $$
+     * Assuming we are in a quadratic minimum the optima will be given by
+       $$ \bm{w}^* = \bm{w} - \mat{H}^{-1} \grad L(\bm{w}) $$
+     * If we are not in a quadratic minimum, but sufficiently close we
+       will converge to the minima /quadratically/
+       - quadratically means that if we start with an error $\epsilon$
+         the error will be $\epsilon^2$ after one iteration
+         $\epsilon^4$ after two iterations, etc.
+     * If we are a long way from the minimum we might go anywhere
+     * In very high dimensions it is not practical
+   * *Quasi-Newton Methods*
+     * There exists a host of methods that approximate the Hessian
+     * By ensuring the approximation is positive definite it means we
+       move in directions that are positively correlated with the gradient
+     * Methods include /conjugate gradient/ and /Levenberg-Marquardt/
+     * Levenberg-Marquardt is used for least squares problems
+     * These are usually preferred over Newton's methods as the are
+       computationally cheaper
+   * *Gradient Descent*
+     * The alternative to (quasi-)Newton methods is to just follow the
+       negative gradient 
+       $$ w^{(t+1)} = w^{(t)} - r\,\grad L(\bm{w}^{(t)}) $$
+     * If the step size, $r$, is too large we can diverge from quadratic minimum
+     * Need to tune the step size to the curvature of the problem
+     * In high dimension our maximum step size is limited by the
+       direction with the greatest curvature (the largest eigenvalue
+       of the Hessian)
+
+* Exercises
+
+** Divergence
+   * Assume a loss $L(w) = \tfrac{1}{2} w^2$ (we are in 1-dimension)
+   * If we update $w^{(t+1)} = w^{(t)} - r\,\grad L(\bm{w}^{(t)})$
+     1. Compute the optimum step size
+     2. What is $r_{\max}$ such that we no longer converge if $r\geq r_{\max}$
+     3. If $r>r_{\max}$ calculate how $w^{(t)}$ grows with time
+   * Answer given below
+
+** Quadratic Optima
+   * Consider a 2-d loss function $L(\bm{w}) = w_1^2/2 + w_2^2 -w_1\,w_2$
+     1. Compute the gradient
+     2. Compute the Hessian
+     3. Compute the eigenvalues of the Hessian
+     4. Plot the contour lines of $L(\bm{w})$
+
+* Answers
+
+** Divergence
+   * The update equation is 
+     $$ w^{(t+1)} = (1-r) \, w^{(t)} $$
+     1. The optimum step size is $r=1$ (the minimum is at $w=0$)
+     2. $r_{\max}=2$
+     3. $w^{(t)} = (1-r)^t \, w^{(0)}$ 
+
+** Quadratic Optima
+   1. $$ \grad L(\bm{w}) = \begin{pmatrix} w_1 - w_2 \\ 2\,w_2 - w_1 \end{pmatrix} $$
+   2. $$ \mat{H} = \begin{pmatrix} 1 & -1\\ -1 & 2 \end{pmatrix} $$
+   3. Let $T = \mathrm{tr}\, \mat{H} =3$ and $D = \det(\mat{H}) = 1$ then
+      $\lambda = \tfrac{1}{2} \left(T \pm \sqrt{T^2-4\,D}\right) =
+      (3\pm\sqrt{5})/2 = \{0.382, 2.618\}$
+   4. [[./figures/quadProblem.pdf]]
+
+* COMMENT [[file:optimisation.pdf][PDF]] [[file:pdf/optimisation_prn.pdf][print]]
+* COMMENT [[file:svd-subsidiary.org][Previous]] [[file:sgd-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

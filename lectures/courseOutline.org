@@ -1,0 +1,92 @@
+#+TITLE: Advanced Machine Learning
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+
+* Learning Theory
+** Bias Variance Dilemma
+   - Calculation
+   - Strategies
+     - Ensembling
+       - Bagging
+	 - Random Forest
+       - Boosting
+	 - Gradient Boosting
+     - Regularisation
+** Capacity
+
+* Mathematics
+
+** Vector Spaces
+   - Function Spaces
+     - Kernel Methods
+     - Gaussian Processes
+
+** Mappings
+*** Linear Algebra
+    - Matrix multiplication
+      - linear regression
+      - Embeddings
+    - Linearity: (A+B)v = Av + Bv 
+    - Positive Definiteness
+      - Definitions
+      - Kernels
+    - Linear Sub-spaces
+      - PCA
+    - Determinants
+      - Volume change under mapping
+      - Eigenvectors
+** Non-linear mappings
+   - Non-linear Embeddings
+     - tSNE
+
+* Convexity
+** Definition
+   - Convex sets
+     - Reals
+     - Linear Constraints
+     - Positive Definite Matrices
+   - Convex functions
+** Jensen's Inequality
+** Uniqueness of minima
+   - SVMs
+   - Lasso
+
+
+* Optimisation
+** Why is this key for ML
+   - Its what you need to do
+** Differentiation
+   - Gradient descent
+     - Backproagarion
+       - Chain rule
+     - SGD
+     - Momentum
+     - Newton/Quasi-Newton
+     - Convergence rates
+       - Why they are not relevant: False Gradients
+       - Minimising training error
+   - Automatic Differentiation
+     - Forward
+     - Reverse
+     - Deep Learning
+
+** Constrained Optimisation
+   - Lagrangian
+   - KKT conditions
+   - Duality (Linear Programming/Quadratic Programming)
+     - SVMs
+
+* Probability
+** Bayes Rule
+   - Naive Bayes
+   - Gaussian Processes
+** Conditional Independence
+   - Graphical Models
+** Expectations
+** MCMC
+
+* Variational Methods
+   - Distances between distributions
+     - KL-divergence
+     - Wasserstein Distance
+   - Variational Approximations

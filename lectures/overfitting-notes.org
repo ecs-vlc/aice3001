@@ -1,0 +1,70 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 2: Over-Fitting
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+
+* Keywords
+  * Overfitting, regularisation, feature selection
+
+* Main Points
+
+  * Over-fitting
+    * Understand over-fitting is when we learn *spurious rules* that
+      explain the training set
+    * If we use an infinitely flexible machine then we can't generalise
+  * Controlling Complexity
+    * More training example improves generalisation by removing
+    * The machine must match the underlying structure of the problem
+    * By preprocessing or careful feature engineering you can sometimes
+      make the learning task easier
+    * Deep learning works because
+      * It uses a lot of training data
+      * They use convolutions that
+	* have few parameter to learn
+	* respect translation invariance
+	* find local features (at different scales through the network)
+    * We usually don't know the structure of the inputs (they are too
+      high dimensional)
+      * Try different machines to see what fits
+      * Fine-tune the models (adjusting hyper-parameters)
+      * Feature Engineering very often help
+	* Feature selection
+	* Using PCA or clustering
+	* Normalise your input features
+      * Need a validation set to do this
+      * Beware you are very likely to over-estimate your generalisation error
+	if you use it to select your model
+      * Can use $K$-fold cross-validation to get a better estimate of
+        generalisation error
+  * Regularisation
+    * Adding regularisation terms can help choose a simpler model
+    * $L_2$ regularisers punish large weights making the fitting
+      function smoother
+    * $L_1£ regularisers can do automatic feature selection
+    * Can do subtle forms of regularisation such as choosing a maximum
+      margin solution
+
+
+* Experiments
+
+  * There are a lot of practical tips that you can use in your project
+    * Try them out and see what works and what doesn't
+    * Many modifications won't make much difference, but occasionally one
+      will make a lot of difference
+    * Be very wary of estimating your generalisation performance
+      * You are measuring on a finite validation set so you will have errors
+      * Once you've used your validation set for selecting models,
+        your likely to over-estimate your generalisation error
+
+* Experiments
+
+** Overfitting Game
+   * Write your own simulation (see lecture notes)
+   * Generate $n$ random numbers $X_i\sim U(0,3)$ (you can try different distributions)
+   * Add some noise to generate $Y_i = X_i + Z_i$ where $Z_i\sim\mathcal{N}(0,1)$
+   * Choose $i$ with the largest $Y_i$
+   * Compute $\Delta = Z_i = Y_i-X_i$
+   * Repeat many times and plot a histogram
+
+* COMMENT [[file:overfitting.pdf][PDF]]
+* COMMENT [[file:projects-subsidiary.org][Next]]

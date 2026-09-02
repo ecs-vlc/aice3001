@@ -1,0 +1,730 @@
+%Master File:lectures.tex
+\newcommand{\rb}{\makebox(0,0){\textcolor{red}{$\bullet$}}}
+\newcommand{\yb}{\makebox(0,0){\textcolor{yellow}{$\bullet$}}}
+\newcommand{\wb}{\makebox(0,0){$\bullet$}}
+
+
+\lesson{Principal Component Analysis (PCA)}
+\vspace{-1cm}
+\begin{center}
+\noindent\includegraphics[height=90mm]{pca_reconstruct20}
+\end{center}
+\keywords{Covariance matrices, dimensionality reduction, PCA, Duality}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{12cm}\raggedright
+  \begin{enumerate}\squeeze
+    \outlineitem{Covariance Matrices}{covariancelab}
+    \outlineitem{Principal Component Analysis}{pcalab}
+    \outlineitem{Duality}{dualitylab}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{10cm}
+\ifnum\value{outlineitem}<3
+  \includegraphics[width=10cm]{digit_pca1}
+\fi
+\ifnum\value{outlineitem}>2
+  \includegraphics[width=10cm]{eigenfaces.png}
+\fi
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Motivation
+\toptarget{firstoutline}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Spread of Data}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Often data varies significantly in only some directions\pause
+  \begin{center}
+    \includegraphics[width=10cm]{pca1}
+  \end{center}
+\item Reduce dimensions by projecting onto low dimensional subspace with
+  maximum variation\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Looking is not Enough}
+
+\pb
+Can't spot low dimensional data by looking at numbers\pause
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{rotate3d0}\mypl{1}
+  \multido{\ia=1+1,\ib=2+1}{6}{%
+    \llap{\includegraphics[width=0.7\linewidth]{rotate3d\ia}}\mypl{\ib}}
+\end{center}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dimensionality Reduction}
+
+\pb
+\begin{itemize}
+\item Often helpful to consider only directions where data varies
+  significantly\pauseh
+\item Want to find directions along which data has its greatest
+  variation\pauseh
+  \begin{center}
+    \multipdf[width=0.9\linewidth]{maximumVariation}\pause
+  \end{center}
+\end{itemize}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Direction of Maximum Variation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Look for the vector $\bm{v}$ with $\|\bm{v}\|^2=1$ to maximise
+    \begin{rightImage}{maxVariation}
+    \begin{align*}
+      \sigma^2 = \frac{1}{m-1} \sum_{i=1}^m \left( \bm{v}^\tr
+      (\bm{x}_i-\bm{\mu}) \right)^2\pause
+    \end{align*}
+    \end{rightImage}
+  \item This is a constrained optimisation problem\pause
+  \item Solve by maximising Lagrangian
+    \begin{align*}
+      \mathcal{L} = \frac{1}{m-1} \sum_{k=1}^m \left( \bm{v}^\tr
+      (\bm{x}_k-\bm{\mu}) \right)^2 - \lambda \left(\|\bm{v}\|^2-1\right)
+    \end{align*}
+  \item $\lambda$ is a Lagrange multiplier\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Direction of Maximum Variation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Expanding the Lagrangian
+    \begin{align*}
+      \mathcal{L} &= \frac{1}{m-1} \sum_{k=1}^m \left( \bm{v}^\tr
+      (\bm{x}_k-\bm{\mu}) \right)^2 - \lambda
+      \left(\|\bm{v}\|^2-1\right)\pause
+      \\
+      &=  \frac{1}{m-1} \sum_{k=1}^m \left( \bm{v}^\tr (\bm{x}_k-\bm{\mu})
+        (\bm{x}_k-\bm{\mu})^\tr \bm{v} \right) - \lambda
+      \left(\|\bm{v}\|^2-1\right)\pause
+      \\
+      &= \bm{v}^\tr \left( \frac{1}{m-1} \sum_{k=1}^m   (\bm{x}_k-\bm{\mu})
+        (\bm{x}_k-\bm{\mu})^\tr \right) \bm{v} - \lambda
+      \left(\|\bm{v}\|^2-1\right)\pause
+      \\
+      &= \bm{v}^\tr \mat{C} \bm{v} -  \lambda
+      \left(\bm{v}^\tr \bm{v}-1\right)\pause
+    \end{align*}
+  \item Extrema of the Lagrangian
+    \begin{align*}
+      \grad \mathcal{L} &= 2(\mat{C}\,\bm{v} - \lambda\,\bm{v}) =
+      0\pause
+      &\Rightarrow& & \mat{C}\,\bm{v} &= \lambda\,\bm{v}\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Direction of Maximum Variation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The eigenvectors are directions that are extrema of the variance\pause
+  \item The variance in direction $\bm{v}$ is equal
+    to\hfill\includegraphics[width=0.2\linewidth]{principleAxes}
+    \begin{align*}
+       \sigma^2 &= \frac{1}{m-1} \sum_{i=1}^m \left( \bm{v}^\tr
+         (\bm{x}_i-\bm{\mu}) \right)^2\pause
+       \\ 
+       &= \bm{v}^\tr \mat{C} \bm{v} = \lambda \bm{v}^\tr \bm{v} = \lambda\pause
+    \end{align*}
+  \item The variance is maximised by the eigenvector with the maximum
+    eigenvalue\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Covariance Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item The \emph{covariance matrix} is defined as
+  \begin{displaymath}
+    \mat{C} = \frac{1}{m-1} \sum_{k=1}^m \left(\strut
+    \bm{x}_k-\bm{\mu}\right) \left(\strut
+    \bm{x}_k-\bm{\mu}\right)^\tr\pause 
+  \end{displaymath}
+\item The components $C_{ij}$ measure how the $i^{th}$ and $j^{th}$
+  components co-vary
+  \begin{align*}
+    C_{ij} = \frac{1}{m-1} \sum_{k=1}^m \left(\strut
+    x_{ik}-\mu_i\right) \left(\strut
+    x_{jk}-\mu_j\right)\pause 
+  \end{align*}
+\item C.f. covariance of random variables
+  \begin{align*}
+     \mathrm{Cov}(X,Y) = \av{(X-\av{X})\,(Y-\av{Y})}\pause
+  \end{align*}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Outer Product}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Remember that the outer-product of two vectors is defined as
+  \begin{displaymath}
+    \bm{x}\,\bm{y}^\tr\pause = 
+    \begin{pmatrix}
+      x_1\\ x_2 \\ \vdots \\ x_n
+    \end{pmatrix}
+    \begin{pmatrix}
+      y_1& y_2& \cdots& y_n
+    \end{pmatrix} = 
+    \begin{pmatrix}
+      x_1\,y_1 & x_1\,y_2 & \cdots & x_1\,y_n \\
+      x_2\,y_1 & x_2\,y_2 & \cdots & x_2\,y_n \\
+      \vdots & \vdots & \ddots & \vdots \\
+      x_n\,y_1 & x_n\,y_2 & \cdots & x_n\,y_n
+    \end{pmatrix}\pause
+  \end{displaymath}
+\item C.f. Inner product
+  \begin{displaymath}
+    \bm{x}^\tr\,\bm{y}\pause = 
+    \begin{pmatrix}
+      x_1 & x_2 & \cdots & x_n
+    \end{pmatrix}
+    \begin{pmatrix}
+      y_1 \\ y_2 \\ \vdots \\ y_n
+    \end{pmatrix} = x_1\,y_1 + x_2\,y_2 + \cdots + x_n\,y_n\pause
+  \end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Matrix Form}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item The covariance matrix is
+  \begin{displaymath}
+    \mat{C} = \frac{1}{m-1} \sum_{k=1}^m \left(\strut
+    \bm{x}_k-\bm{\mu}\right) \left(\strut
+    \bm{x}_k-\bm{\mu}\right)^\tr\pause 
+  \end{displaymath}
+\item Define the matrix
+  \begin{displaymath}
+    \mat{X} = \frac{1}{\sqrt{m-1}}\left( \strut \bm{x}_1-\bm{\mu},
+    \bm{x}_2-\bm{\mu}, \cdots \bm{x}_m-\bm{\mu} \right)\pause
+  \end{displaymath}
+\item We can write the covariance matrix as
+  \begin{displaymath}
+    \mat{C} =  \mat{X} \mat{X}^\tr\pause
+  \end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Properties of Covariance Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item The \emph{quadratic form} of a vector and matrix is defined as
+  \begin{displaymath}
+    \bm{v}^\tr \mat{M} \bm{v}\pause
+  \end{displaymath}
+\item The quadratic form of a covariance matrix is non-negative for any
+  vector\pause
+  \begin{displaymath}
+    \bm{v}^\tr \mat{C} \bm{v} \pause = \bm{v}^\tr \mat{X} \, \mat{X}^\tr
+    \bm{v} \pause = \bm{u}^\tr \bm{u} = \| \bm{u} \|^2 \geq 0
+  \end{displaymath}
+  where $\bm{u} = \mat{X}^\tr \bm{v}$\pause
+\item Matrices with non-negative quadratic forms are known as \emph{positive
+    semi-definite}\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Eigenvalue Decomposition}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item The eigenvectors of $\mat{C}$ with the largest eigenvalues are known
+  as the \emph{principal components}\pause
+\item The eigenvalues are all greater than or equal to zero\pause
+\item Recall an eigenvector $\bm{v}$ satisfies the equation
+  \begin{displaymath}
+    \mat{C}\, \bm{v} = \lambda\, \bm{v}\pause
+  \end{displaymath}
+\item Multiplying both sides by $\bm{v}^\tr$\pause
+  \begin{displaymath}
+    \bm{v}^\tr \mat{C}\, \bm{v} = \lambda\, \bm{v}^\tr \bm{v}\pause
+    = \lambda \|\bm{v}\|^2\pause
+  \end{displaymath}
+  but $\bm{v}^\tr \mat{C} \bm{v}\geq 0$ and $\|\bm{v}\|^2>0$\pause\ so
+  \begin{displaymath}
+    \lambda = \frac{\bm{v}^\tr \mat{C} \,\bm{v}}{\|\bm{v}\|^2} \geq 0\pause
+  \end{displaymath}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Surface Defined by Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item The set of vectors $\bm{x}$ such that
+  \begin{displaymath}
+    \bm{x}^\tr \mat{C}^{-1}\, \bm{x} = 1
+  \end{displaymath}
+defines a surface\pause
+\item The surface is an ellipsoid, $\mathcal{E}$\pause
+\item The eigenvectors point in the direction of the principal axes of the
+  ellipsoid\pause
+\item The radii of the principal axes are equal to the square root of
+  the eigenvalues\pause
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Ellipsoid and Eigen Space}
+
+\begin{center}
+  \includegraphics[width=1.1\linewidth]{pca_revision}
+\end{center}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1.5]{Spanning Input Space}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item A covariance matrix will have a zero eigenvalue only if there is no
+  variation in the direction of the corresponding eigenvector\pause
+\item A covariance matrix will have zero eigenvalues if the number of
+  patterns are less than or equal to the number of dimensions\pause
+\item A covariance matrix formed from $p+1$ patterns that are linearly
+  independent (i.e.\ you cannot form any one out of $p$ of the other
+  patterns) will have no zero eigenvalues
+  \begin{center}
+    \setlength{\unitlength}{1mm}
+    \begin{picture}(140,60)
+      \thicklines
+      \put(66,34){$\bm{\mu}$}
+      \put(73.33,33.33){\vector(2,1){15}}
+      \put(73.33,33.33){\vector(1,-2){4}}
+      \put(73.33,33.33){\circle*{2}}
+      \put(88,40){$\bm{v}_1$}
+      \put(79,23){$\bm{v}_2$}
+      \put(80, 20){\rb}\pauseb
+      \put(20,0){\vector(1,0){100}}
+      \put(20,0){\vector(0,1){60}}
+      \put(10,50){$x_2$}
+      \put(122,-1){$x_1$}
+      \put(40, 30){\rb}
+      \put(100, 50){\rb}\pause
+      \put(62,38){$\bm{\mu}$}
+      \put(70,40){\circle*{2}}
+      \put(70,40){\vector(3,1){15}}
+      \put(86,44){$\bm{v}_1$}\pauselevel{build =2 :2}\pause
+    \end{picture}
+  \end{center}
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Positive Definite}
+
+\begin{PauseHighLight}
+
+\begin{itemize}
+\item Matrices with no zero eigenvalues are called \emph{full rank}
+  matrices (as opposed to rank deficient)\pause
+\item Full rank matrices are invertible, rank deficient matrices are
+  singular and non-invertible\pause
+\item Full rank covariance matrices that have positive eigenvalues only and are
+  said to be \emph{positive definite}\pause
+\item We would expect that when $m>p$ the covariance matrix will be
+  positive definite\pause{} unless there are some symmetries that linearly constrain the
+  patterns\pauseb
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % PCA
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Principal Component Analysis}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item PCA occurs as follows\pause
+  \begin{itemize}
+  \item Construct the covariance matrix\pause
+  \item Find the eigenvalues and eigenvectors\pause
+  \item Keep the eigenvectors with the largest eigenvalues (principal
+    components)\pause
+  \item Project the inputs into the space spanned by the principal
+    components \pause
+  \end{itemize}
+\item  We then use the projected inputs as inputs to our learning
+  machine\pause
+\end{itemize}
+
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Projection Matrix}
+
+\begin{PauseHighLight}
+
+\begin{itemize}\squeeze
+\item To project the inputs construct the projection matrix
+  \begin{displaymath}
+    \mat{P} = 
+    \begin{pmatrix}
+      \bm{v}_1^\tr \\
+      \bm{v}_2^\tr \\
+      \vdots\\
+      \bm{v}_k^\tr
+    \end{pmatrix}\pause
+  \end{displaymath}
+\item $k<p$ is the number of principal components we keep\pause
+\item Given a $p$-dimensional input pattern $\bm{x}$ we can construct a
+  $k$-dimensional representation $\bm{z}$
+  \begin{displaymath}
+    \bm{z} = \mat{P} \, (\bm{x}-\bm{\mu})\pause
+  \end{displaymath}
+\item Use $\bm{z}$ as our new inputs\pause
+\end{itemize}
+
+
+\end{PauseHighLight}
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Subspace Projection}
+\pause
+\pb
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{lowrank-0}\mypl{1}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-1}}\mypl{2}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-2}}\mypl{3}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-3}}\mypl{4}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Hand Written Digits}
+
+\begin{center}
+  \includegraphics[width=\linewidth]{digits}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Eigenvectors}
+
+\begin{center}
+  \includegraphics[width=\linewidth]{digit_pca}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Reconstruction}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Projecting into a subspace of eigenvectors can be seen as
+    approximating the inputs by
+    \begin{align*}
+      \hat{\bm{x}}_i  &= \bm{\mu} + \sum_{j=1}^k z_j^i\,\bm{v}_j , &
+      z_j^i &= \bm{v}_j^\tr (\bm{x}_i-\bm{\mu}), &  \|\bm{v}_j\|&=1    \pause
+    \end{align*}
+  \item Principle component analysis projects the data into a subspace
+    of size $m$ with the minimal approximation error
+    $\av{\|\hat{\bm{x}}_i-\bm{x}_i\|^2}$ \pause
+    \item The loss of ``energy'' (or squared error) is equal to the sum of the eigenvalues
+      in the directions that are ignored\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Eigenvalues for Digits}
+
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{pca_hist}
+\end{center}
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Reconstruction from Eigenvectors}
+
+\pause
+\pb
+\begin{center}
+  \includegraphics[width=\linewidth]{pca_reconstruct0}\mypl{1}
+  \multido{\ia=1+1,\ib=2+1}{20}{%
+    \llap{\includegraphics[width=\linewidth]{pca_reconstruct\ia}}\mypl{\ib}}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Duality
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{PCA for Images}
+
+\begin{PauseHighLight}
+
+
+\begin{itemize}
+\item An image often contains around $p=256\times256 = 64k$ pixels\pause
+\item In standard PCA we would create an $p\times p$ matrix with over
+  $4\times 10^9$ elements\pause
+\item This is intractable\pause
+\item $m$ images span at most a $m-1$ dimensional subspace\pause
+\item Usually this subspace will be much smaller than the space of all
+  images $m\ll p$\pause
+\end{itemize}
+
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Dual Matrix}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The covariance $\mat{C} = \mat{X}\,\mat{X}^\tr$ is a $p\times p$
+    matrix\pause
+  \item Consider the $m\times m$ matrix $\mat{D} =
+    \mat{X}^\tr\,\mat{X}$\pause 
+  \item Suppose $\bm{v}$ is an eigenvector of $\mat{D}$
+    \begin{align*}
+      \mat{D}\, \bm{v} &= \lambda\, \bm{v}\pause
+      \\
+      \mat{X}^\tr\,\mat{X}\,\bm{v} &= \lambda\, \bm{v}\pause
+      \\
+      \mat{X} \, \mat{X}^\tr\,\mat{X}\,\bm{v} &= \lambda\, \mat{X}
+      \bm{v}\pause
+      \\
+      \mat{C}\,\mat{X}\,\bm{v} &= \lambda\, \mat{X}\,\bm{v}\pause 
+                                 \quad \Rightarrow
+      \quad \mat{C} \,\bm{u} = \lambda \, \bm{u}
+    \end{align*}
+  \item $\bm{u} = \mat{X}\,\bm{v}$\pause{} (and $\bm{v} \propto
+    \mat{X}^\tr \bm{u}$)\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Dual Matrix}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Matrices $\mat{C} = \mat{X}\,\mat{X}^\tr$ and $\mat{D} =
+    \mat{X}^\tr\,\mat{X}$ have the same eigenvalues\pause
+  \item Can use the dual $m\times m$ matrix $\mat{D}$ to find eigenvalues
+    and eigenvectors of $\mat{C}$\pause
+  \item Note that $\mat{D} = \mat{X}^\tr\,\mat{X}$ has components
+    $D_{kl} \propto (\bm{x}_k -\bm{\mu})^\tr (\bm{x}_l -\bm{\mu})$\pause
+  \item Takes $O(p\times m \times m)$ time to construct $\mat{D}$\pause
+  \item We work in a ``dual space'' which is the space spanned by the examples\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{What Does a Subspace Look Like?}
+
+\pb
+\begin{itemize}
+\item Consider $\bm{y}^1=
+  \begin{psmallmatrix}
+    2\\ 4\\ 4
+  \end{psmallmatrix}$,
+  $\bm{y}^2=
+  \begin{psmallmatrix}
+    8\\ 6\\ 2
+  \end{psmallmatrix}$ with mean
+  $\bm{\mu}=
+  \begin{psmallmatrix}
+    5\\ 5\\ 3
+  \end{psmallmatrix}$\pauseh
+\item Subtracting the mean $\bm{x}^i=\bm{y}^i-\bm{\mu}$ we can
+  construct matrix
+  \begin{align*}
+    \mat{X} =
+    \begin{psmallmatrix}
+      x^1_1 & x^2_1 \\
+      x^1_2 & x^2_2 \\
+      x^1_3 & x^2_3
+    \end{psmallmatrix}
+    =
+    \begin{psmallmatrix}
+      -3 & 3 \\
+      -1 & 1 \\
+      2 & -2
+    \end{psmallmatrix}\pauseh
+  \end{align*}
+  \begin{center}
+    \makebox{\includegraphics[height=8cm]{pcaDual3D-0} \hspace{3cm}
+    \includegraphics[height=8cm]{pcaDual2D-0}}\mypl{3}
+    \llap{\includegraphics[height=8cm]{pcaDual3D-1} \hspace{3cm}
+      \includegraphics[height=8cm]{pcaDual2D-1}}\mypl{4}
+  \end{center}
+\end{itemize}
+
+
+\end{slide}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Summary}
+
+\begin{PauseHighLight}
+\label{last}
+
+\begin{itemize}
+\item PCA allows us to reduce the dimensionality of the inputs\pause
+\item We project the inputs into a sub-space where the data varies the most\pause
+\item We can work in either the original space ($\mat{X}\mat{X}^\tr$) or
+  the dual space ($\mat{X}^\tr\mat{X}$)\pause
+\item When we have many more features than examples (i.e. $p\gg m$) then
+  it is more efficient working in the dual space\pause
+\item We will see examples of dual spaces again when we look at SVMs\pauseb
+\end{itemize}
+
+
+
+
+\end{PauseHighLight}
+\end{slide}
+
+
+
+%%% Local Variables:
+%%% TeX-master: "lectures"
+%%% End:

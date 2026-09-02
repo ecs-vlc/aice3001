@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+import  re
+from ask import Ask
+import os
+from myengage import myengage
+from time import sleep
+import psutil
+
+def extract(str):
+    _, endpart = str.split("{")
+    mid, _ = endpart.split("}")
+    return mid
+
+with open("lectures.tex", "r") as f:
+    files = [extract(line) for line in f if re.search("^\\\\lecture{", line)]
+
+for i, file in enumerate(files,1):
+    print(i, file)
+
+query = Ask()
+
+
+base = files[int(query("What file do you want to show",  "fn", 1, files))-1]
+pdf, tex  = f"{base}.pdf", f"{base}.tex"
+
+def newer(file1 , file2):
+    if os.path.exists(file1) and os.path.exists(file2):
+        return os.path.getmtime(file1) > os.path.getmtime(file2)
+    else:
+        return True
+
+if newer(tex, pdf) or newer("macros_gen.tex", pdf):
+    if os.system(f"echo {base} | /Library/TeX/texbin/pdflatex -shell-escape lectures")!=0:
+        print("Latex failed")
+        exit(1)
+    os.system(f"ppower4 lectures.pdf {pdf}")
+
+running = False
+for proc in psutil.process_iter():
+    if proc.name() == "papers":
+        running = True
+        break
+
+print(pdf, tex, running, base)
+    
+#os.system(f"evince {pdf} &")
+if not running:
+    os.system(f"papers {pdf} 2> /dev/null &")
+    sleep(2)
+    myengage()    

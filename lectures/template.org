@@ -1,0 +1,16 @@
+#+TITLE: Advanced Machine Learning
+#+SUBTITLE:  Subsidary Notes
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+
+* Main Points
+
+**
+
+* Exercises
+
+**
+
+* Experiments
+
+**

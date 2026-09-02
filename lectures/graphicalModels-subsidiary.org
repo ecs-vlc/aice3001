@@ -1,0 +1,507 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 24: Generative Models
+
+* Keywords
+  * Conditional Independence, Graphical models, LDA
+
+* Main Points
+
+
+** Overview
+   * We have so far considered building rather simple probabilistic models
+   * But what if we want to do inference on a more complicated
+     problem, e.g.
+     - We might want to write a fault diagnosis system for a car
+     - Or we want to create an AI doctor
+     - The model of the spread of a virus
+   * Here we have a vast number of random variables with complicated
+     relationships between them
+   * To help design our system we can build a /graphical model/
+     showing the causal relationships between random variables
+
+** Conditional Independence
+   * *Independence*
+     - Two random variable $X$ and $Y$ are independent if
+       \begin{align*}
+       \Prob{X,Y} = \Prob{X}\,\Prob{Y}
+       \end{align*}
+     - Independence can significantly speed up calculations, e.g.
+       \begin{align*}
+       \av{X^2\,Y} = \sum_{X,Y} X^2\,Y\,\Prob{X,Y} 
+       = \left( \sum_{X} X^{2} \, \Prob{X} \right)\, \left( \sum_{Y} Y \Prob{Y} \right)
+       \end{align*}
+       + If $X$ and $Y$ takes $n$ and $m$ values then without
+         independence the double sum $\sum_{X,Y}$ would be over
+         $n\times m$ possible values
+       + With independence we can compute these sums independently so
+         it just takes $m+n$  additions
+     - When we have large systems with many independent variables
+       then the time saving is often the difference between
+       calculations being feasible or infeasible
+     - Unfortunately in most complex systems there is likely to be
+       some dependence between random variables
+   * *Conditional Independence*
+     - A weaker notion than full independence is /conditional independence/
+     - We say that $X$ and $Y$ are conditionally independent given
+       $Z$ if
+       $$ \Prob{X,Y|Z} = \Prob{X|Z}\,\Prob{Y|Z} $$
+     - Again this can lead to significant speed up in evaluating
+       expectations, e.g.
+       \begin{align*}
+       \av{X^{2}\,Y\,Z^{3}} &= \sum_{X,Y,Z} \Prob{X,Y,Z} X^{2}\,Y\,Z^{3}
+       = \sum_{X,Y,Z} \Prob{X,Y|Z}\,\Prob{Z} X^{2}\,Y\,Z^{3} \\
+       &= \sum_{Z} Z^{3} \left( \sum_{X} X^{2}\,\Prob{X|Z}\right)
+       \left( \sum_{Y} Y\, \Prob{Y|Z}\right)
+       \end{align*}
+       + If $X$, $Y$ and $Z$ have $l$, $m$ and $n$ values respectively, then,
+         ignoring conditional independence, this expectation would
+         require $l\times m\times n$ additions; using conditional
+         independence it only requires $n\times(l+m)$ additions
+     - Although conditional dependence doesn't imply causality,
+       if random variables $X$ and $Y$ are not directly causally
+       related they will be conditionally independent
+     - This is important prior information we can build into our
+       model
+
+** Graphical Models
+   * In graphical models we represent each random variable as a node
+     in a graph
+   * There are two main classes of graphical models
+     - Bayesian Belief Networks
+       + use directed graphs
+       + we will spend most of our time discussing these
+     - Markov Fields
+       + uses adirected graphs
+       + these are used in graphics a lot
+       + won't really discuss these
+   * Each causal connection we represent as a directed edge in a
+     Bayesian Belief Network
+     - if $A$ directly influences $B$ we represent this as
+       #+ATTR_LATEX: :width 0.17\textwidth
+	[[file:figures/atob.pdf]]
+   * *Cakes*
+     - We consider the following example
+     - Abi and Ben both bake cakes and like to bring them into the
+       coffee room
+     - They do this randomly without consulting with each other
+     - Abi will bring in cakes 20% of the time: $\Prob{A=1} = 0.2$
+     - Ben will bring in cakes 10% of the time: $\Prob{B=1} = 0.1$
+     - 90% of the time if either Abi or Ben have put cakes in the
+       coffee room there is some left when I enter
+       $\Prob{C=1|A=1,B=0} = \Prob{C=1|A=0,B=1}=0.9$
+     - If they both make cake then there is always cake left  $\Prob{C=1|A=1,B=1}=1$
+     - If neither Abi or Ben has made cake there is still a 5%
+       chance someone else has put cake in the coffee room $\Prob{C=1|A=0,B=0}=0.05$
+     - We note that $\Prob{C=0|A,B}=1-\Prob{C=1|A,B}$ as
+       $\sum_{C\in\{0,1\}}\Prob{C|A,B}=1$
+     - We can draw the causal relationships as
+       #+ATTR_LATEX: :width 0.3\textwidth
+       [[file:figures/acb.pdf]]
+     - This allows us to break down the joint probability as
+	 \begin{align*}
+	 \Prob{A,B,C} &\eq \Prob{C,B|A}\,\Prob{A} \\
+         &\eq \Prob{C|A,B}\,\Prob{B|A}\,\Prob{A} \eq \Prob{C|A,B}\,\Prob{B}\,\Prob{A}
+         \end{align*}
+	 \explanation
+       1. Using the definition of conditional probability (this is always true)
+       2. Using the definition of conditional probability again (this is always true)
+       3. Using the fact that $B$ and $A$ are independent (there
+          is no arrow between them in the graphical
+          representation) so $\Prob{B|A}=\Prob{B}$
+	  + From the graphical representation we can immediately write
+	    down a simple form for this joint distribution
+     - We can use this decomposition to help us compute various probabilities
+     - (To compute probabilities we use the fact that the
+       expectation of an indicator function $\pred{\text{predicate}}$ is
+       equal to the probability $\Prob{\text{predicate}}=\av{\,\pred{\text{predicate}}}$
+       + The indicator function $\pred{\text{predicate}}$ equals 1
+         if the predicate is true and 0 otherwise)
+     - Let's compute the probability there are cakes
+       $$ \Prob{C=1} = \sum_{A,B,C\in\{0,1\}}
+       \pred{C=1} \Prob{A,B,C} = \sum_{A,B\in\{0,1\}}
+       \Prob{C=1|A,B} \Prob{A}\,\Prob{B} = 0.303 $$
+       + See Section \ref{sec:exCakes} for details of the calculation
+         (this is an exercise that should really help)
+       + Here we exhaustively sum over all variables
+     - Let us consider what happens when we observe a random variable
+       + In graphical models we often shade observed random variables
+       #+ATTR_LATEX: :width 0.3\textwidth
+       [[file:figures/acob.pdf]]
+       + Let's compute quantities conditioned on an observation of $C$
+         $$ \Prob{A,B|C} =\frac{\Prob{A,B,C}}{\Prob{C}} $$
+       + Thus $\Prob{A,B|C=1} = \Prob{A,B,C=1}/\Prob{C=1}$
+       + Using this we can compute
+	  \begin{align*}
+ 	  \Prob{A=1,B=1|C=1} &= 0.066, &
+	  \Prob{A=1|C=1} &=0.630, &
+	  \Prob{B=1|C=1} &= 0.317
+	   \end{align*}
+       + We note that $\Prob{A=1,B=1|C=1} \neq \Prob{A=1|C=1} \, \Prob{B=1|C=1}$
+       + That is once we observe $C$ then $A$ and $B$ are no
+         longer independent
+     - We can extend our model further
+       + We suppose that Dave likes cakes so if there is a cake in
+         the coffee room there is a 80% chance that I will see
+         him eating a cake: $\Prob{D=1|C=1}=0.8$
+       + Even if there are no cakes in the coffee room there is a
+         10% chance that Dave has bought his own cake: $\Prob{D=1|C=0}=0.1$
+       + Eli also likes cakes: there is a 60% chance that I will
+         see her eating cakes if there are cakes in the coffee
+         room: $\Prob{E=1|C=1}=0.6$
+       + But she never buys herself cakes $\Prob{E=1|C=0}=0$
+       + We can depict the dependencies of the this large model
+ 	   #+ATTR_LATEX: :width 0.3\textwidth
+              [[file:figures/abcde_g.pdf]]
+	 \begin{align*}
+	 \Prob{A,B,C,D,E} &= \Prob{C,D,E|A,B}\,\Prob{B}\,\Prob{A} \\
+	 &= \Prob{D|C}\,\Prob{E|C}\, \Prob{C|A,B}\,\Prob{B}\,\Prob{A}
+         \end{align*}
+	 + where we have used the conditional independence
+	 + note that $D$ and $E$ are conditionally independent of $A$
+           and $B$ given $C$
+	 + That is, these probabilities will depend on events $A$ and
+           $B$, but once I know there are cakes in the coffee room it
+           doesn't matter who put them there
+	 + We can compute probabilities for this larger system
+	   \begin{align*}
+	   \Prob{D=1} &= 0.3121, & \Prob{E=1} &= 0.1818, &
+           \Prob{D=1,E=1} &= 0.14544
+           \end{align*}
+	   so $\Prob{D,E}\neq\Prob{D}\,\Prob{E}$
+	 + $D$ and $E$ are not independent variables as they coupled
+           through $C$
+	 + However when we observe $C$
+	   #+ATTR_LATEX: :width 0.3\textwidth
+              [[file:figures/code.pdf]]
+	   then $\Prob{D,E|C}\eq\Prob{D|C}\,\Prob{E|C}$
+	   + E.g.
+	   \begin{align*}
+	   \Prob{D=1|C=1} &= 0.8 & \Prob{E=1|C=1} &= 0.6 &
+           \Prob{D=1,E=1|C=1} &= 0.48
+           \end{align*}
+
+** Latent Dirichlet Allocation
+   * Most probabilistic models can be represented as a graphical model
+   * There are times when this isn't particularly useful
+   * But it can just help us to understand what is going on
+   * We consider an example of this  called *Latent Dirichlet Allocation*
+     - This is sometimes known as LDA, but should not be confused with
+       /linear discriminant analysis/
+   * LDA is used to model topics in a set of documents (or /corpus/)
+   * We want to identify a set of topics
+   * The topics are associated with particular words
+   * The documents will be associated with a small number of topics
+   * To model this we build a /generative model/
+     - This is natural to build
+     - Although it seems the wrong way around---we don't want to
+      build a corpus of documents
+     - But Bayes's rule allows us to invert this
+   * Let us start with some definitions
+     - We consider generating a corpus of documents
+       $$ \mathcal{C} = \{d_i | i = 1,\, 2,\, \ldots |\mathcal{C}|\} $$
+     - Each document consists of a set of words
+       $$ d = \left(w_1^{(d)},\, w_2^{(d)},\, \ldots,\,
+       w_{N_d}^{(d)}\right) $$
+     - We assume there is a set of topics
+       $$ \mathcal{T}=\{t_1,\,t_2,\,\ldots,\, t_{|\mathcal{T}|}\} $$
+     - We associate a probability, $\theta^{(d)}_t$, that a word in
+       document $d$ relates to a topic $t$
+       #+ATTR_LATEX: :width 0.6\textwidth
+       [[file:figures/topicModelWtoT.pdf]]
+     - We associate a probability $\phi^{(t)}_w$ that a word, $w$, is
+       related to a topic $t$
+       #+ATTR_LATEX: :width 0.6\textwidth
+       [[file:figures/topicModel.pdf]]
+     - Most documents are predominantly about a few topics and most
+       topic have a small number of words associated to them
+     - We can generate probability vectors $\bm{\theta}^{(d)}$ and
+       $\bm{\phi}^{(t)}$ from a Dirichlet distribution
+       \begin{align*}
+       \mathrm{Dir}(\bm{p}|\bm{\alpha}) = \Gamma\!\left(\sum_i
+        \alpha_i\right) \prod_{i=1}^n
+        \frac{p_i^{\alpha_i-1}}{\Gamma(\alpha_i)}
+        \end{align*}
+     - $\bm{\theta}^{(d)} \sim \mathrm{Dir}(\alpha\,\bm{1})$ and  $\bm{\phi}^{(t)}\sim \mathrm{Dir}(\beta\,\bm{1})$
+     - By choosing a Dirichlet distribution with a small components, $\alpha_{i}$,
+       we ensure that have most of its probability density lies around the edges
+        #+ATTR_LATEX: :width 0.3\textwidth
+       [[file:figures/dirichletSparse.pdf]]
+     - By drawing $\bm{\theta}^{(d)}$ and $\bm{\phi}^{(t)}$ from a
+       Dirichlet distribution with small parameters $\alpha$ and
+       $\beta$ we ensure that most components are very small
+       with a few large components
+     - To generate a document we choose a topic for each word and a
+       word for each topic
+     - We use the categorical distribution
+       + if $\bm{p}$ is a vector of non-negative values that sum to 1 then
+	 $\mathrm{Cat}(i|\bm{p}) = p_{i}$
+       + That is if $I\sim\mathrm{Cat}(\bm{p})$ then $I$ will be an integer, $i$
+         with probability $p_{i}$
+     - Thus for word $i$ of document $d$ we first choose a topic
+       $\tau_{i}^{(d)}\sim \mathrm{Cat}(\bm{\theta}^{d})$ and then we
+       choose a word $w_{i}^{(d)} \sim
+       \mathrm{Cat}(\bm{\phi}^{\tau_{i}^{(d)}})$
+       + It is a slightly crazy model in that words are randomly
+         chosen from the topics of the document with no ordering
+     - We could represent this by a rather ugly graphical model (see
+       Figure \ref{fig:ldagm})
+       #+ATTR_LATEX: :width 0.6\textwidth
+       #+CAPTION: Graphical Model for Latent Dirichlet Allocation \label{fig:ldagm}
+       [[file:../lectures/figures/LDAGM.pdf]]
+     - To make graphical models more manageable people have invented a
+       graphical means of showing repeats
+     - For example, to illustrate that we have a probability vector
+       $\bm{\theta}^{(d)}$ drawn from a Dirichlet distribution with
+       parameter $\alpha$ for each document $d$ in our corpus
+       $\mathcal{C}$ we can use a *plate diagram*
+       #+ATTR_LATEX: :width 0.3\textwidth
+       [[file:../lectures/figures/GMplateSimple.pdf]]
+     - Using a plate diagram we can represent the LDA as shown in
+       Figure \ref{fig:ldaplate}
+       #+ATTR_LATEX: :width 0.6\textwidth
+       #+CAPTION: Graphical Model for Latent Dirichlet Allocation \label{fig:ldaplate}
+       [[file:../lectures/figures/GMplateLDA.pdf]]
+     - It takes a bit of time to decode this
+       + We have a probability vector $\bm{\theta}^{(d)}$ for every document in our corpus
+	 * this tells us the distribution of topics in the document
+	 * $\bm{\theta}^{(d)}$ is drawn from a Dirichlet distribution
+           with parameters $\bm{\alpha}=(\alpha,\alpha,\alpha,\ldots,\alpha)$
+       + We have a probability $\bm{\phi}^{(\tau)}$ for every topic
+	 * this tells us the distribution of words associated with a topic
+	 * $\bm{\phi}^{(\tau)}$ is drawn from a Dirichlet distribution
+           with parameters $\bm{\beta} = (\beta,\beta,\beta,\ldots,\beta)$
+       + For each document, $d$, and each word, $w_{i}^{(d)}$ in the document we have
+	 * a topic $\tau^{(d)}_{i}$ drawn from $\bm{\theta}^{(d)}$
+	 * the words $w_{i}^{(d)}$ are drawn from $\bm{\phi}^{(\tau^{(d)}_{i})}$
+	 * that is it depends both on the topic $\tau^{(d)}_{i}$ and
+           on the distributions of words associated with that topic
+       + In practice I am usually given the documents with words (the
+         words are observed)
+       + I have shaded what is usually taken to be observed (for
+         $\alpha$ and $\beta$ we usually just choose these from the
+         start---we could learn then so they would not be observed)
+     - The graphical model helps us write down the joint distribution
+     - We define matrices to denote all the variables
+        \begin{align*}
+         \bm{W} &= (\bm{w}^{(d)} | d\in\mathcal{C})\quad \text{with} \quad
+         \bm{w}^{(d)}=(w_1^{(d)},\, w_2^{(d)},\, \ldots,\, w_{N_d}^{(d)}),
+         \quad \text{and}\quad w_i^{(d)} \in \mathcal{V} \\
+          \bm{T} &= (\tau^{(d)}_i | d\in\mathcal{C}\;\wedge\;
+           i\in\{1,\,2,\,\ldots, N_d\})\quad \text{with} \quad \tau^{(d)}_i \in
+           \mathcal{T} \\
+          \bm{\Theta} &=(\bm{\theta}^{(d)} | d\in\mathcal{C})\quad \text{with}
+           \quad \bm{\theta}^{(d)} = (\theta^{(d)}_t | t \in \mathcal{T})\in
+          \Lambda^{|\mathcal{T}|} \\
+          \bm{\Phi} &= (\bm{\phi}^{(t)} | t \in \mathcal{T}) \quad \text{with}
+         \quad \bm{\phi}^{(t)} = (\phi^{(t)}_w | w \in \mathcal{V}) \in
+         \Lambda^{|\mathcal{V}|}
+        \end{align*}
+     - Then the joint distribution is given by
+       \begin{align*}
+       \hspace{-1cm}        \Prob{\bm{W},\bm{T},\bm{\Theta},\bm{\Phi}\big|\alpha,\beta} =
+        & \left(\prod_{t\in\mathcal{T}} \Dist[Dir]{\bm{\phi}^{(t)}\big|\beta\bm{1}}\right)
+         \Biggl(\prod_{d\in\mathcal{C}} \Dist[Dir]{\bm{\theta}^{(d)}\big|\alpha\bm{1}}
+         \prod_{i=1}^{N_d} \Dist[Cat]{\tau_i^{(d)}\big| \bm{\theta}^{(d)}}
+         \Dist[Cat]{w_i^{(d)} \big| \bm{\phi}^{(\tau_i^{(d)})}}\Biggr)
+         \end{align*}
+     - It is now a technical exercise to compute the quantities of interest
+     - For example $f(\bm{\Theta},\bm{\Phi}|\bm{W},\alpha,\beta)$ will
+       tell us about the words associated with the topics that are
+       present in the corpus and the topics associated with each document
+     - Note that we would marginalise out $\bm{T}$
+     - There are different techniques for computing these
+       probabilities, e.g. using MCMC or variational approximations
+
+
+
+* Exercise
+
+** Cakes \label{sec:exCakes}
+   - Write a program to compute the probability of various events
+     concerning cakes
+   - To compute all the probabilities (sometimes inefficiently) we can
+     sum over all values our variables can take
+   - I have done this somewhat inefficiently in the answers
+
+
+* Answers
+
+** Cakes
+   - I am using asymptote which I usually use for drawing diagrams,
+     but its a language with C syntax
+   - Port this to a language of your choice
+
+#+NAME: Code to compute probabilities for cakes
+#+BEGIN_SRC C
+real pcGab(int a, int b, int c) { // P(C|A,B)
+  real p;
+  if (a==1 && b==1)
+    p = 1;
+  else if (a==1 || b==1)
+    p = 0.9;
+  else
+    p = 0.05;
+  if (c==1)
+    return p;
+  else
+    return 1-p;
+}
+
+real pa(int a) { // P(A)
+  return (a==1)? 0.2:0.8;
+}
+
+real pb(int b) { // P(B)
+  return (b==1)? 0.1:0.9;
+}
+
+real pd(int d, int c) { // P(D|C)
+  real p = (c==1)? 0.8:0.1;
+  return (d==1)? p:1-p;
+}
+
+real pe(int e, int c) {// P(E|C)
+  real p = (c==1)? 0.6:0;
+  return (e==1)? p:1-p;
+}
+
+
+
+typedef real func(int, int, int, int, int); // define signature of general function
+
+real expect(func f) { // compute expectations exhaustively
+  real sum = 0;
+  for (int a=0; a<=1; ++a) {
+    for (int b=0; b<=1; ++b) {
+      for (int c=0; c<=1; ++c) {
+	for (int d=0; d<=1; ++d) {
+	  for (int e=0; e<=1; ++e) {
+	    sum += f(a,b,c,d,e)*pcGab(a,b,c)*pa(a)*pb(b)*pd(d,c)*pe(e,c);
+	  }
+	}
+
+      }
+    }
+  }
+  return sum;
+}
+
+/* Define functions to find expectations */
+/* These are all indicator funtions so I end up with probabilities */
+
+real f(int a, int b, int c, int d, int e) {return 1;}
+real fa(int a, int b, int c, int d, int e) {return a;}
+real fb(int a, int b, int c, int d, int e) {return b;}
+real fab(int a, int b, int c, int d, int e) {return a*b;}
+real fc(int a, int b, int c, int d, int e) {return c;}
+real fac(int a, int b, int c, int d, int e) {return a*c;}
+real fbc(int a, int b, int c, int d, int e) {return b*c;}
+real fabc(int a, int b, int c, int d, int e) {return a*b*c;}
+real fd(int a, int b, int c, int d, int e) {return d;}
+real fe(int a, int b, int c, int d, int e) {return e;}
+real fde(int a, int b, int c, int d, int e) {return d*e;}
+real fcd(int a, int b, int c, int d, int e) {return c*d;}
+real fce(int a, int b, int c, int d, int e) {return c*e;}
+
+real fcde(int a, int b, int c, int d, int e) {return c*d*e;}
+
+
+write("Check joint probability is normalised: ", expect(f));
+write("P(A=1) = ", expect(fa));
+write("P(B=1) = ", expect(fb));
+write("P(A=1)*P(B=1) = ", expect(fa)*expect(fb));
+write("P(A=1,B=1) = ", expect(fab));
+write("Note P(A=1,B=1) = P(A=1)*P(B=1)");
+write("-");
+
+real Pc = expect(fc);
+write("P(C=1) = ", Pc);
+real PaGc = expect(fac)/Pc;
+real PbGc = expect(fbc)/Pc;
+real PabGc = expect(fabc)/Pc;
+write("P(A=1|C=1) = ", PaGc);
+write("P(B=1|C=1) = ", PbGc);
+write("P(A=1|C=1)*P(B=1|C=1) = ", PaGc*PbGc);
+write("P(A=1,B=1|C=1) = ", PabGc);
+write("Note: P(A=1,B=1|C=1) != P(A=1|C=1)*P(B=1|C=1)");
+write("-");
+
+write("P(D=1) = ", expect(fd));
+write("P(E=1) = ", expect(fe));
+write("P(D=1)*P(E=1) = ", expect(fd)*expect(fe));
+write("P(D=1,E=1) = ", expect(fde));
+write("Note: P(D=1,E=1) != P(D=1)*P(E=1)");
+write("-");
+
+write("P(D=1|C=1) = ", expect(fcd)/Pc);
+write("P(E=|C=11) = ", expect(fce)/Pc);
+write("P(D=1|C=1)*P(E=1|C=1) = ", expect(fcd)/Pc*expect(fce)/Pc);
+write("P(D=1,E=1|C=1) = ", expect(fcde)/Pc);
+write("Note: P(D=1,E=1|C=1) = P(D=1|C=1)*P(E=1|C=1)");
+#+END_SRC
+
+** Result from program
+#+BEGIN_EXAMPLE
+Check joint probability is normalised: 1
+P(A=1) = 0.2
+P(B=1) = 0.1
+P(A=1)*P(B=1) = 0.02
+P(A=1,B=1) = 0.02
+Note: P(A=1,B=1) = P(A=1)*P(B=1)
+-
+P(C=1) = 0.29
+P(A=1|C=1) = 0.627586206896552
+P(B=1|C=1) = 0.317241379310345
+P(A=1|C=1)*P(B=1|C=1) = 0.19909631391201
+P(A=1,B=1|C=1) = 0.0689655172413793
+Note: P(A=1,B=1|C=1) != P(A=1|C=1)*P(B=1|C=1)
+-
+P(D=1) = 0.303
+P(E=1) = 0.174
+P(D=1)*P(E=1) = 0.052722
+P(D=1,E=1) = 0.1392
+Note: P(D=1,E=1) != P(D=1)*P(E=1)
+-
+P(D=1|C=1) = 0.8
+P(E=|C=11) = 0.6
+P(D=1|C=1)*P(E=1|C=1) = 0.48
+P(D=1,E=1|C=1) = 0.48
+Note: P(D=1,E=1|C=1) = P(D=1|C=1)*P(E=1|C=1)
+#+END_EXAMPLE
+
+* COMMENT [[file:pdf/graphicalModels.pdf][PDF]] [[file:pdf/graphicalModels_prn.pdf][Print]]
+* COMMENT [[file:ProbabilisticInference-subsidiary.org][Previous]] [[file:mcmc-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+
+

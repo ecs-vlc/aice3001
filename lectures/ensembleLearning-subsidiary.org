@@ -1,0 +1,161 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 5: Ensemble Methods
+
+* Keywords
+  * Decision Trees, Averaging, Bagging
+
+* Main Points
+
+** Decision Trees
+    * Decision trees are binary tree where a set of data is
+      partitioned into two at each node of the tree
+    * Rule for partition depends on a single feature
+    * Trees are grown greedily
+    * All possible rules are tried to find the one that maximise the
+      purity of the leaves
+    * Gini, entropy or variance used to measure purity
+    * Decision trees can handle categorical or numerical data
+    * They can handle missing data
+      - after deciding on a new rule (ignoring missing data), a
+        rule to send the missing data right or left is selected to
+        maximise purity
+    * Decision trees are useful for understanding new data sets
+      - By examining the rules at the top of the tree we get to see
+        the most important variables
+    * Decisions trees are often not competitive
+      - they can have high bias because they can only split the data
+        on single variables (limits their expressiveness)
+      - they can also have high variance because a small change to the
+        data set that changes a rule at the top of the tree can lead
+        to very different predictions
+
+** Ensembling
+    * This is used to reduces variance by averaging many different machines
+    * This only works if the machines make weakly correlated classifications
+    * We ensemble machines by coming to a consensus
+      - Vote on a class in classification
+      - Average for regression
+*** Estimating the Mean
+    * Suppose we want to estimate the mean of a distribution, $f_{X}(x)$ from
+      random samples of the distribution.  We assume the distribution
+      has mean $\mu = \av{X}$ and variance $\sigma^2 = \av{(X-\mu)^2}$
+    * Our estimated mean is
+      \[ \hat{\mu} = \frac{1}{n} \sum_{i=1}^n X_i \]
+      where $X_i\sim f_{X}(x)$ (i.e. the $X_i$ are drawn at random
+      form the distribution)
+    * In expectation
+      \[ \av{\hat{\mu}} = \frac{1}{n} \sum_{i=1}^n \av{X_i} = \frac{1}{n} \sum_{i=1}^n \mu = \mu\]
+    * However, each $\hat{\mu}$ will differ from the true $\mu$ (some
+      will e greater and some less than $\mu$)
+    * We want to measure the variance in $\hat{\mu}-\mu$
+      \[ \hat{\mu}-\mu = \left( \frac{1}{n} \sum_{i=1}^n X_i \right) -\mu = \frac{1}{n} \sum_{i=1}^n (X_i-\mu)  \]
+    * Thus
+      \[ \left( \hat{\mu}-\mu \right)^2 = \left(\frac{1}{n} \sum_{i=1}^n
+      (X_i-\mu)\right)^{2} = \left(\frac{1}{n} \sum_{i=1}^n
+      (X_i-\mu)\right)\left(\frac{1}{n} \sum_{j=1}^n
+      (X_j-\mu)\right) \]
+      - Note that $i$ and $j$ are just dummy indices (it doesn't
+        matter what they are called but they are different)
+    * Or
+       \[ \left( \hat{\mu}-\mu \right)^2 = \frac{1}{n^2} \sum_{i=1}^n
+          \sum_{j=1}^n (X_i-\mu) (X_j-\mu) \]
+      - Now there are times when $i=j$ and times when this isn't true
+        so we separate these two out
+       \[ \left( \hat{\mu}-\mu \right)^2 = \frac{1}{n^2} \sum_{i=1}^n
+         (X_i-\mu)^{2} + \sum_{i=1}^n \sum_{j=1\above j\neq i}^n (X_i-\mu) (X_j-\mu)\]
+    * Taking expectations
+       \[ \av{\left( \hat{\mu}-\mu \right)^2} = \frac{1}{n^2} \sum_{i=1}^n
+         \av{(X_i-\mu)^{2}} + \sum_{i=1}^n \sum_{j=1\above j\neq i}^n \av{(X_i-\mu) (X_j-\mu)}\]
+      - where I have used $\av{A + B} = \av{A} + \av{B}$ (so that
+         $\av{\sum_{i} A_i} = \sum_{i} \av{A_i})$
+    * Now because $X_i$ and $X_j$ are by assumption independently
+      chosen 
+      \[ \av{(X_i-\mu) (X_j-\mu)} =  \av{X_i-\mu}\,  \av{X_j-\mu} \]
+      but $\av{X_i-\mu} = \av{X_i}-\mu = \mu -\mu = 0$
+      so
+      \[ \av{(X_i-\mu) (X_j-\mu)} =  0\]
+      and
+       \[ \av{\left( \hat{\mu}-\mu \right)^2} = \frac{1}{n^2} \sum_{i=1}^n
+         \av{(X_i-\mu)^{2}} = \frac{1}{n^2} \sum_{i=1}^n \sigma^2 = \frac{\sigma^{2}}{n}\]
+*** Bagging
+    * Uses bootstrap aggregation
+      - that is we sample the training set with replacement to obtain
+        slightly different datasets
+    * Random Forest
+      - Uses decision trees with bootstrap aggregation
+      - But also use different random subsets of features
+      - Often gives state-of-the-art performance
+
+* Exercises
+
+** Compute expected error in mean for correlated variables
+   * We look at estimating the mean by sampling $n$ random variables
+     \begin{equation*}
+     \hat{\mu} = \frac{1}{n} \sum_{i=1}^n X_i
+     \end{equation*}
+   * In expectation $\mathbb{E}[X_i]=\mu$
+   * Thus in expectation $\mathbb{E}[\hat{\mu}]=\mu$
+   * But there will typically be fluctuations from the mean which we can compute using
+     \begin{equation*}
+     \sigma^2_{\hat{\mu}} = \mathbb{E}\left[ \left(\strut \hat{\mu} - \mu \right)^2 \right]
+     \end{equation*}
+   * *Compute this* using
+     \begin{align*}
+     \mathbb{E}[(X_i-\mu)^2] &= \sigma^2 & 
+        \mathbb{E}[(X_i-\mu)\,(X_j-\mu)] &= \rho\,\sigma^2
+     \end{align*}
+   * Answer given in lecture notes
+   * Note that the estimated error in the mean is $\sigma_{\hat{\mu}$ (this is
+     what you use when you compute error-bars)
+
+* Experiments
+
+** Visualise a decision tree
+
+#+NAME: DecisionTreeExample.py
+#+BEGIN_SRC python
+from sklearn.datasets import load_iris
+from sklearn import tree
+X, y = load_iris(return_X_y=True)
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X, y)
+
+tree.plot_tree(clf.fit(iris.data, iris.target))
+#+END_SRC
+
+
+
+* COMMENT [[file:ensembleLearning.pdf][PDF]]
+* COMMENT [[file:symmetry-subsidiary.org][Previous]] [[file:boosting-subsidiary.org][Next]]
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+END_OPTIONS
+

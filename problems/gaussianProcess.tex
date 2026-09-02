@@ -1,0 +1,538 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+%\usepackage{euler}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\renewcommand{\ttdefault}{pcr}
+\newcommand{\tr}{\textsf{T}}
+\newcommand{\e}[1]{{\rm e}^{#1}}
+\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
+\newcommand{\logg}[1]{\log\left(#1\right)}
+\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
+\newcommand\diag{\mathop{\mathrm{diag}}}
+\newcommand{\grad}{\bm{\nabla}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\class}{\mathcal{C}}
+\newcommand{\data}{\mathcal{D}}
+
+
+%\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+%\DeclareMathAlphabet{\mat}{U}{eur}{b}{n}
+\DeclareMathAlphabet{\mat}{U}{eur}{b}{n}
+
+\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
+\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
+\newcommand{\bst}{\rule{0mm}{5mm}}
+\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
+\newcommand{\len}[1]{\| #1 \|}
+\graphicspath{{figures/} {../2018-19/figures}}
+\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
+\graphicspath{{figures/}}
+\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
+\renewcommand{\det}[1]{\textrm{det}({#1})}
+
+% \usepackage{picture}
+\begin{document}
+\unitTitle{Gaussian Processes Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{COMP6208}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+%\blankpage
+
+
+%% ----------------------------------------------------------------
+%\section
+% -----------------------------------------------------------------------
+% *************************  Section A  *********************************
+% -----------------------------------------------------------------------
+
+% ***************************** question 1 **************************
+
+\begin{question}{10}
+  Performing integrals over normal distributes takes practice. 
+  \begin{qparts}
+    \qpart[5]{Consider the integral
+      \begin{align*}
+        I_1 = \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x.
+      \end{align*}
+      Directly evaluating this is difficult, but there is a trick.
+      Consider instead
+      \begin{align*}
+        I_1^2 &=  \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x
+                \int_{-\infty}^{\infty} \e{-y^2/2} \, \dd y
+                =   \int_{-\infty}^{\infty}  \int_{-\infty}^{\infty}
+                  \e{-(x^2+y^2)/2} \, \dd x \, \dd y.
+      \end{align*}
+      By making the change of variables to polar coordinates where $r
+      = \sqrt{x^2 + y^2}$ and $\theta = \arctan(y/x)$  (so that
+      $x=r\,\cos(\theta)$, $y=r\,\sin(\theta)$) then  $\dd
+      x\,\dd y = r\,\dd r\, \dd \theta$. Note that to integrate over
+      all space we let $\theta$ vary from 0 to $2\pi$ and $r$ to vary
+      from 0 to $\infty$.  Write down the integral in
+      polar coordinate, make a further the change of variables
+      $u=r^2/2$ to evaluate $I_1^2$ hence compute $I_1$
+    }{\lines{6}}
+    \begin{answer}
+      \begin{align*}
+        I_1^2 = \int_0^{2\,\pi} \dd \theta \int_{0}^\infty r\,e^{-r^2/2} \, \dd r
+        = 2\,\pi \ \int_{0}^\infty r\,e^{-r^2/2} \, \dd r.
+      \end{align*}
+      Making the change of variables $u=r^2/2$ so that $\dd u/\dd r =
+      r$ or $\dd u= r\,\dd r$ we get 
+      \begin{align*}
+        I_1^2 = 2\,\pi\ \int_{0}^\infty e^{-u} \, \dd u = 2\,\pi
+      \end{align*}
+      so $I_1 = \sqrt{2\,\pi}$.
+    \end{answer}
+    \qpart[5]{By making a change of variables compute
+      \begin{align*}
+        I_2 = \int_{-\infty}^{\infty} \e{-(x-\mu)^2/(2\sigma^2)} \dd x
+      \end{align*}}{\lines{4}}
+    \begin{answer}
+      The trick is to let $z=(x-\mu)/\sigma$ so that $\dd z = \dd
+      x/\sigma$ or $\dd x = \sigma \dd z$.  Then
+      \begin{align*}
+        I_2 = \sigma \int_{-\infty}^{\infty} \e{-z^2/2} \dd z =
+        \sigma\,I_1 = \sqrt{2\,\pi}\,\sigma
+      \end{align*}
+      Note that the \textit{probability density function} (PDF) for a
+      normally distributed random variable is given by
+      \begin{align*}
+        \mathcal{N}(x\mid \mu, \sigma^2) = \frac{1}{\sqrt{2\,\pi}\,\sigma} \e{-(x-\mu)^2/(2\sigma^2)} .
+      \end{align*}
+      (Observe that $ \mathcal{N}(0\mid \mu, \sigma^2) =
+      1/(\sqrt{2\,\pi}\,\sigma)$ so when $\sigma<\sqrt{2\,\pi}$ then
+      $\mathcal{N}(0\mid \mu, \sigma^2) >1$, showing that PDFs are not probabilities.)
+    \end{answer}
+    \newpage
+    
+    \qpart[3]{By using the identity $\e{a+b} = \e{a}\,\e{b}$, or more
+      generally
+      \begin{align*}
+        \e{\sum_i a_i} = \prod_i \e{a_i}
+      \end{align*}
+      compute
+      \begin{align*}
+        I_3 = \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
+        \e{-\frac{1}{2}\|\bm{x}\|_2^2} \dd x_1 \cdots \dd x_n
+      \end{align*}
+      where $\bm{x} = (x_1, x_2, \ldots, x_n)^\tr$.}{\lines{6}}
+      \begin{answer}
+        We note that $\|\bm{x}\|_2^2 = \sum\limits_{i=1}^n x_i^2$
+        \begin{align*}
+          I_3 &= \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
+        \e{-\frac{1}{2}  \sum\limits_{i=1}^n x_i^2} \dd x_1 \cdots \dd
+                x_n \\
+          &= \prod_{i=1}^n \int_{-\infty}^\infty  \e{-x_i^2/2} \,
+            \dd x_i =  \prod_{i=1}^n \sqrt{2\,\pi} = (2\,\pi)^{n/2}.
+        \end{align*}
+      \end{answer}
+
+      \qpart[6]{By using the fact that for a positive semi-definite
+        matrix, $\mat{\Xi}$, we can use the eigenvector decomposition
+        $\mat{\Xi}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr$ where
+        $\mat{V}$ is an orthogonal matrix with determinant
+        $\det{\mat{V}}=\pm1$ and $\mat{\Lambda}^{-1}$ is a diagonal matrix with
+        elements $\lambda_i^{-1}$ compute
+      \begin{align*}
+        I_4 =  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
+        \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)} \, \dd x_1 \cdots \dd x_n.
+      \end{align*}}{\lines{9}}
+      \begin{answer}
+        This needs some confidence to push through to the end.
+        \begin{align*}
+          I_4 &=  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
+          \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr 
+                 \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr (\bm{x}-\bm{\mu})}
+                 \, \dd x_1 \cdots \dd x_n.
+        \end{align*}
+        We make the change of variables $\bm{y}= \mat{V}^\tr(\bm{x}-\bm{\mu})$.
+        However, to make a change of variables,
+        $\bm{x}\rightarrow\bm{y}$, where we use
+        \begin{align*}
+           \iiint_{\mathcal{R}(\bm{x})}
+          f(\bm{x}) \, \dd x_1 \cdots \dd x_n = \iiint_{\mathcal{R}(\bm{y})}
+          f(\bm{x}(\bm{y})) \, |\mat{J}|\, \dd y_1 \cdots \dd y_n 
+        \end{align*}
+        where $\mathcal{R}(\bm{y})$ is the same region as
+        $\mathcal{R}(\bm{x})$ but specified in $\bm{y}$-coordinates
+        and $\mat{J}$ is the Jacobian matrix with elements
+        $J_{ij} = \partial x_i/\partial y_j$.  In our case
+        $\bm{x}(\bm{y}) = \mat{V}\,\bm{y} + \bm{\mu}$
+        \begin{align*}
+          J_{ij} = \frac{\partial x_i}{\partial y_j} = \frac{\partial
+          \ }{\partial y_j} \left(\sum_{k=1}^n V_{ik}y_k + \mu_i)\right = V_{ij}
+        \end{align*}
+        so that $\mat{J} = \mat{V}$ and $|\det{\mat{J}}| =
+        |\det{\mat{V}}| = 1$.  This makes sense as the matrix
+        $\mat{V}$ corresponds to a rotation (with a possible
+        reflection) which does not change the volume.
+
+        Thus on making the change of variables
+        \begin{align*}
+           I_4 &=  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
+          \e{-\frac{1}{2}  \bm{y}^\tr \mat{\Lambda}^{-1} \bm{y}}
+                  \, \dd y_1 \cdots \dd y_n.
+                  = \prod_{i=1}^n  \int_{-\infty}^\infty
+                  \e{-y_i^2/(2\,\lambda_i)} \, \dd y_i = \prod_i
+                 \sqrt{2\,\pi\,\lambda_i}
+        \end{align*}
+        where we used $I_2$ with $\sigma = \sqrt{\lambda_i}$.  (Note
+        if $\mat{\Xi}$ was not positive semi-definite $\lambda_i$
+        would be negative and the integral would not converge.)
+      \end{answer}
+      \freshpage
+      
+      \qpart[1]{Using the facts, that $\mat{\Xi} =
+        \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$, for any two square
+        matrices $\mat{A}$ and $\mat{B}$ the determinants satisfy
+        $\det{\mat{A}\,\mat{B}} = \det{\mat{A}}\,\det{\mat{B}}$, and
+        $\det{\mat{V}}=\det{\mat{V}^\tr}=\pm{1}$ show that $\det{\mat{\Xi}}=\prod_i
+        \lambda_i$.}{\lines{6}}
+      \begin{answer}
+        \begin{align*}
+          \det{\mat{\Xi}} = \det{\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr} =
+          \det{\mat{V}}\,\det{\mat{\Lambda}}\,\det{\mat{V}^\tr}
+          = \det{\mat{\Lambda}} = \prod_{i=1}^n \lambda_i
+        \end{align*}
+        We have used that $\det{\mat{V}}=\det{\mat{V}^\tr}$ which equals 1 or
+        -1, but $\det{\mat{V}}\times\det{\mat{V}^\tr}=1$.  Also we use that
+        the determinant of a diagonal matrix is equal to the product
+        of the diagonal elements.  We note that
+        \begin{align*}
+          I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Xi}}}
+        \end{align*}
+        There is another trick to simplify the notation a bit more.
+        For an $n\times n$ matrix $\mat{M}$ then
+        $\det{c\,\mat{M}}=c^n\,\det{\mat{M}}$ as the determinant of the matrix
+        involves a sum of terms where each term involves a product of
+        $n$ elements.  Multiplying each element by $c$ means that the
+        determinant increases by $c^n$.  Thus, we can write
+        \begin{align*}
+            I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Xi}}}= \sqrt{\det{2\,\pi\,\mat{\Xi}}}
+        \end{align*}
+        and the multivariate normal PDF is
+        \begin{align*}
+          \mathcal{N}(\bm{x} \mid \bm{\mu}, \mat{\Xi}) =
+          \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}}  \, \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)}
+        \end{align*}
+      \end{answer}
+    \end{qparts}
+  \end{question}
+  \clearpage
+% ***************************** question 2 **************************
+
+
+\begin{question}{25}
+  Consider a multivariate normal distribution
+  \begin{align*}
+    f_{\bm{X},\bm{Y}}(\bm{x}, \bm{y}) = \mathcal{N}
+    \!\left( \begin{pmatrix}\bm{x}\\ \bm{y}\end{pmatrix}
+    \,\middle|\, \begin{pmatrix} \bm{0} \\
+      \bm{0} \end{pmatrix}, \begin{pmatrix} \mat{A} & \mat{B}\\
+      \mat{B}^{\tr} & \mat{C} \end{pmatrix} \right) 
+  \end{align*}
+  where $\mat{A}$ and $\mat{C}$ are symmetric (positive definite)
+  matrices.  The matrix
+  \begin{align*}
+    \mat{\Xi} &= \begin{pmatrix} \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix}
+  \end{align*}
+  is the covariance matrix.
+
+  We want to compute the conditional probability density
+  function $f_{\bm{X},\bm{Y}}(\bm{x}\mid \bm{y})$.  This is complicated because the
+  normal distribution involve the inverse of the covariance matrix.  Let
+      \begin{align*}
+        \mat{U} &= \begin{pmatrix} \mat{I} & \mat{B}\,\mat{C}^{-1}\\
+          \mat{0} & \mat{I} \end{pmatrix},
+         & \mat{D} &=  \begin{pmatrix} \mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
+           & \mat{0}\\ \mat{0}^{\tr} & \mat{C}  \end{pmatrix}
+      \end{align*}
+      where $\mat{I}$ is the identity matrix.
+  \begin{qparts}
+    \qpart[3]{Compute $\mat{U}\,\mat{D}$}{\lines{5}}
+    \begin{answer}
+      \begin{align*}
+        \mat{U}\,\mat{D}&=\begin{pmatrix} \mat{I} &
+          \mat{B}\,\mat{C}^{-1}\\ \mat{0} &
+          \mat{I} \end{pmatrix} \begin{pmatrix} \mat{A}-
+          \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr} & \mat{0}\\ \mat{0}^{\tr}
+          & \mat{C} \end{pmatrix}\\
+        &=\begin{pmatrix} \mat{A}- \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
+          & \mat{B}\\ \mat{0}^{\tr} & \mat{C} \end{pmatrix}
+      \end{align*}
+    \end{answer}
+    
+    \qpart[3]{Using the previous result compute
+      $(\mat{U}\,\mat{D})\,\mat{U}^\tr$.  Hence show
+      $\mat{\Xi} = \mat{U}\,\mat{D}\,\mat{U}^\tr$.}{\lines{5}}
+    \begin{answer}
+      \begin{align*}
+        (\mat{U}\,\mat{D})\,\mat{U}^{\tr}&=\begin{pmatrix} \mat{A}-
+          \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr} & \mat{B}\\ \mat{0}^{\tr} &
+          \mat{C} \end{pmatrix}\begin{pmatrix} \mat{I} & \mat{0}\\
+          \mat{C}^{-1}\mat{B}^{\tr} & \mat{I} \end{pmatrix} =\begin{pmatrix}
+          \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix} = \mat{\Xi}
+      \end{align*}
+    \end{answer}
+    \clearpage
+    
+    \qpart[1]{Given that $\mat{\Xi} = \mat{U}\,\mat{D}\,\mat{U}^\tr$
+      write down $\mat{\Xi}^{-1}$ in terms of $\mat{U}$ and
+      $\mat{D}$}{\lines{1}}
+    \begin{answer}
+      \begin{align*}
+        \mat{\Xi}^{-1} = (\mat{U}^{\tr})^{-1}\mat{D}^{-1} \mat{U}^{-1}
+      \end{align*}
+    \end{answer}
+    
+    \qpart[6]{Demonstrate by direct multiplication that
+      \begin{align*}
+        \mat{U}^{-1}
+        &= \begin{pmatrix} \mat{I} &
+          -\mat{B}\,\mat{C}^{-1} \\ \mat{0} & \mat{I} \end{pmatrix}
+                                   &
+         \mat{D}^{-1}
+         &=\begin{pmatrix} (\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
+           \mat{0}^{\tr} & \mat{C}^{-1} \end{pmatrix} 
+      &
+      (\mat{U}^\tr)^{-1} = \begin{pmatrix} \mat{I} &
+        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \mat{I} \end{pmatrix} 
+      \end{align*}
+      i.e. show $\mat{U}^{-1}\mat{U}=\mat{I}$,
+      $\mat{D}^{-1}\mat{D}=\mat{I}$ and
+      $(\mat{U}^\tr)^{-1}\mat{U}^\tr= \mat{I}$.
+    }{\inumberedlines[3]{3}}
+    \begin{answer}
+    \begin{enumerate}
+      \item
+        \begin{align*}
+          \mat{U}^{-1}\mat{U} = \begin{pmatrix} \mat{I} &
+            -\mat{B}\,\mat{C}^{-1} \\ \mat{0} &
+            \mat{I} \end{pmatrix} \begin{pmatrix} \mat{I} &
+            \mat{B}\,\mat{C}^{-1}\\ \mat{0} & \mat{I} \end{pmatrix}
+          = \begin{pmatrix} \mat{I} & \mat{0} \\ \mat{0} &
+            \mat{I} \end{pmatrix} 
+        \end{align*}
+      \item
+        \begin{align*}
+          \mat{D}^{-1}\mat{D} =  \begin{pmatrix} (\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
+           \mat{0}^{\tr} & \mat{C}^{-1} \end{pmatrix} \begin{pmatrix} \mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
+           & \mat{0}\\ \mat{0}^{\tr} &
+           \mat{C}  \end{pmatrix}= \begin{pmatrix} \mat{I} & \mat{0}
+           \\ \mat{0} &  \mat{I} \end{pmatrix}                                                                                   
+        \end{align*}
+        where we use $(\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1}(\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}) = \mat{I}$ and
+           $\mat{C}^{-1}\mat{C}=\mat{I}$.
+         \item
+           \begin{align*}
+              (\mat{U}^\tr)^{-1}\mat{U}^\tr =
+           \begin{pmatrix} \mat{I} &
+        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \mat{I} \end{pmatrix} 
+         \begin{pmatrix} \mat{I} & \mat{0}\\ 
+           \mat{C}^{-1}\mat{B}^{\tr} & \mat{I} \end{pmatrix}
+                                       =          \begin{pmatrix} \mat{I} & \mat{0}
+           \\ \mat{0} &  \mat{I} \end{pmatrix}                                             
+           \end{align*}
+         \end{enumerate}
+       \end{answer}
+       \clearpage
+       
+       \qpart[4]{Letting $\bm{z} = \binom{\bm{x}}{\bm{y}}$ then we can
+         write
+         \begin{align*}
+           f_{\bm{X},\bm{Y}}(\bm{x}, \bm{y}) = f_{\bm{Z}}(\bm{z}) = \mathcal{N}(\bm{z}\mid\bm{0},
+           \mat{\Xi}) = \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}} \,
+           \e{- \frac{1}{2}\, \bm{z}^{\tr}\mat{\Xi}^{-1} \mat{z}}.
+         \end{align*}
+         where $\det{2\,\pi\,\mat{\Xi}}$ is the determinant of the matrix
+         $2\,\pi\,\mat{\Xi}$ and is introduced to ensures that
+         $f_{\bm{X},\bm{Y}}(\bm{x},\bm{y})$ is normalised.  From parts (c) and (d)
+         \begin{align*}
+           \mat{\Xi}^{-1} = \begin{pmatrix} \mat{I} & \mat{0} \\
+             -\mat{C}^{-1} \mat{B}^\tr&
+             \mat{I} \end{pmatrix} \begin{pmatrix} (\mat{A}-
+             \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
+             \mat{0}^{\tr} &
+             \mat{C}^{-1} \end{pmatrix} \begin{pmatrix} \mat{I} &
+             -\mat{B}\,\mat{C}^{-1} \\ \mat{0} &
+             \mat{I} \end{pmatrix}. 
+         \end{align*}
+         Expand out $\bm{z}^{\tr}\mat{\Xi}^{-1} \mat{z} =
+         (\bm{x}^\tr, \bm{y}^\tr)\mat{\Xi}^{-1}
+         \binom{\bm{x}}{\bm{y}}$ (start by multiplying the vectors
+         $\bm{z}^\tr$ by $(\mat{U}^\tr)^{-1}$ and $\bm{z}$ by $\mat{U}^{-1}$)
+       }{\lines{10}}
+       \begin{answer}
+         \begin{align*}
+           \bm{z}^{\tr}\mat{\Xi}^{-1}\bm{z} &=
+                                              (\bm{x}^{\tr},\bm{y}^{\tr})\begin{pmatrix}
+                                                \mat{I} & \mat{0} \\
+                                                -\mat{C}^{-1}
+                                                \mat{B}^{\tr} &
+                                                \mat{I} \end{pmatrix} \begin{pmatrix}
+                                                (\mat{A}-
+                                                \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}
+                                                & \mat{0}\\
+                                                \mat{0}^{\tr} &
+                                                \mat{C}^{-1} \end{pmatrix} \begin{pmatrix}
+                                                \mat{I} &
+                                                -\mat{B}\,\mat{C}^{-1}
+                                                \\ \mat{0} &
+                                                \mat{I} \end{pmatrix} \begin{pmatrix}\bm{x}\\
+                                                \bm{y}\end{pmatrix}\\ 
+                                            &=
+                                              (\bm{x}^{\tr}-\bm{y}^\tr\mat{C}^{-1}\mat{B}^{\tr},\,\bm{y}^{\tr}) \begin{pmatrix}
+                                                (\mat{A}-
+                                                \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1}
+                                                & \mat{0}\\
+                                                \mat{0}^{\tr} &
+                                                \mat{C}^{-1} \end{pmatrix} \begin{pmatrix}\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y}\\
+                                                \bm{y}\end{pmatrix}\\ 
+                                            &=
+                                              (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
+                                              \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1}(\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y})
+                                              + y^{\tr} \mat{C}^{-1}
+                                              \bm{y}
+         \end{align*}
+       \end{answer}
+       \clearpage
+       
+       In the next question we use the short-hand notation
+       \begin{align*}
+         \int f(\bm{z}) \, \dd \bm{z} = \int \cdots \int f(\bm{z}) \,
+         \dd z_1\, \dd z_2 \ldots \dd z_n
+       \end{align*}
+       \qpart[5]{To compute $f_{\bm{X}\mid\bm{Y}}(\bm{x}\mid\bm{y}) = f_{\bm{X},\bm{Y}}(\bm{x},
+         \bm{y})/f_{\bm{Y}}(\bm{y})$ we need to find
+         \begin{align*}
+           f_{\bm{Y}}(\bm{y})&= \int_{-\infty}^{\infty} f(\bm{x}, \bm{y}) \,\dd \bm{x}\\
+                      &= \int_{-\infty}^{\infty}
+                        \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}} \,
+                        \e{- \frac{1}{2}\,
+                        (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
+                        \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}
+                        -\mat{B}\,\mat{C}^{-1}\bm{y}) - \frac{1}{2}\,
+                        y^{\tr} \mat{C}^{-1} \bm{y}} \dd \bm{x} \\
+                      &=  \frac{\e{- \frac{1}{2}\,  y^{\tr} \mat{C}^{-1} \bm{y}}}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}}
+                        \int_{-\infty}^{\infty}
+                        \e{- \frac{1}{2}\,
+                        (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
+                        \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}
+                        -\mat{B}\,\mat{C}^{-1}\bm{y}) } \dd \bm{x} 
+         \end{align*}
+         By making a change of variable from $\bm{x}$ to $\bm{u} =
+         \bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y}$
+         rewrite the integral
+         \begin{align*}
+           I = \int_{-\infty}^{\infty}
+           \e{- \frac{1}{2}\,
+           (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}
+           -\mat{B}\,\mat{C}^{-1}\bm{y}) } \dd \bm{x} 
+         \end{align*}
+         then use
+         \begin{align*}
+           \int_{-\infty}^{\infty}
+           \e{- \frac{1}{2}\, \bm{u}^\tr \mat{M}^{-1} \,
+           \bm{u}} \dd \bm{u} = \sqrt{\det{2\,\pi\,\mat{M}}}  
+         \end{align*}
+         to evaluate $f_{\bm{Y}}(\bm{y})$.
+       }{\lines{10}}
+       \begin{answer}
+         Making the change of variables $\bm{u} =
+         \bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y}$
+          \begin{align*}
+           I  =   \int_{-\infty}^{\infty}
+           \e{- \frac{1}{2}\,\bm{u}^\tr (\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}\bm{u}} \, \dd \bm{u}
+            = \sqrt{\det{2\,\pi\,(\mat{A}-\mat{B}\,\mat{C}^{-1}\mat{B}^\tr)}}  
+         \end{align*}
+         Thus
+         \begin{align*}
+            f_{\bm{Y}}(\bm{y})&=\sqrt{\frac{\det{2\,\pi\,(\mat{A}-
+                         \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)}}{\det{2\,\pi\,\mat{\Xi}}}}
+                         \, \e{- \frac{1}{2}\, y^{\tr} \mat{C}^{-1}
+                         \bm{y}}.
+         \end{align*}
+         where $\det{\mat{\Xi}}$ denotes the determinant of a matrix $\mat{\Xi}$.
+         In passing we recall that $\mat{\Xi}=\mat{U}^\tr\mat{D}\mat{U}$
+         so $\det{\mat{\Xi}}=\det{\mat{U}^\tr}\,\det{\mat{D}}\,\det{\mat{U}}$,  But it
+         is easy to show $\det{\mat{U}^{\tr}} = \det{\mat{U}} =1$  and because
+         $\mat{D}$ is block diagonal $\det{\mat{D}} = \det{\mat{A}-
+         \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}} \, \det{\mat{C}}$ so that  $\det{\mat{\Xi}} = \det{\mat{A}-
+         \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}} \, \det{\mat{C}}$.  Thus
+         \begin{align*}
+           f_{\bm{Y}}(\bm{y}) = \frac{1}{\sqrt{\det{2\,\pi\,\mat{C}}}}\, \e{-
+           \frac{1}{2}\, y^{\tr} \mat{C}^{-1} \bm{y}} = \mathcal{N}(\bm{y}
+           \mid \bm{0}, \mat{C}).
+         \end{align*}
+         Recall that
+           \begin{align*}
+             f_{\bm{X},\bm{Y}}(\bm{x}, \bm{y}) = \mathcal{N}
+             \!\left( \begin{pmatrix}\bm{x}\\ \bm{y}\end{pmatrix}
+             \,\middle|\, \begin{pmatrix} \bm{0} \\
+               \bm{0} \end{pmatrix}, \begin{pmatrix} \mat{A} & \mat{B}\\
+               \mat{B}^{\tr} & \mat{C} \end{pmatrix} \right) 
+           \end{align*}
+           so we see $\bm{y}$ is normally distributed with covariance
+           $\mat{C}$ as might be expected.
+         \end{answer}
+         \clearpage
+         \qpart[3]{Using  $f_{\bm{X}\mid\bm{Y}}(\bm{x}\mid\bm{y}) = f_{\bm{X},\bm{Y}}(\bm{x},
+         \bm{y})/f_{\bm{Y}}(\bm{y})$  write down
+         $f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y})$.}{\lines{10}}
+       \begin{answer}
+         \begin{align*}
+           f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y}) &= \frac{f_{\bm{X},\bm{Y}}(\bm{x}),
+           \bm{y})}{f_{\bm{Y}}(\bm{y})}
+           =
+           \frac{\det{2\,\pi\,\mat{C}}^{\frac{1}{2}}}{\det{2\,\pi\,\mat{\Xi}}^{\frac{1}{2}}}
+           \,\e{- \frac{1}{2}\,
+           (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})\,(\mat{A}-
+           \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y})}\\ 
+           &= \frac{1}{\det{2\,\pi\,(\mat{A}- \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)}^{\frac{1}{2}}}
+             \,\e{- \frac{1}{2}\,
+             (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})\,(\mat{A}-
+             \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y})}\\  
+           &= \mathcal{N}(\bm{x} \mid \mat{B}\,\mat{C}^{-1}\bm{y},\,\, \mat{A}-  \mat{B}\,\mat{C}^{-1}\mat{B}^\tr). 
+         \end{align*}
+         This is the conditioning result we use in deriving the
+         Bayesian update for a Gaussian Process.
+       \end{answer}
+    \end{qparts}
+\end{question}
+
+
+
+\end{document}
+
+
+
+

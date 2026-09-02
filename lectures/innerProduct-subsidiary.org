@@ -1,0 +1,151 @@
+#+TITLE: Advanced Machine Learning Subsidary Notes
+#+SUBTITLE: Lecture 8: Inner-Product Spaces
+
+
+
+* Keywords
+  * Inner-product, operators
+
+* Main Points
+   * For some vector spaces we can define an /inner product/ between
+     pairs of vectors
+   * Inner products are scalars associated with two elements in a vector space
+   * They are generally denoted by $\langle\bm{x},\bm{y}\rangle$
+   * To be an inner-product requires satisfying 5 axioms
+     1. $\inner{\bm{x}}{\bm{x}} \geq 0$ for all $\bm{x}\in\mathcal{V}$
+     2. $\inner{\bm{x}}{\bm{x}} = 0$  if and only if $\bm{x}=\bm{0}$
+     3. $\inner{\alpha\, \bm{x}}{\bm{y}} = \alpha\, \inner{\bm{x}}{\bm{y}}$
+     4. $\inner{\bm{x}}{\bm{y}+\bm{z}} = \inner{\bm{x}}{\bm{y}} +
+        \inner{\bm{x}}{\bm{z}}$
+     5. $\inner{\bm{x}}{\bm{y}} = \inner{\bm{y}}{\bm{x}}$
+   * The inner-product induces a norm: $\len{x} = \sqrt{\inner{\bm{x}}{\bm{x}}}$
+   * For normal vectors (i.e. $\bm{x}\in\mathbb{R}^{n$}) the standard inner product is the dot-product
+     \begin{align*}
+	 \langle \bm{x}, \bm{y} \rangle = \bm{x}^\tr\bm{y} = \sum_{i=1}^n x_i\,y_i
+     \end{align*}
+   * We can define an inner product between functions
+     \begin{align*}
+       \langle f, g \rangle = \int_{x\in\mathcal{I}} f(x)\,g(x)\,\dd x
+     \end{align*}
+   * For matrices we can define the Frobenius inner-product
+     \begin{align*}
+       \inner{\mat{A}}{\mat{B}}_{F} = \mathrm{Tr}\, \mat{A}^{\tr}\,\mat{B} = \sum_{i,j} A_{ij} \, B_{ij}
+     \end{align*}
+     which defines the Frobenius norm 
+     \begin{align*}
+     \len{\mat{A}}_{F} = \sqrt{\inner{\mat{A}}{\mat{A}}_{F}} = \sqrt{ \sum_{i,j} A_{ij}^{2}}
+     \end{align*}
+     The Frobenius norm is not a compatible norm.
+   * A really important inequality is the /Cauchy-Schwarz/ inequality
+           \begin{align*}
+        \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{y}} \,
+        \inner{\bm{y}}{\bm{y}} = \len{\bm{x}}^2\,\len{\bm{y}}^2\pause
+      \end{align*}
+   * Inner products allow us to define the notion of similarity
+     \begin{align*}
+	 \langle \bm{x}, \bm{y} \rangle &= \|\bm{x}\| \, \|\bm{x}\| \, \cos(\theta) \\
+	 \langle f(x), g(x) \rangle &= \|f(x)\| \, \|g(x)\|\, \cos(\theta)
+     \end{align*}
+   * $\cos(\theta)$ can be seen as a measure of the correlation
+     between vectors (or functions)
+   * Because of Cauchy-Schwarz $\langle \bm{x}, \bm{y}
+     \rangle/(\|\bm{x}\| \, \|\bm{y}\|)$ lies between -1 and 1 (so
+     that we can represent this quantity by the cosine of an angle)
+
+** Coordinates or Basis Vectors
+   * Any set of vectors that span the entire vector space can be
+     considered a set of basis vectors or coordinates
+   * If our bases are linearly independent then we have a set of
+     non-degenerate basis function where each vector is unique
+   * The most convenient set of basis vectors are those where the
+     bases are normalised and orthogonal
+     $\langle\bm{b}_i,\bm{b}_j\rangle=\delta_{ij}$
+   * *Basis Functions*
+     * For a function space we can consider a set of basis functions
+     * A familiar set of functions define on the interval $[0,2\,\pi]$
+       are the Fourier functions 
+       $$ \{1,\, \cos(\theta),\, \sin(\theta),\, \cos(2\,\theta),\,
+       \sin(2\,\theta),\, \cdots\} $$
+     * This basis set is orthogonal as for any two components $\langle
+       b_i(\theta),\,b_j(\theta)\rangle = \delta_{ij}$
+     * There are many orthogonal polynomials that have similar properties
+     * Given an orthogonal set of functions $\{b_i(\bm{x})\}$ we can decompose a function $f(\bm{x})$
+       as a (infinite) vector $\bm{f}$ with components $f_i = \langle f(\bm{x}),b_i(\bm{x})\rangle$
+     * This allows us to represent any function as a point in an infinite-dimensional space
+     
+** Operators
+   * Operators transform elements of a vector space
+   * Consider the transformation or operator $\mathcal{T}: \mathcal{V} \rightarrow \mathcal{V}'$
+   * This says that $\mathcal{T}$ maps some object
+     $\bm{x}\in\mathcal{V}$ to an object $\bm{y}=\mathcal{T}[\bm{x}]$
+     in a new vector space $\mathcal{V}'$
+   * *Linear Operators*
+     * Linear operators satisfy the two conditions
+       1. $\mathcal{T}[a\,\bm{x}] = a\,\mathcal{T}[\bm{x}]$
+       2. $\mathcal{T}[\bm{x} + \bm{y}] = \mathcal{T}[\bm{x}] + \mathcal{T}[\bm{y}]$
+     * Linear operators are really important because we can understand them
+     * For normal vectors the most general linear operation is
+       \begin{align*}
+         \mathcal{T}[\bm{x}] = \mat{M}\,\bm{x}
+       \end{align*}
+       where $\mat{M}$ is a matrix
+     * For functions the most general linear operator is a kernel function
+       \begin{align*}
+          g(\bm{x}) = \mathcal{T}[f(\bm{x})] = \int
+          K(\bm{x},\bm{y})\, f(\bm{y}) \, \dd \bm{y}
+       \end{align*}
+       * Kernels appear in SVMs, SVRs, kernel-PCA, Gaussian Processes
+   * Often we are interested in operators that map vectors in a vector space to new
+     vectors in the same vector space
+     * $\mathcal{T}: \mathcal{V}\rightarrow\mathcal{V}$
+     * The most general linear mapping for normal vectors that does this are square matrices
+** Matrices and Mappings
+   * Matrices, $\mat{M}$ are linear maps from one point $\bm{x}$ to
+     another $\bm{y}=\mat{M}\bm{x}$
+   * The product of a matrix $\mat{C}  = \mat{A}\mat{B}$ corresponds
+     to applying the mapping $\mat{B}$ followed by $\mat{A}$
+   * For most matrices $\mat{A}\mat{B} \neq \mat{B}\mat{A}$ (we say
+     matrix multiplication does not commute)
+   * There are pairs of matrices that do commute, but they need to
+     share a special structure for this to happen
+   * Matrix multiplication is associative.  That is, $(\mat{A}\,\mat{B})\mat{C} = \mat{A} (\mat{B}\, \mat{C})$
+
+ 
+
+* COMMENT [[file:innerProduct.pdf][PDF]]
+* COMMENT [[file:vectorSpaces-subsidiary.org][Previous]] [[file:mappings-subsidiary.org][Next]]
+
+* Options                                                  :ARCHIVE:noexport:
+#+BEGIN_OPTIONS
+#+OPTIONS: toc:nil
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{bm}
+#+LaTeX_HEADER: \usepackage{minted}
+#+LaTeX_HEADER: \usemintedstyle{emacs}
+#+LaTeX_HEADER: \usepackage[T1]{fontenc}
+#+LaTeX_HEADER: \usepackage[scaled]{beraserif}
+#+LaTeX_HEADER: \usepackage[scaled]{berasans}
+#+LaTeX_HEADER: \usepackage[scaled]{beramono}
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+LATEX_HEADER: \newcommand{\len}[1]{\left\|{#1}\right\|}
+#+LATEX_HEADER: \newcommand{\inner}[2]{\left\langle{#1}, {#2}\right\rangle}
+#+END_OPTIONS
+
