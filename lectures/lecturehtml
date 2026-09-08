@@ -1,109 +1,86 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+r"""Generate ../site/lectures.html from lectures.yaml.
 
-import re
-import yaml
-import subprocess
+Differences from the old lectures/lecturehtml:
+  * the lecture list comes from lectures.yaml, not from grepping lectures.tex
+  * subsidiary.yml is optional (the old script crashed when it was absent)
+  * it does NOT git add/commit/push -- generate the html, review it, then
+    commit and push yourself
+"""
+
 import os
 import shutil
-import glob
 
-dir = "/Users/apb1/Documents/teaching/courses/AICE3001/github/site/"
+import yaml
 
-def extract(str):
-    _, endpart = str.split("{")
-    mid, _ = endpart.split("}")
-    return mid
+import lecture_list
 
-with open("lectures.tex", "r") as f:
-    lectures = [extract(line) for line in f if re.search("^\\\\lecture{", line)]
+SITE = lecture_list.config().get("site_dir", "../site")
+SUBSIDIARY = "subsidiary.yml"
 
-with open("subsidiary.yml", "r") as f:
-    subsidary = yaml.safe_load(f)
-
-
-files = glob.glob("../site/videos/*.mp4")
-
-videos = {}
-for file in files:
-    path = file.split('/')
-    name = path[3].split('.')[0]
-    address = '/'.join(path[2:])
-    videos[name] = address
-print(videos)
-    
-    
-html = open(f"{dir}/lectures.html", "w")
-
-html.write('''<HTML>
+HEADER = '''<HTML>
 <HEAD>
-<TITLE>Lecture Notes
-</TITLE>
+<TITLE>Lecture Notes</TITLE>
 </HEAD>
 
 <H1 align="center">Lecture Notes</H1>
 
-<h2>Lesson on Mathematics for Machine Learning</h2>
+<h2>Lessons on Mathematics for Machine Learning</h2>
 
 <ol>
-''')
+'''
 
-def getKeywords(file) :
-    with open(file, "r") as file:
-        lesson = ""
-        cnt = 0
-        for line in file:
-            cnt = cnt + 1
-            m = re.search("\\\\lesson\\{(.+?)\\}", line)
-            if m:
-                lesson = m.group(1)
-            m = re.search("\\\\keywords\\{(.+?)\\}", line)
-            if m: 
-                return lesson, m.group(1)
-            if cnt>10:
-                break
-        return lesson, ""
-        
-
-for lecture in lectures:
-    tex = f"{lecture}.tex"
-    lesson, keywords = getKeywords(tex)
-    html.write(f"<li><b>{lesson}</b>: {keywords}\n")
-    html.write(f"<div id={lecture}>\n")
-    html.write(f"<ul> <li> <a href=\"lecture_pdf/{lecture}.pdf\">Lecture PDF</a>,\n")
-    html.write(f"  <a href=\"lecture_pdf/{lecture}_prn.pdf\">Printable PDF</a>,\n")
-    html.write(f"  <a href=\"lecture_pdf/{lecture}_prn_4.pdf\">(4 per page)</a>,\n")
-    html.write(f"  <a href=\"lecture_pdf/{lecture}_prn_8.pdf\">(8 per page)</a>,\n</li>\n</ul>\n")
-    html.write("</div>\n")
-    if lecture in subsidary:
-        html.write("<ul>\n")
-        for k, v in subsidary[lecture].items():
-            os.makedirs(f"{dir}/code/{lecture}", exist_ok=True)
-            shutil.copy(f"code/{v}", f"{dir}/code/{lecture}/{v}")
-            html.write(f" <li>{k}: <a href=\"code/{lecture}/{v}\">{v}</a> </li>\n")
-        html.write("</ul>\n")
-    if False and lecture in videos:
-        html.write("<ul><li> Video: ")
-        html.write("<video width=\"64\" height=\"48\" controls>")
-        html.write(f"<source src=\"{videos[lecture]}\" type=\"video/mp4\">")
-        html.write("</video></li></ul>")
-    html.write("</li>\n")
-    
-
-html.write('''
+FOOTER = '''
 </ol>
 
 <ul>
 <li> <a href="lecture_pdf/lectures_8.pdf">Complete set of Notes</a></li>
 </ul>
 
-
 </HTML>
-''')
+'''
 
-html.flush()
-html.close()
 
-subprocess.call(["git", "add", ".."])
-subprocess.call(["git", "commit", "-m", "\"update lectures\""])
-subprocess.call(["git", "push"])
+def load_subsidiary():
+    if not os.path.isfile(SUBSIDIARY):
+        return {}
+    with open(SUBSIDIARY) as f:
+        return yaml.safe_load(f) or {}
 
+
+def main():
+    subsidiary = load_subsidiary()
+    lectures = lecture_list.load()
+    os.makedirs(SITE, exist_ok=True)
+
+    with open(f"{SITE}/lectures.html", "w") as html:
+        html.write(HEADER)
+        for lec in lectures:
+            html.write(f'<li><b>{lec.title}</b>: {lec.keywords}\n')
+            html.write(f'<div id="{lec.id}">\n')
+            html.write('<ul> <li> '
+                       f'<a href="lecture_pdf/{lec.id}.pdf">Lecture PDF</a>,\n'
+                       f'  <a href="lecture_pdf/{lec.id}_prn.pdf">Printable PDF</a>,\n'
+                       f'  <a href="lecture_pdf/{lec.id}_prn_4.pdf">(4 per page)</a>,\n'
+                       f'  <a href="lecture_pdf/{lec.id}_prn_8.pdf">(8 per page)</a>\n'
+                       '</li>\n</ul>\n')
+            html.write('</div>\n')
+
+            if lec.id in subsidiary:
+                html.write("<ul>\n")
+                for k, v in subsidiary[lec.id].items():
+                    os.makedirs(f"{SITE}/code/{lec.id}", exist_ok=True)
+                    shutil.copy(f"code/{v}", f"{SITE}/code/{lec.id}/{v}")
+                    html.write(f' <li>{k}: <a href="code/{lec.id}/{v}">{v}</a> </li>\n')
+                html.write("</ul>\n")
+            html.write("</li>\n")
+        html.write(FOOTER)
+
+    print(f"wrote {SITE}/lectures.html ({len(lectures)} lectures)")
+    for p in lecture_list.check():
+        print(f"WARNING: {p}")
+    print("\nnot committed or pushed -- review it, then commit and push yourself")
+
+
+if __name__ == "__main__":
+    main()

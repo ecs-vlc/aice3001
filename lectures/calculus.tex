@@ -1,5 +1,7 @@
-%Master File:lectures.tex
+%% Standalone lecture -- build with:  pdflatex -shell-escape calculus
+\input{preamble}
 
+\begin{document}
 
 \lesson{Differential Calculus}
 \vspace{-1cm}
@@ -16,7 +18,8 @@
   \begin{enumerate}\squeeze
     \outlineitem{Why Calculus?}{calculus}
     \outlineitem{Differentiation}{differentiation}
-    \outlineitem{Vector and Matrix Calculus}{vector}
+    \outlineitem{Vector Calculus}{vector}
+    \outlineitem{Matrix Calculus}{vector}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
@@ -436,7 +439,8 @@
         \sum_j M_{2j} w_j + \sum_i w_i M_{i2} \\
         \sum_j M_{3j} w_j + \sum_i w_i M_{i3} \\ \vdots
       \end{pmatrix} \pauseb\\
-      &= \mat{M}\, \bm{w} + \mat{M}^\tr\, \bm{w}\pauseb
+         &= \mat{M}\, \bm{w} + \mat{M}^\tr\, \bm{w}\pauseb
+           = \bra{\mat{M} + \mat{M}^\tr} \bm{w}\pauseb
     \end{align*}
   \item It is tedious to compute these things component-wise, but when
     you need to understand what is going on then go back to the basics\pauseb
@@ -482,6 +486,110 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Function Composition}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The gradient tells us about the change in a function value
+    when we perturb an input $\bm{x}$ by a small amount in the
+    directions $\bm{u}$
+    \begin{align*}
+      f(\bm{x}+\epsilon \, \bm{u}) = f(\bm{x}) + \epsilon\,
+      \bm{u}^\tr \grad f(\bm{x}) + O(\epsilon^2)\pause
+    \end{align*}
+  \item What happens when we compose functions: $h(\bm{x}) =
+    f(\bm{g}(\bm{x}))$\pause.  Note
+    that,
+    \begin{align*}
+      x&\in \mathbb{R}^n
+      & \bm{g}:\mathbb{R}^n & \rightarrow \mathbb{R}^m
+      & f:\mathbb{R}^m & \rightarrow \mathbb{R}
+      & h:\mathbb{R}^n & \rightarrow \mathbb{R}\pause
+    \end{align*}
+  \item The vector valued function $\bm{g}(\bm{x})$ can be seen as $m$
+    independent function $
+      \bm{g}(\bm{x}) =
+      \begin{pmatrix}
+        g_1(\bm{x}) \\ g_2(\bm{x}) \\ \vdots \\ g_m(\bm{x})
+      \end{pmatrix}\pause$
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Jacobians}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Perturbing $\bm{x}$ by $\epsilon\, \bm{u}$
+    \begin{align*}
+      g_i(\bm{x}+\epsilon \, \bm{u}) = g_i(\bm{x}) + \epsilon\,
+      \bm{u}^\tr \grad g_i(\bm{x}) + O(\epsilon^2)\pause
+    \end{align*}
+    so that
+    \begin{align*}
+      \bm{g}(\bm{x}+\epsilon \, \bm{u}) = \bm{g}(\bm{x}) +
+      \epsilon\, \mat{J} \,\bm{u}  + O(\epsilon^2)
+    \end{align*}
+    where $\mat{J}$ is an $m\times n$ matrix with components $J_{ij}=
+    \frac{\partial g_i(\bm{x})}{\partial x_j}$\pause
+  \item Note that $\mat{J}\, \bm{u}$ is a column vector of size $m$\pause
+  \item Ignoring terms of order $\epsilon^2$
+    \begin{align*}
+      h(\bm{x}+\epsilon \, \bm{u}) &= f\bra{\bm{g}(\bm{x} +
+                                       \epsilon \, \bm{u})}\pause
+      = f\bra{\bm{g}(\bm{x}) + \epsilon \mat{J}\, \bm{u}}\pauseb \\
+      &= f\bra{\bm{g}(\bm{x})} + \epsilon\, \bm{u}^\tr \mat{J}^\tr \, \grad_{\bm{g}}
+        f\bra{\bm{g}(\bm{x})} \pauseb
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Chain Rule in High Dimensions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Since
+    \begin{align*}
+      h(\bm{x}+\epsilon \, \bm{u}) = h(\bm{x}^{*}) + \epsilon\,
+      \bm{u}^\tr \grad_{\bm{x}} h(\bm{x}) + O(\epsilon^2)\pause
+    \end{align*}
+    and (recall $h(\bm{x}) = f(\bm{g}(\bm{x}))$)
+    \begin{align*}
+      h(\bm{x}+\epsilon \, \bm{u}) = h(\bm{x}) + \epsilon\,  \, 
+        \bm{u}^\tr \mat{J}^\tr \grad_{\bm{g}} f\bra{\bm{g}(\bm{x})} \pause
+    \end{align*}
+  \item We get that
+    \begin{align*}
+      \grad_{\bm{x}} h(\bm{x}) =  \grad_{\bm{x}} f\bra{\bm{g}(\bm{x})} =  \mat{J}^\tr \grad_{\bm{g}} f\bra{\bm{g}(\bm{x})} \pause
+    \end{align*}
+  \item Componentwise
+    \begin{align*}
+      \frac{\partial h(\bm{x})}{\partial x_i} =
+      \frac{\partial f\bra{\bm{g}(\bm{x})}}{\partial x_i}\pause =
+      \sum_{j=1}^m \frac{\partial f(\bm{g}(\bm{x}))}{\partial g_j}
+      \frac{\partial g_j(\bm{x})}{\partial x_i} \pause
+    \end{align*}
+     
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Matrix Calculus
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -657,3 +765,4 @@
 
 \end{slide}
 
+\end{document}

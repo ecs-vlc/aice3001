@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+r"""Build lecture PDFs from the standalone .tex files listed in lectures.yaml.
+
+Replaces the old `update` script, which grepped lectures.tex and compiled every
+lecture through the master file with \includeonly.  Each lecture is now its own
+document, so it is just:  pdflatex -shell-escape <id>
+
+For each lecture four PDFs are produced in ../site/lecture_pdf/:
+    <id>.pdf         the stepped/animated slides (via ppower4)
+    <id>_prn.pdf     printable, all overlays flattened
+    <id>_prn_4.pdf   4 slides per page
+    <id>_prn_8.pdf   8 slides per page
+
+Usage:
+    ./build                 build every lecture in `lectures:` that is out of date
+    ./build calculus sgd    build just these, from any section
+    ./build --all           build everything with a .tex file
+    ./build --force         ignore timestamps and rebuild
+"""
+
+import os
+import subprocess
+import sys
+import shutil
+
+import lecture_list
+
+SITE = lecture_list.config().get("site_dir", "../site") + "/lecture_pdf"
+BUILD = "build_tmp"
+DEPS = ["preamble.tex", "macros_gen.tex"]      # rebuild everything if these change
+
+
+def newer(a, b):
+    """True if a is newer than b, or b does not exist."""
+    if not os.path.exists(b):
+        return True
+    if not os.path.exists(a):
+        return False
+    return os.path.getmtime(a) > os.path.getmtime(b)
+
+
+def stale(lec):
+    target = f"{SITE}/{lec.id}_prn_8.pdf"
+    return newer(lec.tex, target) or any(newer(d, target) for d in DEPS)
+
+
+def run(cmd, quiet=False):
+    out = subprocess.DEVNULL if quiet else None
+    return subprocess.call(cmd, shell=True, stdout=out, stderr=out)
+
+
+def latex(lec):
+    """Compile the standalone lecture twice so cross-references settle."""
+    if run(f"pdflatex -shell-escape -halt-on-error -interaction=nonstopmode {lec.id}") != 0:
+        return False
+    run(f"pdflatex -shell-escape -interaction=nonstopmode {lec.id}", quiet=True)
+    return True
+
+
+def build_one(lec):
+    print(f"--- {lec.id} ({lec.title})")
+    if not lec.exists:
+        print(f"    no {lec.tex} -- skipped")
+        return False
+    if not latex(lec):
+        print(f"    LaTeX FAILED -- see {lec.id}.log")
+        return False
+
+    raw = f"{lec.id}.pdf"                       # flattened: this is the printable one
+    os.makedirs(SITE, exist_ok=True)
+    shutil.copy(raw, f"{SITE}/{lec.id}_prn.pdf")
+
+    # ppower4 cannot write over its own input, so go via a temp file
+    os.makedirs(BUILD, exist_ok=True)
+    stepped = f"{BUILD}/{lec.id}_pp4.pdf"
+    if run(f"ppower4 {raw} {stepped}") == 0 and os.path.exists(stepped):
+        shutil.copy(stepped, f"{SITE}/{lec.id}.pdf")
+    else:
+        print("    ppower4 failed -- using the flattened PDF for the slides too")
+        shutil.copy(raw, f"{SITE}/{lec.id}.pdf")
+
+    prn = f"{SITE}/{lec.id}_prn.pdf"
+    run(f"pdfjam --nup 2x4 --no-landscape --outfile {SITE}/{lec.id}_prn_8.pdf {prn}", quiet=True)
+    run(f"pdfjam --nup 2x2 --landscape --outfile {SITE}/{lec.id}_prn_4.pdf {prn}", quiet=True)
+    return True
+
+
+def combine(lectures):
+    """Concatenate the 8-per-page versions into one complete set of notes."""
+    parts = [f"{SITE}/{l.id}_prn_8.pdf" for l in lectures
+             if os.path.exists(f"{SITE}/{l.id}_prn_8.pdf")]
+    if not parts:
+        return
+    out = f"{SITE}/lectures_8.pdf"
+    if run(f"pdftk {' '.join(parts)} cat output {out}") == 0:
+        print(f"\ncombined {len(parts)} lectures -> {out}")
+
+
+def main():
+    args = [a for a in sys.argv[1:]]
+    force = "--force" in args
+    every = "--all" in args
+    names = [a for a in args if not a.startswith("-")]
+
+    if names:
+        wanted = [l for l in lecture_list.load(section="all") if l.id in names]
+        missing = set(names) - {l.id for l in wanted}
+        for m in missing:
+            print(f"WARNING: {m} is not in lectures.yaml")
+    elif every:
+        wanted = [l for l in lecture_list.load(section="all") if l.exists]
+    else:
+        wanted = lecture_list.load()
+
+    todo = wanted if force else [l for l in wanted if stale(l)]
+    if not todo:
+        print("everything is up to date")
+        return
+
+    print(f"building {len(todo)} of {len(wanted)} lectures\n")
+    ok = [l for l in todo if build_one(l)]
+    combine(lecture_list.load())
+
+    print(f"\nbuilt {len(ok)}/{len(todo)}")
+    failed = [l.id for l in todo if l not in ok]
+    if failed:
+        print("failed: " + ", ".join(failed))
+        sys.exit(1)
+    for p in lecture_list.check():
+        print(f"WARNING: {p}")
+
+
+if __name__ == "__main__":
+    main()

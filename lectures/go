@@ -1,51 +1,69 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+r"""Pick a lecture, build it if needed, and open it in the presenter.
 
-import  re
-from ask import Ask
+Same job as the old `go`, but the menu comes from lectures.yaml instead of
+grepping \lecture{...} out of lectures.tex, and the lecture is compiled as a
+standalone document rather than through the master file.
+
+    ./go            choose from the lectures in `lectures:`
+    ./go --all      choose from every lecture that has a .tex file
+"""
+
 import os
-from myengage import myengage
+import sys
 from time import sleep
+
 import psutil
+from ask import Ask
+from myengage import myengage
 
-def extract(str):
-    _, endpart = str.split("{")
-    mid, _ = endpart.split("}")
-    return mid
+import lecture_list
 
-with open("lectures.tex", "r") as f:
-    files = [extract(line) for line in f if re.search("^\\\\lecture{", line)]
-
-for i, file in enumerate(files,1):
-    print(i, file)
-
-query = Ask()
+BUILD = "build_tmp"
+DEPS = ["preamble.tex", "macros_gen.tex"]
 
 
-base = files[int(query("What file do you want to show",  "fn", 1, files))-1]
-pdf, tex  = f"{base}.pdf", f"{base}.tex"
-
-def newer(file1 , file2):
-    if os.path.exists(file1) and os.path.exists(file2):
-        return os.path.getmtime(file1) > os.path.getmtime(file2)
-    else:
+def newer(a, b):
+    if not os.path.exists(b):
         return True
+    if not os.path.exists(a):
+        return False
+    return os.path.getmtime(a) > os.path.getmtime(b)
 
-if newer(tex, pdf) or newer("macros_gen.tex", pdf):
-    if os.system(f"echo {base} | /Library/TeX/texbin/pdflatex -shell-escape lectures")!=0:
-        print("Latex failed")
-        exit(1)
-    os.system(f"ppower4 lectures.pdf {pdf}")
 
-running = False
-for proc in psutil.process_iter():
-    if proc.name() == "papers":
-        running = True
-        break
+def main():
+    section = "all" if "--all" in sys.argv else "lectures"
+    lectures = [l for l in lecture_list.load(section=section) if l.exists]
+    if not lectures:
+        print(f"no lectures in '{section}' have a .tex file")
+        sys.exit(1)
 
-print(pdf, tex, running, base)
-    
-#os.system(f"evince {pdf} &")
-if not running:
-    os.system(f"papers {pdf} 2> /dev/null &")
-    sleep(2)
-    myengage()    
+    for i, lec in enumerate(lectures, 1):
+        print(f"{i:3}  {lec.id:24} {lec.title}")
+
+    query = Ask()
+    ids = [l.id for l in lectures]
+    choice = query("What file do you want to show", "fn", 1, ids)
+    lec = lectures[int(choice) - 1]
+
+    pdf = f"{BUILD}/{lec.id}_pp4.pdf"
+    if newer(lec.tex, pdf) or any(newer(d, pdf) for d in DEPS):
+        print(f"building {lec.id} ...")
+        if os.system(f"/Library/TeX/texbin/pdflatex -shell-escape -halt-on-error "
+                     f"-interaction=nonstopmode {lec.id}") != 0:
+            print("Latex failed")
+            sys.exit(1)
+        os.makedirs(BUILD, exist_ok=True)
+        os.system(f"ppower4 {lec.id}.pdf {pdf}")
+
+    running = any(proc.name() == "evince" for proc in psutil.process_iter())
+    print(pdf, lec.tex, running, lec.id)
+
+    if not running:
+        os.system(f"evince {pdf} 2> /dev/null &")
+        sleep(2)
+        myengage()
+
+
+if __name__ == "__main__":
+    main()

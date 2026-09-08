@@ -1,41 +1,24 @@
-import re
+#!/usr/bin/env python
+r"""Print the `lectures:` block for courses.yaml, built from lectures.yaml.
 
-def extract(string: str) -> str:
-    _, endpart = string.split("{")
-    mid, _ = endpart.split("}")
-    return mid
+Tutorial slots are inserted every `tutorial_every` lectures.  Paste the output
+into courses.yaml, or redirect it:  ./list_lectures.py > lectures_block.yaml
+"""
 
-
-def get_lesson_name(lecture_id: str) -> str:
-    filename = f"{lecture_id}.tex"
-    with open(filename, "r") as file:
-        lesson = ""
-        cnt = 0
-        for line in file:
-            cnt = cnt + 1
-            m = re.search("\\\\lesson\\{(.+?)\\}", line)
-            if m:
-                return m.group(1)
-            if cnt>10:
-                break
-        return lesson
+import lecture_list
 
 
-def link(lecture_id: str) -> str:
-    lecture_name = get_lesson_name(lecture_id)
-    return f"<a href=\"lectures.html#{lecture_id}\">{lecture_name}</a>"
+def main():
+    cfg = lecture_list.config()
+    every = cfg.get("tutorial_every", 4)
+    lectures = lecture_list.load()
 
-def main() -> None:
-    with open("lectures.tex", "r") as f:
-        courses = [extract(line) for line in f if re.search("^\\\\lecture{", line)]
-    courses = [link(course) for course in courses]
-    cnt = 0
-    for course in courses:
-        print(f"  - {course}")
-        cnt += 1
-        if cnt%4 == 3:
+    print("lectures:")
+    for n, lec in enumerate(lectures, 1):
+        print(f'  - <a href="lectures.html#{lec.id}">{lec.title}</a>')
+        if every and n % every == 0:
             print("  - Tutorial")
-            cnt += 1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

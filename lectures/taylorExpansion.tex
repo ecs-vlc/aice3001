@@ -1,12 +1,14 @@
-%Master File:lectures.tex
+%% Standalone lecture -- build with:  pdflatex -shell-escape taylorExpansion
+\input{preamble}
 
+\begin{document}
 
-\lesson{Differential Calculus}
+\lesson{Taylor's Expansion}
 \vspace{-1cm}
 \begin{center}
   \includegraphics[height=10cm]{exp_taylor-5}
 \end{center}
-\keywords{Differentiation, product and chain rules, vectors and matrices}
+\keywords{Converge, residue, high-dimensions, Hessian}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -14,12 +16,13 @@
 
 \begin{minipage}{10cm}\raggedright
   \begin{enumerate}\squeeze
-    \outlineitem{1-D Taylor Expansion?}{oned}
-    \outlineitem{$n$-D Taylor Expansion?}{nd}
+    \outlineitem{1-D Taylor Expansion}{oned}
+    \outlineitem{High Dimensions}{nd}
+    \outlineitem{Hessians}{hessians}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
-  \includegraphics[width=12cm]{derivative-2}
+  \includegraphics[width=12cm]{tangentPlane-3}
 \end{minipage}
 \end{slide}
 \addtocounter{outlineitem}{1}
@@ -60,20 +63,20 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Suppose we wanted to approximate a function $f(x)$ around a
-    point $x_0$ using a polynomial
+    point $x^*$ using a polynomial
     \begin{align*}
-      f(x) \approx a_0 + a_1 (x-x_0) + a_2 (x-x_0)^2 + \ldots + a_n (x-x_0)^n\pause
+      f(x) \approx a_0 + a_1 (x-x^*) + a_2 (x-x^*)^2 + \ldots + a_n (x-x^*)^n\pause
     \end{align*}
   \item Taking derivatives
     \begin{align*}
-      f'(x) &\approx a_1 + 2\, a_2 (x-x_0) + 3\,a_3 (x-x_0)^2 + \ldots + n\, a_n (x-x_0)^{n-1}\pause\\
-      f''(x) &\approx 2\,a_2 + 6\, a_3 (x-x_0) + \ldots + n\,(n-1)\, a_n (x-x_0)^{n-2}\pauseb
+      f'(x) &\approx a_1 + 2\, a_2 (x-x^*) + 3\,a_3 (x-x^*)^2 + \ldots + n\, a_n (x-x^*)^{n-1}\pause\\
+      f''(x) &\approx 2\,a_2 + 6\, a_3 (x-x^*) + \ldots + n\,(n-1)\, a_n (x-x^*)^{n-2}\pauseb
     \end{align*}
-  \item One way to decide on the coefficients is to set $x=x_0$ and
+  \item One way to decide on the coefficients is to set $x=x^*$ and
     assume equality
     \begin{align*}
-      a_0 &= f(x_0)\pauseb, & a_1&=f'(x_0)\pauseb, & a_2 &= \frac{1}{2} f''(x_0)\pauseb, & a_i
-      &= \frac{1}{i!} f^{(i)}(x_0)\pauseb
+      a_0 &= f(x^*)\pauseb, & a_1&=f'(x^*)\pauseb, & a_2 &= \frac{1}{2} f''(x^*)\pauseb, & a_i
+      &= \frac{1}{i!} f^{(i)}(x^*)\pauseb
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -90,11 +93,11 @@
 \item This gives the Taylor expansion
   {\small
     \begin{align*}
-      f(x) \approx f(x_0) + f'(x_0)\, (x-x_0) + \frac{1}{2}
-      f''(x_0)\,(x-x_0)^2 + \ldots + \frac{1}{n!} f^{(n)}(x_0)\, (x-x_0)^n\pause
+      f(x) \approx f(x^*) + f'(x^*)\, (x-x^*) + \frac{1}{2}
+      f''(x^*)\,(x-x^*)^2 + \ldots + \frac{1}{n!} f^{(n)}(x^*)\, (x-x^*)^n\pause
     \end{align*}}
 \item The left and right-hand side both have the same $n$
-    derivatives at the point $x_0$\pause
+    derivatives at the point $x^*$\pause
 \end{itemize}
 \begin{center}
   \multipdf[width=0.6\linewidth]{exp_taylor}\pause
@@ -111,7 +114,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item As we add more and more terms our local approximation becomes
-    more accurate\pause, provided the higher derivatives exist\pause
+    more accurate\pause, provided the higher derivatives exist\pauseb
   \item Polynomials have the nice property that they only diverge at
     $\infty$\pause
   \item However, polynomials cannot capture functions that diverge for
@@ -144,16 +147,461 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item To understand convergence of Taylor series we need to go into
-    the complex plane\pause
+  \item To understand convergence of Taylor series more generally we
+    need to go into the complex plane\pause
   \item We can generalise many functions by considering them as a
     function with a complex argument $z = x + \ii y$\pause
   \item The value of the complex function will be complex valued\pause
   \item Complex functions are a huge and beautiful field (almost all
     of which go beyond this course)\pause
-  \item A neat feature of complex valued polynomials is that 
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Analytic Functions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item An important class of functions are those where for almost
+    all $z$ the derivative\vspace*{-5mm}\\
+    \begin{rightImage}[0.3]{analytic}
+      \begin{align*}
+        \frac{\dd f(z)}{\dd z} = \lim_{\epsilon \rightarrow 0}
+        \frac{f(z+\epsilon) - f(z)}{\epsilon}
+      \end{align*}
+    \end{rightImage}
+    does not depend on the direction $\epsilon$\pause
+  \item This includes polynomials\pause, but also includes
+    exponentials\pauseb, trigonometric functions\pauseb,
+    logarithms\pauseb, ratios of polynomials\pauseb, ``special
+    functions'', etc.\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Guaranteed Convergences of Taylor Functions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item For analytic functions, Taylor series are guaranteed to
+    converge inside a circle that excludes singular points
+    \begin{center}
+      \includegraphics[width=0.4\linewidth]{taylor_convergence}\pause
+    \end{center}
+  \item E.g. the function $f(z) = \frac{1}{(z+i)^2}$ has a singularity
+    at $z=-i$\pause.  The Taylor series of $f(z)$ around 0 is
+    guaranteed to converge inside a circle of radius 1\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{The Hyperbolic Tangent}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The hyperbolic tangent, $\tanh$, is related to the normal
+    tangent function through $\tanh(x) = \ii \, \tan(\ii x)$
+  \item The function (in the real plane) doesn't have any
+    singularities\pause
+  \item But we know that $\tan(x)$ has a singularites at $\frac{\pi}{2} \pm
+    k\,\pi$ where $k$ is any integer\pause
+  \item Thus a Taylor expansion of $\tanh(x)$ around $x=0$ is
+    guaranteed to converge in a circle of radius $\pi/2$\pause, but not
+    necessarily for larger values of $x$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Taylor Expansion of $\tanh(x)$}
+
+\pause\pauselevel{=1}
+\pb
+\begin{center}
+  \multipdf[width=\linewidth]{tanh_taylor}\pause
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Residue}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Taylor expansions actually come with an error bound
+    \begin{align*}
+      f(x) = \sum_{i=0}^{n-1} \frac{(x-x^*)^i}{i!} f^{(i)}(x^*) +
+      \frac{(x-x^*)^n}{n!} \, f^{(n)}(\theta_x)
+    \end{align*}
+    $\theta_x$ is a number in the interval between $x^*$ and $x$\pause
+  \item The last term known as the \emph{residue} can often be very useful
+    \begin{rightImage}[0.3]{expBound2}
+        \begin{align*}
+          \e{x} &= 1 + x + \frac{x^2}{2}\e{\theta_x}\pause\\
+          \e{x} &= 1 + x + \frac{x^2}{2} + \frac{x^3}{3!} \e{\theta_x}\pause
+        \end{align*}
+    \end{rightImage}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Useful Bounds}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A much used bound in mathematical analysis is $\e{x} \geq 1 + x$\pause
+  \item Many other bounds can be obtained similarly\pause,
+    e.g. expanding $\log(x)$ around $x=1$\\
+    \begin{rightImage}[0.3]{logBound}
+        \begin{align*}
+          \log(x) &= (x-1) - \frac{(x-1)^2}{2} \frac{1}{\theta^2}\pauseb
+        \end{align*}
+        giving
+        \begin{align*}
+          \log(x) &\leq x-1\pauseb &&\text{or} & \log(1+x) &\leq x\pauseb
+        \end{align*}
+    \end{rightImage}\pause
+  \item The proof of the residue for Taylors come from applying
+    multiple integrals to the term $f^{(n)}(x)$\pauseb. For the sake
+    of time I will skip this\pauseb     
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % n-D
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{High Dimensional Spaces}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Just as we defined a Taylor expansion by approximating the
+    function to a polynomial we can do the same for a function
+    $f:\mathbb{R}^n \rightarrow \mathbb{R}$
+    \begin{align*}
+      f(\bm{x}) &\approx c^{(0)} + \sum_{i=1}^n c^{(1)}_i \, (x_i - x_i^*)
+      + \sum_{i,j=1}^n (x_i-x_i^*) c^{(2)}_{ij} (x_j-x^*_j) + \ldots
+                  \pause
+    \end{align*}
+  \item We can determine the coefficients by differentiating both
+    sides and setting $\bm{x} = \bm{x}^*$
+    \begin{align*}
+      f(\bm{x}^*) &= c^{(0)} \pause\\
+      \frac{\partial f(\bm{x}^*)}{\partial x_i} &= c^{(1)}_i \pauseb\\
+      \frac{\partial^2 f(\bm{x}^*)}{\partial x_i\partial x_j} &= 2\,c^{(2)}_{ij}\pauseb
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{High Dimensional  Taylor Expansion}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We find
+    \begin{align*}
+      f(\bm{x}) &\approx f(\bm{x}^*) + (\bm{x}-\bm{x}^*)^\tr \grad
+                  f(\bm{x}^*)
+                  + \frac{1}{2} (\bm{x}-\bm{x}^*)^\tr
+                  \mat{H}\,(\bm{x}-\bm{x}^*) + \cdots\pause
+    \end{align*}
+  \item Where the matrix $\mat{H}$ is known as the Hessian and has
+    components
+    \begin{align*}
+      H_{ij} = \frac{\partial^2 f(\bm{x}^*)}{\partial x_i\partial x_j}\pause
+    \end{align*}
+  \item Because
+    \begin{align*}
+      \frac{\partial^2 f(\bm{x})}{\partial x_i\partial x_j} = \frac{\partial^2 f(\bm{x})}{\partial x_j\partial x_i}
+    \end{align*}
+    the Hessian is symmetric\pause{} ($\mat{H} = \mat{H}^\tr$)\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Tangent Plane}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item For smooth functions in $n$ dimensions the equation
+    $f(\bm{x}) = c$ defines a $(n-1)$-dimensional hyper-surface\pause{}
+    (because we have imposed one constraint)\pauseb
+  \item This can be thought of as the high dimensional analogue of a
+    contour line\pause
+  \item The plane that goes through a point $\bm{x}^*$ that lines up
+    with the contour surface is known as the tangent plane\pause
+  \item Away from $\bm{x}^*$ the value of the function $f(\bm{x})$
+    differs from the tangent plane by a quantity of order $\|\bm{x}-\bm{x}^*\|^2$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Defining the Tangent Plane}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Thus if $\bm{x}$ is in the tangent plane $T_{\bm{x^*}}$ then
+    \begin{align*}
+      f(\bm{x}) &\approx f(\bm{x}^*) + O\bra{(\bm{x}-\bm{x}^*)^2}\pause
+    \end{align*}
+  \item Or $(\bm{x}-\bm{x}^*)^\tr \grad f(\bm{x}^*)=0$\pause
+  \item That is the tangent plane at a point $\bm{x}^*$ is the set of
+    points orthogonal to the gradient\pause
+  \item Notice that the gradient then points in the direction where
+    the function increases fastest\pause{} (orthogonal to the tangent plane of
+    the contour surface)\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Picture of Tangent Plane for $f(\bm{x})= \|\bm{x}^2\|=c$}
+
+\pause\pauselevel{=1}
+\pb
+\begin{center}
+  \multipdf[width=0.6\linewidth]{tangentPlane}\pause
+\end{center}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Direction of Steepest Ascent}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We note that as
+    \begin{align*}
+      f(\bm{x}^* + \epsilon\, \bm{u}) = f(\bm{x}^*) + \epsilon\,
+      \bm{u}^\tr \grad f(\bm{x}^*) + O(\epsilon^2)\pause
+    \end{align*}
+  \item The direction where local the function grows fastest is when
+    $\bm{u}$ is in the direction $\grad f(\bm{x}^*)$\pause
+  \item Likewise when $\bm{u}$ is in the direction $-\grad
+    f(\bm{x}^*)$ the function decreases as fast as possible\pause
+  \item This is only true locally (when $\epsilon \gg \epsilon^2$)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % The Hessian
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{The Hessian}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The second order term in the Taylor expansion tells us about
+    the \emph{curvature} of the function\pause
+  \item This is very relevant when we are at an \emph{extremal point},
+    $\bm{x}^*$, where $\grad f(\bm{x}^*) = \bm{0}$ so that
+    \begin{align*}
+      f(\bm{x}) = f(\bm{x}^*) + \frac{1}{2} (\bm{x} - \bm{x}^*)^\tr
+      \mat{H}\, (\bm{x} - \bm{x}^*) + O\bra{\strut \|\bm{x} - \bm{x}^*\|^3}\pause
+    \end{align*}
+  \item It we make a perturbation $\bm{x} = \bm{x}^* + \epsilon\, \bm{u}$ then
+    \begin{align*}
+      f(\bm{x}^*+\epsilon\,\bm{u}) = f(\bm{x}^*) + \frac{1}{2} \epsilon^2\, \bm{u}^\tr
+      \mat{H} \, \bm{u} + O(\epsilon^3)\pause
+    \end{align*}
+  \item For sufficiently small perturbation the sign of change in the function
+    depends on the sign of $\bm{u}^\tr \mat{H} \, \bm{u}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Eigenvalues}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item We will revisit eigen-systems, but recall that for a square
+    matrix an eigenvector, $\bm{v}_i$, of a matrix $\mat{H}$
+    is define such that
+    \begin{align*}
+      \mat{H} \, \bm{v}_i = \lambda_i \, \bm{v}_i\pause
+    \end{align*}
+  \item For an $n\times n$ symmetric matrices (such as the Hessian),
+    the eigenvalues are all real, and we can choose $n$ orthogonal
+    eigenvectors such that $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}$\pause
+  \item We note that
+    \begin{align*}
+       \bm{v}_i^\tr\, \mat{H} \, \bm{v}_i = 
+      \bm{v}_i^\tr\,\lambda_i \, \bm{v}_i \pause = \lambda_i \,
+      \bm{v}_i^\tr\,\bm{v}_i\pause = \lambda_i\pause
+    \end{align*}
+  \item If we perturb in a direction $\bm{v}_i$ then
+    \begin{align*}
+      f(\bm{x}^* + \epsilon\, \bm{v}_i) =  f(\bm{x}^*) + \frac{1}{2}
+      \epsilon^2\, \lambda_i + O(\epsilon^3)\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{General Directions}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can write any vector $\bm{u}$ as a weighted sum of the
+    eigenvectors (the eigenvectors form a basis) $\bm{u} = \sum_{i=1}^n c_i\, \bm{v}_i$ \pause
+  \item Note that
+    \begin{align*}
+      \bm{u}^\tr \mat{H}\, \bm{u}
+      &= \bra{\sum_{i=1}^n c_i\, \bm{v}^\tr_i} \mat{H}
+        \bra{\sum_{j=1}^n c_j\, \bm{v}_j}  \pause \\
+      &= \bra{\sum_{i=1}^n c_i\, \bm{v}^\tr_i}
+        \bra{\sum_{j=1}^n c_j\, \lambda_j \bm{v}_j}\pause  \\
+      &=  \sum_{i,j=1}^n \lambda_j \, c_i\, c_j \, \bm{v}^\tr_i
+        \bm{v}_j  \pause
+        = \sum_{i=1}^n \lambda_i \, c_i^2
+    \end{align*}
+  using the orthogonality of eigenvectors $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Minima, Maxima and Saddle-Points}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If all the eigenvalues are non-negative $\lambda_i>0$, then for
+    any $\bm{u}$ we have $\bm{u}^\tr \mat{H}\, \bm{u}>0$ and
+    $\bm{x}^*$ would be a local minimum\pause. We say $\mat{H}$ is
+    \emph{positive definite}\pauseb{} or $\mat{H}\succ 0$\pauseb
+  \item Similarly if all the eigenvalues are less than zero ($\mat{H}$
+    is \emph{negative definite}, $\mat{H}\prec 0$), then $\bm{x}^*$ will be a local maximum\pause
+  \item Otherwise $\bm{x}^*$ is a saddle-point\pause
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=0.9\linewidth]{extremal_points}
+  \end{center}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Finding Optima}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We are often given a loss function, $L(\bm{w})$, which we wish
+    to minimise\pause
+  \item The condition for $\bm{w}^*$ to be a minimum is that $\grad
+    L(\bm{w}^*)=\bm{0}$\pause{} and $\mat{H}\succ0$ where $\mat{H}$ is the
+    Hessian of $L(\bm{w})$ at the point $\bm{w}^*$\pauseb
+  \item Except for a few very simple loss functions, there are likely
+    to be many (and often a huge number) of local minima\pause
+  \item Unless $L(\bm{w})$ is very simple we are unlikely to be able
+    to solve $\grad L(\bm{w})=\bm{0}$ analytically\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Gradient Descent}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We usually proceed iteratively, starting from some $\bm{w}^{(0)}$
+    \begin{align*}
+      \bm{w}^{(t+1)} = \bm{w}^{(t)} - r\, \grad L(\bm{w}^{(t)})\pause
+    \end{align*}
+  \item This moves us in the direction that (locally) minimises the
+    loss function $L(\bm{w})$\pause
+  \item As we get closer to the minimum $\grad L(\bm{w}^{(t)})$
+    typically becomes smaller and we take smaller steps\pause
+  \item However, many nasty things can happen, and we have to be
+    careful in how we perform gradient descent\pause
+  \item We will revisit this when we look at optimisation\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Lessons}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item For functions that are continuous (as least almost everywhere)
+    Taylor series are really useful in understanding the local
+    behaviour of the function\pause
+  \item The gradient defines the direction in which a function
+    increases fastest\pause
+  \item This will be orthogonal to the tangent plane, where locally
+    the function is a constant\pause
+  \item The Hessian (not to be mistaken with the Jacobian) is the
+    matrices of second derivative defining the curvature away from the
+    tangent plane\pause
   \end{itemize}
 \end{PauseHighLight}
 
 
 \end{slide}
+
+
+\end{document}
+

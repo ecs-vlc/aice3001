@@ -1,19 +1,25 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+r"""Concatenate the per-lecture subsidiary notes into one notes.pdf.
 
-import  re
-from ask import Ask
+Same as before, but the lecture order comes from lectures.yaml.
+"""
+
 import os
 
-def extract(str):
-    _, endpart = str.split("{")
-    mid, _ = endpart.split("}")
-    return mid
-
-with open("lectures.tex", "r") as f:
-    files = [extract(line) for line in f if re.search("^\\\lecture{", line)]
-
-notesFiles = [f"./{file}-subsidiary.pdf" for file in files if os.path.exists(f"./{file}-subsidiary.pdf" )]
+import lecture_list
 
 
-nfs = " ".join(notesFiles)
-os.system(f"pdfjam  --fitpaper true --rotateoversize false -o notes.pdf {nfs}")
+def main():
+    lectures = lecture_list.load()
+    parts = [f"./{lec.id}-subsidiary.pdf" for lec in lectures
+             if os.path.exists(f"./{lec.id}-subsidiary.pdf")]
+    if not parts:
+        print("no <lecture>-subsidiary.pdf files found -- nothing to combine")
+        return
+    os.system("pdfjam --fitpaper true --rotateoversize false "
+              f"-o notes.pdf {' '.join(parts)}")
+    print(f"combined {len(parts)} notes -> notes.pdf")
+
+
+if __name__ == "__main__":
+    main()

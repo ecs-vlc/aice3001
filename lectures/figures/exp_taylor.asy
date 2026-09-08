@@ -33,7 +33,7 @@ label("$f(x)$", (0,1.0), N);
 
 draw(graph(f, xmin, xmax));
 draw((x0,0)--(x0,-0.05));
-label("$x_0$", (x0,-0.05), S);
+label("$x^*$", (x0,-0.05), S);
 ship();
 
 using frr = real(real);
@@ -57,14 +57,14 @@ for(int i=0; i<5; ++i) {
   draw(bg, graph(poly(i), xmin, xmax), green+dashed);
   align dir = (i%2==0)? SW: NW;
   if (i==0) {
-    label("$f(x_0)$", (0, fi(xmax,i)), E, red, UnFill);
-    label(bg, "$f(x_0)$", (0, fi(xmax,i)), E, green, UnFill);
+    label("$f(x^*)$", (0, fi(xmax,i)), E, red, UnFill);
+    label(bg, "$f(x^*)$", (0, fi(xmax,i)), E, green, UnFill);
   } else if (i==1) {
-    label("$(x-x_0)\,f'(x_0)$", (xmax, fi(xmax,i)), dir, red, UnFill);
-    label(bg, "$(x-x_0)\,f'(x_0)$", (xmax, fi(xmax,i)), dir, green, UnFill);
+    label("$(x-x^*)\,f'(x^*)$", (xmax, fi(xmax,i)), dir, red, UnFill);
+    label(bg, "$(x-x^*)\,f'(x^*)$", (xmax, fi(xmax,i)), dir, green, UnFill);
   } else {
-    label("$\tfrac{1}{n!}(x-x_0)^"+string(i)+"\,f^{("+string(i)+")}(x_0)$", (xmax, fi(xmax,i)), dir, red, UnFill);
-    label(bg, "$\tfrac{1}{n!}(x-x_0)^"+string(i)+"\,f^{("+string(i)+")}(x_0)$", (xmax, fi(xmax,i)), dir, green, UnFill);
+    label("$\tfrac{1}{n!}(x-x^*)^"+string(i)+"\,f^{("+string(i)+")}(x^*)$", (xmax, fi(xmax,i)), dir, red, UnFill);
+    label(bg, "$\tfrac{1}{n!}(x-x^*)^"+string(i)+"\,f^{("+string(i)+")}(x^*)$", (xmax, fi(xmax,i)), dir, green, UnFill);
   }
   ship();
 }

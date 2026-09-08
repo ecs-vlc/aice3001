@@ -1,0 +1,71 @@
+# Single source of truth for the lecture list.
+#
+# Three plain lists -- move an id between them to change what gets built.
+#   lectures        in the course this year; built and published
+#   draft_lectures  source exists, not scheduled this year
+#   old_lectures    retired or never written; ignored by every script
+#
+# Order within `lectures` is the order of the course.
+# Titles and keywords come from \lesson{} and \keywords{} in each .tex file.
+
+course: "AICE3001/AICE6002: Mathematics of Machine Learning"
+
+# where build/lecturehtml write their output.
+# ../site is the live site -- point this at ../site_dev while trialling if you
+# do not want to overwrite what lectures/update produced.
+site_dir: ../site
+
+# a tutorial slot is inserted after every N lectures in the timetable
+tutorial_every: 4
+
+
+lectures:
+  - introduction
+  - calculus
+  - taylorExpansion
+
+
+draft_lectures:
+  - courseOutline
+  - biasVariance
+  - overfitting
+  - symmetry
+  - projects
+
+  - ensembleLearning
+  - boosting
+  - vectorSpaces
+  - innerProduct
+  - mappings
+  - eigensystems
+  - pca
+  - svd
+
+  - optimisation
+  - sgd
+  - constrainedOpt
+  - convexity
+  - svm
+  - kernelTrick
+  - wasserstein
+
+  - probability
+  - bayes
+  - integration
+  - gaussianProcesses
+  - ProbabilisticInference
+  - graphicalModels
+  - mcmc
+  - entropy
+  - information
+
+  # source exists but was never listed in the old lectures.tex
+  - generativeModels
+  - regularisation
+
+
+old_lectures:
+  # listed in the old lectures.tex but no .tex file was ever written
+  - theory
+  - agnosticPAC
+  - vc

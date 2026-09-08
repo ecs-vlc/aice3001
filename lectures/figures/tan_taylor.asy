@@ -16,6 +16,10 @@ real f(real x) {
   return ans;
 }
 
+
+string coeffient[] = {"", "", "", "\frac{1}{3}", "", "\frac{2}{15}", "", "\frac{17}{315}", "", "\frac{62}{720}"};
+
+
 real coeff[] = {0.0, 1.0, 0.0, 1.0/3.0, 0.0, 2.0/15.0, 0.0, 17.0/315.0, 0.0, 62.0/720.0};
 
 real fi(real x, int i) {
@@ -49,7 +53,7 @@ draw(graph(f, -pi+0.0001, pi-0.0001));
 draw(graph(f, pi+0.0001, 3pi-0.0001));
 draw(graph(f, 3pi+0.0001, xmax));
 draw((x0,0)--(x0,-0.05));
-label("$x_0$", (x0,-0.05), S);
+label("$0$", (x0,-0.05), S);
 clip(bb);
 ship();
 
@@ -75,6 +79,11 @@ for(int i=1; i<=9; i+=2) {
   }
   draw(graph(poly(i), xmin, xmax), red);
   draw(graph(apoly(i), xmin, xmax), blue);
+  real x = 1.85 - 0.05*i;
+  if (i==1)
+    label("$x$", (-pi, -pi), NW, red);
+  else
+    label("$"+coeffient[i]+"\,x^{"+string(i)+"}$", (x, fi(x,i)), E, red);
   clip(bb);
   draw(bg, graph(poly(i), xmin, xmax), green+dashed);
   clip(bg,bb);

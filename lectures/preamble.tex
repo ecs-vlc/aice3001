@@ -1,0 +1,26 @@
+%% Shared preamble for standalone lecture files.
+%%
+%% Every lecture begins with \input{preamble} and is compiled on its own:
+%%     pdflatex -shell-escape <lecture>
+%% There is no master lectures.tex any more -- the list of lectures lives in
+%% lectures.yaml and is read by the build scripts.
+
+\documentclass[25pt,landscape,footrule]{foils}
+\input{macros_gen}
+\backgroundsetup{contents={}}
+
+\usepackage{stmaryrd}
+\usepackage{ifthen}
+\usepackage{pdf14}
+
+% figures/ is not duplicated here -- the originals in ../lectures/figures are used
+\graphicspath{{figures/}{../lectures/figures/}{~/Documents/figures/}{~/Documents/teaching/courses/comp6208/old_lectures/figures/}{~/Documents/teaching/courses/comp3008/new_lectures/figures/}{~/Documents/teaching/courses/comp6208/new_lectures/figures/}{~/Documents/teaching/courses/MLshort/figures/}{~/Documents/teaching/courses/comp3212/lectures/figures/}{/Users/apb1/Documents/teaching/courses/comp6208/github/lectures/figures}}
+
+\date{}
+
+\newcounter{lessoncnt}
+\newcommand{\lesson}[1]{\setcounter{page}{1}%
+\section{Mathematics of Machine Learning\\%
+\vfill
+\textcolor{red}{\textit{#1}}
+\vfill}}
