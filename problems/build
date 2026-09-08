@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+r"""Build every problem sheet listed in problems.yaml, questions and answers.
+
+The non-interactive counterpart to `go` (which asks which sheet to show).
+Answer sheets are produced the same way `go` does it: the questions .tex is
+copied with \documentclass rewritten to \documentclass[answers], which
+sotonExamBoxes.cls uses to reveal the worked solutions.
+
+    ./build                build any sheet whose PDF is out of date
+    ./build calculus       build just this one
+    ./build --force        rebuild everything
+"""
+
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import yaml
+
+LATEX = "/Library/TeX/texbin/pdflatex"
+
+
+def config():
+    with open("problems.yaml") as f:
+        return yaml.safe_load(f)
+
+
+def newer(a, b):
+    if not os.path.exists(b):
+        return True
+    if not os.path.exists(a):
+        return False
+    return os.path.getmtime(a) > os.path.getmtime(b)
+
+
+def latex(stem):
+    """Run pdflatex twice so cross-references and boxes settle."""
+    for i in range(2):
+        r = subprocess.call(
+            [LATEX, "-shell-escape", "-interaction=nonstopmode",
+             "-halt-on-error", f"{stem}.tex"],
+            stdout=subprocess.DEVNULL if i else None,
+            stderr=subprocess.DEVNULL if i else None)
+        if r != 0:
+            return False
+    return True
+
+
+def make_answer_tex(stem):
+    """Derive <stem>_answers.tex from <stem>.tex."""
+    text = Path(f"{stem}.tex").read_text()
+    text = re.sub(r"\\documentclass(\[[^]]*\])?",
+                  r"\\documentclass[answers]", text, count=1)
+    Path(f"{stem}_answers.tex").write_text(text)
+
+
+def build_sheet(name, force=False):
+    tex = f"{name}.tex"
+    if not os.path.exists(tex):
+        print(f"    no {tex} -- skipped")
+        return False
+    if not (force or newer(tex, f"{name}.pdf")
+            or newer(tex, f"{name}_answers.pdf")):
+        print("    up to date")
+        return True
+
+    print("    questions ...", end=" ", flush=True)
+    if not latex(name):
+        print(f"FAILED -- see {name}.log")
+        return False
+    print("ok")
+
+    make_answer_tex(name)
+    print("    answers   ...", end=" ", flush=True)
+    if not latex(f"{name}_answers"):
+        print(f"FAILED -- see {name}_answers.log")
+        return False
+    print("ok")
+    return True
+
+
+def main():
+    args = sys.argv[1:]
+    force = "--force" in args
+    names = [a for a in args if not a.startswith("-")]
+
+    sheets = config()["sheets"]
+    if names:
+        sheets = [s for s in sheets if s["name"] in names]
+        for n in set(names) - {s["name"] for s in sheets}:
+            print(f"WARNING: {n} is not in problems.yaml")
+
+    ok = 0
+    for sheet in sheets:
+        print(f"--- {sheet['name']} (week {sheet.get('week','?')})")
+        if build_sheet(sheet["name"], force):
+            ok += 1
+    print(f"\nbuilt {ok}/{len(sheets)}")
+    if ok != len(sheets):
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

@@ -3,6 +3,16 @@ course:
   title: Mathematics of Machine Learning
   author: Adam Prugel-Bennett
 
+# ---------------------------------------------------------------------------
+# Output. Sheets are published to <site_dir>/problem_pdf/ and listed on
+# problems_page. answers_page also carries the worked answers -- it is not
+# linked from anywhere, so it is unlisted rather than secure. Give the URL to
+# demonstrators. Keep the filename stable or their link breaks.
+# ---------------------------------------------------------------------------
+site_dir: ../site
+problems_page: problems.html
+answers_page: problems-answers-23948017554dfbf8.html
+
 sheets:
   - week: 1
     name: calculus

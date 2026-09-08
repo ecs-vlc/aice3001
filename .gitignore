@@ -7,8 +7,11 @@
 __pycache__/
 *.pyc
 
-# timetable / attendance exports (contain attendance QR links)
+# timetable / attendance exports (contain live attendance QR links --
+# must never be published: anyone with the links can register attendance)
 *.csv
+myengage.csv
+lectures/myengage.csv
 
 # LaTeX auxiliary files
 *.aux
@@ -30,3 +33,8 @@ supp-pdf.*
 
 # asymptote intermediates
 *.pre
+
+# lectures: per-lecture PDFs are build output, rebuilt by ./build
+lectures_dev/*.pdf
+lectures_dev/build_tmp/
+old_lectures/

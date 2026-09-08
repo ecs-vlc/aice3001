@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<title>AICE3001/AICE6002: Mathematics of Machine Learning</title>
+</head>
+
+<body>
+<header>AICE3001/AICE6002: Mathematics of Machine Learning</header>
+
+<div class="container">
+
+<h1>Mathematics of Machine Learning</h1>
+
+<p>Welcome to <b>Mathematics of Machine Learning</b>, taught by
+<a href="mailto:apb1@soton.ac.uk">Adam Pr&uuml;gel-Bennett</a>.
+The course covers the mathematical foundations that machine learning is built
+on &mdash; calculus, linear algebra, optimisation and probability &mdash; and
+how they are used in practice.</p>
+
+<p>The course is dual coded: <b>AICE3001</b> for third-year undergraduates and
+<b>AICE6002</b> for MSc students. The lectures are shared; the assessment
+differs.</p>
+
+
+<h2>Timetable</h2>
+
+<!-- The table is pulled in from lecture_timetable.html, which is regenerated
+     by lectures/make_timetable.py. Do not paste a copy in here: it will go
+     stale the moment the schedule changes. -->
+<div id="timetable">
+  <p><a href="lecture_timetable.html">View the timetable</a></p>
+</div>
+
+<script>
+fetch("lecture_timetable.html")
+  .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.text(); })
+  .then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var table = doc.querySelector("table.timetable");
+      if (table) { document.getElementById("timetable").replaceChildren(table); }
+  })
+  .catch(function () { /* keep the plain link already in the div */ });
+</script>
+
+
+<h2>Lecture Notes</h2>
+
+<ul>
+  <li><a href="lectures.html">All lecture notes</a> &mdash; slides, printable
+      versions and 4/8-per-page handouts for each lecture</li>
+  <li><a href="lecture_pdf/lectures_8.pdf">Complete set of notes</a>
+      (8 slides per page)</li>
+</ul>
+
+
+<h2>Problem Sheets</h2>
+
+<p>Problem sheets are worked through in the Friday tutorial session. Each one
+is linked from the timetable in the week it is used.</p>
+
+<ul>
+  <li><a href="problems.html">All problem sheets</a></li>
+</ul>
+
+
+<h2>Course Information</h2>
+
+<ul>
+  <li><a href="lectures.html">Lecture Notes</a></li>
+  <li><a href="problems.html">Problem Sheets</a></li>
+  <li><a href="lecture_timetable.html">Timetable</a></li>
+</ul>
+
+</div>
+
+<footer>ECS 2026-27 &mdash; AICE3001/AICE6002: Mathematics of Machine Learning</footer>
+
+</body>
+</html>

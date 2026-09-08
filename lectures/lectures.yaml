@@ -15,6 +15,10 @@ course: "AICE3001/AICE6002: Mathematics of Machine Learning"
 # do not want to overwrite what lectures/update produced.
 site_dir: ../site
 
+# problem sheets: tutorial slots take these consecutively
+problems_yaml: ../problems/problems.yaml
+problems_page: problems.html
+
 # a tutorial slot is inserted after every N lectures in the timetable
 tutorial_every: 4
 
@@ -23,6 +27,27 @@ lectures:
   - introduction
   - calculus
   - taylorExpansion
+  - vectorSpaces
+  - innerProduct
+  - mappings
+  - eigensystems
+  - pca
+  - svd
+  - optimisation
+  - sgd
+  - constrainedOpt
+  - convexity
+  - svm
+  - kernelTrick
+  - wasserstein
+  - probability
+  - bayes
+  - integration
+  - gaussianProcesses
+  - ProbabilisticInference
+  - mcmc
+  - entropy
+  - information
 
 
 draft_lectures:
@@ -31,33 +56,9 @@ draft_lectures:
   - overfitting
   - symmetry
   - projects
-
   - ensembleLearning
   - boosting
-  - vectorSpaces
-  - innerProduct
-  - mappings
-  - eigensystems
-  - pca
-  - svd
-
-  - optimisation
-  - sgd
-  - constrainedOpt
-  - convexity
-  - svm
-  - kernelTrick
-  - wasserstein
-
-  - probability
-  - bayes
-  - integration
-  - gaussianProcesses
-  - ProbabilisticInference
   - graphicalModels
-  - mcmc
-  - entropy
-  - information
 
   # source exists but was never listed in the old lectures.tex
   - generativeModels
@@ -69,3 +70,37 @@ old_lectures:
   - theory
   - agnosticPAC
   - vc
+
+
+# ---------------------------------------------------------------------------
+# Timetable. Slots come from the timetabling system -- retype them each year.
+#
+#   type: lecture   consumes the next lecture from `lectures:` above
+#         tutorial  fixed label, consumes nothing
+#         lab       fixed label; add `weeks: [2, 4, 6]` if it is not every week
+#
+# teaching_weeks is always 12. Break weeks (reading week, Easter) do not count
+# towards it -- they are inserted and the term runs on for longer.
+# ---------------------------------------------------------------------------
+timetable:
+  year: "2026-27"
+  term_start: 2026-09-21     # Monday of week 1
+  teaching_weeks: 12
+  startweek: 1               # number shown against the first teaching week
+
+  slots:
+    - {day: Mon, time: "13:00", location: "58/6002 (L/R G)", type: lecture}
+    - {day: Wed, time: "9:00",  location: "07/3031 (L/R F2)", type: lecture}
+    - {day: Thu, time: "12:00", location: "13/3021",          type: lecture}
+    - {day: Fri, time: "14:00", location: "05/2017 (L/t J)",  type: tutorial}
+
+  # Whole weeks with no teaching. Uncomment to add a reading week.
+  breaks: []
+  # breaks:
+  #   - {start: 2026-11-02, end: 2026-11-06, name: "Reading week"}
+  #   - {start: 2027-03-22, end: 2027-04-16, name: "Easter"}
+
+  # Individual days lost (e.g. bank holidays); the slot is marked, not moved.
+  bank_holidays: []
+  # bank_holidays:
+  #   - 2027-05-03

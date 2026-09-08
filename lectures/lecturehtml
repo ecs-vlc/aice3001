@@ -18,13 +18,18 @@ import lecture_list
 SITE = lecture_list.config().get("site_dir", "../site")
 SUBSIDIARY = "subsidiary.yml"
 
-HEADER = '''<HTML>
-<HEAD>
-<TITLE>Lecture Notes</TITLE>
-</HEAD>
-
-<H1 align="center">Lecture Notes</H1>
-
+HEADER = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<title>Lecture Notes</title>
+</head>
+<body>
+<header>Lecture Notes</header>
+<div class="container">
+<p><a href="index.html">&larr; Course home</a></p>
 <h2>Lessons on Mathematics for Machine Learning</h2>
 
 <ol>
@@ -37,7 +42,10 @@ FOOTER = '''
 <li> <a href="lecture_pdf/lectures_8.pdf">Complete set of Notes</a></li>
 </ul>
 
-</HTML>
+</div>
+<footer>ECS &mdash; AICE3001/AICE6002: Mathematics of Machine Learning</footer>
+</body>
+</html>
 '''
 
 
