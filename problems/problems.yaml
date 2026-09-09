@@ -20,3 +20,30 @@ sheets:
   - week: 2
     name: vectorSpaces
     keywords: Cauchy-Schwarz, Inner-product spaces, induced norms
+  - week: 3
+    name: eigen
+    keywords: Eigensystems, PCA, SVD
+  - week: 4
+    name: optimisation
+    keywords: Gradient methods, Newton methods, stochastic optimisation
+  - week: 5
+    name: convexity
+    keywords: convexity, SVMs
+  - week: 6
+    name: general
+    keywords: duality
+  - week: 7
+    name: probability
+    keywords: Gaussian integrals
+  - week: 8
+    name: gp
+    keywords: Gaussian processes
+  - week: 9
+    name: information
+    keywords: entropy, information
+  - week: 10
+    name: theory
+    keywords: bias variance
+  - week: 11
+    name: revision
+    keywords: general

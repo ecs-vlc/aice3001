@@ -40,7 +40,10 @@ lectures:
   - svm
   - kernelTrick
   - wasserstein
+  - template
+  - template
   - probability
+  - experimentalDesign
   - bayes
   - integration
   - gaussianProcesses
@@ -48,13 +51,14 @@ lectures:
   - mcmc
   - entropy
   - information
+  - biasVariance
+  - overfitting
+  - symmetry
+
 
 
 draft_lectures:
   - courseOutline
-  - biasVariance
-  - overfitting
-  - symmetry
   - projects
   - ensembleLearning
   - boosting
