@@ -202,7 +202,9 @@
        #3%
          \ifthenelse{\boolean{withAnswers}}{}{% not answers:
        \hfill\makebox(0,0)[lt]{\raisebox{2cm}[1cm]{\hspace*{1cm}\huge\fbox{$\frac{\rule{0pt}{1ex}}{#1}$}}}}}%
-           \sbox{\markstable}{\usebox{\markstable} \labelenumi~$\displaystyle\frac{\hspace{1em}}{#1}$}%
+           \sbox{\markstable}{\usebox{\markstable}
+             \labelenumi~$\displaystyle\frac{\hspace{1em}}{#1}$}%
+           \vfill
 }
 
 

@@ -15,29 +15,9 @@
 \usepackage{amsmath}
 \thinmuskip=1mu
 %\renewcommand{\ttdefault}{pcr}
-\renewcommand{\ttdefault}{pcr}
-\newcommand{\tr}{\textsf{T}}
-\newcommand{\e}[1]{{\rm e}^{#1}}
-\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
-\newcommand{\logg}[1]{\log\left(#1\right)}
-\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
-\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
-\newcommand\diag{\mathop{\mathrm{diag}}}
-\newcommand{\grad}{\bm{\nabla}}
-\newcommand{\dd}{\mathrm{d}}
-\newcommand{\class}{\mathcal{C}}
-\newcommand{\data}{\mathcal{D}}
-\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
-\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
-\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
-\newcommand{\bst}{\rule{0mm}{5mm}}
-\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\left[ {\strut #2} \right]}
-\newcommand{\len}[1]{\| #1 \|}
+\input{macros}
 \graphicspath{{figures/} {../2018-19/figures}}
-\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
 \graphicspath{{figures/}}
-\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
-\newcommand{\bra}[1]{\left( #1 \right)}
 \usepackage{parskip}
 \AddToHook{env/samepage/begin}{%
 \AddToHook{para/before}{\nopagebreak}%
@@ -104,15 +84,15 @@
             \mat{C}^{-1}\mat{B}^{-1}\bra{\mat{A}^{-1}\mat{A}}\,\mat{B}\,\mat{C}
           \\
           &= \mat{C}^{-1}\bra{\mat{B}^{-1}\mat{B}}\,\mat{C} =
-            \mat{C}^{-1}\mat{C} = \mat{I}
+            \mat{C}^{-1}\mat{C} = \Id
         \end{align*}
       \end{answer}}{\lines{3}}
     
 
     
       \qpart[3]{For non-square matrices, $\mat{A}$ and $\mat{B}$ we can
-        have $\mat{A}\,\mat{B} = \mat{I}$ while $\mat{B}\,\mat{A} \neq
-        \mat{I}$.  Show this is the case for the matrices
+        have $\mat{A}\,\mat{B} = \Id$ while $\mat{B}\,\mat{A} \neq
+        \Id$.  Show this is the case for the matrices
         \begin{align*}
           \mat{A} &=
                     \begin{pmatrix}
@@ -132,7 +112,7 @@
                              \begin{pmatrix}
                                1 \\ 0
                              \end{pmatrix}
-                             = (1) = \mat{I}_1
+                             = (1) = \Id_1
           &
             \mat{B}\,\mat{A} &=
                                \begin{pmatrix}
@@ -150,24 +130,24 @@
 
     
       \qpart[2]{For finite-dimensional square matrices if
-        $\mat{A}\mat{B}= \mat{I}$ then $\mat{B}\mat{A}= \mat{I}$. Thus
+        $\mat{A}\mat{B}= \Id$ then $\mat{B}\mat{A}= \Id$. Thus
         $\mat{B} = \mat{A}^{-1}$.  This is not entirely trivial to
         prove.  We break the proof down.
 
-        Show that if $\mat{A}\mat{B}= \mat{I}$ then $\mat{B}$ is
+        Show that if $\mat{A}\mat{B}= \Id$ then $\mat{B}$ is
         injective (one-to-one).  This mean that for two different
         vectors $\bm{x}$ and $\bm{y}$ then
         $\mat{B}\, \bm{x} \neq \mat{B} \bm{y}$.  Equivalently
         $\mat{B}\, (\bm{x} - \bm{y}) \neq \bm{0}$, unless $\bm{x}=\bm{y}$,
         but as $\bm{x}$ and $\bm{y}$ are arbitrary the only vector for
         which $\mat{B}\,\bm{x}=\bm{0}$ is the vector $\bm{x}=\bm{0}$.
-        Prove that if $\mat{A}\mat{B}= \mat{I}$ and
+        Prove that if $\mat{A}\mat{B}= \Id$ and
         $\mat{B}\,\bm{x}=\bm{0}$ then $\bm{x}=\bm{0}$.
       \begin{answer}
         Suppose $\mat{B}\,\bm{x}=\bm{0}$ then multiply by $\mat{A}$
         \begin{align*}
           \mat{A}\, \mat{B}\,\bm{x} &= \bm{0} \\
-          \mat{I}\,\bm{x} &= \bm{0}
+          \Id\,\bm{x} &= \bm{0}
         \end{align*}
         Thus $\bm{x} = \bm{0}$.
       \end{answer}}{\lines{8}}
@@ -225,9 +205,9 @@
     
 
     
-      \qpart[2]{Using the fact that $\mat{A}\,\mat{B}= \mat{I}$ and
+      \qpart[2]{Using the fact that $\mat{A}\,\mat{B}= \Id$ and
         $\mat{B}$ is surjective show $\mat{B}\,\mat{A} =
-        \mat{I}$
+        \Id$
       \begin{answer}
         We not that for all $\bm{x}$
         \begin{align*}
@@ -240,7 +220,7 @@
         \begin{align*}
           \mat{B}\,\mat{A}\,\bm{y} = \bm{y},
         \end{align*}
-        but as this is true for eany vector $\bm{y}$ it follows that $\mat{B}\,\mat{A}=\mat{I}$.
+        but as this is true for eany vector $\bm{y}$ it follows that $\mat{B}\,\mat{A}=\Id$.
       \end{answer}}{\lines{5}}
     
   \end{qparts}
@@ -249,6 +229,220 @@
 
 % ***************************** question 2 **************************
 
+\newpage
+
+\begin{question}{20}
+  Throughout this question you may use two standard properties of the
+  trace, namely that a matrix and its transpose have the same trace, and
+  that the trace is unchanged by cyclically permuting a product
+  \begin{align*}
+    \mathrm{tr}\bra{\mat{A}} &= \mathrm{tr}\bra{\mat{A}^\tr}
+    & \mathrm{tr}\bra{\mat{A}\,\mat{B}} &= \mathrm{tr}\bra{\mat{B}\,\mat{A}} .
+  \end{align*}
+
+  \begin{qparts}
+
+    \qpart[5]{For a vector $\bm{a}\in\mathbb{R}^m$, a vector
+      $\bm{b}\in\mathbb{R}^n$ and an $m\times n$ matrix $\mat{U}$, show
+      that
+      \begin{align*}
+        \bm{a}^\tr\, \mat{U}\, \bm{b}
+        = \mathrm{tr}\bra{\strut \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr}.
+      \end{align*}
+      The quickest route is to write both sides out in components.  Note
+      that $\bm{a}\,\bm{b}^\tr$ is an $m\times n$ matrix while
+      $\bm{a}^\tr\,\mat{U}\,\bm{b}$ is a scalar.
+      \begin{answer}
+        Writing the left-hand side in components
+        \begin{align*}
+          \bm{a}^\tr\, \mat{U}\, \bm{b}
+          = \sum_{i=1}^m \sum_{j=1}^n a_i\, U_{ij}\, b_j .
+        \end{align*}
+        For the right-hand side, the outer product $\bm{a}\,\bm{b}^\tr$
+        has elements $[\bm{a}\,\bm{b}^\tr]_{ik} = a_i\, b_k$, so
+        \begin{align*}
+          \bigl[\mat{U}^\tr\, \bm{a}\, \bm{b}^\tr\bigr]_{jk}
+          = \sum_{i=1}^m [\mat{U}^\tr]_{ji}\, [\bm{a}\,\bm{b}^\tr]_{ik}
+          = \sum_{i=1}^m U_{ij}\, a_i\, b_k .
+        \end{align*}
+        The trace is the sum of the diagonal elements, $k=j$, so
+        \begin{align*}
+          \mathrm{tr}\bra{\strut \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr}
+          = \sum_{j=1}^n \sum_{i=1}^m U_{ij}\, a_i\, b_j
+          = \sum_{i=1}^m \sum_{j=1}^n a_i\, U_{ij}\, b_j ,
+        \end{align*}
+        which is the left-hand side.
+
+        Alternatively, $\bm{a}^\tr\,\mat{U}\,\bm{b}$ is a scalar, so it
+        equals its own trace, and using
+        $\mathrm{tr}(\mat{A}\,\mat{B}) =
+        \mathrm{tr}(\mat{B}\,\mat{A})$ together with
+        $\mathrm{tr}(\mat{A}) = \mathrm{tr}(\mat{A}^\tr)$
+        gives the same result.
+      \end{answer}}{\lines{8}}
+
+    \qpart[4]{Verify the identity explicitly for
+      \begin{align*}
+        \bm{a} &= \begin{pmatrix} 1 \\ 2 \end{pmatrix}
+        & \bm{b} &= \begin{pmatrix} 3 \\ 1 \end{pmatrix}
+        & \mat{U} &= \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}
+      \end{align*}
+      by computing both $\bm{a}^\tr\,\mat{U}\,\bm{b}$ and
+      $\mathrm{tr}\bra{\strut\mat{U}^\tr\,\bm{a}\,\bm{b}^\tr}$.
+      \begin{answer}
+        For the left-hand side,
+        \begin{align*}
+          \mat{U}\,\bm{b} &=
+          \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}
+          \begin{pmatrix} 3 \\ 1 \end{pmatrix}
+          = \begin{pmatrix} 5 \\ 13 \end{pmatrix}
+          & \bm{a}^\tr\,\mat{U}\,\bm{b} &=
+          \begin{pmatrix} 1 & 2 \end{pmatrix}
+          \begin{pmatrix} 5 \\ 13 \end{pmatrix}
+          = 5 + 26 = 31 .
+        \end{align*}
+        For the right-hand side, the outer product is
+        \begin{align*}
+          \bm{a}\,\bm{b}^\tr =
+          \begin{pmatrix} 1 \\ 2 \end{pmatrix}
+          \begin{pmatrix} 3 & 1 \end{pmatrix}
+          = \begin{pmatrix} 3 & 1 \\ 6 & 2 \end{pmatrix}
+        \end{align*}
+        and hence
+        \begin{align*}
+          \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr =
+          \begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix}
+          \begin{pmatrix} 3 & 1 \\ 6 & 2 \end{pmatrix}
+          = \begin{pmatrix} 21 & 7 \\ 30 & 10 \end{pmatrix}
+        \end{align*}
+        whose trace is $21 + 10 = 31$, agreeing with the left-hand side.
+
+        Note that only the diagonal elements are needed, so the
+        off-diagonal entries $7$ and $30$ need never be computed.  Note
+        also that $\mat{U}$ is not symmetric: had the transpose been
+        omitted the two sides would not have agreed, which is the point
+        of checking with a non-symmetric matrix.
+      \end{answer}}{\lines{10}}
+
+
+    \qpart[5]{For a square matrix $\mat{U}$ and a sufficiently small
+      scalar $\epsilon$, the inverse of $\Id + \epsilon\, \mat{U}$ is
+      given by the geometric (Neumann) series
+      \begin{align*}
+        \bra{\Id + \epsilon\, \mat{U}}^{-1}
+        = \Id - \epsilon\, \mat{U} + \epsilon^2 \mat{U}^2
+          - \epsilon^3 \mat{U}^3 + \cdots .
+      \end{align*}
+      Show this by multiplying $\Id + \epsilon\, \mat{U}$ by the
+      truncated series
+      \begin{align*}
+        \mat{S}_n = \sum_{k=0}^{n} \bra{-\epsilon}^k \mat{U}^k
+      \end{align*}
+      and showing that the result differs from $\Id$ only at order
+      $\epsilon^{n+1}$.  Hence write down
+      $\bra{\Id + \epsilon\, \mat{U}}^{-1}$ to first order in
+      $\epsilon$.
+      \begin{answer}
+        Multiplying out, and using
+        $\epsilon\, \bra{-\epsilon}^k = -\bra{-\epsilon}^{k+1}$,
+        \begin{align*}
+          \bra{\Id + \epsilon\, \mat{U}}\mat{S}_n
+          &= \sum_{k=0}^{n} \bra{-\epsilon}^k \mat{U}^k
+             + \epsilon\, \mat{U} \sum_{k=0}^{n} \bra{-\epsilon}^k \mat{U}^k
+          \\
+          &= \sum_{k=0}^{n} \bra{-\epsilon}^k \mat{U}^k
+             - \sum_{k=0}^{n} \bra{-\epsilon}^{k+1} \mat{U}^{k+1}
+          \\
+          &= \sum_{k=0}^{n} \bra{-\epsilon}^k \mat{U}^k
+             - \sum_{j=1}^{n+1} \bra{-\epsilon}^{j} \mat{U}^{j} .
+        \end{align*}
+        The two sums are identical except for the $k=0$ term of the first
+        and the $j=n+1$ term of the second, so everything between
+        telescopes and
+        \begin{align*}
+          \bra{\Id + \epsilon\, \mat{U}}\mat{S}_n
+          = \Id - \bra{-\epsilon}^{n+1} \mat{U}^{n+1} .
+        \end{align*}
+        The correction is of order $\epsilon^{n+1}$, so $\mat{S}_n$ is the
+        inverse up to that order, and taking $n\to\infty$ gives the full
+        series provided $\epsilon$ is small enough that
+        $\epsilon^{n} \mat{U}^{n} \to \bm{0}$ (it suffices that
+        $|\epsilon|$ is smaller than the reciprocal of the largest
+        magnitude eigenvalue of $\mat{U}$).
+
+        Keeping only the first two terms,
+        \begin{align*}
+          \bra{\Id + \epsilon\, \mat{U}}^{-1}
+          = \Id - \epsilon\, \mat{U} + \mathrm{O}\bra{\epsilon^2} .
+        \end{align*}
+      \end{answer}}{\lines{10}}
+
+    \qpart[6]{Use this to find the derivative of
+      $g(\mat{X}) = \bm{a}^\tr\, \mat{X}^{-1}\, \bm{b}$ with respect to
+      the matrix $\mat{X}$.  Replace $\mat{X}$ by
+      $\mat{X} + \epsilon\, \mat{U}$, expand to first order in $\epsilon$,
+      and use the definition of the derivative with respect to a matrix
+      \begin{align*}
+        \lim_{\epsilon\rightarrow 0}
+        \frac{g(\mat{X} + \epsilon\, \mat{U}) - g(\mat{X})}{\epsilon}
+        = \mathrm{tr}\bra{\mat{U}^\tr\,
+          \frac{\partial g(\mat{X})}{\partial \mat{X}}}
+      \end{align*}
+      which holds for every $\mat{U}$.  Part~(a) is what lets you read the
+      derivative off.
+      \begin{answer}
+        Factorising $\mat{X}$ out on the left,
+        $\mat{X} + \epsilon\, \mat{U}
+        = \mat{X}\bra{\Id + \epsilon\, \mat{X}^{-1}\mat{U}}$, so by
+        the previous part
+        \begin{align*}
+          \bra{\mat{X} + \epsilon\, \mat{U}}^{-1}
+          &= \bra{\Id + \epsilon\, \mat{X}^{-1}\mat{U}}^{-1}\mat{X}^{-1}
+          = \bra{\Id - \epsilon\, \mat{X}^{-1}\mat{U}
+            + \mathrm{O}\bra{\epsilon^2}}\mat{X}^{-1}
+          \\
+          &= \mat{X}^{-1} - \epsilon\, \mat{X}^{-1}\mat{U}\,\mat{X}^{-1}
+            + \mathrm{O}\bra{\epsilon^2} .
+        \end{align*}
+        Therefore
+        \begin{align*}
+          g(\mat{X} + \epsilon\, \mat{U}) - g(\mat{X})
+          = -\epsilon\, \bm{a}^\tr \mat{X}^{-1}\mat{U}\,\mat{X}^{-1} \bm{b}
+            + \mathrm{O}\bra{\epsilon^2}
+        \end{align*}
+        and dividing by $\epsilon$ and letting $\epsilon\rightarrow 0$
+        \begin{align*}
+          \lim_{\epsilon\rightarrow 0}
+          \frac{g(\mat{X} + \epsilon\, \mat{U}) - g(\mat{X})}{\epsilon}
+          = -\bm{a}^\tr \mat{X}^{-1}\, \mat{U}\, \mat{X}^{-1} \bm{b} .
+        \end{align*}
+        This is of the form $\bm{c}^\tr\, \mat{U}\, \bm{d}$ with
+        $\bm{c}^\tr = -\bm{a}^\tr\mat{X}^{-1}$, that is
+        $\bm{c} = -\bra{\mat{X}^{-1}}^\tr \bm{a}$, and
+        $\bm{d} = \mat{X}^{-1}\bm{b}$.  By part~(a),
+        \begin{align*}
+          \bm{c}^\tr\, \mat{U}\, \bm{d}
+          = \mathrm{tr}\bra{\strut \mat{U}^\tr\, \bm{c}\, \bm{d}^\tr} .
+        \end{align*}
+        Comparing with the definition above, and since this holds for
+        every $\mat{U}$, the derivative is
+        \begin{align*}
+          \frac{\partial g(\mat{X})}{\partial \mat{X}}
+          = \bm{c}\,\bm{d}^\tr
+          = -\bra{\mat{X}^{-1}}^\tr \bm{a}\, \bm{b}^\tr
+             \bra{\mat{X}^{-1}}^\tr .
+        \end{align*}
+        As a check on the shapes, $\bm{a}\,\bm{b}^\tr$ is a matrix of the
+        same size as $\mat{X}$, as the derivative must be.
+      \end{answer}}{\lines{14}}
+
+  \end{qparts}
+\end{question}
+
+
+% ***************************** question 3 **************************
+
+\newpage
 \begin{question}{20}
   We want to compute the derivative of $\logg{\det(\mat{X})}$ with
   respect to the matrix $\mat{X}$.  Our strategy will be to use the
@@ -272,20 +466,20 @@
       \begin{answer}
         \begin{align*}
           \logg{\det\bra{\strut \mat{X}+\epsilon\,\mat{U}}}
-          &= \logg{\det\bra{\mat{X}\,\bra{\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}}}}\\
-          &= \logg{\det(\mat{X}) \, \det(\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U})}\\
-          &= \logg{\det(\mat{X})} + \logg{\det\bra{\mat{I} +
+          &= \logg{\det\bra{\mat{X}\,\bra{\Id + \epsilon\,\mat{X}^{-1}\mat{U}}}}\\
+          &= \logg{\det(\mat{X}) \, \det(\Id + \epsilon\,\mat{X}^{-1}\mat{U})}\\
+          &= \logg{\det(\mat{X})} + \logg{\det\bra{\Id +
             \epsilon\,\mat{X}^{-1}\mat{U}}}
         \end{align*}
       \end{answer}}{\lines{5}}
 
-    \qpart[2]{The hard part is to expand $\det\bra{\mat{I} +
-        \epsilon\,\mat{M}}$. Write out $\det\bra{\mat{I} +
+    \qpart[2]{The hard part is to expand $\det\bra{\Id +
+        \epsilon\,\mat{M}}$. Write out $\det\bra{\Id +
         \epsilon\,\mat{M}}$ explicitly for a 2 
       dimensional matrix and expand to first order in $\epsilon$
       \begin{answer}
         \begin{align*}
-          \det\bra{\mat{I}+\epsilon\,\mat{M}}
+          \det\bra{\Id+\epsilon\,\mat{M}}
           &=
             \det\begin{pmatrix}
               1+\epsilon\, M_{11} & \epsilon\, M_{12}\\
@@ -300,7 +494,7 @@
     \qpart[5]{For an $n\times n$ matrix $\mat{M}$ compute the
       determinant of
       \begin{align*}
-        \det\bra{\mat{I} + \epsilon\, \mat{M}} = \det
+        \det\bra{\Id + \epsilon\, \mat{M}} = \det
         \begin{pmatrix}
           1 + \epsilon\, M_{11} & \epsilon\, M_{12} & \ldots & \epsilon\,M_{1n}  \\
           \epsilon \, M_{21} & 1 + \epsilon\, M_{22} & \ldots &\epsilon\,M_{2n}\\
@@ -326,7 +520,7 @@
         order $\epsilon^2$ so do not contribute to order $\epsilon$.
         In consequence
         \begin{align*}
-          \det\bra{\mat{I} + \epsilon\, \mat{M}} = 1 + \epsilon
+          \det\bra{\Id + \epsilon\, \mat{M}} = 1 + \epsilon
           \mathrm{tr} \, \mat{M} + O(\epsilon^2)
         \end{align*}
       \end{answer}}{\lines{8}}
@@ -340,18 +534,18 @@
       We will prove these results later when we look at eigen-systems.
       Note that if $\bm{v}_i$ is an eigenvector of the matrix
       $\mat{M}$, with eigenvalue $\lambda_i$ then it is an eigenvector
-      of $\mat{I} + c\, \mat{M}$ with eigenvalue $1+c\,\lambda_i$
+      of $\Id + c\, \mat{M}$ with eigenvalue $1+c\,\lambda_i$
       since
       \begin{align*}
-        (\mat{I} + c\, \mat{M})\, \bm{v}_i = \bm{v}_i + c\,\lambda_i\,
+        (\Id + c\, \mat{M})\, \bm{v}_i = \bm{v}_i + c\,\lambda_i\,
         \bm{v}_i
         = (1+c\,\lambda_i)\, \bm{v}_i.
       \end{align*}
-      Using these results show that $\det\bra{\mat{I} + \epsilon\, \mat{M}} = 1 + \epsilon\,
+      Using these results show that $\det\bra{\Id + \epsilon\, \mat{M}} = 1 + \epsilon\,
       \mathrm{tr} \, \mat{M} + O(\epsilon^2)$.
       \begin{answer}
         \begin{align*}
-          \det\bra{\mat{I} + \epsilon\, \mat{M}}
+          \det\bra{\Id + \epsilon\, \mat{M}}
           &= \prod_{i=1}^n (1+\epsilon\, \lambda_i)
             = 1 + \epsilon\, \sum_{i=1}^n \lambda_i + O(\epsilon^2) \\
           &= 1 + \epsilon\, \mathrm{tr}\, \mat{M} + O(\epsilon^2) \\
@@ -361,8 +555,8 @@
     \qpart[5]{Using the results
       \begin{align*}
         \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
-        &= \logg{\det\bra{\mat{I} + \epsilon\,\mat{X}^{-1}\mat{U}}} \\
-        \det\bra{\mat{I} + \epsilon\, \mat{M}} &= 1 + \epsilon
+        &= \logg{\det\bra{\Id + \epsilon\,\mat{X}^{-1}\mat{U}}} \\
+        \det\bra{\Id + \epsilon\, \mat{M}} &= 1 + \epsilon
       \mathrm{tr} \, \mat{M} + O(\epsilon^2)
       \end{align*}
       together with the fact that $\log(1+x) = x + O(x^2)$, 
@@ -374,9 +568,10 @@
         \begin{align*}
           \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
           &= \logg{1 + \epsilon\, \textrm{tr} \, \mat{X}^{-1}\mat{U} +
-          O(\epsilon^2)}
-          = \epsilon\,  \textrm{tr} \, \mat{X}^{-1}\mat{U} +
-          O(\epsilon^2) = \epsilon\, \textrm{tr} \mat{U}^\tr (\mat{X}^{-1})^\tr
+          O(\epsilon^2)} \\
+          &= \epsilon\,  \textrm{tr} \, \mat{X}^{-1}\mat{U} +
+          O(\epsilon^2)  \\
+          &= \epsilon\, \textrm{tr} \mat{U}^\tr (\mat{X}^{-1})^\tr
         \end{align*}
         Thus,
         \begin{align*}
@@ -385,9 +580,6 @@
       \end{answer}}{\lines{7}}
   \end{qparts}
 \end{question}
-
-% ***************************** question 3 **************************
-
 
 
 % ***************************** End of exam *****************************

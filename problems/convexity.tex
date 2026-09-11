@@ -16,30 +16,12 @@
 \usepackage{stmaryrd}
 \thinmuskip=1mu
 %\renewcommand{\ttdefault}{pcr}
-\renewcommand{\ttdefault}{pcr}
-\newcommand{\tr}{\textsf{T}}
-\newcommand{\e}[1]{{\rm e}^{#1}}
-\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
-\newcommand{\logg}[1]{\log\left(#1\right)}
-\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
-\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
-\newcommand\diag{\mathop{\mathrm{diag}}}
-\newcommand{\grad}{\bm{\nabla}}
-\newcommand{\dd}{\mathrm{d}}
-\newcommand{\class}{\mathcal{C}}
-\newcommand{\data}{\mathcal{D}}
-\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
-\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
-\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
-\newcommand{\bst}{\rule{0mm}{5mm}}
-\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
-\newcommand{\len}[1]{\| #1 \|}
+\input{macros}
+%% local: this sheet's own meaning for \ml and \mm
+\newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
+\newcommand{\mm}{\hat{m}_c(\bm{x})}
 \graphicspath{{figures/} {../2018-19/figures}}
-\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
 \graphicspath{{figures/}}
-\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
-\newcommand{\bra}[1]{\left(#1\right)}
-\newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
 
 
 % \usepackage{picture}
@@ -174,8 +156,6 @@
     \end{answer}
     \clearpage
 
-    \newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
-     \newcommand{\mm}{\hat{m}_c(\bm{x})}
 
      \qpart[5]{Consider a classification problem where $\ml$ is the
        probability that a learning machine with parameters

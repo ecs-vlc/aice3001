@@ -16,34 +16,16 @@
 %\usepackage{euler}
 \thinmuskip=1mu
 %\renewcommand{\ttdefault}{pcr}
-\renewcommand{\ttdefault}{pcr}
-\newcommand{\tr}{\textsf{T}}
-\newcommand{\e}[1]{{\rm e}^{#1}}
-\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
-\newcommand{\logg}[1]{\log\left(#1\right)}
-\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
-\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
-\newcommand\diag{\mathop{\mathrm{diag}}}
-\newcommand{\grad}{\bm{\nabla}}
-\newcommand{\dd}{\mathrm{d}}
-\newcommand{\class}{\mathcal{C}}
-\newcommand{\data}{\mathcal{D}}
+\input{macros}
+%% local: this sheet writes \det{X}, not the standard \det X
+\renewcommand{\det}[1]{\textrm{det}({#1})}
 
 
 %\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
 %\DeclareMathAlphabet{\mat}{U}{eur}{b}{n}
-\DeclareMathAlphabet{\mat}{U}{eur}{b}{n}
 
-\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
-\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
-\newcommand{\bst}{\rule{0mm}{5mm}}
-\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
-\newcommand{\len}[1]{\| #1 \|}
 \graphicspath{{figures/} {../2018-19/figures}}
-\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
 \graphicspath{{figures/}}
-\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
-\renewcommand{\det}[1]{\textrm{det}({#1})}
 
 % \usepackage{picture}
 \begin{document}
@@ -263,20 +245,20 @@
   function $f_{\bm{X},\bm{Y}}(\bm{x}\mid \bm{y})$.  This is complicated because the
   normal distribution involve the inverse of the covariance matrix.  Let
       \begin{align*}
-        \mat{U} &= \begin{pmatrix} \mat{I} & \mat{B}\,\mat{C}^{-1}\\
-          \mat{0} & \mat{I} \end{pmatrix},
+        \mat{U} &= \begin{pmatrix} \Id & \mat{B}\,\mat{C}^{-1}\\
+          \mat{0} & \Id \end{pmatrix},
          & \mat{D} &=  \begin{pmatrix} \mat{A}-
            \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
            & \mat{0}\\ \mat{0}^{\tr} & \mat{C}  \end{pmatrix}
       \end{align*}
-      where $\mat{I}$ is the identity matrix.
+      where $\Id$ is the identity matrix.
   \begin{qparts}
     \qpart[3]{Compute $\mat{U}\,\mat{D}$}{\lines{5}}
     \begin{answer}
       \begin{align*}
-        \mat{U}\,\mat{D}&=\begin{pmatrix} \mat{I} &
+        \mat{U}\,\mat{D}&=\begin{pmatrix} \Id &
           \mat{B}\,\mat{C}^{-1}\\ \mat{0} &
-          \mat{I} \end{pmatrix} \begin{pmatrix} \mat{A}-
+          \Id \end{pmatrix} \begin{pmatrix} \mat{A}-
           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr} & \mat{0}\\ \mat{0}^{\tr}
           & \mat{C} \end{pmatrix}\\
         &=\begin{pmatrix} \mat{A}- \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
@@ -291,8 +273,8 @@
       \begin{align*}
         (\mat{U}\,\mat{D})\,\mat{U}^{\tr}&=\begin{pmatrix} \mat{A}-
           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr} & \mat{B}\\ \mat{0}^{\tr} &
-          \mat{C} \end{pmatrix}\begin{pmatrix} \mat{I} & \mat{0}\\
-          \mat{C}^{-1}\mat{B}^{\tr} & \mat{I} \end{pmatrix} =\begin{pmatrix}
+          \mat{C} \end{pmatrix}\begin{pmatrix} \Id & \mat{0}\\
+          \mat{C}^{-1}\mat{B}^{\tr} & \Id \end{pmatrix} =\begin{pmatrix}
           \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix} = \mat{\Xi}
       \end{align*}
     \end{answer}
@@ -310,31 +292,31 @@
     \qpart[6]{Demonstrate by direct multiplication that
       \begin{align*}
         \mat{U}^{-1}
-        &= \begin{pmatrix} \mat{I} &
-          -\mat{B}\,\mat{C}^{-1} \\ \mat{0} & \mat{I} \end{pmatrix}
+        &= \begin{pmatrix} \Id &
+          -\mat{B}\,\mat{C}^{-1} \\ \mat{0} & \Id \end{pmatrix}
                                    &
          \mat{D}^{-1}
          &=\begin{pmatrix} (\mat{A}-
            \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
            \mat{0}^{\tr} & \mat{C}^{-1} \end{pmatrix} 
       &
-      (\mat{U}^\tr)^{-1} = \begin{pmatrix} \mat{I} &
-        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \mat{I} \end{pmatrix} 
+      (\mat{U}^\tr)^{-1} = \begin{pmatrix} \Id &
+        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \Id \end{pmatrix} 
       \end{align*}
-      i.e. show $\mat{U}^{-1}\mat{U}=\mat{I}$,
-      $\mat{D}^{-1}\mat{D}=\mat{I}$ and
-      $(\mat{U}^\tr)^{-1}\mat{U}^\tr= \mat{I}$.
+      i.e. show $\mat{U}^{-1}\mat{U}=\Id$,
+      $\mat{D}^{-1}\mat{D}=\Id$ and
+      $(\mat{U}^\tr)^{-1}\mat{U}^\tr= \Id$.
     }{\inumberedlines[3]{3}}
     \begin{answer}
     \begin{enumerate}
       \item
         \begin{align*}
-          \mat{U}^{-1}\mat{U} = \begin{pmatrix} \mat{I} &
+          \mat{U}^{-1}\mat{U} = \begin{pmatrix} \Id &
             -\mat{B}\,\mat{C}^{-1} \\ \mat{0} &
-            \mat{I} \end{pmatrix} \begin{pmatrix} \mat{I} &
-            \mat{B}\,\mat{C}^{-1}\\ \mat{0} & \mat{I} \end{pmatrix}
-          = \begin{pmatrix} \mat{I} & \mat{0} \\ \mat{0} &
-            \mat{I} \end{pmatrix} 
+            \Id \end{pmatrix} \begin{pmatrix} \Id &
+            \mat{B}\,\mat{C}^{-1}\\ \mat{0} & \Id \end{pmatrix}
+          = \begin{pmatrix} \Id & \mat{0} \\ \mat{0} &
+            \Id \end{pmatrix} 
         \end{align*}
       \item
         \begin{align*}
@@ -343,22 +325,22 @@
            \mat{0}^{\tr} & \mat{C}^{-1} \end{pmatrix} \begin{pmatrix} \mat{A}-
            \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}
            & \mat{0}\\ \mat{0}^{\tr} &
-           \mat{C}  \end{pmatrix}= \begin{pmatrix} \mat{I} & \mat{0}
-           \\ \mat{0} &  \mat{I} \end{pmatrix}                                                                                   
+           \mat{C}  \end{pmatrix}= \begin{pmatrix} \Id & \mat{0}
+           \\ \mat{0} &  \Id \end{pmatrix}                                                                                   
         \end{align*}
         where we use $(\mat{A}-
            \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1}(\mat{A}-
-           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}) = \mat{I}$ and
-           $\mat{C}^{-1}\mat{C}=\mat{I}$.
+           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}) = \Id$ and
+           $\mat{C}^{-1}\mat{C}=\Id$.
          \item
            \begin{align*}
               (\mat{U}^\tr)^{-1}\mat{U}^\tr =
-           \begin{pmatrix} \mat{I} &
-        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \mat{I} \end{pmatrix} 
-         \begin{pmatrix} \mat{I} & \mat{0}\\ 
-           \mat{C}^{-1}\mat{B}^{\tr} & \mat{I} \end{pmatrix}
-                                       =          \begin{pmatrix} \mat{I} & \mat{0}
-           \\ \mat{0} &  \mat{I} \end{pmatrix}                                             
+           \begin{pmatrix} \Id &
+        \mat{0} \\ -\mat{C}^{-1} \mat{B}^\tr & \Id \end{pmatrix} 
+         \begin{pmatrix} \Id & \mat{0}\\ 
+           \mat{C}^{-1}\mat{B}^{\tr} & \Id \end{pmatrix}
+                                       =          \begin{pmatrix} \Id & \mat{0}
+           \\ \mat{0} &  \Id \end{pmatrix}                                             
            \end{align*}
          \end{enumerate}
        \end{answer}
@@ -375,14 +357,14 @@
          $2\,\pi\,\mat{\Xi}$ and is introduced to ensures that
          $f_{\bm{X},\bm{Y}}(\bm{x},\bm{y})$ is normalised.  From parts (c) and (d)
          \begin{align*}
-           \mat{\Xi}^{-1} = \begin{pmatrix} \mat{I} & \mat{0} \\
+           \mat{\Xi}^{-1} = \begin{pmatrix} \Id & \mat{0} \\
              -\mat{C}^{-1} \mat{B}^\tr&
-             \mat{I} \end{pmatrix} \begin{pmatrix} (\mat{A}-
+             \Id \end{pmatrix} \begin{pmatrix} (\mat{A}-
              \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
              \mat{0}^{\tr} &
-             \mat{C}^{-1} \end{pmatrix} \begin{pmatrix} \mat{I} &
+             \mat{C}^{-1} \end{pmatrix} \begin{pmatrix} \Id &
              -\mat{B}\,\mat{C}^{-1} \\ \mat{0} &
-             \mat{I} \end{pmatrix}. 
+             \Id \end{pmatrix}. 
          \end{align*}
          Expand out $\bm{z}^{\tr}\mat{\Xi}^{-1} \mat{z} =
          (\bm{x}^\tr, \bm{y}^\tr)\mat{\Xi}^{-1}
@@ -393,19 +375,19 @@
          \begin{align*}
            \bm{z}^{\tr}\mat{\Xi}^{-1}\bm{z} &=
                                               (\bm{x}^{\tr},\bm{y}^{\tr})\begin{pmatrix}
-                                                \mat{I} & \mat{0} \\
+                                                \Id & \mat{0} \\
                                                 -\mat{C}^{-1}
                                                 \mat{B}^{\tr} &
-                                                \mat{I} \end{pmatrix} \begin{pmatrix}
+                                                \Id \end{pmatrix} \begin{pmatrix}
                                                 (\mat{A}-
                                                 \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}
                                                 & \mat{0}\\
                                                 \mat{0}^{\tr} &
                                                 \mat{C}^{-1} \end{pmatrix} \begin{pmatrix}
-                                                \mat{I} &
+                                                \Id &
                                                 -\mat{B}\,\mat{C}^{-1}
                                                 \\ \mat{0} &
-                                                \mat{I} \end{pmatrix} \begin{pmatrix}\bm{x}\\
+                                                \Id \end{pmatrix} \begin{pmatrix}\bm{x}\\
                                                 \bm{y}\end{pmatrix}\\ 
                                             &=
                                               (\bm{x}^{\tr}-\bm{y}^\tr\mat{C}^{-1}\mat{B}^{\tr},\,\bm{y}^{\tr}) \begin{pmatrix}

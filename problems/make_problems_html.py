@@ -43,9 +43,13 @@ def config():
         return yaml.safe_load(f)
 
 
+BUILD_DIR = "_build"
+
+
 def sheet_files(sheet):
+    """./build compiles into _build/ and copies to the site; look there."""
     n = sheet["name"]
-    return f"{n}.pdf", f"{n}_answers.pdf"
+    return os.path.join(BUILD_DIR, f"{n}.pdf"), os.path.join(BUILD_DIR, f"{n}_answers.pdf")
 
 
 def publish_pdfs(cfg, with_answers):
@@ -62,6 +66,8 @@ def publish_pdfs(cfg, with_answers):
             shutil.copy(q, dest)
         if got_a and with_answers:
             shutil.copy(a, dest)
+        # ./build publishes too; copying again is harmless and keeps this
+        # script usable on its own
         present[sheet["name"]] = (got_q, got_a)
     return present
 

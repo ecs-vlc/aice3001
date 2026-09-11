@@ -1,8 +1,10 @@
 \documentclass{sotonExamBoxes}
 
+\input{macros}
+%% local: this sheet's own meaning for \ml and \mm
+\newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
+\newcommand{\mm}{\hat{m}_c(\bm{x})}
 \begin{document}
-    \newcommand{\ml}{\hat{f}_c(\bm{x}|\bm{\theta})}
-     \newcommand{\mm}{\hat{m}_c(\bm{x})}
 
      \qpart[10]{Consider a classification problem where $\ml$ is the
        probability that a learning machine with parameters

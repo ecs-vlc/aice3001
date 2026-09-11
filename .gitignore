@@ -38,3 +38,13 @@ supp-pdf.*
 lectures_dev/*.pdf
 lectures_dev/build_tmp/
 old_lectures/
+
+# problem sheets: pdflatex writes everything here via -output-directory,
+# and ./build copies the finished PDFs to site/problem_pdf
+problems/_build/
+
+# Spreadsheets are not versioned: they are downloaded or generated, and they
+# often carry personal data (staff details, student numbers, attendance QR
+# links). Add an explicit exception if a particular file really is source.
+*.csv
+*.tsv

@@ -1,58 +1,149 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+"""Pick a problem sheet, build it, and open both PDFs in the viewer.
 
-from read_yaml import data
-from ask import Ask
-import os
-import re
+Building is delegated to ./build, so there is one definition of how a sheet
+is compiled. The PDFs live in _build/; ./build also copies them to the site.
+
+The viewer is evince rather than Preview for two reasons: Preview overlays a
+page count that cannot be turned off, which is intrusive on animated slides,
+and evince re-renders a PDF in place when the file changes. That second
+behaviour is the point of the edit-rebuild-look loop, and it is why a viewer
+that is already open is left alone below rather than having a second window
+stacked on top of it.
+"""
+
+import subprocess
+import sys
+import time
 from pathlib import Path
+
 import psutil
+import yaml
+from ask import Ask
+
+HERE = Path(__file__).resolve().parent
+BUILD_DIR = HERE / "_build"
+VIEWER = "evince"
 
 
-def newer(file1 , file2):
-    if os.path.exists(file1) and os.path.exists(file2):
-        return os.path.getmtime(file1) > os.path.getmtime(file2)
-    else:
+def viewer_running() -> bool:
+    """Is a usable viewer open?
+
+    A zombie is skipped: it has exited but not been reaped, so it owns no
+    window. Counting one would make this script decline to open anything and
+    leave nothing on screen. It does not cover a live but window-less process
+    -- psutil cannot tell whether a process owns a window -- so kill_papers
+    remains the escape hatch.
+    """
+    for proc in psutil.process_iter(["name", "status"]):
+        if proc.info["name"] != VIEWER:
+            continue
+        if proc.info["status"] == psutil.STATUS_ZOMBIE:
+            continue
         return True
+    return False
 
 
-problems = []
-for sheet in data["sheets"]:
-    problems.append(sheet['name'])
-    print(f"{sheet['week']}: {sheet['name']} ({sheet['keywords']})")
+def main() -> None:
+    sheets = yaml.safe_load((HERE / "problems.yaml").read_text())["sheets"]
+    for sheet in sheets:
+        marker = "" if (HERE / f"{sheet['name']}.tex").exists() else "   (no .tex)"
+        print(f"{sheet['week']}: {sheet['name']} ({sheet['keywords']}){marker}")
 
-query = Ask()
+    names = [s["name"] for s in sheets]
+    choice = int(Ask()("What problem do you want to see", 1, names)) - 1
+    name = names[choice]
 
-ans = int(query("What problem do you want to see", 1, problems))-1
+    if subprocess.call([sys.executable, str(HERE / "build"), name], cwd=HERE) != 0:
+        print(f"build failed -- see _build/{name}.log")
+        sys.exit(1)
 
-tex = f"{problems[ans]}.tex"
-answer = f"{problems[ans]}_answers.tex"
-pdf = f"{problems[ans]}.pdf"
-pdf_answer = f"{problems[ans]}_answers.pdf"
+    pdfs = [BUILD_DIR / f"{name}.pdf", BUILD_DIR / f"{name}_answers.pdf"]
+    missing = [p.name for p in pdfs if not p.exists()]
+    if missing:
+        print("not produced: " + ", ".join(missing))
+        sys.exit(1)
+
+    if viewer_running():
+        # evince reloads the file it already has open, so a rebuild of the
+        # same sheet needs nothing further. Opening a different sheet does:
+        print(f"{VIEWER} is already open -- it will reload if this is the same "
+              f"sheet. Otherwise:")
+        for pdf in pdfs:
+            print(f"    {VIEWER} {pdf}")
+        return
+
+    for pdf in pdfs:
+        subprocess.Popen([VIEWER, str(pdf)],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    tile_side_by_side()
 
 
-if newer(tex, pdf) or newer("macros_gen.tex", pdf):
-    if os.system(f"echo {tex} | /Library/TeX/texbin/pdflatex -shell-escape")!=0:
-        print("Latex failed on questions")
-        exit(1)
-    os.system(f"echo {tex} | /Library/TeX/texbin/pdflatex -shell-escape")
-    file = Path(tex)
+# The fn-Control-arrow tiling shortcut never reaches evince, so the two
+# windows are placed directly. Only the position can be set: evince reports
+# AXSize as not settable, so the windows keep their own size and are merely
+# moved apart. A native app would accept the size too.
+TILE_SCRIPT = r"""
+ObjC.import('AppKit');
+const se = Application('System Events');
 
-    text = file.read_text()
-    text = re.sub(r'\\documentclass(\[[^]]*\])?', r'\\documentclass[answers]', text, count=1)
+// Index the specifier (p.windows[i]), not the evaluated array
+// (p.windows()[i]) -- in JXA every element of that array resolves to the
+// same window, so both "windows" would be the same one.
+let wins = [];
+const procs = se.processes.whose({name: 'evince'});
+for (let i = 0; i < procs.length; i++) {
+  const p = procs[i];
+  let n = 0;
+  try { n = p.windows.length; } catch (e) { continue; }
+  for (let j = 0; j < n; j++) wins.push({pid: p.unixId(), w: p.windows[j]});
+}
+if (wins.length < 2) { 'only ' + wins.length + ' window(s)'; }
+else {
+  // evince titles both windows after the first document, so order by pid:
+  // the questions are launched first and so have the lower pid.
+  wins.sort((a, b) => a.pid - b.pid);
+  const a = wins[0].w, b = wins[1].w;
+  const here = a.position();
+  const mainH = $.NSScreen.mainScreen.frame.size.height;
+  const screens = $.NSScreen.screens;
+  let target = $.NSScreen.mainScreen;
+  for (let i = 0; i < screens.count; i++) {            // keep them on the
+    const s = screens.objectAtIndex(i), f = s.frame;   // display they are on
+    const seTop = mainH - (f.origin.y + f.size.height);
+    if (here[0] >= f.origin.x && here[0] < f.origin.x + f.size.width &&
+        here[1] >= seTop && here[1] < seTop + f.size.height) { target = s; break; }
+  }
+  const v = target.visibleFrame;
+  const top = mainH - (v.origin.y + v.size.height);
+  const left = v.origin.x, halfW = Math.floor(v.size.width / 2);
+  a.position = [left, top];
+  b.position = [left + halfW, top];
+  'placed';
+}
+"""
 
-    Path(answer).write_text(text)
-    if os.system(f"echo {answer} | /Library/TeX/texbin/pdflatex -shell-escape")!=0:
-        print("Latex failed on answers")
-        exit(1)
-    os.system(f"echo {answer} | /Library/TeX/texbin/pdflatex -shell-escape")
 
-for proc in psutil.process_iter():
-    running = False
-    if proc.name() == "papers":
-        running = True
-        break
+def tile_side_by_side(attempts: int = 10) -> None:
+    """Move the two viewer windows to the left and right of the screen.
 
-if not running:
-    os.system(f"papers {pdf} 2> /dev/null &")
-    os.system(f"papers {pdf_answer} 2> /dev/null &")
+    Needs Accessibility permission for the terminal running this. Without it
+    osascript returns -25211 and this quietly does nothing.
+    """
+    for _ in range(attempts):
+        time.sleep(0.6)                       # let the windows appear
+        result = subprocess.run(["osascript", "-l", "JavaScript", "-e", TILE_SCRIPT],
+                                capture_output=True, text=True)
+        out = (result.stdout + result.stderr).strip()
+        if "placed" in out:
+            return
+        if "-25211" in out or "assistive access" in out:
+            print("  (windows not moved: grant Accessibility permission to your "
+                  "terminal in System Settings -> Privacy & Security)")
+            return
+    print("  (windows not moved: the viewer did not report two windows)")
 
+
+if __name__ == "__main__":
+    main()

@@ -1,18 +1,25 @@
 #!/usr/bin/env python
-r"""Build every problem sheet listed in problems.yaml, questions and answers.
+r"""Build the problem sheets listed in problems.yaml.
 
-The non-interactive counterpart to `go` (which asks which sheet to show).
-Answer sheets are produced the same way `go` does it: the questions .tex is
-copied with \documentclass rewritten to \documentclass[answers], which
-sotonExamBoxes.cls uses to reveal the worked solutions.
+Every sheet produces two PDFs from one source: the questions, and the same
+document with \documentclass[answers], which sotonExamBoxes.cls uses to
+reveal the worked solutions.
 
-    ./build                build any sheet whose PDF is out of date
-    ./build calculus       build just this one
-    ./build --force        rebuild everything
+Nothing is written into this directory. pdflatex is given -output-directory,
+so the .aux/.log/.out files and the generated <name>_answers.tex all land in
+build/, and the finished PDFs are copied straight to the site. That removes
+the need for the old `websync` script.
+
+    ./build                 build any sheet whose PDFs are out of date
+    ./build calculus        just this one
+    ./build --force         rebuild everything
+    ./build --clean         delete build/ and stop
+    ./build --no-publish    build but do not copy to the site
 """
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -20,85 +27,165 @@ from pathlib import Path
 import yaml
 
 LATEX = "/Library/TeX/texbin/pdflatex"
+HERE = Path(__file__).resolve().parent
+BUILD_DIR = HERE / "_build"
+CONFIG = HERE / "problems.yaml"
 
 
-def config():
-    with open("problems.yaml") as f:
+def config() -> dict:
+    with open(CONFIG) as f:
         return yaml.safe_load(f)
 
 
-def newer(a, b):
-    if not os.path.exists(b):
+def publish_dir(cfg: dict) -> Path:
+    """Where the finished PDFs go. Resolved from this file, not the cwd."""
+    return (HERE / cfg.get("site_dir", "../site") / "problem_pdf").resolve()
+
+
+def newer(a: Path, b: Path) -> bool:
+    if not b.exists():
         return True
-    if not os.path.exists(a):
+    if not a.exists():
         return False
-    return os.path.getmtime(a) > os.path.getmtime(b)
+    return a.stat().st_mtime > b.stat().st_mtime
 
 
-def latex(stem):
-    """Run pdflatex twice so cross-references and boxes settle."""
-    for i in range(2):
-        r = subprocess.call(
-            [LATEX, "-shell-escape", "-interaction=nonstopmode",
-             "-halt-on-error", f"{stem}.tex"],
-            stdout=subprocess.DEVNULL if i else None,
-            stderr=subprocess.DEVNULL if i else None)
-        if r != 0:
+def report_error(output: str, tex: Path) -> None:
+    r"""Print the useful part of a pdflatex failure.
+
+    pdflatex buries the diagnosis in a few hundred lines of banner and font
+    loading. The part that matters looks like
+
+        ! Undefined control sequence.
+        <recently read> \bra
+        l.307       \end{answer}}{\lines{1}}
+
+    -- the error, the offending command, and the line number. Everything
+    before the first "!" is noise, so only the error block is shown.
+    """
+    lines = output.splitlines()
+    for i, line in enumerate(lines):
+        if not line.startswith("!") or line.startswith("! ==>"):
+            continue
+        block = [line]
+        for follow in lines[i + 1:i + 8]:
+            if follow.startswith("!"):          # the "Fatal error" summary
+                break
+            if follow.strip():
+                block.append(follow)
+            if re.match(r"^l\.\d+", follow):    # the line-number line ends it
+                break
+        for entry in block:
+            print(f"      {entry.rstrip()}")
+        hit = re.search(r"^l\.(\d+)", "\n".join(block), re.M)
+        if hit:
+            print(f"      -> {tex.name} line {hit.group(1)}")
+        return
+    print(f"      (no '!' line found; see {BUILD_DIR.name}/{tex.stem}.log)")
+
+
+def latex(tex: Path) -> bool:
+    """Compile twice so the exam boxes and cross-references settle.
+
+    pdflatex is very chatty; its output is captured and only the error block
+    is shown when a pass fails, so a normal build stays readable.
+    """
+    for _ in range(2):
+        result = subprocess.run(
+            [LATEX, "-shell-escape", "-interaction=nonstopmode", "-halt-on-error",
+             f"-output-directory={BUILD_DIR}", str(tex)],
+            cwd=HERE, capture_output=True, text=True)
+        if result.returncode != 0:
+            print("FAILED")
+            report_error(result.stdout, tex)
             return False
     return True
 
 
-def make_answer_tex(stem):
-    """Derive <stem>_answers.tex from <stem>.tex."""
-    text = Path(f"{stem}.tex").read_text()
-    text = re.sub(r"\\documentclass(\[[^]]*\])?",
-                  r"\\documentclass[answers]", text, count=1)
-    Path(f"{stem}_answers.tex").write_text(text)
+def make_answers_tex(name: str) -> Path:
+    """Write the answers variant into build/, leaving this directory alone."""
+    source = (HERE / f"{name}.tex").read_text()
+    answers = re.sub(r"\\documentclass(\[[^]]*\])?",
+                     r"\\documentclass[answers]", source, count=1)
+    target = BUILD_DIR / f"{name}_answers.tex"
+    target.write_text(answers)
+    return target
 
 
-def build_sheet(name, force=False):
-    tex = f"{name}.tex"
-    if not os.path.exists(tex):
-        print(f"    no {tex} -- skipped")
-        return False
-    if not (force or newer(tex, f"{name}.pdf")
-            or newer(tex, f"{name}_answers.pdf")):
+def build_sheet(name: str, force: bool) -> list:
+    """Return the PDFs built, or [] on failure or if nothing was needed."""
+    tex = HERE / f"{name}.tex"
+    if not tex.exists():
+        print(f"    no {name}.tex -- skipped")
+        return []
+
+    q_pdf = BUILD_DIR / f"{name}.pdf"
+    a_pdf = BUILD_DIR / f"{name}_answers.pdf"
+    cls = HERE / "sotonExamBoxes.cls"
+    stale = (force or newer(tex, q_pdf) or newer(tex, a_pdf)
+             or newer(cls, q_pdf))
+    if not stale:
         print("    up to date")
-        return True
+        return [q_pdf, a_pdf]
 
     print("    questions ...", end=" ", flush=True)
-    if not latex(name):
-        print(f"FAILED -- see {name}.log")
-        return False
+    if not latex(tex):
+        print(f"      full log: _build/{name}.log")
+        return []
     print("ok")
 
-    make_answer_tex(name)
     print("    answers   ...", end=" ", flush=True)
-    if not latex(f"{name}_answers"):
-        print(f"FAILED -- see {name}_answers.log")
-        return False
+    if not latex(make_answers_tex(name)):
+        print(f"      full log: _build/{name}_answers.log")
+        print("      (the answers file is generated from the questions\n       file, so the line number matches the original .tex)")
+        return []
     print("ok")
-    return True
+    return [q_pdf, a_pdf]
 
 
-def main():
+def main() -> None:
     args = sys.argv[1:]
+    if "--clean" in args:
+        if BUILD_DIR.exists():
+            shutil.rmtree(BUILD_DIR)
+            print(f"removed {BUILD_DIR}")
+        else:
+            print("nothing to clean")
+        return
+
     force = "--force" in args
+    publish = "--no-publish" not in args
     names = [a for a in args if not a.startswith("-")]
 
-    sheets = config()["sheets"]
+    cfg = config()
+    sheets = cfg["sheets"]
     if names:
+        wanted = {s["name"] for s in sheets}
+        for missing in set(names) - wanted:
+            print(f"WARNING: {missing} is not in problems.yaml")
         sheets = [s for s in sheets if s["name"] in names]
-        for n in set(names) - {s["name"] for s in sheets}:
-            print(f"WARNING: {n} is not in problems.yaml")
 
-    ok = 0
+    BUILD_DIR.mkdir(exist_ok=True)
+    built, failed = [], []
     for sheet in sheets:
-        print(f"--- {sheet['name']} (week {sheet.get('week','?')})")
-        if build_sheet(sheet["name"], force):
-            ok += 1
-    print(f"\nbuilt {ok}/{len(sheets)}")
-    if ok != len(sheets):
+        print(f"--- {sheet['name']} (week {sheet.get('week', '?')})")
+        pdfs = build_sheet(sheet["name"], force)
+        (built if pdfs else failed).extend(pdfs or [sheet["name"]])
+
+    if publish and built:
+        target = publish_dir(cfg)
+        target.mkdir(parents=True, exist_ok=True)
+        copied = 0
+        for pdf in built:
+            if pdf.exists():
+                shutil.copy2(pdf, target / pdf.name)
+                copied += 1
+        print(f"\npublished {copied} PDFs -> {target}")
+    elif not publish:
+        print(f"\nbuilt into {BUILD_DIR} (not published)")
+
+    if failed:
+        print("failed: " + ", ".join(failed))
         sys.exit(1)
 
 

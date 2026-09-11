@@ -15,28 +15,9 @@
 \usepackage{amsmath}
 \thinmuskip=1mu
 %\renewcommand{\ttdefault}{pcr}
-\renewcommand{\ttdefault}{pcr}
-\newcommand{\tr}{\textsf{T}}
-\newcommand{\e}[1]{{\rm e}^{#1}}
-\newcommand{\E}[1]{{\rm e}^{{\displaystyle #1}}}
-\newcommand{\logg}[1]{\log\left(#1\right)}
-\newcommand{\Prob}[1]{\mathbb{P}\left(#1\right)}
-\newcommand{\Step}{\mathop{\mathrm{O}\hspace{-15pt}\rule[8.5pt]{11pt}{1.2pt}\hspace{2pt}}}
-\newcommand\diag{\mathop{\mathrm{diag}}}
-\newcommand{\grad}{\bm{\nabla}}
-\newcommand{\dd}{\mathrm{d}}
-\newcommand{\class}{\mathcal{C}}
-\newcommand{\data}{\mathcal{D}}
-\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
-\newcommand{\pd}[2]{\ensuremath{\frac{\qpartial #1}{\qpartial #2}}\xspace}
-\newcommand{\M}[1]{\ensuremath{\boldsymbol{#1}}\xspace}
-\newcommand{\bst}{\rule{0mm}{5mm}}
-\newcommand{\av}[2][\,]{\mathbb{E}_{#1}\!\left[ {\strut #2} \right]}
-\newcommand{\len}[1]{\| #1 \|}
+\input{macros}
 \graphicspath{{figures/} {../2018-19/figures}}
-\newcommand{\inner}[2]{\left\langle #1, #2\right\rangle}
 \graphicspath{{figures/}}
-\newcommand{\squeeze}{\setlength{\itemsep}{-2pt}}
 
 % \usepackage{picture}
 \begin{document}
@@ -98,38 +79,38 @@ language that is used to describe machine learning.
       Expand $q(t)$ in the form $q(t) = A\,t^2 + 2\, B \, t +C$ to       
       find $A$, $B$ and $C$.  For $q(t)$ to not change sign its roots
       (values of $t$ such that $q(t)=0$) must be complex (i.e. have an
-      imaginary part), or possible have a double root.  If there is a
+      imaginary part), or possible have a double root if there is a
       value of $t$ such that $q(t)=0$.  Use the
       standard solutions to a quadratic of the form $q(t) = A\,t^2 +
       2\, B t + C$ to show that for our $q(t)$ to never become
-      negative then
+      negative implies
       \begin{align*}
         \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
         \inner{\bm{y}}{\bm{y}}.
       \end{align*}
       This is the famous Cauchy-Schwarz inequality written in a very
-      general form.}{\lines{17}}
-    \begin{answer}
-      \begin{align*}
-        q(t) = \inner{\bm{y}}{\bm{y}}  t^2 + 2\,
-        \inner{\bm{x}}{\bm{y}}\,t +  \inner{\bm{x}}{\bm{x}}
-      \end{align*}
-      So that $A= \inner{\bm{y}}{\bm{y}}$, $B= 2\,\inner{\bm{x}}{\bm{y}}$
-      and $C=\inner{\bm{x}}{\bm{x}}$.  The roots to the quadratic
-      equation $q(t)=A\,t^2 + B \, t + C = 0$ are
-      \begin{align*}
-        t = \frac{-B \pm \sqrt{B^2 - 4\,A\,C}}{2\,A}.
-      \end{align*}
-      The condition that these roots are complex is that
-      $B^2-4\,A\,C<0$, and where $B^2-4\,A\,C=0$ indicating there is a
-      double root.  Thus $B^2/4 \leq A\,C$.  Putting in the values of
-      $A$, $B$ and $C$ then
-      \begin{align*}
+      general form.
+      \begin{answer}    
+        \begin{align*}
+          q(t) = \inner{\bm{y}}{\bm{y}}  t^2 + 2\,
+          \inner{\bm{x}}{\bm{y}}\,t +  \inner{\bm{x}}{\bm{x}}
+        \end{align*}
+        So that $A= \inner{\bm{y}}{\bm{y}}$, $B= 2\,\inner{\bm{x}}{\bm{y}}$
+        and $C=\inner{\bm{x}}{\bm{x}}$.  The roots to the quadratic
+        equation $q(t)=A\,t^2 + B \, t + C = 0$ are
+        \begin{align*}
+          t = \frac{-B \pm \sqrt{B^2 - 4\,A\,C}}{2\,A}.
+        \end{align*}
+        The condition that these roots are complex is that
+        $B^2-4\,A\,C<0$, and where $B^2-4\,A\,C=0$ indicating there is a
+        double root.  Thus $B^2/4 \leq A\,C$.  Putting in the values of
+        $A$, $B$ and $C$ then
+        \begin{align*}
           \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
-        \inner{\bm{y}}{\bm{y}}.
-      \end{align*}
-    \end{answer}
-    \freshpage
+          \inner{\bm{y}}{\bm{y}}.
+        \end{align*}
+      \end{answer}}{\lines{17}}
+  
     \qpart[10]{From an inner product we can define a norm $\len{\bm{x}} =
       \sqrt{\inner{\bm{x}}{\bm{x}}}$.  This clearly satisfies
       non-negativity and linearity.  The only non-trivial property to
@@ -140,7 +121,7 @@ language that is used to describe machine learning.
         \inner{\bm{x}}{\bm{y}}
       \end{align*}
       Then use the Cauchy-Schwarz inequality to prove the triangular
-      inequality.}{\lines{17}}
+      inequality.
     \begin{answer}
       We start form
       \begin{align*}
@@ -168,10 +149,10 @@ language that is used to describe machine learning.
       \end{align*}
       Thus proving the triangular inequality for
       $\len{\bm{x}} = \sqrt{\inner{\bm{x}}{\bm{x}}}$. 
-    \end{answer}
+    \end{answer}}{\lines{17}}
   \end{qparts}
 \end{question}
-\freshpage
+\newpage
 
 % ***************************** question 2 **************************
 
@@ -190,7 +171,6 @@ language that is used to describe machine learning.
         \mathrm{Cov}(X,Y)^2 \leq \mathrm{Var}(X) \, \mathrm{Var}(Y)
       \end{align*}
       hence show that the Pearson correlation is between -1 and 1.
-    }{\lines{17}}
     \begin{answer}
       Let $\mu = \av{X}$ and $\nu = \av{Y}$ then
       \begin{align*}
@@ -215,8 +195,8 @@ language that is used to describe machine learning.
         \mathrm{Var}(Y)\right)$, but  we have already shown that
       $\mathrm{Cov}(X,Y)^2 \leq \mathrm{Var}(X) \, \mathrm{Var}(Y)$ so
       $\rho(X,Y)^2\leq 1$ and $\rho(X,Y)$ will lie in the interval $[-1,1]$.
-    \end{answer}
-    \freshpage
+    \end{answer}}{\lines{17}}
+
     \qpart[10]{Show that for vectors $\bm{x}, \bm{y}\in\mathbb{R}^n$ that the
       inner product
       \begin{align*}
@@ -225,7 +205,7 @@ language that is used to describe machine learning.
       satisfies the condition of an inner product provided $w_i>0$ for
       all $i$.  Write down the norm and distance induced by this
       inner product and provide an interpretation of what this
-      distance means.}{\lines{19}}
+      distance means.
     \begin{answer}
       We consider the five condition on the inner product
       \begin{enumerate}
@@ -241,16 +221,15 @@ language that is used to describe machine learning.
       \item Linearity follows trivially since
         \begin{align*}
           \inner{a\,\bm{x}}{\bm{y}}
-          &= \sum_{i=1}^n w_i \, (a\,x_i)  \,y_i \\
-          &= a\, \sum_{i=1}^n w_i \, x_i \,y_i = a\,\inner{\bm{x}}{\bm{y}}
+          &= \sum_{i=1}^n w_i \, (a\,x_i)  \,y_i 
+          & a\, \sum_{i=1}^n w_i \, x_i \,y_i = a\,\inner{\bm{x}}{\bm{y}}
         \end{align*}
       \item The distributive law again follows trivially
         \begin{align*}
           \inner{\bm{x}}{\bm{y}+\bm{z}}
           &= \sum_{i=1}^n w_i \, x_i \,(y_i+z_i) \\
           &= \sum_{i=1}^n w_i \, x_i \,y_i + \sum_{i=1}^n w_i \, x_i \,z_i 
-          \\
-          &=   \inner{\bm{x}}{\bm{y}} +   \inner{\bm{x}}{\bm{z}}
+          =   \inner{\bm{x}}{\bm{y}} +   \inner{\bm{x}}{\bm{z}}
         \end{align*}
       \item Finally symmetry follows from the commutativity of
         multiplication
@@ -258,25 +237,67 @@ language that is used to describe machine learning.
           \inner{\bm{x}}{\bm{y}} &=  \sum_{i=1}^n w_i \, x_i \,y_i
           =  \sum_{i=1}^n w_i \, y_i \,x_i =  \inner{\bm{y}}{\bm{x}} 
         \end{align*}
-        The induced norm for this inner product is
+        The induced norm and distance for this inner product is
         \begin{align*}
-          \len{x} = \sqrt{\sum_{i=1}^n w_i \, x_i^2}
-        \end{align*}
-        while the induced distance is
-        \begin{align*}
-          d(\bm{x}, \bm{y}) = \sqrt{ \sum_{i=1}^n w_i \, (x_i-y_i)^2}
+          \len{x} &= \sqrt{\sum_{i=1}^n w_i \, x_i^2}, &
+          d(\bm{x}, \bm{y}) &= \sqrt{ \sum_{i=1}^n w_i \, (x_i-y_i)^2}.
         \end{align*}
         A natural interpretation of this is that this is a
         generalisation of the Euclidean distance where we rescale each
         axis by a factor $w_i$ and then compute the normal Euclidean distance.
       \end{enumerate}
-    \end{answer}
+    \end{answer}}{\lines{19}}
   \end{qparts}
   
 \end{question}
+\newpage
 
 % ***************************** question 3 **************************
+\begin{question}{20}
+    In this question I want you to use a numerical package to do some
+    simple algebra.  You can use MATLAB, OCTAVE, numpy in Python or
+    any other language of your choosing.  The answers are only going
+    to be accurate up to the numerically precision of your machine
+    (typically around $10^{-16}$).
 
+    Generate three $5\times 5$ random matrices $\mat{A}$ $\mat{B}$ and
+    $\mat{C}$ and two random vectors of length 5, $\bm{a}$ and $\bm{b}$
+
+   \begin{qparts}
+   \qpart[2]{Compute $\mat{A}\, \mat{B}$ and $\mat{B} \, \mat{A}$.
+      Are these the same?
+      \begin{answer}
+        Almost certainly these are different.
+      \end{answer}}{\lines{1}}
+
+    \qpart[2]{Compute (a) $\bm{a}^\tr \mat{A} \, \bm{b}$, (b)
+      $\bm{a}^\tr \mat{A}^\tr \bm{b}$ (c) $\bm{b}^\tr \mat{A}^\tr
+      \bm{a}$ and (d) $\bm{b}^\tr \mat{A}  \bm{a}$.  Which quantities
+      are the same?
+      \begin{answer}
+        (a) = (c) and (b) = (d)
+      \end{answer}}{\lines{1}}
+
+    \qpart[2]{
+      Compute (a) $\mathrm{tr} \mat{A}\, \mat{B}$, (b)
+      $\bra{\mathrm{tr} \mat{A}}\bra{\mathrm{tr} \mat{B}}$ (c)
+        $\mathrm{tr} \mat{B}\, \mat{A}$ and (d) $\mathrm{tr}
+        \mat{B}^\tr\, \mat{A}^\tr$.  Which quantities are the same?
+        \begin{answer}
+          (a) = (c) = (d)
+      \end{answer}}{\lines{1}}
+
+    \qpart[2]{
+       Compute (a) $\det(\mat{A}\, \mat{B})$, (b)
+      $\bra{\det \mat{A}}\bra{\det \mat{B}}$ (c)
+        $\det (\mat{B}\, \mat{A})$ and (d) $\det(
+        \mat{B}^\tr\, \mat{A}^\tr)$.  Which quantities are the same?
+        \begin{answer}
+          These are all the same.
+      \end{answer}}{\lines{1}}
+
+  \end{qparts}
+\end{question}
 
 
 % ***************************** End of exam *****************************

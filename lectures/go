@@ -56,7 +56,11 @@ def main():
         os.makedirs(BUILD, exist_ok=True)
         os.system(f"ppower4 {lec.id}.pdf {pdf}")
 
-    running = any(proc.name() == "evince" for proc in psutil.process_iter())
+    # skip zombies: they own no window, and counting one would stop this
+    # script opening anything. kill_papers handles the live-but-windowless case.
+    running = any(proc.info["name"] == "evince"
+                  and proc.info["status"] != psutil.STATUS_ZOMBIE
+                  for proc in psutil.process_iter(["name", "status"]))
     print(pdf, lec.tex, running, lec.id)
 
     if not running:
