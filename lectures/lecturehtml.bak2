@@ -4,15 +4,13 @@ r"""Generate ../site/lectures.html from lectures.yaml.
 Differences from the old lectures/lecturehtml:
   * the lecture list comes from lectures.yaml, not from grepping lectures.tex
   * subsidiary.yml is optional (the old script crashed when it was absent)
-  * links the subsidiary notes in ../site/notes_pdf when they exist, and
-    merges them (in course order) into notes_pdf/notes.pdf
+  * links the subsidiary notes in ../site/notes_pdf when they exist
   * it does NOT git add/commit/push -- generate the html, review it, then
     commit and push yourself
 """
 
 import os
 import shutil
-import subprocess
 
 import yaml
 
@@ -59,39 +57,11 @@ def load_subsidiary():
         return yaml.safe_load(f) or {}
 
 
-def combine_notes(lectures):
-    """Merge the published subsidiary notes, in course order, into notes.pdf.
-
-    Only rebuilds when a note is newer than the combined file (or the set of
-    notes has changed), so rerunning the script is cheap.
-    """
-    notes = f"{SITE}/notes_pdf"
-    parts = [f"{notes}/{lec.id}.pdf" for lec in lectures
-             if os.path.isfile(f"{notes}/{lec.id}.pdf")]
-    out = f"{notes}/notes.pdf"
-    stamp = f"{notes}/.notes_parts"          # remembers which notes went in
-    listing = "\n".join(parts)
-    if not parts:
-        return
-    fresh = (os.path.isfile(out) and os.path.isfile(stamp)
-             and open(stamp).read() == listing
-             and all(os.path.getmtime(p) <= os.path.getmtime(out) for p in parts))
-    if fresh:
-        return
-    if subprocess.call(["pdftk", *parts, "cat", "output", out]) == 0:
-        with open(stamp, "w") as f:
-            f.write(listing)
-        print(f"combined {len(parts)} subsidiary notes -> {out}")
-    else:
-        print("WARNING: pdftk failed -- combined notes not updated")
-
-
 def main():
     subsidiary = load_subsidiary()
     lectures = lecture_list.load()
     os.makedirs(SITE, exist_ok=True)
 
-    combine_notes(lectures)
     footer = FOOTER
     if os.path.isfile(f"{SITE}/notes_pdf/notes.pdf"):
         footer = footer.replace(
