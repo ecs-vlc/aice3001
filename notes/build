@@ -1,0 +1,152 @@
+#!/usr/bin/env python
+r"""Export the subsidiary notes from org-mode to PDF.
+
+The notes are written in org-mode and, until now, were exported by hand from
+inside Emacs (C-c C-e l p).  The same exporter runs headlessly, so this does
+the whole set without opening a buffer:
+
+    emacs --batch -Q --visit=<note>.org --funcall org-latex-export-to-pdf
+
+Which notes exist, what they are numbered and what order they come in all
+follow ../lectures/lectures.yaml, so adding a lecture there is enough --
+nothing here needs editing.
+
+Usage:
+    ./build                 export every note that is out of date
+    ./build convexity sgd   export just these
+    ./build --all           export every note present
+    ./build --force         ignore timestamps
+    ./build --combine       also staple them into one notes.pdf
+"""
+
+import os
+import subprocess
+import sys
+import shutil
+
+sys.path.insert(0, "../lectures")
+import lecture_list
+
+LECTURES = "../lectures"
+SITE = lecture_list.config(LECTURES).get("site_dir", "../site").replace("../", "../") + "/notes_pdf"
+DEPS = ["setup.org"]
+WORK = "_build"      # .tex/.aux/.out/.log live here, not beside the notes
+
+# minted shells out, and org needs to be told twice so references settle
+PDF_PROCESS = ('(setq org-latex-pdf-process '
+               "'(\"pdflatex -shell-escape -interaction=nonstopmode -output-directory %o %f\" "
+               '"pdflatex -shell-escape -interaction=nonstopmode -output-directory %o %f"))')
+
+
+def newer(a, b):
+    if not os.path.exists(b):
+        return True
+    if not os.path.exists(a):
+        return False
+    return os.path.getmtime(a) > os.path.getmtime(b)
+
+
+def notes():
+    """Every lecture in lectures.yaml that has a .org note, in course order."""
+    out = []
+    for n, lec in enumerate(lecture_list.load(directory=LECTURES), 1):
+        org = f"{lec.id}.org"
+        if os.path.exists(org):
+            out.append((n, lec, org))
+    return out
+
+
+def stale(org):
+    target = f"{SITE}/{org[:-4]}.pdf"
+    return newer(org, target) or any(newer(d, target) for d in DEPS)
+
+
+def export(org):
+    cmd = ["emacs", "--batch", "-Q",
+           "--eval", "(require 'org)",
+           "--eval", PDF_PROCESS,
+           # org deletes the .log by default, which hides LaTeX errors --
+           # and these notes have plenty. Keep it so errors() can see them.
+           "--eval", "(setq org-latex-remove-logfiles nil)",
+           f"--visit={org}",
+           "--funcall", "org-latex-export-to-pdf"]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    pdf = org[:-4] + ".pdf"
+    return os.path.exists(pdf), r.stderr
+
+
+def tidy(org):
+    """org leaves .tex/.aux/.out/.log beside the source; move them out of the way."""
+    os.makedirs(WORK, exist_ok=True)
+    for ext in (".tex", ".aux", ".out", ".log", ".toc"):
+        f = org[:-4] + ext
+        if os.path.exists(f):
+            shutil.move(f, os.path.join(WORK, os.path.basename(f)))
+
+
+def errors(org):
+    """LaTeX errors, read before the log is tidied away."""
+    log = org[:-4] + ".log"
+    if not os.path.exists(log):
+        return 0
+    with open(log, errors="replace") as f:
+        return sum(1 for line in f if line.startswith("!"))
+
+
+def main():
+    args = sys.argv[1:]
+    force = "--force" in args
+    every = "--all" in args
+    do_combine = "--combine" in args
+    names = [a for a in args if not a.startswith("-")]
+
+    todo = notes()
+    if names:
+        todo = [t for t in todo if t[1].id in names]
+        for m in set(names) - {t[1].id for t in todo}:
+            print(f"WARNING: no note {m}.org")
+    if not (force or every or names):
+        todo = [t for t in todo if stale(t[2])]
+
+    if not todo:
+        print("everything is up to date")
+        return
+
+    os.makedirs(SITE, exist_ok=True)
+    bad = []
+    for n, lec, org in todo:
+        print(f"--- lecture {n:>2}  {lec.id} ({lec.title})")
+        ok, err = export(org)
+        if not ok:
+            print("    export FAILED")
+            print("   ", err.strip().splitlines()[-1] if err.strip() else "")
+            bad.append(lec.id)
+            continue
+        e = errors(org)
+        tidy(org)
+        shutil.copy(org[:-4] + ".pdf", f"{SITE}/{lec.id}.pdf")
+        print(f"    ok{'' if e == 0 else f'  ({e} LaTeX errors -- check the maths)'}")
+        if e:
+            bad.append(lec.id)
+
+    print(f"\n{len(todo) - len(bad)} of {len(todo)} clean  ->  {SITE}")
+    if bad:
+        print("needs attention:", " ".join(bad))
+        print(f"(LaTeX logs are in {WORK}/)")
+
+    if do_combine:
+        combine()
+
+
+def combine():
+    parts = [f"{SITE}/{lec.id}.pdf" for _, lec, _ in notes()
+             if os.path.exists(f"{SITE}/{lec.id}.pdf")]
+    if not parts:
+        return
+    out = f"{SITE}/notes.pdf"
+    if subprocess.call(f"pdftk {' '.join(parts)} cat output {out}", shell=True) == 0:
+        print(f"combined {len(parts)} notes -> {out}")
+
+
+if __name__ == "__main__":
+    main()

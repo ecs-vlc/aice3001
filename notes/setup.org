@@ -1,0 +1,94 @@
+# Shared preamble for the AICE3001/AICE6002 subsidiary notes.
+#
+# Every note pulls this in with
+#     #+SETUPFILE: setup.org
+# instead of repeating the whole block, which is what the comp6208 notes did
+# (29 copies, which had already drifted apart -- see the note on \normal and
+# \eq below).
+#
+# Three macros were defined inconsistently across the old notes:
+#   \normal   28 notes take two arguments, gaussianProcesses took one
+#   \eq       28 notes number with \arabic, gaussianProcesses with \alph
+#   \logg     only generativeModels added a \strut
+# The majority version is here; gaussianProcesses.org redefines its two
+# locally, just after this line, the way the problem sheets keep \ml and \mm
+# local rather than forcing them into macros.tex.
+
+#+OPTIONS: toc:nil
+#+LATEX_CLASS: article
+#+LATEX_HEADER: \usepackage[a4paper,margin=20mm]{geometry}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \usepackage{stmaryrd}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \usemintedstyle{emacs}
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage[scaled]{beraserif}
+#+LATEX_HEADER: \usepackage[scaled]{berasans}
+#+LATEX_HEADER: \usepackage[scaled]{beramono}
+
+# --- notation -------------------------------------------------------------
+#+LATEX_HEADER: \newcommand{\tr}{\textsf{T}}
+#+LATEX_HEADER: \newcommand{\grad}{\bm{\nabla}}
+#+LATEX_HEADER: \newcommand{\dd}{\mathrm{d}}
+#+LATEX_HEADER: \newcommand{\e}[1]{{\rm e}^{#1}}
+#+LATEX_HEADER: \newcommand{\E}[1]{{\rm e}^{\displaystyle #1}}
+#+LATEX_HEADER: \newcommand{\bra}[1]{\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\len}[1]{\left\| #1 \right\|}
+#+LATEX_HEADER: \newcommand{\inner}[2]{\left\langle{#1}, {#2}\right\rangle}
+#+LATEX_HEADER: \newcommand{\logg}[1]{\log\!\left( #1 \right)}
+#+LATEX_HEADER: \newcommand{\pred}[1]{\left\llbracket { \small #1} \right\rrbracket}
+#+LATEX_HEADER: \newcommand{\av}[2][]{\mathbb{E}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\Prob}[2][]{\mathbb{P}_{#1\!}\left[ #2 \right]}
+#+LATEX_HEADER: \newcommand{\normal}[2]{\mathcal{N}\!\left(#1 \big| #2 \right)}
+#+LATEX_HEADER: \newcommand{\Dist}[2][Binom]{\mathrm{#1}\left( \strut {#2} \right)}
+#+LATEX_HEADER: \newcommand{\pd}[3][\,]{\frac{\partial^{#1}{#2}}{\partial\,{#3}}}
+#+LATEX_HEADER: \newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+#+LATEX_HEADER: \newcommand{\vb}{\bm{b}}
+#+LATEX_HEADER: \newcommand{\vl}{\bm{\ell}}
+#+LATEX_HEADER: \DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
+
+# --- numbered steps in a derivation ---------------------------------------
+#+LATEX_HEADER: \newcounter{eqCounter}
+#+LATEX_HEADER: \setcounter{eqCounter}{0}
+#+LATEX_HEADER: \newcommand{\beq}{\setcounter{eqCounter}{0}}
+#+LATEX_HEADER: \newcommand{\reseteq}{\setcounter{eqCounter}{0}}
+#+LATEX_HEADER: \newcommand{\explanation}{\setcounter{eqCounter}{0}\renewcommand{\labelenumi}{(\arabic{enumi})}}
+#+LATEX_HEADER: \newcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\arabic{eqCounter})}}{#1}}
+
+# --- beamer leftovers ------------------------------------------------------
+# Much of this material was lifted from the lecture slides, which carry
+# \pause to build up an overlay. It means nothing in a printed note, and
+# article has no definition for it, so every occurrence was a LaTeX error.
+# Defining it away is less invasive than editing it out of 7 notes.
+#+LATEX_HEADER: \newcommand{\pause}{}
+
+# --- deep bullet lists -----------------------------------------------------
+# article allows only four levels of itemize; the notes nest deeper, which
+# aborted the export with "Too deeply nested". enumitem lifts the limit, but
+# the labels for the extra levels have to be supplied by hand.
+#+LATEX_HEADER: \usepackage{enumitem}
+#+LATEX_HEADER: \setlistdepth{9}
+#+LATEX_HEADER: \renewlist{itemize}{itemize}{9}
+#+LATEX_HEADER: \setlist[itemize,1]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,2]{label=$\circ$}
+#+LATEX_HEADER: \setlist[itemize,3]{label=$-$}
+#+LATEX_HEADER: \setlist[itemize,4]{label=$\ast$}
+#+LATEX_HEADER: \setlist[itemize,5]{label=$\cdot$}
+#+LATEX_HEADER: \setlist[itemize,6]{label=$\diamond$}
+#+LATEX_HEADER: \setlist[itemize,7]{label=$\triangleright$}
+#+LATEX_HEADER: \setlist[itemize,8]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,9]{label=$\circ$}
+#+LATEX_HEADER: \renewlist{enumerate}{enumerate}{9}
+# \renewlist clears the built-in labels, so every level needs one supplying
+# or LaTeX stops with "Package enumitem Error: Undefined label".
+#+LATEX_HEADER: \setlist[enumerate,1]{label=\arabic*.}
+#+LATEX_HEADER: \setlist[enumerate,2]{label=(\alph*)}
+#+LATEX_HEADER: \setlist[enumerate,3]{label=\roman*.}
+#+LATEX_HEADER: \setlist[enumerate,4]{label=\Alph*.}
+#+LATEX_HEADER: \setlist[enumerate,5]{label=\arabic*.}
+#+LATEX_HEADER: \setlist[enumerate,6]{label=(\alph*)}
+#+LATEX_HEADER: \setlist[enumerate,7]{label=\roman*.}
+#+LATEX_HEADER: \setlist[enumerate,8]{label=\Alph*.}
+#+LATEX_HEADER: \setlist[enumerate,9]{label=\arabic*.}

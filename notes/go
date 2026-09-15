@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+r"""Pick a subsidiary note, export it if it is out of date, and open the PDF.
+
+Mirrors ../lectures/go, but the notes are org-mode rather than LaTeX, so the
+build step is org's own exporter run headlessly rather than pdflatex.
+
+    ./go            choose from the notes that exist
+    ./go convexity  skip the menu
+"""
+
+import os
+import sys
+import subprocess
+from time import sleep
+
+import psutil
+from ask import Ask
+
+sys.path.insert(0, "../lectures")
+import lecture_list
+
+LECTURES = "../lectures"
+DEPS = ["setup.org"]
+
+
+def newer(a, b):
+    if not os.path.exists(b):
+        return True
+    if not os.path.exists(a):
+        return False
+    return os.path.getmtime(a) > os.path.getmtime(b)
+
+
+def notes():
+    return [(n, lec) for n, lec in enumerate(lecture_list.load(directory=LECTURES), 1)
+            if os.path.exists(f"{lec.id}.org")]
+
+
+def main():
+    have = notes()
+    if not have:
+        print("no notes found -- nothing to show")
+        sys.exit(1)
+
+    named = [a for a in sys.argv[1:] if not a.startswith("-")]
+    if named:
+        match = [(n, l) for n, l in have if l.id == named[0]]
+        if not match:
+            print(f"no note {named[0]}.org")
+            sys.exit(1)
+        n, lec = match[0]
+    else:
+        for i, (n, lec) in enumerate(have, 1):
+            print(f"{i:3}  lecture {n:>2}  {lec.id:24} {lec.title}")
+        query = Ask()
+        ids = [l.id for _, l in have]
+        choice = query("What note do you want to show", "fn", 1, ids)
+        n, lec = have[int(choice) - 1]
+
+    org, pdf = f"{lec.id}.org", f"{lec.id}.pdf"
+    if newer(org, pdf) or any(newer(d, pdf) for d in DEPS):
+        print(f"exporting {lec.id} ...")
+        if subprocess.call(["./build", lec.id]) != 0 or not os.path.exists(pdf):
+            print("export failed")
+            sys.exit(1)
+
+    # same zombie guard as ../lectures/go: a dead evince owns no window, and
+    # counting it would stop this script opening anything
+    running = any(proc.info["name"] == "evince"
+                  and proc.info["status"] != psutil.STATUS_ZOMBIE
+                  for proc in psutil.process_iter(["name", "status"]))
+    if not running:
+        os.system(f"evince {pdf} 2> /dev/null &")
+        sleep(2)
+    else:
+        print("evince is already open; it reloads a rebuilt PDF itself.")
+
+
+if __name__ == "__main__":
+    main()

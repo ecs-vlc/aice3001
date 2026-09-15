@@ -1,0 +1,212 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 26: Entropy
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Shannon entropy, bits and nats, code length, Huffman coding, Stirling's approximation, maximum entropy
+
+* Main Points
+
+** Measuring Uncertainty
+   * Which is more uncertain: three coin tosses or one throw of a die?
+     It depends on whether we care about the order of the tosses---but
+     how would we answer at all?
+   * For a discrete random variable $X$, Shannon's entropy gives a
+     precise answer,
+     $$ H_X = -\sum_{x\in\mathcal{X}} \Prob{X=x}\,\log_2\!\bra{\Prob{X=x}} $$
+   * *A fair die*, $\Prob{D=i} = 1/6$:
+     $$ H_D = -\sum_{i=1}^6 \frac{1}{6}\log_2\!\bra{\frac{1}{6}} = \log_2(6) \approx 2.585 \text{ bits} $$
+   * *Three ordered coin tosses*, eight equally likely outcomes:
+     $H_C = \log_2(8) = 3$ bits.  More equally likely outcomes means more
+     uncertainty, as we'd expect
+   * *Three unordered coin tosses* (we only record the number of heads):
+     the outcomes 0 and 3 heads have probability $1/8$ each, and 1 and 2
+     heads have probability $3/8$ each, so
+     $$ H_U = -\frac{1}{4}\log_2\!\bra{\frac{1}{8}} - \frac{3}{4}\log_2\!\bra{\frac{3}{8}} \approx 1.811 \text{ bits} $$
+   * This seems reasonable, but it is not obvious how we would have
+     arrived at a number without entropy.  Why this particular formula?
+
+** Additivity
+   * For two independent random variables, $\Prob{X,Y} = \Prob{X}\,\Prob{Y}$, so
+     \begin{align*}
+       H_{(X,Y)}
+         &= -\sum_{x,y}\Prob{X=x}\,\Prob{Y=y}\,\log_2\!\bra{\Prob{X=x}\,\Prob{Y=y}} \\
+         &= -\sum_{x,y}\Prob{X=x}\,\Prob{Y=y}\bra{\log_2\!\bra{\Prob{X=x}} + \log_2\!\bra{\Prob{Y=y}}} \\
+         &= -\sum_{x}\Prob{X=x}\,\log_2\!\bra{\Prob{X=x}} - \sum_{y}\Prob{Y=y}\,\log_2\!\bra{\Prob{Y=y}}
+          = H_X + H_Y
+     \end{align*}
+     using $\sum_y \Prob{Y=y} = \sum_x \Prob{X=x} = 1$
+   * The uncertainty of two independent events adds.  Shannon's entropy
+     is one of very few functions with this property
+
+** Entropy as Code Length
+   * To communicate one of $2^n$ equally likely outcomes (say $n$ coin
+     tosses) we need a binary string of exactly $n$ bits
+   * With 5 equally likely outcomes, 3 bits would do but would waste
+     $3/8$ of the possible codes.  Batching 3 independent messages gives
+     $5^3 = 125$ outcomes, which fit in 7 bits ($2^7 = 128$), wasting only
+     $3/128$: that is $7/3 \approx 2.33$ bits per message
+   * Batching more and more messages, the cost per message approaches
+     $\log_2(5) \approx 2.32$ bits.  In general $N$ equally likely outcomes
+     need $\log_2(N) = -\log_2\!\bra{1/N}$ bits each
+   * When outcomes have different probabilities we can still find codes
+     that use very close to $-\log_2\!\bra{\Prob{X=x}}$ bits for outcome
+     $x$, by transmitting many messages.  This code length measures the
+     /surprise/ of the outcome: rare outcomes cost more
+   * Shannon's entropy is the /expected code length/,
+     $$ H_X = \av[X]{-\log_2\!\bra{\Prob{X}}} $$
+     which is the average amount of information needed to convey the
+     outcome
+   * The lecture animation illustrates this with a loaded die: each
+     outcome's bar is the length $-\log_2\!\bra{\Prob{X=x}}$ of its code
+     word, and the entropy is the probability-weighted average bar length
+     #+ATTR_LATEX: :width 0.6\linewidth
+     [[file:figures/diceEntropy-4.pdf]]
+
+** Real Codes
+   * Code words of different lengths cause a practical problem: the
+     receiver needs to know where each one ends
+   * /Huffman coding/ solves this by placing the code words at the leaves
+     of a binary tree, so no code word is a prefix of another and any
+     message can be decoded by walking the tree
+   * A greedy algorithm (repeatedly merge the two least probable symbols)
+     builds the optimal tree.  Its expected code length $L$ satisfies
+     $H_X \leq L < H_X + 1$
+     #+ATTR_LATEX: :width 0.8\linewidth
+     [[file:figures/huffman.pdf]]
+   * The lecture illustrates coding a normal distribution discretised to
+     accuracy $\Delta x$: finer accuracy means more possible values and a
+     longer code
+
+** Bits and Nats
+   * With $\log_2$, entropy is measured in /bits/
+   * With natural logarithms,
+     $H_X = -\sum_x \Prob{X=x}\,\ln\!\bra{\Prob{X=x}}$, entropy is measured
+     in /nats/.  One nat is $\log_2(\mathrm{e}) \approx 1.443$ bits
+   * Nats are more convenient whenever we do calculus on entropy, which
+     is why the rest of this note uses natural logarithms
+
+** Counting States
+   * Put $N$ balls into $K$ boxes so that $n_i$ land in box $i$
+     #+ATTR_LATEX: :width 0.5\linewidth
+     [[file:figures/maxent.pdf]]
+   * The number of ways of doing this is the multinomial coefficient
+     $$ W(\bm{n}) = \frac{N!}{n_1!\,n_2!\cdots n_K!} $$
+   * For large $n$, /Stirling's approximation/ gives
+     \begin{align*}
+       n! &\approx \sqrt{2\pi n}\; n^n\,\e{-n}
+       & \log(n!) &\approx n\log(n) - n + \frac{1}{2}\log(2\pi n)
+     \end{align*}
+     #+ATTR_LATEX: :width 0.35\linewidth
+     [[file:figures/stirling.pdf]]
+   * Substituting, the $-n$ terms cancel because $\sum_i n_i = N$, and to
+     leading order
+     $$ W(\bm{n}) = \e{\log(N!) - \sum_i \log(n_i!)} \approx C\,\e{N\log(N) - \sum_i n_i\log(n_i)} = C\,\e{-N\sum_i \frac{n_i}{N}\log\left(\frac{n_i}{N}\right)} $$
+   * Writing $p_i = n_i/N$ for the fraction of balls in box $i$,
+     $$ W(\bm{n}) \approx C\,\e{N\,H} \qquad\text{where}\qquad H = -\sum_i p_i\log(p_i) $$
+   * So entropy measures the logarithm of the number of microscopic
+     arrangements consistent with the proportions $p_i$.  Because of the
+     factor $N$ in the exponent, as $N\rightarrow\infty$ the arrangements
+     consistent with any constraints are overwhelmingly concentrated on
+     the proportions that maximise the entropy
+
+** The Maximum Entropy Method
+   * To infer a distribution from limited information, maximise its
+     entropy subject to constraints expressing what we know.  The entropy
+     acts as a prior
+   * Two justifications:
+     - it picks by far the most likely set of configurations consistent
+       with the observations
+     - it maximises our uncertainty given what we know, making the
+       estimate as unbiased as possible
+   * It relies on the underlying arrangements being equally likely a
+     priori.  If there are other constraints we have not included, it can
+     give poor answers
+   * *Known mean and variance.*  For a continuous $X$ with
+     $\av{X} = \mu$ and $\av{X^2} = \mu_2 = \mu^2+\sigma^2$, form the
+     Lagrangian
+     \begin{align*}
+       \mathcal{L}(f) = -\int f_X(x)\log\!\bra{f_X(x)}\,\dd x
+         &+ \lambda_0\bra{\int f_X(x)\,\dd x - 1} \\
+         &+ \lambda_1\bra{\int f_X(x)\,x\,\dd x - \mu}
+          + \lambda_2\bra{\int f_X(x)\,x^2\,\dd x - \mu_2}
+     \end{align*}
+   * Setting the functional derivative to zero,
+     $$ \frac{\delta\mathcal{L}}{\delta f_X(x)} = -\log\!\bra{f_X(x)} - 1 + \lambda_0 + \lambda_1\,x + \lambda_2\,x^2 = 0 $$
+     so $f_X(x) = \e{-1+\lambda_0+\lambda_1 x+\lambda_2 x^2}$
+   * Choosing the multipliers to satisfy the three constraints gives
+     $$ f_X(x) = \frac{1}{\sqrt{2\pi}\,\sigma}\,\e{-(x-\mu)^2/(2\sigma^2)} $$
+     The /normal distribution is the maximum entropy distribution with a
+     given mean and variance/
+   * Maximum entropy works superbly in statistical physics, which infers
+     distributions over microscopic states from observations such as
+     volume and pressure.  Temperature appears, rather strangely, as a
+     Lagrange multiplier
+
+** A Little History
+   * Entropy was introduced in physics by Rudolf Clausius in 1865 (Macquorn
+     Rankine discussed it in 1850)
+   * Ludwig Boltzmann interpreted it as counting the number of states;
+     Josiah Willard Gibbs and James Clerk Maxwell completed the picture
+   * Claude Shannon founded information theory on entropy around 1948
+   * Ed Jaynes realised that statistical physics can be seen as an
+     inference problem---the maximum entropy method
+
+* Exercises
+
+** The uniform distribution
+   * Using a Lagrange multiplier for normalisation, show that the maximum
+     entropy distribution over $K$ outcomes with no other constraints is
+     uniform, and find its entropy
+
+** Knowing only the mean
+   * Find the maximum entropy density on $x\geq0$ with a given mean
+     $\av{X} = \mu$
+
+** Entropy of a biased coin
+   * Find the entropy $H(p)$ in bits of a coin that comes up heads with
+     probability $p$.  For which $p$ is it largest?  Evaluate $H(0.1)$
+
+** Finishing the normal derivation
+   * Show that the multipliers in the maximum entropy derivation must be
+     $\lambda_2 = -1/(2\sigma^2)$ and $\lambda_1 = \mu/\sigma^2$
+
+* Answers
+
+** The uniform distribution
+   * Maximise $-\sum_i p_i\log(p_i) + \lambda\bra{\sum_i p_i - 1}$.
+     Differentiating with respect to $p_i$ gives
+     $-\log(p_i) - 1 + \lambda = 0$, so every $p_i = \e{\lambda-1}$ takes
+     the same value
+   * Normalisation forces $p_i = 1/K$, with entropy $\log(K)$ nats or
+     $\log_2(K)$ bits
+
+** Knowing only the mean
+   * Maximise
+     $-\int_0^\infty f\log f\,\dd x + \lambda_0\bra{\int_0^\infty f\,\dd x - 1} + \lambda_1\bra{\int_0^\infty f\,x\,\dd x - \mu}$.
+     The stationarity condition gives $f(x) = \e{-1+\lambda_0+\lambda_1 x}$
+   * Normalisability on $[0,\infty)$ needs $\lambda_1 < 0$; write
+     $f(x) = A\,\e{-a x}$.  Normalisation gives $A = a$, and the mean of
+     $a\,\e{-a x}$ is $1/a$, so $a = 1/\mu$:
+     $$ f(x) = \frac{1}{\mu}\,\e{-x/\mu} $$
+     the exponential distribution
+
+** Entropy of a biased coin
+   * $H(p) = -p\log_2(p) - (1-p)\log_2(1-p)$
+   * $H'(p) = \log_2\!\bra{(1-p)/p}$, which vanishes at $p = 1/2$, where
+     $H = 1$ bit.  $H''(p) < 0$, so this is the maximum
+   * $H(0.1) \approx 0.469$ bits
+
+** Finishing the normal derivation
+   * The log density is quadratic in $x$,
+     $\log f_X(x) = -1 + \lambda_0 + \lambda_1 x + \lambda_2 x^2$
+   * The log of a normal density is
+     $-(x-\mu)^2/(2\sigma^2) + \text{const} = -\frac{x^2}{2\sigma^2} + \frac{\mu\,x}{\sigma^2} + \text{const}$
+   * Matching coefficients of $x^2$ and $x$ gives
+     $\lambda_2 = -1/(2\sigma^2)$ and $\lambda_1 = \mu/\sigma^2$.  The
+     constant, and hence $\lambda_0$, is then fixed by normalisation.
+     This works because a normal with the right mean and variance
+     satisfies all three constraints, and a quadratic exponent determines
+     a normal distribution uniquely
+
+* COMMENT [[file:mcmc.org][Previous]]  [[file:information.org][Next]]

@@ -1,0 +1,210 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 2: Differential Calculus
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Differentiation, linearity, product rule, chain rule, inverse functions, gradients, Jacobians, matrix derivatives, traces
+
+* Main Points
+
+** Why Calculus?
+   * Differentiation is the fundamental tool of optimisation, and
+     optimisation is how learning machines are trained
+   * Integration is how we take expectations over continuous
+     distributions
+   * You met the rules at A-level, but they are easy to forget, and we
+     will use some quite sophisticated tricks.  It pays to understand
+     where the tricks come from
+
+** Differentiation from First Principles
+   * The derivative is the limit of the slope of a chord,
+     $$ f'(x) = \frac{\dd f(x)}{\dd x} = \lim_{\epsilon\rightarrow 0}\frac{f(x+\epsilon) - f(x)}{\epsilon} $$
+     #+ATTR_LATEX: :width 0.5\linewidth
+     [[file:figures/derivative-4.pdf]]
+   * An equivalent statement, used over and over again in this course, is
+     $$ f(x+\epsilon) = f(x) + \epsilon\,f'(x) + O(\epsilon^2) $$
+     To find a derivative, expand $f(x+\epsilon)$ and read off the
+     coefficient of $\epsilon$
+   * *Polynomials.*
+     $$ \frac{\dd x^2}{\dd x} = \lim_{\epsilon\rightarrow 0}\frac{(x^2 + 2\,\epsilon\,x + \epsilon^2) - x^2}{\epsilon} = \lim_{\epsilon\rightarrow 0}(2\,x + \epsilon) = 2\,x $$
+     More generally $(x+\epsilon)^n = x^n + n\,\epsilon\,x^{n-1} + O(\epsilon^2)$,
+     so $\dd x^n/\dd x = n\,x^{n-1}$
+   * *Linearity.*  Splitting the limit,
+     $$ \frac{\dd}{\dd x}\bra{a\,f(x) + b\,g(x)} = a\,f'(x) + b\,g'(x) $$
+     /Differentiation is a linear operation/
+
+** Product and Chain Rules
+   * *Product rule.*  Multiplying out the expansions of $f(x+\epsilon)$
+     and $g(x+\epsilon)$,
+     $$ f(x+\epsilon)\,g(x+\epsilon) = f(x)\,g(x) + \epsilon\bra{f'(x)\,g(x) + f(x)\,g'(x)} + O(\epsilon^2) $$
+     so the derivative of $h(x) = f(x)\,g(x)$ is
+     $h'(x) = f'(x)\,g(x) + f(x)\,g'(x)$
+   * *Chain rule.*  For $h(x) = f(g(x))$,
+     $$ h(x+\epsilon) = f\bra{g(x) + \epsilon\,g'(x) + O(\epsilon^2)} = f(g(x)) + \epsilon\,g'(x)\,f'(g(x)) + O(\epsilon^2) $$
+     so $h'(x) = g'(x)\,f'(g(x))$
+   * Together the product and chain rules let us differentiate almost
+     anything
+   * The chain rule is often easier to remember as
+     $$ \frac{\dd f(g(x))}{\dd x} = \frac{\dd f(g)}{\dd g}\,\frac{\dd g(x)}{\dd x} $$
+     For example
+     $$ \frac{\dd\,\e{\cos(x^2)}}{\dd x} = \frac{\dd\,\e{\cos(x^2)}}{\dd\cos(x^2)}\,\frac{\dd\cos(x^2)}{\dd x^2}\,\frac{\dd x^2}{\dd x} = \e{\cos(x^2)}\bra{-\sin(x^2)}\,2\,x = -2\,x\,\sin(x^2)\,\e{\cos(x^2)} $$
+
+** Inverse Functions
+   * If $g = f^{-1}$, so $g(f(x)) = x$, differentiating both sides with
+     the chain rule gives $f'(x)\,g'(f(x)) = 1$
+   * Writing $y = f(x)$,
+     $$ \frac{\dd f^{-1}(y)}{\dd y} = \frac{1}{f'\bra{f^{-1}(y)}} $$
+
+** Exponentials and Logarithms
+   * Since $\e{\epsilon} = 1 + \epsilon + O(\epsilon^2)$ and
+     $\e{x+\epsilon} = \e{x}\,\e{\epsilon}$,
+     $$ \e{x+\epsilon} = \e{x} + \epsilon\,\e{x} + O(\epsilon^2) \qquad\Longrightarrow\qquad \frac{\dd\,\e{x}}{\dd x} = \e{x} $$
+     #+ATTR_LATEX: :width 0.35\linewidth
+     [[file:figures/expeps.pdf]]
+   * By the chain rule $\dd\,\e{c\,x}/\dd x = c\,\e{c\,x}$, and more
+     generally $\dd\,\e{g(x)}/\dd x = g'(x)\,\e{g(x)}$
+   * For any base, $a^x = \e{x\ln(a)}$, so $\dd\,a^x/\dd x = \ln(a)\,a^x$
+   * The natural logarithm is the inverse of the exponential,
+     $\ln(\e{x}) = x$ and $\e{\ln(y)} = y$.  The inverse function rule
+     with $f(x) = \e{x}$ gives
+     $$ \frac{\dd\ln(y)}{\dd y} = \frac{1}{\e{\ln(y)}} = \frac{1}{y} $$
+   * The lecture animation shows $\e{x}$ and $\ln(x)$ as reflections of
+     one another in the line $y=x$: reflecting a curve swaps rise and run,
+     which is why the slopes of inverse functions are reciprocals
+     #+ATTR_LATEX: :width 0.5\linewidth
+     [[file:figures/invExp-6.pdf]]
+
+** Derivatives in High Dimensions
+   * A function $f:\mathbb{R}^n\rightarrow\mathbb{R}$ changes at different
+     rates in different directions.  The derivative in a unit direction
+     $\bm{u}$ is the /directional derivative/
+     $$ \partial_{\bm{u}} f(\bm{x}) = \lim_{\epsilon\rightarrow 0}\frac{f(\bm{x}+\epsilon\,\bm{u}) - f(\bm{x})}{\epsilon} $$
+   * Taking $\bm{u} = \bm{\delta}_i$, the unit vector along the $i^{th}$
+     axis, gives the partial derivative $\partial f(\bm{x})/\partial x_i$
+   * Expanding to first order,
+     $$ f(\bm{x} + \epsilon\,\bm{u}) = f(\bm{x}) + \epsilon\,\bm{u}^\tr\grad f(\bm{x}) + O(\epsilon^2) $$
+     where the /gradient/ $\grad f(\bm{x})$ is the column vector of
+     partial derivatives.  This is the start of the high dimensional
+     Taylor expansion
+
+** Computing Gradients
+   * *Component-wise.*  Writing $\bm{w}^\tr\mat{M}\,\bm{w} = \sum_{i,j} w_i\,M_{ij}\,w_j$
+     and differentiating with respect to $w_k$ picks out the terms with
+     $i=k$ or $j=k$:
+     $$ \frac{\partial}{\partial w_k}\sum_{i,j} w_i\,M_{ij}\,w_j = \sum_j M_{kj}\,w_j + \sum_i w_i\,M_{ik} $$
+     so $\grad\,\bm{w}^\tr\mat{M}\,\bm{w} = \bra{\mat{M} + \mat{M}^\tr}\bm{w}$.
+     Tedious, but when you are confused, go back to components
+   * *By expansion.*  A slicker method is to expand
+     $f(\bm{x}+\epsilon\,\bm{u})$.  For
+     $f(\bm{x}) = \bm{x}^\tr\mat{M}\,\bm{x} + \bm{a}^\tr\bm{x}$,
+     \begin{align*}
+       f(\bm{x}+\epsilon\,\bm{u})
+         &= f(\bm{x}) + \epsilon\bra{\bm{u}^\tr\mat{M}\,\bm{x} + \bm{x}^\tr\mat{M}\,\bm{u} + \bm{a}^\tr\bm{u}} + O(\epsilon^2) \\
+         &= f(\bm{x}) + \epsilon\,\bm{u}^\tr\bra{\mat{M}\,\bm{x} + \mat{M}^\tr\bm{x} + \bm{a}} + O(\epsilon^2)
+     \end{align*}
+     using $\bm{x}^\tr\mat{M}\,\bm{u} = \bm{u}^\tr\mat{M}^\tr\bm{x}$ and
+     $\bm{a}^\tr\bm{u} = \bm{u}^\tr\bm{a}$.  Reading off the coefficient,
+     $\grad f(\bm{x}) = \mat{M}\,\bm{x} + \mat{M}^\tr\bm{x} + \bm{a}$
+
+** Jacobians and the Chain Rule in High Dimensions
+   * Consider a composition $h(\bm{x}) = f(\bm{g}(\bm{x}))$ with
+     $\bm{g}:\mathbb{R}^n\rightarrow\mathbb{R}^m$ and
+     $f:\mathbb{R}^m\rightarrow\mathbb{R}$.  The vector valued
+     $\bm{g}$ is just $m$ scalar functions $g_1,\ldots,g_m$
+   * Perturbing each one,
+     $$ \bm{g}(\bm{x}+\epsilon\,\bm{u}) = \bm{g}(\bm{x}) + \epsilon\,\mat{J}\,\bm{u} + O(\epsilon^2) $$
+     where the /Jacobian/ $\mat{J}$ is the $m\times n$ matrix with
+     $J_{ij} = \partial g_i(\bm{x})/\partial x_j$
+   * Then, to first order,
+     $$ h(\bm{x}+\epsilon\,\bm{u}) = f\bra{\bm{g}(\bm{x}) + \epsilon\,\mat{J}\,\bm{u}} = h(\bm{x}) + \epsilon\,\bm{u}^\tr\mat{J}^\tr\grad_{\bm{g}} f(\bm{g}(\bm{x})) $$
+   * Comparing with $h(\bm{x}+\epsilon\,\bm{u}) = h(\bm{x}) + \epsilon\,\bm{u}^\tr\grad_{\bm{x}} h(\bm{x})$
+     gives the chain rule in high dimensions,
+     $$ \grad_{\bm{x}} h(\bm{x}) = \mat{J}^\tr\,\grad_{\bm{g}} f(\bm{g}(\bm{x})) \qquad\text{or}\qquad \frac{\partial h(\bm{x})}{\partial x_i} = \sum_{j=1}^m \frac{\partial f(\bm{g})}{\partial g_j}\,\frac{\partial g_j(\bm{x})}{\partial x_i} $$
+   * Backpropagation in a neural network is this rule applied layer by
+     layer: the gradient is passed backwards by multiplying by transposed
+     Jacobians
+
+** Differentiating with Respect to Matrices
+   * Losses often depend on a matrix of weights, e.g.
+     $L(\mat{W}) = (\bm{a}^\tr\mat{W}\,\bm{b} - c)^2$.  A minimum is a
+     point $\mat{W}^*$ where, for every matrix $\mat{U}$,
+     $L(\mat{W}^*+\epsilon\,\mat{U}) - L(\mat{W}^*) = O(\epsilon^2)$
+   * Define $\partial L(\mat{W})/\partial\mat{W}$ as the matrix of partial
+     derivatives, with elements $\partial L/\partial W_{ij}$.  The same
+     argument as for vectors gives
+     $$ L(\mat{W}+\epsilon\,\mat{U}) = L(\mat{W}) + \epsilon\,\mathrm{tr}\bra{\mat{U}^\tr\frac{\partial L(\mat{W})}{\partial\mat{W}}} + O(\epsilon^2) $$
+     where $\mathrm{tr}(\mat{U}^\tr\mat{G}) = \sum_{ij} U_{ij}\,G_{ij}$
+     is the inner product between matrices
+   * *Example.*  For $L(\mat{W}) = (\bm{a}^\tr\mat{W}\,\bm{b} - c)^2$,
+     $$ L(\mat{W}+\epsilon\,\mat{U}) = L(\mat{W}) + 2\,\epsilon\bra{\bm{a}^\tr\mat{W}\,\bm{b} - c}\bm{a}^\tr\mat{U}\,\bm{b} + O(\epsilon^2) $$
+     and $\bm{a}^\tr\mat{U}\,\bm{b} = \sum_{ij} a_i\,U_{ij}\,b_j = \mathrm{tr}(\mat{U}^\tr\bm{a}\,\bm{b}^\tr)$,
+     so $\partial L/\partial\mat{W} = 2\bra{\bm{a}^\tr\mat{W}\,\bm{b} - c}\bm{a}\,\bm{b}^\tr$
+
+** Traces
+   * The trace is the sum of the diagonal elements,
+     $\mathrm{tr}\,\mat{A} = \sum_i A_{ii} = \mathrm{tr}\,\mat{A}^\tr$
+   * It is linear, $\mathrm{tr}(c\,\mat{A}) = c\,\mathrm{tr}\,\mat{A}$ and
+     $\mathrm{tr}(\mat{A}+\mat{B}) = \mathrm{tr}\,\mat{A} + \mathrm{tr}\,\mat{B}$
+   * $\mathrm{tr}(\mat{A}\,\mat{B}) = \sum_{ij} A_{ij}\,B_{ji} = \mathrm{tr}(\mat{B}\,\mat{A})$,
+     so a trace is unchanged by cycling the matrices in a product:
+     $$ \mathrm{tr}(\mat{A}\,\mat{B}\,\mat{C}\,\mat{D}) = \mathrm{tr}(\mat{D}\,\mat{A}\,\mat{B}\,\mat{C}) = \mathrm{tr}(\mat{C}\,\mat{D}\,\mat{A}\,\mat{B}) = \mathrm{tr}(\mat{B}\,\mat{C}\,\mat{D}\,\mat{A}) $$
+   * *Quick matrix differentiation.*  Since
+     $\partial_{\mat{U}} f(\mat{X}) = \mathrm{tr}\bra{\mat{U}^\tr\,\partial f(\mat{X})/\partial\mat{X}}$,
+     expand, then use the trace rules to move $\mat{U}^\tr$ to the front.
+     For example
+     $$ \partial_{\mat{U}}\,\mathrm{tr}(\mat{A}\,\mat{X}\,\mat{B}) = \mathrm{tr}(\mat{A}\,\mat{U}\,\mat{B}) = \mathrm{tr}(\mat{B}^\tr\mat{U}^\tr\mat{A}^\tr) = \mathrm{tr}(\mat{U}^\tr\mat{A}^\tr\mat{B}^\tr) $$
+     so $\partial\,\mathrm{tr}(\mat{A}\,\mat{X}\,\mat{B})/\partial\mat{X} = \mat{A}^\tr\mat{B}^\tr$
+   * Many more useful results are collected in /The Matrix Cookbook/
+
+* Exercises
+
+** First principles
+   * Show from the definition that $\dd(1/x)/\dd x = -1/x^2$
+
+** Chain rule
+   * Differentiate $x^x$ (hint: write it as an exponential)
+
+** Inverse functions
+   * Use the inverse function rule to find $\dd\arcsin(y)/\dd y$
+
+** The logistic function
+   * Show that $\sigma(x) = 1/(1+\e{-x})$ satisfies
+     $\sigma'(x) = \sigma(x)\bra{1-\sigma(x)}$
+
+** Least squares
+   * By expanding $f(\bm{w}+\epsilon\,\bm{u})$, find the gradient of
+     $f(\bm{w}) = \len{\bm{y} - \mat{X}\,\bm{w}}^2$
+
+** A matrix derivative
+   * Find $\partial L/\partial\mat{W}$ for $L(\mat{W}) = \len{\mat{W}\,\bm{x} - \bm{y}}^2$
+
+* Answers
+
+** First principles
+   * $$ \frac{1}{\epsilon}\bra{\frac{1}{x+\epsilon} - \frac{1}{x}} = \frac{1}{\epsilon}\,\frac{x - (x+\epsilon)}{x\,(x+\epsilon)} = -\frac{1}{x\,(x+\epsilon)} \rightarrow -\frac{1}{x^2} $$
+
+** Chain rule
+   * $x^x = \e{x\ln(x)}$, so by the chain and product rules
+     $$ \frac{\dd x^x}{\dd x} = \bra{\ln(x) + 1}\e{x\ln(x)} = \bra{\ln(x) + 1}x^x $$
+
+** Inverse functions
+   * With $f = \sin$ and $f' = \cos$,
+     $$ \frac{\dd\arcsin(y)}{\dd y} = \frac{1}{\cos(\arcsin(y))} = \frac{1}{\sqrt{1-y^2}} $$
+     using $\cos(\theta) = \sqrt{1-\sin^2(\theta)}$, which is non-negative
+     on the range of $\arcsin$
+
+** The logistic function
+   * $$ \sigma'(x) = \frac{\e{-x}}{(1+\e{-x})^2} = \frac{1}{1+\e{-x}}\;\frac{\e{-x}}{1+\e{-x}} = \sigma(x)\bra{1 - \sigma(x)} $$
+     since $1 - \sigma(x) = \e{-x}/(1+\e{-x})$
+
+** Least squares
+   * $f(\bm{w}+\epsilon\,\bm{u}) = \len{(\bm{y} - \mat{X}\,\bm{w}) - \epsilon\,\mat{X}\,\bm{u}}^2 = f(\bm{w}) - 2\,\epsilon\,\bm{u}^\tr\mat{X}^\tr(\bm{y} - \mat{X}\,\bm{w}) + O(\epsilon^2)$
+   * So $\grad f(\bm{w}) = -2\,\mat{X}^\tr(\bm{y} - \mat{X}\,\bm{w}) = 2\,\mat{X}^\tr(\mat{X}\,\bm{w} - \bm{y})$
+
+** A matrix derivative
+   * $L(\mat{W}+\epsilon\,\mat{U}) = \len{(\mat{W}\,\bm{x} - \bm{y}) + \epsilon\,\mat{U}\,\bm{x}}^2 = L(\mat{W}) + 2\,\epsilon\,(\mat{W}\,\bm{x} - \bm{y})^\tr\mat{U}\,\bm{x} + O(\epsilon^2)$
+   * $(\mat{W}\,\bm{x} - \bm{y})^\tr\mat{U}\,\bm{x} = \mathrm{tr}\bra{\mat{U}^\tr(\mat{W}\,\bm{x} - \bm{y})\,\bm{x}^\tr}$
+     by the same argument as the example above, so
+     $$ \frac{\partial L}{\partial\mat{W}} = 2\,(\mat{W}\,\bm{x} - \bm{y})\,\bm{x}^\tr $$
+
+* COMMENT [[file:introduction.org][Previous]]  [[file:taylorExpansion.org][Next]]

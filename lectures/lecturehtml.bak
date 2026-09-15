@@ -4,7 +4,6 @@ r"""Generate ../site/lectures.html from lectures.yaml.
 Differences from the old lectures/lecturehtml:
   * the lecture list comes from lectures.yaml, not from grepping lectures.tex
   * subsidiary.yml is optional (the old script crashed when it was absent)
-  * links the subsidiary notes in ../site/notes_pdf when they exist
   * it does NOT git add/commit/push -- generate the html, review it, then
     commit and push yourself
 """
@@ -62,13 +61,6 @@ def main():
     lectures = lecture_list.load()
     os.makedirs(SITE, exist_ok=True)
 
-    footer = FOOTER
-    if os.path.isfile(f"{SITE}/notes_pdf/notes.pdf"):
-        footer = footer.replace(
-            '<li> <a href="lecture_pdf/lectures_8.pdf">Complete set of Notes</a></li>',
-            '<li> <a href="lecture_pdf/lectures_8.pdf">Complete set of Notes</a></li>\n'
-            '<li> <a href="notes_pdf/notes.pdf">Complete set of Subsidiary Notes</a></li>')
-
     with open(f"{SITE}/lectures.html", "w") as html:
         html.write(HEADER)
         for lec in lectures:
@@ -79,12 +71,7 @@ def main():
                        f'  <a href="lecture_pdf/{lec.id}_prn.pdf">Printable PDF</a>,\n'
                        f'  <a href="lecture_pdf/{lec.id}_prn_4.pdf">(4 per page)</a>,\n'
                        f'  <a href="lecture_pdf/{lec.id}_prn_8.pdf">(8 per page)</a>\n'
-                       '</li>\n')
-            # subsidiary notes are built separately by ../notes/build;
-            # only link them once a PDF has actually been published
-            if os.path.isfile(f"{SITE}/notes_pdf/{lec.id}.pdf"):
-                html.write(f'<li><a href="notes_pdf/{lec.id}.pdf">Subsidiary notes</a></li>\n')
-            html.write('</ul>\n')
+                       '</li>\n</ul>\n')
             html.write('</div>\n')
 
             if lec.id in subsidiary:
@@ -95,7 +82,7 @@ def main():
                     html.write(f' <li>{k}: <a href="code/{lec.id}/{v}">{v}</a> </li>\n')
                 html.write("</ul>\n")
             html.write("</li>\n")
-        html.write(footer)
+        html.write(FOOTER)
 
     print(f"wrote {SITE}/lectures.html ({len(lectures)} lectures)")
     for p in lecture_list.check():

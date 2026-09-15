@@ -1,0 +1,154 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 9: Singular Value Decomposition (SVD)
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Singular Valued Decomposition, SVD, general linear maps
+
+* Main Points
+
+** Singular Value Decomposition
+   * Any $n\times m$ matrix, $\mat{X}$ can be decomposed as $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
+     * $\mat{U}$ is an $n\times n$ orthogonal matrix
+     * $\mat{S}$ is an $n\times m$  matrix with zeros everywhere except the diagonal where $S_{ii}=s_i\geq0$
+     * $\mat{V}$ is an $m\times m$ orthogonal matrix
+   * The values $s_i$ are known as the /singular values/ of $\mat{X}$
+   * The SVD of a symmetric matrix is just the eigen-decomposition
+   * *Economical SVD*
+     * If $n>m$ some algorithms won't bother outputting the last $n-m$ columns of $\mat{U}$ 
+     * If $m<m$ some algorithms won't bother outputting the last $m-n$ columns of $\mat{V}$
+     * In this case it will output a square $\mat{S}$ matrix
+
+** General Linear Mapping
+   * Recall that matrices are the most general linear operators
+   * Since any matrix $\mat{M}$ can be written as
+     $\mat{U}\,\mat{S}\,\mat{V}^\tr$ we can interpret any linear
+     mapping as doing three operations
+     * A rotation (with possibly a reflection) defined by $\mat{V}^\tr$
+     * A rescaling of each coordinate by $s_i$
+     * A rotation (with possibly a reflection) defined by $\mat{U}$
+   * *Duality*
+     * Using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
+       * $\mat{C} = \mat{X}\,\mat{X}^\tr = \mat{U}\mat{S}\mat{S}^\tr\mat{U}$
+       * $\mat{D} = \mat{X}^\tr\mat{X} = \mat{V}\mat{S}^\tr\mat{S}\mat{V}$
+     * $\mat{S}\mat{S}^\tr$ and $\mat{S}^\tr\mat{S}$ are diagonal
+       elements with non-zero diagonal elements $s_i^2$
+
+** Ridge Regression
+   * Ridge regression is linear regression with an $L_2$ regulariser
+   * Adding a regulariser $\nu\, \|\bm{w}\|^2$ the weights, $\bm{w}^*$, that
+     minimise the loss function are given by $\bm{w}^* =
+     (\mat{X}^\tr\mat{X}+\nu\,\mat{I})^{-1}\mat{X}^\tr \bm{y}$
+   * Using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
+     \begin{align*}
+     \bm{w}^* = \mat{V}\,\bar{\mat{S}}^+ \mat{U}^\tr \bm{y}
+     \end{align*}
+     where $\bar{\mat{S}}^+$ is a regularised pseudo-inverse of $\mat{S}$ given by
+     \begin{align*}
+     \bar{\mat{S}}^+ = (\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{S}
+     \end{align*}
+     - If $\nu=0$ this is equal to the pseudo-inverse of $\mat{S}$
+   * $\bar{\mat{S}}^+$ is and $n\times m$ matrix which is zero
+     everywhere except on the diagonal, where $\bar{S}^+_{ii} = \frac{s_i}{s_i^2+\nu}$
+     * Note if $s_i=0$ linear regression has an infinity of solutions
+       and the pseudo-inverse of $\mat{X}$ does not exist (setting
+       $\nu=0$ we get $S^+_{ii}=1/s_i$ which is not define when $s_i=0$)
+     * In the regularised case $\bar{S}^+_{ii} = 0$ (we have selected
+       one of the solutions that minimise the squared error)
+     * If $s_i\ll\nu$ then without the regularisation term the inverse is
+       very ill-conditions while with the regularisation term
+       $\bar{S}^+_{ii}$ will be small
+     * If $s_i\gg\nu$ then $\bar{S}^+_{ii} \approx \frac{1}{s_i} = S^+_{ii}$
+   * Adding a $L_2$ regulariser means that the optimum weights,
+     $\bm{w}^*$, will be less sensitive to the training data reducing
+     the variance in the bias-variance dilemma
+
+
+* Exercises
+
+** Ridge regression
+   * Ridge regression is just linear regression with an $L_2$ regularier
+     1. Derive the optimal weights in ridge regression
+     2. Show that using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
+        $\bm{w}^* = \mat{V}\,(\mat{S}^\tr\mat{S} +
+        \nu\,\mat{I})^{-1}\mat{S}\,\mat{U}\bm{y}$
+   * See answers
+
+* Experiments
+
+** SVD
+   * Using Matlab/Octave or python have a play with svd
+#+BEGIN_SRC matlab
+X = randn(3,4)      % construct a random matrix
+[U,S,V] = svd(X)    % compute singular value decomposition
+U*S*V'              % should be the same as X
+U*U'                % should be the identity up to round error
+U'*U                % should be the identity up to round error
+V*V'                % should be the identity up to round error
+V'*V                % should be the identity up to round error
+[Ue,L1] = eig(X*X') % Ue should be the same as U up to permutation
+S*S'                % same as L1 up to permutation
+[Ve,L2] = eig(X'*X) % Ve should be the same as V up to permutation
+S'*S                % same as L2 up to permutation
+
+
+inv(X'*X + 0.1*eye(4))        % check identity
+V*inv(S'*S + 0.1*eye(4))*V'   % should be the same
+#+END_SRC
+
+** Verify Identity
+   * Again use Matlab/Octave or python
+   * For a random $4\times5$ matrix $\mat{X}$
+     * Check that using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ that
+       \begin{align*}
+	(\mat{X}^\tr\mat{X} + \eta\,\mat{I})^{-1} 
+	 = \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{V}^\tr
+       \end{align*}
+       holds for some random matrix using Matlab/Octave or python
+     * Examine $\mat{S}^\tr\mat{S}$, $\mat{S}^\tr\mat{S}+0.1\,\mat{I}$.
+       $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1}$ and
+       $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1} \mat{S}^\tr$
+     * See if you can invert $\mat{X}^\tr\mat{X}$: it is singular,
+       but due to rounding errors it might be inverted (it was a scary
+       matrix when I tried it)
+
+#+BEGIN_SRC matlab
+X = randn(4,5)                % construct a random matrix
+[U,S,V] = svd(X)              % compute singular value decomposition
+
+inv(X'*X + 0.1*eye(5))        % check identity
+V*inv(S'*S + 0.1*eye(5))*V'   % should be the same
+
+S'*S                          % singular
+S'*S + 0.1*eye(5)             % now invertible
+inv(S'*S + 0.1*eye(5))        
+inv(S'*S + 0.1*eye(5))*S'     % 4x5 diagonal matrix
+
+inv(X'*X)                     % shouldn't be able to do this
+#+END_SRC
+
+* Answers
+** Ridge regression
+   1. It is straightforward to show
+      $$ \bm{w}^* = (\mat{X}^\tr\,\mat{X}+\nu\,\mat{I})^{-1}
+      \mat{X}^{-1} \bm{y} $$
+   2. The only hard part is to show is that
+      \begin{align*}
+       (\mat{X}^\tr\mat{X} + \nu\,\mat{I})^{-1} 
+       = \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{V}^\tr
+       \end{align*}
+      * It is easy to show that $\mat{X}^\tr\mat{X}=\mat{V}\,\mat{S}^\tr\mat{S}\,\mat{V}^\tr$
+      * But we also have $\mat{I}=\mat{V}\,\mat{V}^\tr$ as $\mat{V}$ is an orthogonal matrix
+      * Thus $\mat{M} = \mat{X}^\tr\mat{X} + \nu\,\mat{I} =
+        \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\mat{I})\mat{V}^\tr =
+        \mat{V}\,\mat{W}\,\mat{V}^\tr$ where $\mat{W}= \mat{S}^\tr\mat{S}+\nu\mat{I}$
+      * But $(\mat{A}\,\mat{B}\,\mat{C})^{-1} =
+        \mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$ (which we can verify by
+        multiplying $\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$ on either
+        the left or right by $\mat{A}\,\mat{B}\,\mat{C}$)
+      * Thus $\mat{M}^{-1} = (\mat{V}\,\mat{W}\,\mat{V}^\tr)^{-1} =
+        (\mat{V}^\tr)^{-1}\,\mat{W}^{-1}\mat{V}^{-1} =
+        \mat{V}\,\mat{W}^{-1}\mat{V}^\tr$ where we use
+        $\mat{V}^{-1}=\mat{V}^\tr$ as $\mat{V}$ is an orthogonal matrix
+
+* COMMENT [[file:pca.org][Previous]]  [[file:optimisation.org][Next]]

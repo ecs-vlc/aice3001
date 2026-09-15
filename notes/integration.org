@@ -1,0 +1,210 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 22: Integral Calculus
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Riemann integral, fundamental theorem of calculus, integration by parts, substitution, Jacobians, generating functions, gamma function, Gaussian integrals
+
+* Main Points
+
+** The Riemann Integral
+   * An integral is the area under a curve.  Divide $[a,b]$ into strips
+     at points $a = x_0 < x_1 < \cdots < x_n = b$ and add up the areas of
+     the rectangles:
+     $$ \int_a^b f(x)\,\dd x = \lim_{\delta x_i\rightarrow 0}\sum_{i=0}^{n-1}(x_{i+1} - x_i)\,f(x_i) $$
+     #+ATTR_LATEX: :width 0.6\linewidth
+     [[file:figures/riemann-5.pdf]]
+   * Integration is linear: splitting the sum,
+     $$ \int_a^b \bra{r\,f(x) + s\,g(x)}\dd x = r\int_a^b f(x)\,\dd x + s\int_a^b g(x)\,\dd x $$
+
+** The Fundamental Theorem of Calculus
+   * Let $I(a,x) = \int_a^x f(z)\,\dd z$.  Extending the upper limit by
+     $\delta x$ adds a thin strip of area $\delta x\,f(x)$, so
+     $$ \frac{\dd I(a,x)}{\dd x} = \lim_{\delta x\rightarrow 0}\frac{I(a,x+\delta x) - I(a,x)}{\delta x} = f(x) $$
+     #+ATTR_LATEX: :width 0.45\linewidth
+     [[file:figures/fundamental_law.pdf]]
+   * Conversely, integrating a derivative, the Riemann sum telescopes:
+     \begin{align*}
+       \int_a^b \frac{\dd f(x)}{\dd x}\,\dd x
+         &= \lim\sum_{i=0}^{n-1}(x_{i+1} - x_i)\,\frac{f(x_{i+1}) - f(x_i)}{x_{i+1} - x_i}
+          = \lim\sum_{i=0}^{n-1}\bra{f(x_{i+1}) - f(x_i)} \\
+         &= f(x_n) - f(x_0) = f(b) - f(a)
+     \end{align*}
+   * So integration is an /anti-derivative/: it undoes differentiation
+
+** Indefinite and Multiple Integrals
+   * An /indefinite integral/ is a function $F(x) = \int f(x)\,\dd x$ with
+     $F'(x) = f(x)$.  Since $F(x)$, $F(x)+1$, $F(x)+\pi, \ldots$ all have
+     the same derivative, $F$ is only defined up to an additive constant
+   * Definite integrals follow from it: $\int_a^b f(x)\,\dd x = F(b) - F(a)$
+   * For functions of several variables we integrate over regions, e.g.
+     $\iint_A f(x,y)\,\dd x\,\dd y$.  We usually write a single integral
+     sign, $\int f(\bm{x})\,\dd\bm{x}$, for
+     $\int\cdots\int f(x_1,\ldots,x_n)\,\dd x_1\cdots\dd x_n$
+     #+ATTR_LATEX: :width 0.4\linewidth
+     [[file:figures/multidimint.pdf]]
+
+** Performing Integrals
+   * The basic method is to recognise an anti-derivative.  Since
+     $\dd x^n/\dd x = n\,x^{n-1}$,
+     $$ \int x^{n-1}\,\dd x = \frac{x^n}{n} + c \qquad (n\neq0), \qquad \int_a^b x^{n-1}\,\dd x = \frac{b^n - a^n}{n} $$
+   * The product and chain rules let us differentiate almost anything,
+     but there are no general rules for $\int f(x)\,g(x)\,\dd x$ or
+     $\int f(g(x))\,\dd x$.  Unlike differentiation there is no small
+     parameter to expand in.  /In general integration is hard/
+
+** Integration by Parts
+   * Integrating the product rule
+     $\dd(f\,g)/\dd x = f'\,g + f\,g'$ from $a$ to $b$ and rearranging,
+     $$ \int_a^b f(x)\,\frac{\dd g(x)}{\dd x}\,\dd x = \Big[f(x)\,g(x)\Big]_a^b - \int_a^b \frac{\dd f(x)}{\dd x}\,g(x)\,\dd x $$
+     Whether this helps depends on whether the new integral is easier
+   * *Example: the factorial function.*  Let
+     $\Pi(z) = \int_0^\infty x^z\,\e{-x}\,\dd x$.  Taking
+     $g(x) = -\e{-x}$,
+     $$ \Pi(z) = \Big[-x^z\,\e{-x}\Big]_0^\infty + \int_0^\infty z\,x^{z-1}\,\e{-x}\,\dd x = z\,\Pi(z-1) $$
+     since the boundary term vanishes for $z > 0$
+   * $\Pi(0) = \int_0^\infty \e{-x}\,\dd x = \Big[-\e{-x}\Big]_0^\infty = 1$,
+     so for integers $\Pi(n) = n\,(n-1)\cdots 1 = n!$
+
+** Substitution
+   * Changing variable from $x$ to $u$, with $x = x(u)$, the Riemann sum
+     becomes
+     $$ \int_a^b f(x)\,\dd x = \int_{u(a)}^{u(b)} f(x(u))\,\frac{\dd x(u)}{\dd u}\,\dd u $$
+     where $u(x)$ is the inverse of $x(u)$
+   * *Example.*  For $I(n) = \int_0^\infty x^n\,\e{-x^2/2}\,\dd x$, put
+     $u = x^2/2$, so $x = \sqrt{2u}$, $\dd x/\dd u = 1/\sqrt{2u}$, and the
+     limits stay $0$ and $\infty$:
+     $$ I(n) = \int_0^\infty (2u)^{n/2}\,\e{-u}\,\frac{\dd u}{\sqrt{2u}} = 2^{\frac{n-1}{2}}\int_0^\infty u^{\frac{n-1}{2}}\,\e{-u}\,\dd u = 2^{\frac{n-1}{2}}\;\Pi\!\bra{\frac{n-1}{2}} $$
+   * So $I(1) = 1$, $I(3) = 2\times1! = 2$ and $I(5) = 2^2\times2! = 8$.
+     Even $n$ need $\Pi$ at half integers, e.g.
+     $I(0) = \Pi(-1/2)/\sqrt{2}$, and $I(2) = \sqrt{2}\,\Pi(1/2) = \Pi(-1/2)/\sqrt{2}$
+     using $\Pi(1/2) = \frac{1}{2}\Pi(-1/2)$
+
+** Changing Variables in Many Dimensions
+   * Changing variables $\bm{x}\rightarrow\bm{u}$, volume elements are
+     rescaled by the determinant of the Jacobian:
+     $$ \int f(\bm{x})\,\dd\bm{x} = \int f(\bm{x}(\bm{u}))\,|\det(\mat{J})|\,\dd\bm{u}, \qquad J_{ij} = \frac{\partial x_i}{\partial u_j} $$
+   * *Polar coordinates.*  With $x = r\cos(\theta)$ and $y = r\sin(\theta)$,
+     $$ |\det(\mat{J})| = \left|\det\begin{pmatrix} \cos(\theta) & -r\sin(\theta) \\ \sin(\theta) & r\cos(\theta) \end{pmatrix}\right| = r\bra{\cos^2(\theta) + \sin^2(\theta)} = r $$
+     so $\dd x\,\dd y = r\,\dd r\,\dd\theta$: a small patch at radius $r$
+     has sides $\dd r$ and $r\,\dd\theta$
+     #+ATTR_LATEX: :width 0.55\linewidth
+     [[file:figures/polarCoord-3.pdf]]
+
+** Differentiating Through the Integral
+   * Sometimes we can do an integral by differentiating a related,
+     easier one.  The moments of a random variable are
+     $M_n = \av{X^n} = \int x^n\,f_X(x)\,\dd x$
+   * Define the /moment generating function/
+     $$ Z(\ell) = \av{\e{\ell X}} = \int_{-\infty}^\infty \e{\ell x}\,f_X(x)\,\dd x $$
+   * Differentiating $n$ times under the integral and setting $\ell=0$,
+     $$ \left.\frac{\dd^n Z(\ell)}{\dd\ell^n}\right|_{\ell=0} = \int_{-\infty}^\infty x^n\,f_X(x)\,\dd x = M_n $$
+
+** The Cumulant Generating Function
+   * Expanding $\e{\ell x} = 1 + \ell\,x + \frac{1}{2}\ell^2 x^2 + \cdots$ inside the integral,
+     $$ Z(\ell) = 1 + \ell\,M_1 + \frac{1}{2}\ell^2 M_2 + \frac{1}{3!}\ell^3 M_3 + \cdots $$
+   * Taking the logarithm, using
+     $\log(1+\epsilon) = \epsilon - \frac{1}{2}\epsilon^2 + \frac{1}{3}\epsilon^3 - \cdots$,
+     gives the /cumulant generating function/
+     $$ G(\ell) = \log\!\bra{Z(\ell)} = \ell\,M_1 + \frac{1}{2}\ell^2\bra{M_2 - M_1^2} + \frac{1}{3!}\ell^3\bra{M_3 - 3\,M_2\,M_1 + 2\,M_1^3} + \cdots $$
+   * The /cumulants/ are $\kappa_n = G^{(n)}(0)$: $\kappa_1$ is the mean,
+     $\kappa_2$ the variance and $\kappa_3$ is related to the skewness
+
+** Special Functions
+   * Some integrals have no closed form in terms of elementary functions.
+     $\Pi(z)$ is one: $\Pi(n) = n!$ for integers, but for general $z$ it
+     is a new function in its own right
+   * History has left us with the /gamma function/ instead,
+     $$ \Gamma(z) = \int_0^\infty x^{z-1}\,\e{-x}\,\dd x = \Pi(z-1) $$
+   * Other special functions defined by integrals include the Bessel,
+     Airy, hypergeometric, elliptic and error functions
+   * Integration is sometimes easier in the complex plane (largely due to
+     Cauchy), and there is an algorithm (the Risch algorithm) that decides
+     whether many functions have elementary integrals.  It is complicated
+     enough that it is only available inside symbolic packages such as
+     Mathematica.  Both are beyond this course
+
+** Gaussian Integrals
+   * Integrals involving $\e{-x^2}$ appear whenever we work with normal
+     distributions.  The good news is that they can all be done; the bad
+     news is that they take some work
+   * *The Gaussian integral.*  $I_1 = \int_{-\infty}^\infty \e{-x^2/2}\,\dd x$
+     has no elementary anti-derivative, but its square does yield:
+     $$ I_1^2 = \int_{-\infty}^\infty\int_{-\infty}^\infty \e{-(x^2+y^2)/2}\,\dd x\,\dd y = \int_0^{2\pi}\dd\theta\int_0^\infty r\,\e{-r^2/2}\,\dd r $$
+     changing to polar coordinates.  Substituting $u = r^2/2$,
+     $\dd u = r\,\dd r$,
+     $$ I_1^2 = 2\pi\int_0^\infty \e{-u}\,\dd u = 2\pi \qquad\Longrightarrow\qquad I_1 = \sqrt{2\pi} $$
+   * Since $I_1 = 2\,I(0) = \sqrt{2}\,\Pi(-1/2)$, this also shows
+     $\Gamma(1/2) = \Pi(-1/2) = \sqrt{\pi}$
+   * *Normal distribution.*  Substituting $z = (x-\mu)/\sigma$,
+     $$ \int_{-\infty}^\infty \e{-(x-\mu)^2/(2\sigma^2)}\,\dd x = \sigma\,I_1 = \sqrt{2\pi}\,\sigma $$
+     which is why the normal density is
+     $$ \mathcal{N}(x\mid\mu,\sigma^2) = \frac{1}{\sqrt{2\pi}\,\sigma}\,\e{-(x-\mu)^2/(2\sigma^2)} $$
+
+** Multivariate Gaussian Integrals
+   * In $n$ dimensions the exponential of a sum is a product of
+     exponentials, so the integral factorises:
+     $$ \int \e{-\frac{1}{2}\len{\bm{x}}_2^2}\,\dd\bm{x} = \prod_{i=1}^n\int_{-\infty}^\infty \e{-x_i^2/2}\,\dd x_i = (2\pi)^{n/2} $$
+   * For a general covariance matrix $\mat{\Xi}$, consider
+     $$ I_4 = \int \e{-\frac{1}{2}(\bm{x}-\bm{\mu})^\tr\mat{\Xi}^{-1}(\bm{x}-\bm{\mu})}\,\dd\bm{x} $$
+   * Diagonalise $\mat{\Xi} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$, with
+     $\mat{V}$ orthogonal, so
+     $\mat{\Xi}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\mat{V}^\tr$.  Change
+     variables to $\bm{y} = \mat{V}^\tr(\bm{x}-\bm{\mu})$, i.e.
+     $\bm{x} = \mat{V}\,\bm{y} + \bm{\mu}$.  The Jacobian is
+     $J_{ij} = \partial x_i/\partial y_j = V_{ij}$, and
+     $|\det(\mat{V})| = 1$ for an orthogonal matrix, so
+     $$ I_4 = \int \e{-\frac{1}{2}\bm{y}^\tr\mat{\Lambda}^{-1}\bm{y}}\,\dd\bm{y} = \prod_{i=1}^n\int_{-\infty}^\infty \e{-y_i^2/(2\lambda_i)}\,\dd y_i = \prod_{i=1}^n\sqrt{2\pi\,\lambda_i} $$
+   * Now $\det(\mat{\Xi}) = \det(\mat{V})\,\det(\mat{\Lambda})\,\det(\mat{V}^\tr) = \prod_i\lambda_i$,
+     and $\det(c\,\mat{M}) = c^n\det(\mat{M})$ for an $n\times n$ matrix, so
+     $$ I_4 = (2\pi)^{n/2}\sqrt{\det(\mat{\Xi})} = \sqrt{\det(2\pi\,\mat{\Xi})} $$
+   * The multivariate normal density, which must integrate to 1, is therefore
+     $$ \mathcal{N}(\bm{x}\mid\bm{\mu},\mat{\Xi}) = \frac{1}{\sqrt{\det(2\pi\,\mat{\Xi})}}\,\e{-\frac{1}{2}(\bm{x}-\bm{\mu})^\tr\mat{\Xi}^{-1}(\bm{x}-\bm{\mu})} $$
+   * Normal distributions almost always lead to integrals that can be
+     done in closed form, although often with some effort.  Being
+     comfortable with integration is a genuine super-power
+
+* Exercises
+
+** Integration by parts
+   * Evaluate $\int_0^1 x\,\e{x}\,\dd x$
+
+** Substitution
+   * Evaluate $\int_0^\infty x\,\e{-x^2}\,\dd x$
+
+** Mean absolute value of a normal
+   * For a standard normal $Z$, use $I(1)$ to find $\av{|Z|}$
+
+** The normal moment generating function
+   * Show that for $X\sim\mathcal{N}(\mu,\sigma^2)$ the moment generating
+     function is $Z(\ell) = \e{\mu\ell + \sigma^2\ell^2/2}$, by completing
+     the square in the exponent.  What does this say about the cumulants
+     of a normal distribution?
+
+* Answers
+
+** Integration by parts
+   * Take $f(x) = x$ and $g(x) = \e{x}$:
+     $$ \int_0^1 x\,\e{x}\,\dd x = \Big[x\,\e{x}\Big]_0^1 - \int_0^1 \e{x}\,\dd x = \mathrm{e} - (\mathrm{e} - 1) = 1 $$
+
+** Substitution
+   * With $u = x^2$, $\dd u = 2\,x\,\dd x$:
+     $$ \int_0^\infty x\,\e{-x^2}\,\dd x = \frac{1}{2}\int_0^\infty \e{-u}\,\dd u = \frac{1}{2} $$
+
+** Mean absolute value of a normal
+   * By symmetry
+     $$ \av{|Z|} = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\,\e{-z^2/2}\,\dd z = \frac{2\,I(1)}{\sqrt{2\pi}} = \sqrt{\frac{2}{\pi}} \approx 0.798 $$
+
+** The normal moment generating function
+   * $$ Z(\ell) = \frac{1}{\sqrt{2\pi}\,\sigma}\int \e{\ell x - (x-\mu)^2/(2\sigma^2)}\,\dd x $$
+   * Completing the square,
+     $$ \ell\,x - \frac{(x-\mu)^2}{2\sigma^2} = -\frac{\bra{x - \mu - \sigma^2\ell}^2}{2\sigma^2} + \mu\,\ell + \frac{\sigma^2\ell^2}{2} $$
+   * The remaining integral is a normal density with mean
+     $\mu + \sigma^2\ell$, which integrates to 1, so
+     $Z(\ell) = \e{\mu\ell + \sigma^2\ell^2/2}$
+   * Hence $G(\ell) = \log Z(\ell) = \mu\,\ell + \frac{1}{2}\sigma^2\ell^2$
+     exactly: $\kappa_1 = \mu$, $\kappa_2 = \sigma^2$, and every higher
+     cumulant is zero.  The normal is the distribution whose cumulants stop
+     after the second
+
+* COMMENT [[file:bayes.org][Previous]]  [[file:gaussianProcesses.org][Next]]

@@ -1,0 +1,231 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 3: Taylor's Expansion
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Taylor expansion, convergence, residue, gradient, tangent plane, Hessian, minima, maxima, saddle points
+
+* Main Points
+
+** Polynomial Approximation
+   * Much of machine learning is about approximating functions, and
+     every approximation scheme assumes something about how regular
+     the function is
+   * A Taylor expansion approximates a smooth function near a point
+     $x^*$ by a polynomial
+     $$ f(x) \approx a_0 + a_1 (x-x^*) + a_2 (x-x^*)^2 + \cdots + a_n (x-x^*)^n $$
+   * Differentiating both sides $i$ times and setting $x=x^*$ picks
+     out a single coefficient, so if we demand that the two sides agree
+     in value and in their first $n$ derivatives at $x^*$ then
+     $a_i = f^{(i)}(x^*)/i!$
+   * This gives the Taylor expansion
+     $$ f(x) \approx f(x^*) + f'(x^*)\,(x-x^*) + \frac{1}{2} f''(x^*)\,(x-x^*)^2 + \cdots + \frac{1}{n!} f^{(n)}(x^*)\,(x-x^*)^n $$
+   * The figure shows successive Taylor approximations to $\e{x}$
+     around $x^*=0$; each extra term extends the region where the
+     approximation is good
+     #+ATTR_LATEX: :width 0.55\linewidth
+     [[file:figures/exp_taylor-5.pdf]]
+
+** Convergence
+   * Adding terms improves the approximation close to $x^*$, provided
+     the higher derivatives exist
+   * Polynomials only diverge as $x\rightarrow\pm\infty$, so no
+     polynomial can follow a function that blows up at a finite point,
+     such as $1/x$, $1/(x-5)^2$ or $\tan(x)$
+   * For such functions the Taylor series only converges in a limited
+     region.  The lecture animation builds up the expansion of $\tan(x)$
+     term by term; the final frame is below.  However many terms we
+     add, the series fails beyond the singularities at $x=\pm\pi/2$
+     #+ATTR_LATEX: :width 0.7\linewidth
+     [[file:figures/tan_taylor-5.pdf]]
+   * To understand where a Taylor series converges we need to extend the
+     function into the complex plane, $z = x + \mathrm{i}\,y$
+   * A function is /analytic/ where its derivative
+     $$ \frac{\dd f(z)}{\dd z} = \lim_{\epsilon\rightarrow 0} \frac{f(z+\epsilon)-f(z)}{\epsilon} $$
+     is the same whichever direction the complex number $\epsilon$
+     approaches zero from
+     - polynomials, exponentials, trigonometric functions, logarithms,
+       ratios of polynomials and most "special functions" are analytic
+       except at isolated singular points
+   * *Key result:* the Taylor series of an analytic function about $z^*$
+     converges inside the largest circle centred on $z^*$ that contains
+     no singularity.  The radius of that circle is the /radius of
+     convergence/
+     #+ATTR_LATEX: :width 0.35\linewidth
+     [[file:figures/taylor_convergence.pdf]]
+   * Singularities off the real axis matter even when the function
+     looks perfectly well behaved for real $x$
+     - $f(z) = 1/(z+\mathrm{i})^2$ is smooth for every real $x$, but it
+       is singular at $z=-\mathrm{i}$, so its Taylor series about $0$
+       only converges for $|x|<1$
+   * *The hyperbolic tangent.* $\tanh(x)$ has no singularities on the
+     real line.  But $\tan(\mathrm{i}\,x) = \mathrm{i}\tanh(x)$, and
+     $\tan$ is singular at $\pi/2 + k\pi$, so $\tanh$ is singular at
+     $z = \pm \mathrm{i}\,\pi/2, \pm 3\mathrm{i}\,\pi/2, \ldots$ on the
+     imaginary axis
+     - The expansion of $\tanh(x)$ about $0$ therefore converges only
+       for $|x| < \pi/2$, even though $\tanh$ itself is bounded
+       everywhere
+     #+ATTR_LATEX: :width 0.7\linewidth
+     [[file:figures/tanh_taylor-6.pdf]]
+
+** The Residue
+   * A Taylor expansion comes with an exact error term.  Stopping after
+     $n$ terms,
+     $$ f(x) = \sum_{i=0}^{n-1} \frac{(x-x^*)^i}{i!} f^{(i)}(x^*) + \frac{(x-x^*)^n}{n!} f^{(n)}(\theta_x) $$
+     where $\theta_x$ is some number between $x^*$ and $x$
+   * This last term, the /residue/ (or remainder), is very useful for
+     proving inequalities, because we often know the sign of
+     $f^{(n)}$ even when we don't know $\theta_x$
+   * Expanding $\e{x}$ about 0,
+     $$ \e{x} = 1 + x + \frac{x^2}{2}\,\e{\theta_x} $$
+     and since $\e{\theta_x} > 0$ we get the much-used bound
+     $\e{x} \geq 1 + x$ for all $x$
+     #+ATTR_LATEX: :width 0.4\linewidth
+     [[file:figures/expBound2.pdf]]
+   * Expanding $\log(x)$ about $x=1$,
+     $$ \log(x) = (x-1) - \frac{(x-1)^2}{2\,\theta^2} $$
+     so $\log(x) \leq x-1$, or equivalently $\log(1+x) \leq x$
+     #+ATTR_LATEX: :width 0.4\linewidth
+     [[file:figures/logBound.pdf]]
+   * The proof of the residue formula comes from integrating
+     $f^{(n)}$ repeatedly; it was skipped in the lecture
+
+** High Dimensional Taylor Expansion
+   * For $f:\mathbb{R}^n\rightarrow\mathbb{R}$ we approximate by a
+     multivariate polynomial and fix the coefficients by matching
+     derivatives at $\bm{x}^*$ in the same way.  To second order,
+     $$ f(\bm{x}) \approx f(\bm{x}^*) + (\bm{x}-\bm{x}^*)^\tr \grad f(\bm{x}^*) + \frac{1}{2} (\bm{x}-\bm{x}^*)^\tr \mat{H}\,(\bm{x}-\bm{x}^*) $$
+   * $\mat{H}$ is the /Hessian/, the matrix of second derivatives
+     $$ H_{ij} = \frac{\partial^2 f(\bm{x}^*)}{\partial x_i \, \partial x_j} $$
+   * For functions with continuous second derivatives the order of
+     differentiation does not matter, so the Hessian is symmetric,
+     $\mat{H}=\mat{H}^\tr$
+   * Do not confuse the Hessian (second derivatives of a scalar
+     function) with the Jacobian (first derivatives of a vector-valued
+     function)
+
+** The Tangent Plane and Steepest Ascent
+   * For a smooth function the set $f(\bm{x}) = c$ is an
+     $(n-1)$-dimensional surface, the high dimensional analogue of a
+     contour line
+   * The /tangent plane/ at $\bm{x}^*$ is the plane that touches this
+     surface at $\bm{x}^*$.  Moving within it changes $f$ only at second
+     order, so it is the set of points with
+     $$ (\bm{x}-\bm{x}^*)^\tr \grad f(\bm{x}^*) = 0 $$
+     that is, the tangent plane is orthogonal to the gradient
+     #+ATTR_LATEX: :width 0.45\linewidth
+     [[file:figures/tangentPlane-3.pdf]]
+   * Moving a small distance $\epsilon$ in a unit direction $\bm{u}$,
+     $$ f(\bm{x}^* + \epsilon\,\bm{u}) = f(\bm{x}^*) + \epsilon\, \bm{u}^\tr \grad f(\bm{x}^*) + O(\epsilon^2) $$
+   * By the Cauchy--Schwarz inequality
+     $\bm{u}^\tr \grad f \leq \len{\grad f}$, with equality when
+     $\bm{u}$ points along $\grad f$.  So
+     - $\grad f(\bm{x}^*)$ is the direction of /steepest ascent/
+     - $-\grad f(\bm{x}^*)$ is the direction of /steepest descent/
+   * This is only a local statement: it holds while the $O(\epsilon^2)$
+     term is negligible
+
+** The Hessian at Stationary Points
+   * At a /stationary point/, $\grad f(\bm{x}^*) = \bm{0}$, the first
+     order term vanishes and
+     $$ f(\bm{x}^* + \epsilon\,\bm{u}) = f(\bm{x}^*) + \frac{1}{2}\epsilon^2\, \bm{u}^\tr \mat{H}\,\bm{u} + O(\epsilon^3) $$
+     so the sign of $\bm{u}^\tr\mat{H}\,\bm{u}$ decides whether $f$ goes
+     up or down
+   * $\mat{H}$ is real and symmetric, so it has real eigenvalues
+     $\lambda_i$ and orthonormal eigenvectors $\bm{v}_i$
+     ($\mat{H}\,\bm{v}_i = \lambda_i\bm{v}_i$,
+     $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}$)
+   * Writing any direction as $\bm{u} = \sum_i c_i\,\bm{v}_i$,
+     \begin{align*}
+       \bm{u}^\tr \mat{H}\,\bm{u}
+         = \bra{\sum_i c_i\,\bm{v}_i^\tr} \bra{\sum_j c_j\,\lambda_j\,\bm{v}_j}
+         = \sum_{i,j} \lambda_j\, c_i\, c_j\, \bm{v}_i^\tr\bm{v}_j
+         = \sum_i \lambda_i\, c_i^2
+     \end{align*}
+   * Hence
+     - all $\lambda_i > 0$: $\mat{H}$ is /positive definite/,
+       $\mat{H}\succ 0$, and $\bm{x}^*$ is a local minimum
+     - all $\lambda_i < 0$: $\mat{H}$ is /negative definite/,
+       $\mat{H}\prec 0$, and $\bm{x}^*$ is a local maximum
+     - eigenvalues of both signs: $\bm{x}^*$ is a saddle point
+     - if some $\lambda_i = 0$ the second order test is inconclusive
+       and higher order terms decide
+     #+ATTR_LATEX: :width 0.85\linewidth
+     [[file:figures/extremal_points.pdf]]
+
+** Finding Optima
+   * To minimise a loss $L(\bm{w})$ we look for $\grad L(\bm{w}^*) = \bm{0}$
+     with a positive definite Hessian
+   * Except for very simple losses there are many local minima, and
+     $\grad L = \bm{0}$ cannot be solved analytically
+   * Instead we iterate, using gradient descent
+     $$ \bm{w}^{(t+1)} = \bm{w}^{(t)} - r\, \grad L(\bm{w}^{(t)}) $$
+     which moves in the locally steepest downhill direction.  Steps
+     shrink as the gradient shrinks near a minimum.  Choosing $r$ well
+     is subtle; we return to this in the optimisation lecture
+
+* Exercises
+
+** Radius of convergence
+   * Write down the Taylor expansion of $\log(1+x)$ about $x=0$ up to
+     the $x^4$ term.  Without doing any further calculation, for what
+     values of $x$ must the series converge?
+
+** A bound from the residue
+   * Use the residue form of Taylor's expansion to show that
+     $\cos(x) \geq 1 - x^2/2$ for all real $x$
+
+** Classifying a stationary point
+   * For $f(x,y) = x^2 + 3\,x\,y + y^2$ find the gradient and the
+     Hessian.  Show that the origin is the only stationary point and
+     classify it
+
+** Quadratic functions
+   * For $f(\bm{x}) = \frac{1}{2}\bm{x}^\tr\mat{A}\,\bm{x} - \bm{b}^\tr\bm{x}$
+     with $\mat{A}$ symmetric, expand $f(\bm{x}+\epsilon\,\bm{u})$
+     exactly.  Hence find the gradient and Hessian, and explain why
+     the second order Taylor expansion of $f$ is exact
+
+* Answers
+
+** Radius of convergence
+   * The derivatives are $f^{(k)}(x) = (-1)^{k-1}(k-1)!/(1+x)^k$, so
+     $$ \log(1+x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \cdots $$
+   * $\log(1+z)$ is singular at $z=-1$, a distance 1 from the expansion
+     point, so the series converges for $|x| < 1$
+
+** A bound from the residue
+   * With $f(x) = \cos(x)$ we have $f(0)=1$, $f'(0) = 0$ and
+     $f''(\theta) = -\cos(\theta)$.  Stopping after two terms,
+     $$ \cos(x) = 1 + 0\cdot x - \frac{x^2}{2}\cos(\theta_x) $$
+   * Since $\cos(\theta_x) \leq 1$ and $x^2 \geq 0$, it follows that
+     $\cos(x) \geq 1 - x^2/2$
+
+** Classifying a stationary point
+   * $\grad f = (2x + 3y,\; 3x + 2y)^\tr$.  Setting this to zero gives a
+     linear system with determinant $2\times2-3\times3 = -5 \neq 0$, so
+     the only solution is $x=y=0$
+   * The Hessian is constant,
+     $$ \mat{H} = \begin{pmatrix} 2 & 3 \\ 3 & 2 \end{pmatrix} $$
+     with eigenvalues $2\pm3$, i.e. $5$ and $-1$, and eigenvectors
+     $(1,1)/\sqrt{2}$ and $(1,-1)/\sqrt{2}$
+   * The eigenvalues have opposite signs, so the origin is a saddle
+     point: $f$ increases along $(1,1)$ and decreases along $(1,-1)$
+
+** Quadratic functions
+   * Expanding,
+     \begin{align*}
+       f(\bm{x}+\epsilon\,\bm{u})
+         &= \frac{1}{2}(\bm{x}+\epsilon\,\bm{u})^\tr\mat{A}\,(\bm{x}+\epsilon\,\bm{u}) - \bm{b}^\tr(\bm{x}+\epsilon\,\bm{u}) \\
+         &= f(\bm{x}) + \epsilon\,\bm{u}^\tr\bra{\mat{A}\,\bm{x} - \bm{b}} + \frac{1}{2}\epsilon^2\,\bm{u}^\tr\mat{A}\,\bm{u}
+     \end{align*}
+     using $\bm{x}^\tr\mat{A}\,\bm{u} = \bm{u}^\tr\mat{A}^\tr\bm{x} = \bm{u}^\tr\mat{A}\,\bm{x}$
+     for symmetric $\mat{A}$
+   * Comparing with the Taylor expansion, $\grad f = \mat{A}\,\bm{x} - \bm{b}$
+     and $\mat{H} = \mat{A}$
+   * There are no terms beyond $\epsilon^2$, so the second order
+     expansion is exact.  This is why quadratics are such a useful model
+     of a loss function near its minimum
+
+* COMMENT [[file:calculus.org][Previous]]  [[file:vectorSpaces.org][Next]]

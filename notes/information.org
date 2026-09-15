@@ -1,0 +1,240 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 27: Information Theory
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Conditional entropy, joint entropy, mutual information, channel capacity, KL-divergence, variational inference, ELBO, minimum description length, variational auto-encoders
+
+* Main Points
+
+** Communicating Down a Noisy Channel
+   * Information theory studies sending a message $X$, drawn with
+     probability $\Prob{X}$, down a noisy channel that delivers $Y$ with
+     probability $\Prob{Y\mid X}$
+   * Having received $Y = y$, our remaining uncertainty about what was sent is
+     $$ H_{X\mid Y=y} = -\sum_{x\in\mathcal{X}}\Prob{X=x\mid Y=y}\,\log\!\bra{\Prob{X=x\mid Y=y}} $$
+   * Averaging over what we might receive gives the /conditional entropy/
+     $$ H_{X\mid Y} = \sum_{y\in\mathcal{Y}}\Prob{Y=y}\,H_{X\mid Y=y} = -\sum_{x,y}\Prob{X=x,Y=y}\,\log\!\bra{\Prob{X=x\mid Y=y}} $$
+
+** Joint Entropy
+   * The /joint entropy/ is the entropy of the pair,
+     $$ H_{X,Y} = -\sum_{x,y}\Prob{X=x,Y=y}\,\log\!\bra{\Prob{X=x,Y=y}} $$
+   * If $X$ and $Y$ are independent then $H_{X,Y} = H_X + H_Y$ (see the
+     previous lecture); if they are correlated, in general
+     $H_{X,Y}\neq H_X + H_Y$
+   * Taking logs of $\Prob{X,Y} = \Prob{Y\mid X}\,\Prob{X} = \Prob{X\mid Y}\,\Prob{Y}$
+     and averaging gives the /chain rule/ for entropy
+     $$ H_{X,Y} = H_X + H_{Y\mid X} = H_Y + H_{X\mid Y} $$
+     and hence $H_X - H_{X\mid Y} = H_Y - H_{Y\mid X}$
+
+** Mutual Information
+   * Before receiving anything our uncertainty about $X$ is $H_X$.
+     Shannon defined the /mutual information/ as the expected reduction in
+     that uncertainty when we receive the message:
+     $$ I_{X;Y} = H_X - H_{X\mid Y} $$
+   * By the chain rule result above, $I_{X;Y} = I_{Y;X}$: $Y$ tells us as
+     much about $X$ as $X$ tells us about $Y$
+   * The relationships between these quantities are summarised in the
+     diagram below
+     #+ATTR_LATEX: :width 0.55\linewidth
+     [[file:figures/mutualinf.pdf]]
+   * The /capacity/ of a channel is the largest information gain we can
+     achieve by choosing the distribution of messages,
+     $$ C = \max_{\Prob{X}} I_{X;Y} $$
+   * Mutual information is widely used in machine learning; for example,
+     two sets of images can be aligned by choosing the non-linear
+     transformation that maximises the (normalised) mutual information
+     between them
+
+** The Binary Symmetric Channel
+   * The simplest noisy channel sends bits, each flipped independently with
+     probability $f$:
+     $$ \Prob{Y=1\mid X=0} = \Prob{Y=0\mid X=1} = f $$
+   * With equally likely inputs, an elementary calculation gives, per bit,
+     $$ H_{X_i\mid Y_i} = -(1-f)\log_2(1-f) - f\log_2(f) = H(f) $$
+     and for a message of $n$ bits $H_{X\mid Y} = n\,H(f)$
+     #+ATTR_LATEX: :width 0.35\linewidth
+     [[file:figures/oneBitEntropy.pdf]]
+   * Since $H_X = n$ bits for uniform inputs, $I_{X;Y} = n\,(1 - H(f))$.
+     Uniform inputs are optimal here, so the capacity is $1 - H(f)$ bits
+     per bit sent
+
+** Error Correcting Codes and Shannon's Bound
+   * To communicate reliably we use an error correcting code: choose code
+     words far apart in the space of binary strings, so that a corrupted
+     code word is still closer to the original than to any other
+     #+ATTR_LATEX: :width 0.4\linewidth
+     [[file:figures/shannonBound.pdf]]
+   * A /Hamming ball/ $B(\bm{x}, r)$ is the set of strings that differ from
+     $\bm{x}$ in at most $r$ positions
+   * A string of length $n$ suffers about $n\,f$ errors, and for large $n$
+     almost never more than $(f+\epsilon)\,n$.  So if each code word
+     owns a ball of radius $r = (f+\epsilon)\,n$, and the balls don't
+     overlap, errors can be corrected
+   * By Stirling's approximation a ball of radius $f\,n$ contains
+     $\binom{n}{fn} \approx 2^{n H(f)}$ strings, so at most
+     $$ \frac{2^n}{2^{nH(f)}} = 2^{n(1 - H(f))} $$
+     non-overlapping balls fit.  We can therefore send at most
+     $n\,(1 - H(f))$ bits of information in $n$ bits: the rate cannot
+     exceed the capacity
+   * Shannon also showed that choosing $2^{nI_{X;Y}}$ code words at random
+     keeps them far enough apart with high probability, so this rate is
+     /achievable/
+   * *Example.*  For $f = 0.1$, $H(0.1) \approx 0.469$ bits, so the capacity
+     is $C = 1 - 0.469 \approx 0.531$ bits.  Reliable communication needs
+     codes about $1/0.531\approx1.9$ times as long as the message---just
+     under twice as long---for a channel that corrupts 10% of bits
+   * Random codes cannot be decoded efficiently, so Shannon's result told
+     us the bound was achievable without telling us how.  Practical codes
+     that come close to it (such as turbo and LDPC codes) took decades more
+     to find
+
+** KL-Divergence
+   * The /Kullback--Leibler divergence/ is
+     $$ \mathrm{KL}\bra{p\,\|\,q} = \av[X\sim p]{\log\!\bra{\frac{p(X)}{q(X)}}} = \av[X\sim p]{-\log\!\bra{q(X)}} - H_p $$
+   * $-\log(q(x))$ is the code length for $x$ in the optimal code for the
+     distribution $q$.  So
+     $$ \av[X\sim p]{-\log(q(X))} $$
+     is the expected message length when data from $p$ is coded as if it
+     came from $q$, and
+     $\mathrm{KL}\bra{p\,\|\,q}$ is the expected /extra/ length paid for using
+     the wrong distribution
+   * It is also called the /relative entropy/.  It is never negative, is
+     zero only when $p = q$, and is not symmetric:
+     $\mathrm{KL}\bra{p\,\|\,q}\neq\mathrm{KL}\bra{q\,\|\,p}$ in general
+
+** Variational Approximation
+   * In Bayesian inference the posterior $f(\bm{\theta}\mid\mathcal{D})$ is
+     often too complicated to write down, which is why we used MCMC
+   * The /variational approximation/ instead fits a simpler distribution,
+     typically factorised,
+     $$ f(\bm{\theta}\mid\mathcal{D}) \approx g(\bm{\theta}\mid\bm{\phi}) = \prod_i g(\theta_i\mid\phi_i) $$
+     by maximising the /variational free energy/
+     $$ \Phi(\bm{\phi}) = -\int g(\bm{\theta}\mid\bm{\phi})\,\log\!\bra{\frac{g(\bm{\theta}\mid\bm{\phi})}{f(\bm{\theta},\mathcal{D})}}\,\dd\bm{\theta} $$
+
+** The Evidence Lower Bound (ELBO)
+   * Writing $f(\bm{\theta},\mathcal{D}) = f(\bm{\theta}\mid\mathcal{D})\,f(\mathcal{D})$,
+     \begin{align*}
+       \Phi(\bm{\phi})
+         &= -\int g(\bm{\theta}\mid\bm{\phi})\bra{\log\!\bra{\frac{g(\bm{\theta}\mid\bm{\phi})}{f(\bm{\theta}\mid\mathcal{D})}} - \log\!\bra{f(\mathcal{D})}}\dd\bm{\theta} \\
+         &= \log\!\bra{f(\mathcal{D})} - \mathrm{KL}\bra{g(\bm{\theta}\mid\bm{\phi})\,\|\,f(\bm{\theta}\mid\mathcal{D})}
+     \end{align*}
+   * Because the KL-divergence is non-negative,
+     $\Phi(\bm{\phi})\leq\log\!\bra{f(\mathcal{D})}$: the free energy is a
+     lower bound on the log evidence, hence the name ELBO
+   * Maximising $\Phi$ minimises the KL-divergence, making $g$ close to the
+     true posterior and $\Phi\approx\log\!\bra{f(\mathcal{D})}$
+   * Equivalently $\Phi(\bm{\phi}) = L_g(\bm{\phi}) + H_g(\bm{\phi})$ with
+     \begin{align*}
+       L_g(\bm{\phi}) &= \int g(\bm{\theta}\mid\bm{\phi})\,\log\!\bra{f(\mathcal{D}\mid\bm{\theta})\,f(\bm{\theta})}\,\dd\bm{\theta}
+       & H_g(\bm{\phi}) &= -\int g(\bm{\theta}\mid\bm{\phi})\,\log\!\bra{g(\bm{\theta}\mid\bm{\phi})}\,\dd\bm{\theta}
+     \end{align*}
+     The first term rewards putting $g$ where the joint density is large
+     (compare MAP); the entropy term rewards keeping $g$ as spread out as
+     possible
+   * Variational methods are usually much faster than MCMC and can be very
+     accurate, but the quality is not guaranteed.  MCMC is a controlled
+     approximation that improves with more iterations; its slowness is
+     rarely a problem on modern computers
+   * Minimising the divergence the other way round,
+     $\mathrm{KL}\bra{f\,\|\,g}$, leads to a different family of methods
+     (expectation propagation)
+
+** Minimum Description Length
+   * Outside the Bayesian framework, choosing between models of different
+     complexity is hard.  A validation set is the usual answer, but is not
+     always possible
+   * A principled alternative: prefer the model that /compresses the data
+     most/.  If a model compresses the data it has captured real structure
+   * *Alice and Bob.*  Alice has data
+     $\mathcal{D} = \{(\bm{x}_i,y_i)\mid i=1,\ldots,m\}$; Bob has only the
+     inputs $\bm{x}_i$.  Both have a model $\hat{f}(\bm{x}\mid\bm{\theta})$.
+     Rather than sending all the $y_i$, Alice sends the parameters
+     $\bm{\theta}$ and the errors $\delta_i = y_i - \hat{f}(\bm{x}_i\mid\bm{\theta})$
+   * If the errors have density $p_\delta$, sending one error to accuracy
+     $\Delta$ costs $-\log\!\bra{p_\delta(\delta_i)\,\Delta}$.  The
+     /description length/ is
+     $$ L = \sum_{k=1}^n \ell(\theta_k) - \sum_{i=1}^m\bra{\log\!\bra{p_\delta\!\bra{y_i - \hat{f}(\bm{x}_i\mid\bm{\theta})}} + \log(\Delta)} $$
+     where $\ell(\theta_k)$ is the cost of sending parameter $\theta_k$, to
+     whatever precision is worthwhile
+   * The /minimum description length/ (MDL) principle chooses the model with
+     the smallest $L$.  The $-m\log(\Delta)$ term is the same for every model
+     and does not affect the choice
+   * For Gaussian errors $-\log(p_\delta(\delta))$ is the squared error plus
+     a constant, so MDL is least squares plus a penalty for model complexity
+   * MDL trades accuracy against complexity and is often the only
+     principled method available.  It can be fiddly because we must decide
+     how precisely to store the parameters, though good models often
+     survive surprisingly low precision
+
+** Variational Auto-Encoders
+   * A variational auto-encoder (VAE) encodes an input $\bm{x}$ into a
+     distribution $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ over a latent code
+     $\bm{z}$ and decodes $\bm{z}$ back to a reconstruction.  Its loss is
+     $$ \mathcal{L} = \av[\bm{x}\sim\mathcal{D}]{\mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} - \log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))}} $$
+     #+ATTR_LATEX: :width 0.8\linewidth
+     [[file:figures/vae-5.pdf]]
+   * The original paper derived this as a variational approximation to a
+     posterior, which is hard to follow.  It has a much more natural reading
+     as a description length:
+     - Alice encodes each image into a latent code
+       $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ and sends it, at a cost of
+       $$ \mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} $$
+     - she also sends the errors needed to repair Bob's reconstruction,
+       at a cost of
+       $$ -\log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))} $$
+   * Minimising the loss minimises the total description length.  The
+     clever part is that the network also chooses how precisely to send
+     the code, trading code cost against repair cost
+
+* Exercises
+
+** The binary symmetric channel
+   * Verify that with equally likely inputs $H_{X_i\mid Y_i} = H(f)$, and
+     hence that $I_{X_i;Y_i} = 1 - H(f)$ bits.  Evaluate the capacity for
+     $f = 0.1$ and $f = 0.5$, and explain the second answer
+
+** Mutual information from entropies
+   * Use the chain rule for entropy to show that
+     $I_{X;Y} = H_X + H_Y - H_{X,Y}$
+
+** The KL-divergence is not symmetric
+   * For two coins with heads probabilities $p = 0.5$ and $q = 0.9$,
+     compute $\mathrm{KL}\bra{p\,\|\,q}$ and $\mathrm{KL}\bra{q\,\|\,p}$ in bits
+
+** KL-divergence between normals (harder)
+   * Show that
+     $$ \mathrm{KL}\bra{\mathcal{N}(\mu_1,\sigma_1^2)\,\|\,\mathcal{N}(\mu_2,\sigma_2^2)} = \log\!\bra{\frac{\sigma_2}{\sigma_1}} + \frac{\sigma_1^2 + (\mu_1-\mu_2)^2}{2\,\sigma_2^2} - \frac{1}{2} $$
+     in nats
+
+* Answers
+
+** The binary symmetric channel
+   * With uniform inputs and symmetric noise, Bayes' rule gives
+     $\Prob{X=y\mid Y=y} = 1-f$ and $\Prob{X\neq y\mid Y=y} = f$ whichever
+     $y$ is received, so $H_{X_i\mid Y=y} = H(f)$ for both $y$, and the
+     average is $H(f)$
+   * $H_{X_i} = 1$ bit, so $I_{X_i;Y_i} = 1 - H(f)$
+   * $f = 0.1$: $C \approx 1 - 0.469 = 0.531$ bits.  $f = 0.5$: $H(0.5) = 1$,
+     so $C = 0$.  When each bit is flipped with probability one half the
+     output is independent of the input, and nothing gets through
+
+** Mutual information from entropies
+   * From $H_{X,Y} = H_Y + H_{X\mid Y}$ we have $H_{X\mid Y} = H_{X,Y} - H_Y$, so
+     $$ I_{X;Y} = H_X - H_{X\mid Y} = H_X + H_Y - H_{X,Y} $$
+
+** The KL-divergence is not symmetric
+   * $\mathrm{KL}\bra{p\,\|\,q} = 0.5\log_2(0.5/0.9) + 0.5\log_2(0.5/0.1) \approx 0.737$ bits
+   * $\mathrm{KL}\bra{q\,\|\,p} = 0.9\log_2(0.9/0.5) + 0.1\log_2(0.1/0.5) \approx 0.531$ bits
+
+** KL-divergence between normals (harder)
+   * With $p = \mathcal{N}(\mu_1,\sigma_1^2)$ and $q = \mathcal{N}(\mu_2,\sigma_2^2)$,
+     $$ \log\!\bra{\frac{p(x)}{q(x)}} = \log\!\bra{\frac{\sigma_2}{\sigma_1}} - \frac{(x-\mu_1)^2}{2\,\sigma_1^2} + \frac{(x-\mu_2)^2}{2\,\sigma_2^2} $$
+   * Take the expectation over $X\sim p$.  $\av{(X-\mu_1)^2} = \sigma_1^2$, and
+     writing $X - \mu_2 = (X-\mu_1) + (\mu_1-\mu_2)$,
+     $\av{(X-\mu_2)^2} = \sigma_1^2 + (\mu_1-\mu_2)^2$ because the cross
+     term has zero mean
+   * Hence
+     $$ \mathrm{KL}\bra{p\,\|\,q} = \log\!\bra{\frac{\sigma_2}{\sigma_1}} - \frac{1}{2} + \frac{\sigma_1^2 + (\mu_1-\mu_2)^2}{2\,\sigma_2^2} $$
+
+* COMMENT [[file:entropy.org][Previous]]  [[file:biasVariance.org][Next]]
