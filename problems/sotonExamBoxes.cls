@@ -88,8 +88,7 @@
 \renewcommand{\headrulewidth}{0.0pt}
 
 
-\newcommand{\CopySoton}{Copyright~\ifthenelse{\value{semnumber} >
-       1}{\arabic{yearplus1}}{\arabic{year}}\copyright~\univname}
+\newcommand{\CopySoton}{AICE3001/6002 Problem Sheet}
 
 
 \newcommand{\Page}{Page~\textbf{\thepage}~of~\textbf{\pageref{LastPage}}}
@@ -105,7 +104,7 @@
 \fancypagestyle{body}{
     \fancyhf{}
     \fancyfoot[L]{\CopySoton}
-    \fancyhead[R]{\Large \ucode W1}
+    \fancyhead[R]{}
     \fancyhead[C]{}
     \fancyfoot[RE]{\Page}
     \fancyfoot[RO]{\raisebox{2.3ex}[0pt][0pt]{\makebox[0pt][l]{\large TURN OVER}}\Page}

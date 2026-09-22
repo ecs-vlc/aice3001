@@ -25,7 +25,7 @@
 }
 % \usepackage{picture}
 \begin{document}
-\unitTitle{ Problem Sheet}
+\unitTitle{Eigenvectors, PCA and SVD Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
@@ -40,24 +40,134 @@
 
 
 \begin{question}{20}
+  In this question we consider real symmetric matrices.  Throughout,
+  $\mat{M}$ is an $n\times n$ real symmetric matrix with eigenvalues
+  $\lambda_1, \lambda_2, \ldots, \lambda_n$ (repeated eigenvalues
+  being listed according to their multiplicity).
+
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[3]{Find the eigenvalues and eigenvectors of
+      \begin{align*}
+        \mat{A} = \begin{pmatrix} 3 & 1 \\ 1 & 3 \end{pmatrix}
+      \end{align*}
+      and verify that the eigenvectors are orthogonal.
       \begin{answer}
+        The characteristic equation is $(3-\lambda)^2 - 1 = 0$ so
+        that $\lambda = 3 \pm 1$, giving $\lambda_1 = 4$ and
+        $\lambda_2 = 2$.  Solving $(\mat{A} - 4\Id)\bm{v} = \bm{0}$
+        gives $\bm{v}_1 = (1,1)^\tr/\sqrt{2}$ and $(\mat{A} -
+        2\Id)\bm{v} = \bm{0}$ gives $\bm{v}_2 =
+        (1,-1)^\tr/\sqrt{2}$.  Then $\bm{v}_1^\tr \bm{v}_2 = (1 -
+        1)/2 = 0$, so they are orthogonal.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{Show that the eigenvalues of $\mat{M}$ are real, and
+      that two eigenvectors whose eigenvalues differ are necessarily
+      orthogonal.
+      \begin{answer}
+        Let $\mat{M}\bm{v} = \lambda \bm{v}$ where we allow $\bm{v}$
+        and $\lambda$ to be complex.  Multiplying on the left by the
+        conjugate transpose $\bm{v}^*$
+        \begin{align*}
+          \bm{v}^* \mat{M} \bm{v} = \lambda\, \bm{v}^*\bm{v}
+          = \lambda \len{\bm{v}}^2 .
+        \end{align*}
+        Since $\mat{M}$ is real and symmetric the left-hand side is
+        equal to its own complex conjugate, so $\lambda
+        \len{\bm{v}}^2 = \lambda^* \len{\bm{v}}^2$.  As
+        $\len{\bm{v}}^2 > 0$ we have $\lambda = \lambda^*$, that is
+        $\lambda$ is real.
+
+        For the second part, let $\mat{M}\bm{v}_i = \lambda_i
+        \bm{v}_i$ and $\mat{M}\bm{v}_j = \lambda_j \bm{v}_j$.  Then
+        \begin{align*}
+          \bm{v}_j^\tr \mat{M} \bm{v}_i = \lambda_i \,\bm{v}_j^\tr
+          \bm{v}_i , \qquad
+          \bm{v}_j^\tr \mat{M} \bm{v}_i
+          = \bra{\mat{M}\bm{v}_j}^\tr \bm{v}_i
+          = \lambda_j \, \bm{v}_j^\tr \bm{v}_i
+        \end{align*}
+        where we used $\mat{M}^\tr = \mat{M}$.  Subtracting,
+        $(\lambda_i - \lambda_j)\bm{v}_j^\tr \bm{v}_i = 0$, so if
+        $\lambda_i \neq \lambda_j$ then $\bm{v}_j^\tr\bm{v}_i = 0$.
+      \end{answer}}{\lines{12}}
+
+    \qpart[3]{Let $\mat{V}$ be the matrix whose columns are the
+      normalised eigenvectors of $\mat{M}$ and let $\mat{\Lambda} =
+      \diag(\lambda_1, \ldots, \lambda_n)$.  Explain why $\mat{V}$ is
+      orthogonal, show that $\mat{M} = \mat{V}\mat{\Lambda}\mat{V}^\tr$,
+      and deduce an expression for $\mat{M}^k$.
+      \begin{answer}
+        By the previous part the eigenvectors are mutually orthogonal
+        and we have normalised them, so $\mat{V}^\tr \mat{V} = \Id$,
+        that is $\mat{V}$ is orthogonal and $\mat{V}^{-1} =
+        \mat{V}^\tr$.  (For a repeated eigenvalue we may always
+        choose an orthonormal basis of the corresponding
+        eigenspace.)  The $n$ eigenvector equations written together
+        are $\mat{M}\,\mat{V} = \mat{V}\mat{\Lambda}$, so
+        right-multiplying by $\mat{V}^{-1} = \mat{V}^\tr$
+        \begin{align*}
+          \mat{M} = \mat{V}\mat{\Lambda}\mat{V}^\tr .
+        \end{align*}
+        Then $\mat{M}^2 = \mat{V}\mat{\Lambda}\mat{V}^\tr
+        \mat{V}\mat{\Lambda}\mat{V}^\tr =
+        \mat{V}\mat{\Lambda}^2\mat{V}^\tr$ since $\mat{V}^\tr\mat{V}
+        = \Id$, and by induction $\mat{M}^k =
+        \mat{V}\mat{\Lambda}^k\mat{V}^\tr$.
+      \end{answer}}{\lines{8}}
+
+    \qpart[4]{Using $\det(\mat{A}\mat{B}) = \det(\mat{A})
+      \det(\mat{B})$, show that
+      \begin{align*}
+        \det(\mat{M}) = \prod_{i=1}^n \lambda_i .
+      \end{align*}
+      \begin{answer}
+        From the previous part
+        \begin{align*}
+          \det(\mat{M}) = \det\bra{\mat{V}\mat{\Lambda}\mat{V}^\tr}
+          = \det(\mat{V}) \, \det(\mat{\Lambda}) \, \det(\mat{V}^\tr) .
+        \end{align*}
+        But $\det(\mat{V})\det(\mat{V}^\tr) =
+        \det(\mat{V}\mat{V}^\tr) = \det(\Id) = 1$, so $\det(\mat{M})
+        = \det(\mat{\Lambda})$.  The determinant of a diagonal matrix
+        is the product of its diagonal elements, hence
+        $\det(\mat{M}) = \prod_i \lambda_i$.
+      \end{answer}}{\lines{7}}
+
+    \qpart[4]{Using the cyclic property of the trace,
+      $\Tr(\mat{A}\mat{B}) = \Tr(\mat{B}\mat{A})$, show that
+      \begin{align*}
+        \Tr \mat{M} = \sum_{i=1}^n \lambda_i .
+      \end{align*}
+      \begin{answer}
+        Writing $\mat{M} = \mat{V}\mat{\Lambda}\mat{V}^\tr$ and
+        treating $\mat{A} = \mat{V}$ and $\mat{B} =
+        \mat{\Lambda}\mat{V}^\tr$,
+        \begin{align*}
+          \Tr \mat{M} = \Tr\bra{\mat{V}\,\mat{\Lambda}\mat{V}^\tr}
+          = \Tr\bra{\mat{\Lambda}\mat{V}^\tr\,\mat{V}}
+          = \Tr \mat{\Lambda} = \sum_{i=1}^n \lambda_i
+        \end{align*}
+        where we used $\mat{V}^\tr\mat{V} = \Id$.
+      \end{answer}}{\lines{6}}
+
+    \qpart[2]{Deduce a condition on the eigenvalues for $\mat{M}$ to
+      be singular.  If $\mat{M}$ is not singular, what does the
+      condition number $|\lambda|_{\max}/|\lambda|_{\min}$ tell you
+      about the difficulty of solving $\mat{M}\bm{x} = \bm{b}$
+      numerically?
+      \begin{answer}
+        $\mat{M}$ is singular if and only if $\det(\mat{M}) = 0$,
+        which by the previous part happens exactly when at least one
+        eigenvalue is zero.  A large condition number means the
+        matrix is close to being singular in at least one direction:
+        a small perturbation in $\bm{b}$ along the eigenvector with
+        the smallest $|\lambda|$ produces a change in $\bm{x}$
+        larger by a factor of the condition number, so the solution
+        is ill-conditioned.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
-      \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
-      \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
-      \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+
   \end{qparts}
 \end{question}
 \freshpage
@@ -66,30 +176,488 @@
 
 
 \begin{question}{20}
+  Let $\mat{X}$ be a $d \times m$ matrix whose $m$ columns are
+  (mean-subtracted) data vectors of dimension $d$, scaled so that the
+  covariance matrix is $\mat{C} = \mat{X}\,\mat{X}^\tr$.  We also
+  define the \emph{dual matrix} $\mat{D} = \mat{X}^\tr \mat{X}$.
+
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[3]{Show that $\mat{C}$ is symmetric and positive
+      semi-definite.  Under what condition is it positive definite?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $\mat{C}^\tr = \bra{\mat{X}\mat{X}^\tr}^\tr =
+        \mat{X}\mat{X}^\tr = \mat{C}$, so it is symmetric.  For any
+        $\bm{w}$
+        \begin{align*}
+          \bm{w}^\tr \mat{C}\, \bm{w} = \bm{w}^\tr \mat{X}\mat{X}^\tr
+          \bm{w} = \bra{\mat{X}^\tr\bm{w}}^\tr
+          \bra{\mat{X}^\tr\bm{w}} = \len{\mat{X}^\tr \bm{w}}^2 \geq 0
+        \end{align*}
+        so $\mat{C}$ is positive semi-definite.  It is positive
+        definite if $\mat{X}^\tr\bm{w} \neq \bm{0}$ for every
+        $\bm{w}\neq\bm{0}$, that is when the rows of $\mat{X}$ are
+        linearly independent, so $\mat{X}$ has rank $d$.  This
+        requires at least $d$ data points, $m \geq d$.
+      \end{answer}}{\lines{7}}
+
+    \qpart[5]{The first principal component is the unit vector
+      $\bm{w}$ maximising the variance $\bm{w}^\tr\mat{C}\,\bm{w}$ of
+      the projected data.  Using a Lagrange multiplier to impose
+      $\len{\bm{w}} = 1$, show that $\bm{w}$ must be an eigenvector
+      of $\mat{C}$, and identify the value of the Lagrange
+      multiplier.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        The Lagrangian is
+        \begin{align*}
+          L(\bm{w}, \lambda) = \bm{w}^\tr \mat{C} \, \bm{w} -
+          \lambda \bra{\bm{w}^\tr \bm{w} - 1} .
+        \end{align*}
+        Since $\mat{C}$ is symmetric, $\grad_{\bm{w}} L = 2\,\mat{C}
+        \bm{w} - 2 \lambda \bm{w}$, and setting this to zero gives
+        \begin{align*}
+          \mat{C} \, \bm{w} = \lambda\, \bm{w} ,
+        \end{align*}
+        so $\bm{w}$ is an eigenvector of $\mat{C}$.  Multiplying on
+        the left by $\bm{w}^\tr$ and using $\bm{w}^\tr\bm{w} = 1$,
+        \begin{align*}
+          \bm{w}^\tr \mat{C}\, \bm{w} = \lambda .
+        \end{align*}
+        That is, the Lagrange multiplier \emph{is} the variance
+        along $\bm{w}$, so to maximise the variance we choose the
+        eigenvector with the largest eigenvalue.
+      \end{answer}}{\lines{10}}
+
+    \qpart[3]{Let $\bm{v}_1, \ldots, \bm{v}_d$ be the normalised
+      eigenvectors of $\mat{C}$ ordered by decreasing eigenvalue and
+      let $\mat{P} = \sum_{i=1}^{k} \bm{v}_i \bm{v}_i^\tr$.  Show
+      that $\mat{P}^2 = \mat{P}$ and that the expected squared
+      reconstruction error $\av{\len{\mat{P}\bm{x} - \bm{x}}^2}$ is
+      $\sum_{i>k} \lambda_i$.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        Using $\bm{v}_i^\tr \bm{v}_j = \delta_{ij}$,
+        \begin{align*}
+          \mat{P}^2 = \sum_{i=1}^k \sum_{j=1}^k \bm{v}_i
+          \bra{\bm{v}_i^\tr \bm{v}_j} \bm{v}_j^\tr
+          = \sum_{i=1}^k \bm{v}_i \bm{v}_i^\tr = \mat{P} .
+        \end{align*}
+        Expanding $\bm{x}$ in the complete eigenbasis, $\bm{x} =
+        \sum_{i=1}^d (\bm{v}_i^\tr \bm{x})\, \bm{v}_i$, so
+        $\mat{P}\bm{x} - \bm{x} = -\sum_{i>k} (\bm{v}_i^\tr
+        \bm{x})\bm{v}_i$ and, by orthonormality,
+        \begin{align*}
+          \av{\len{\mat{P}\bm{x}-\bm{x}}^2} = \sum_{i>k}
+          \av{\bra{\bm{v}_i^\tr \bm{x}}^2} = \sum_{i>k} \bm{v}_i^\tr
+          \mat{C}\, \bm{v}_i = \sum_{i>k} \lambda_i .
+        \end{align*}
+      \end{answer}}{\lines{8}}
+
+    \qpart[5]{Show that if $\bm{v}$ is an eigenvector of $\mat{D}$
+      with non-zero eigenvalue $\lambda$ then $\mat{X}\bm{v}$ is an
+      eigenvector of $\mat{C}$ with the same eigenvalue.  Why must we
+      exclude $\lambda = 0$?  Why is this result useful when there
+      are many more features than examples?
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        Acting with $\mat{C}$ on $\mat{X}\bm{v}$,
+        \begin{align*}
+          \mat{C} \bra{\mat{X}\bm{v}} = \mat{X}\mat{X}^\tr \mat{X}
+          \bm{v} = \mat{X} \bra{\mat{D}\bm{v}} = \lambda\,
+          \mat{X}\bm{v}
+        \end{align*}
+        so $\mat{X}\bm{v}$ is an eigenvector of $\mat{C}$ with
+        eigenvalue $\lambda$, provided $\mat{X}\bm{v}\neq\bm{0}$.
+        Now
+        \begin{align*}
+          \len{\mat{X}\bm{v}}^2 = \bm{v}^\tr \mat{X}^\tr \mat{X}
+          \bm{v} = \bm{v}^\tr \mat{D}\bm{v} = \lambda\,
+          \len{\bm{v}}^2
+        \end{align*}
+        so $\mat{X}\bm{v} \neq \bm{0}$ exactly when $\lambda \neq 0$;
+        for $\lambda = 0$ the construction gives the zero vector,
+        which is not an eigenvector.
+
+        $\mat{C}$ is $d\times d$ and $\mat{D}$ is $m \times m$.  When
+        $d \gg m$ it is far cheaper to find the eigensystem of
+        $\mat{D}$ (cost $O(m^3)$) and map the eigenvectors across
+        than to work with $\mat{C}$ directly (cost $O(d^3)$).  Note
+        that $\mat{C}$ then has at most $m$ non-zero eigenvalues: the
+        data cannot span the feature space.
+      \end{answer}}{\lines{12}}
+
+    \qpart[4]{The singular value decomposition writes $\mat{X} =
+      \mat{U}\mat{S}\mat{V}^\tr$, where $\mat{U}$ and $\mat{V}$ are
+      orthogonal and $\mat{S}$ is diagonal with non-negative entries
+      $s_i$.  Show that
+      \begin{align*}
+        \mat{X}\mat{X}^\tr = \mat{U}\mat{S}\mat{S}^\tr \mat{U}^\tr ,
+        \qquad
+        \mat{X}^\tr \mat{X} = \mat{V}\mat{S}^\tr \mat{S}\, \mat{V}^\tr
+      \end{align*}
+      and hence say what the columns of $\mat{U}$ and $\mat{V}$ are,
+      and how the singular values relate to the eigenvalues.
+      \begin{answer}
+        Substituting the decomposition and using $\mat{V}^\tr\mat{V}
+        = \Id$,
+        \begin{align*}
+          \mat{X}\mat{X}^\tr =
+          \mat{U}\mat{S}\mat{V}^\tr\mat{V}\mat{S}^\tr\mat{U}^\tr
+          = \mat{U}\mat{S}\mat{S}^\tr\mat{U}^\tr
+        \end{align*}
+        and similarly, using $\mat{U}^\tr\mat{U} = \Id$,
+        \begin{align*}
+          \mat{X}^\tr\mat{X} =
+          \mat{V}\mat{S}^\tr\mat{U}^\tr\mat{U}\mat{S}\mat{V}^\tr
+          = \mat{V}\mat{S}^\tr\mat{S}\mat{V}^\tr .
+        \end{align*}
+        Both right-hand sides have the form
+        $\mat{Q}\mat{\Lambda}\mat{Q}^\tr$ with $\mat{Q}$ orthogonal
+        and $\mat{\Lambda}$ diagonal, which by question 1(c) is the
+        eigendecomposition.  So the columns of $\mat{U}$ are the
+        eigenvectors of $\mat{X}\mat{X}^\tr$, the columns of
+        $\mat{V}$ are the eigenvectors of $\mat{X}^\tr\mat{X}$, and
+        the non-zero eigenvalues of both are $s_i^2$.  Equivalently
+        the singular values are the square roots of the non-zero
+        eigenvalues, which is the duality of part (d) again.
+      \end{answer}}{\lines{10}}
+
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 3 **************************
+
+
+\begin{question}{20}
+    In this question I want you to use a numerical package to check
+    the results of the previous two questions.  You can use MATLAB,
+    OCTAVE, numpy in Python or any other language of your choosing.
+    The answers are only going to be accurate up to the numerical
+    precision of your machine (typically around $10^{-16}$), so two
+    quantities should be treated as equal when they agree to around
+    ten decimal places.  For python the following may be useful
+
+    \begin{tabularx}{\linewidth}{@{}l|X@{}}
+      \hline
+      \verb+import numpy as np+ & import the numpy module\\ \hline
+    \verb+A = np.random.randn(n,m)+ & generate a matrix of
+      normally distributed random deviates with n rows and m columns\\ \hline
+    \verb+A.transpose()+ & return the transpose of $\mat{A}$
+      (does not change $\mat{A}$)\\ \hline
+    \verb+A@B+ & matrix multiplication $\mat{A}\mat{B}$.  Beware
+      that \verb+A*B+ performs elementwise multiplication which is
+      different to normal matrix multiplication\\ \hline
+    \verb+A.trace()+ & returns the trace of a matrix\\ \hline
+    \verb+np.linalg.det(A)+ & return the determinant of a matrix\\ \hline
+    \verb+np.linalg.eigh(A)+ & eigenvalues and eigenvectors of a
+      \emph{symmetric} matrix $\mat{A}$, returned as a pair
+      \verb+(lam, V)+ where \verb+lam+ is a one-dimensional array of
+      eigenvalues in increasing order and the columns of \verb+V+
+      are the corresponding normalised eigenvectors\\ \hline
+    \verb+np.linalg.eig(A)+ & the same for a general square matrix.
+      The eigenvalues come in no particular order and may be
+      complex\\ \hline
+    \verb+np.linalg.svd(X)+ & singular value decomposition, returned
+      as a triple \verb+(U, s, Vt)+.  Note that \verb+s+ is a
+      one-dimensional array of singular values in decreasing order,
+      not a matrix, and that the third element returned is
+      $\mat{V}^\tr$ and not $\mat{V}$\\ \hline
+    \verb+np.diag(s)+ & turn a one-dimensional array into a diagonal
+      matrix (and, given a matrix, extract its diagonal)\\ \hline
+    \verb+np.sort(x)+ & sort an array into increasing order\\ \hline
+    \verb+np.allclose(a, b)+ & test whether two arrays agree to
+      within numerical precision.  Returns a single true or false
+      value\\ \hline
+    \verb+np.round(A, 10)+ & rounds the elements in a matrix
+      $\mat{A}$ to 10 decimal places.  Makes expressions like
+      \verb+(A@B)@C - A@(B@C)+ easier to read\\ \hline
+    \end{tabularx}
+
+    Generate a random $5\times5$ matrix $\mat{M}$ and form the
+    symmetric matrix $\mat{A} = \mat{M} + \mat{M}^\tr$.  Separately
+    generate a random $4\times6$ matrix $\mat{X}$.
+
+   \begin{qparts}
+
+    \qpart[3]{Compute the eigenvalues of $\mat{A}$.  Compare the
+      product of the eigenvalues with \texttt{np.linalg.det(A)}, and
+      their sum with \texttt{A.trace()}.  Which of the results of
+      question 1 does this check?
+      \begin{answer}
+        This checks $\det(\mat{M}) = \prod_i \lambda_i$ and $\Tr
+        \mat{M} = \sum_i \lambda_i$ from question 1(d) and 1(e).
+\begin{alltt}
+M = np.random.randn(5,5)\\
+A = M + M.transpose()\\
+lam, V = np.linalg.eigh(A)\\
+print(np.prod(lam), np.linalg.det(A))\\
+print(np.sum(lam), A.trace())
+\end{alltt}
+        The determinant is the more delicate comparison: it is a
+        product of five numbers so the relative errors accumulate.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Verify numerically that $\mat{V}^\tr\mat{V} = \Id$ and
+      that $\mat{A} = \mat{V}\mat{\Lambda}\mat{V}^\tr$, where
+      $\mat{\Lambda} = \diag(\lambda_1,\ldots,\lambda_5)$.  What
+      happens if you replace $\mat{A}$ by the non-symmetric
+      $\mat{M}$?
+      \begin{answer}
+\begin{alltt}
+print(np.round(V.transpose()@V, 10))\\
+L = np.diag(lam)\\
+print(np.round(V@L@V.transpose() - A, 10))
+\end{alltt}
+        Both should print matrices of zeros (the first after
+        subtracting the identity).  For $\mat{M}$ the eigenvectors
+        are not orthogonal, so $\mat{V}^\tr\mat{V}\neq\Id$ and the
+        reconstruction fails; one must use $\mat{V}^{-1}$ instead of
+        $\mat{V}^\tr$.  This is explored in question 4.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{Compute the singular value decomposition of $\mat{X}$.
+      Check that the singular values are the square roots of the
+      non-zero eigenvalues of both $\mat{X}\mat{X}^\tr$ and
+      $\mat{X}^\tr\mat{X}$.
+      \begin{answer}
+\begin{alltt}
+X = np.random.randn(4,6)\\
+U, s, Vt = np.linalg.svd(X)\\
+lc, Uc = np.linalg.eigh(X@X.transpose())\\
+ld, Vd = np.linalg.eigh(X.transpose()@X)\\
+print(np.sort(s**2))\\
+print(np.round(lc, 10))\\
+print(np.round(ld, 10))
+\end{alltt}
+        The four values of $s_i^2$ match the four eigenvalues of
+        $\mat{X}\mat{X}^\tr$ and the four largest of the six
+        eigenvalues of $\mat{X}^\tr\mat{X}$; the remaining two are
+        zero.  Note that \texttt{eigh} returns increasing
+        eigenvalues while \texttt{svd} returns decreasing singular
+        values, so one list must be reversed before comparing.
+      \end{answer}}{\lines{7}}
+
+    \qpart[4]{Check that the columns of $\mat{U}$ are eigenvectors of
+      $\mat{X}\mat{X}^\tr$ and the columns of $\mat{V}$ are
+      eigenvectors of $\mat{X}^\tr\mat{X}$.  You will probably find
+      that some columns come back with the opposite sign to the ones
+      you computed in the previous part.  Why is this not an error?
+      \begin{answer}
+        If $\mat{A}\bm{v} = \lambda \bm{v}$ then
+        $\mat{A}(-\bm{v}) = \lambda(-\bm{v})$, so $-\bm{v}$ is just
+        as good an eigenvector and normalising to unit length does
+        not resolve the choice.  Which one a routine returns depends
+        on the algorithm, so the sign carries no meaning.  (If an
+        eigenvalue is repeated, the ambiguity is larger still: any
+        orthonormal basis of that eigenspace will do.)  A safe check
+        compares directions rather than vectors,
+\begin{alltt}
+for i in range(4):\\
+\hspace*{2em}c = U[:,i]@Uc[:,3-i]\\
+\hspace*{2em}print(np.round(abs(c), 10))
+\end{alltt}
+        each of which should print 1.  Equivalently, compare
+        $\bm{u}\bm{u}^\tr$, which is insensitive to the sign.
+      \end{answer}}{\lines{8}}
+
+    \qpart[3]{$\mat{X}$ is $4 \times 6$, so one of
+      $\mat{X}\mat{X}^\tr$ and $\mat{X}^\tr\mat{X}$ is necessarily
+      singular.  Which, and why?  Confirm this from the eigenvalues
+      and from the determinant.
+      \begin{answer}
+        $\mat{X}$ has rank at most $\min(4,6) = 4$, and both products
+        have the same rank as $\mat{X}$.  $\mat{X}\mat{X}^\tr$ is
+        $4\times4$ and generically has full rank, so it is
+        invertible.  $\mat{X}^\tr\mat{X}$ is $6\times6$ with rank at
+        most 4, so at least two of its eigenvalues are zero and its
+        determinant vanishes.  This is the statement of question 2(d)
+        seen from the other side: the two matrices share their
+        non-zero eigenvalues, and the larger one makes up the
+        difference with zeros.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Form the rank-$k$ approximation $\mat{X}_k =
+      \sum_{i=1}^k s_i \, \bm{u}_i \bm{v}_i^\tr$ for $k = 1, 2, 3, 4$
+      and compare the squared error $\sum_{jl} (X_{jl} -
+      (X_k)_{jl})^2$ with $\sum_{i>k} s_i^2$.
+      \begin{answer}
+\begin{alltt}
+for k in range(1,5):\\
+\hspace*{2em}Xk = U[:,:k]@np.diag(s[:k])@Vt[:k,:]\\
+\hspace*{2em}err = ((X-Xk)**2).sum()\\
+\hspace*{2em}print(err, (s[k:]**2).sum())
+\end{alltt}
+        The two agree for every $k$, and the error falls to zero at
+        $k = 4$ because $\mat{X}$ has rank 4.  This is the
+        matrix version of the PCA reconstruction result of question
+        2(c): the error you incur is the sum of the eigenvalues you
+        throw away.
+      \end{answer}}{\lines{7}}
+
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 4 **************************
+
+
+\begin{question}{20}
+  Almost everything we have done so far assumed the matrix was real
+  and symmetric, which guaranteed real eigenvalues and a complete set
+  of orthogonal eigenvectors.  This question is about what happens
+  when that assumption is dropped.  The point is not that the
+  calculations are harder, but that the conclusions genuinely change.
+  You may use python throughout.
+
+  \begin{qparts}
+
+    \qpart[4]{By hand, find the eigenvalues and eigenvectors of
+      \begin{align*}
+        \mat{A} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix} .
+      \end{align*}
+      Show that $\mat{A}$ has a repeated eigenvalue but only one
+      eigenvector direction, and explain why this means $\mat{A}$
+      cannot be written as $\mat{V}\mat{\Lambda}\mat{V}^{-1}$.
+      \begin{answer}
+        The matrix is upper triangular so the characteristic
+        equation is $(1-\lambda)^2 = 0$, giving $\lambda = 1$ twice.
+        Solving $(\mat{A} - \Id)\bm{v} = \bm{0}$,
+        \begin{align*}
+          \begin{pmatrix} 0 & 1 \\ 0 & 0\end{pmatrix}
+          \begin{pmatrix} v_1 \\ v_2 \end{pmatrix} =
+          \begin{pmatrix} 0 \\ 0 \end{pmatrix}
+          \quad \Rightarrow \quad v_2 = 0
+        \end{align*}
+        so every eigenvector is a multiple of $(1,0)^\tr$: there is
+        only one eigenvector direction, not two.  To write $\mat{A} =
+        \mat{V}\mat{\Lambda}\mat{V}^{-1}$ the columns of $\mat{V}$
+        must be $n$ linearly independent eigenvectors, so that
+        $\mat{V}^{-1}$ exists.  Here there are not enough, so no such
+        $\mat{V}$ exists.  A matrix like this is called
+        \emph{defective}.
+      \end{answer}}{\lines{9}}
+
+    \qpart[3]{Confirm this in python using
+      \texttt{np.linalg.eig}.  You will get back a matrix with two
+      columns: look at them and explain what has happened.  Compute
+      the determinant of that matrix and say why $\mat{V}^{-1}$
+      cannot be formed.
+      \begin{answer}
+\begin{alltt}
+A = np.array([[1.0, 1.0], [0.0, 1.0]])\\
+lam, V = np.linalg.eig(A)\\
+print(lam)\\
+print(V)\\
+print(np.linalg.det(V))
+\end{alltt}
+        The routine always returns an $n \times n$ matrix, but here
+        both columns are the same vector $(1,0)^\tr$ up to sign and
+        rounding, because that is the only eigenvector there is.  The
+        columns are therefore linearly dependent, $\det(\mat{V})
+        \approx 0$, and $\mat{V}$ is singular so $\mat{V}^{-1}$ does
+        not exist.  \texttt{np.linalg.eig} gives no warning: it is
+        the user's job to notice.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{Now take
+      \begin{align*}
+        \mat{B} = \begin{pmatrix} 1 & 1 \\ 0 & 2 \end{pmatrix} .
+      \end{align*}
+      Find its eigenvectors and show that, although they are not
+      orthogonal, $\mat{B} = \mat{V}\mat{\Lambda}\mat{V}^{-1}$ still
+      holds.  What does this tell you about the difference between
+      \emph{non-symmetric} and \emph{defective}?
+      \begin{answer}
+        The eigenvalues are $\lambda_1 = 1$ and $\lambda_2 = 2$.  For
+        $\lambda_1 = 1$, $(\mat{B}-\Id)\bm{v} = \bm{0}$ gives $v_2 =
+        0$ so $\bm{v}_1 = (1,0)^\tr$.  For $\lambda_2 = 2$,
+        $(\mat{B}-2\Id)\bm{v}=\bm{0}$ gives $-v_1 + v_2 = 0$ so
+        $\bm{v}_2 = (1,1)^\tr/\sqrt{2}$.  These are independent, so
+        $\mat{V}$ is invertible and the decomposition holds, but
+        $\bm{v}_1^\tr\bm{v}_2 = 1/\sqrt{2} \neq 0$, so they are not
+        orthogonal and $\mat{V}^\tr\mat{V}\neq\Id$.  In python
+        \texttt{np.linalg.inv(V)@B@V} recovers $\mat{\Lambda}$ while
+        \texttt{V.transpose()@B@V} does not.
+
+        So the two properties are separate.  Symmetry buys
+        \emph{orthogonal} eigenvectors; what diagonalisation actually
+        needs is only that there are $n$ \emph{independent} ones.
+        Most non-symmetric matrices are diagonalisable; defective
+        ones like $\mat{A}$ are the exception.
+      \end{answer}}{\lines{10}}
+
+    \qpart[4]{Consider the rotation matrix
+      \begin{align*}
+        \mat{R} = \begin{pmatrix} \cos\theta & -\sin\theta \\
+          \sin\theta & \phantom{-}\cos\theta \end{pmatrix} .
+      \end{align*}
+      Compute its eigensystem numerically for $\theta = \pi/3$.
+      Verify that the eigenvalues are $\e{\pm i \theta}$ and that the
+      two eigenvectors are complex conjugates of each other.  Explain
+      why complex eigenvalues of a \emph{real} matrix must come in
+      conjugate pairs.  What replaces the sign ambiguity of question
+      3(d) in the complex case?
+      \begin{answer}
+        The characteristic equation is $\lambda^2 - 2\cos\theta\,
+        \lambda + 1 = 0$, with roots $\lambda = \cos\theta \pm i
+        \sin\theta = \e{\pm i\theta}$, and the eigenvectors are
+        $(1, \mp i)^\tr/\sqrt{2}$.  Geometrically this is what we
+        should expect: a rotation leaves no real direction unchanged
+        (for $\theta$ not a multiple of $\pi$), so there is no real
+        eigenvector.
+
+        The characteristic polynomial of a real matrix has real
+        coefficients, so if $p(\lambda) = 0$ then taking the complex
+        conjugate of the whole equation gives $p(\lambda^*) = 0$
+        also.  Likewise conjugating $\mat{R}\bm{v} = \lambda\bm{v}$
+        gives $\mat{R}\bm{v}^* = \lambda^* \bm{v}^*$, so the
+        eigenvectors pair up in the same way.
+
+        In question 3(d) an eigenvector was fixed only up to a factor
+        of $\pm1$.  For a complex eigenvector it is fixed only up to
+        an arbitrary phase $\e{i\phi}$, since $\len{\e{i\phi}\bm{v}}
+        = \len{\bm{v}}$.  The real case is just $\phi \in \{0,
+        \pi\}$.
+      \end{answer}}{\lines{12}}
+
+    \qpart[3]{Check that $\det(\mat{R}) = \prod_i \lambda_i$ and $\Tr
+      \mat{R} = \sum_i \lambda_i$ still hold, even though the
+      eigenvalues are complex.  Why do the answers come out real?
+      \begin{answer}
+        $\det(\mat{R}) = \cos^2\theta + \sin^2\theta = 1$, and
+        $\prod_i \lambda_i = \e{i\theta}\e{-i\theta} = 1$.  $\Tr
+        \mat{R} = 2\cos\theta$, and $\sum_i\lambda_i = \e{i\theta} +
+        \e{-i\theta} = 2\cos\theta$.  Both results hold for any
+        square matrix, not just symmetric ones, because they follow
+        from the characteristic polynomial rather than from any
+        orthogonality.  The answers are real because the complex
+        eigenvalues occur in conjugate pairs, and both the sum and
+        the product of a conjugate pair are real.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Finally, compute the singular value decomposition of
+      the defective matrix $\mat{A}$ of part (a).  It exists, and its
+      singular values are real and positive, even though $\mat{A}$
+      has no eigendecomposition.  Explain why, and confirm that $s_1
+      s_2 = |\det(\mat{A})|$.
+      \begin{answer}
+        The SVD of $\mat{A}$ is built from the eigendecompositions of
+        $\mat{A}^\tr\mat{A}$ and $\mat{A}\mat{A}^\tr$, which are
+        symmetric and positive semi-definite whatever $\mat{A}$ is.
+        So an SVD exists for \emph{every} matrix, square or not,
+        defective or not.  Here $\mat{A}^\tr\mat{A} =
+        \left(\begin{smallmatrix} 1 & 1\\ 1 &
+        2\end{smallmatrix}\right)$, with eigenvalues $(3\pm\sqrt5)/2$
+        and hence $s_1 \approx 1.618$, $s_2 \approx 0.618$.  Then
+        $s_1 s_2 = 1 = |\det(\mat{A})|$, as it must be since
+        $|\det(\mat{A})| = |\det(\mat{U})| \det(\mat{S})
+        |\det(\mat{V}^\tr)| = \prod_i s_i$.  The matrix is
+        invertible: its determinant is non-zero and no singular value
+        is zero.  Being defective is a statement about eigenvectors,
+        not about invertibility.
+      \end{answer}}{\lines{8}}
+
   \end{qparts}
 \end{question}
 
 % ***************************** End of exam *****************************
 \end{document}
-
-
-
-

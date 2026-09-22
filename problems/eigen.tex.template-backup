@@ -1,0 +1,95 @@
+%% ELEC2013 2007
+
+%% ----------------------------------------------------------------
+%% exam.tex
+%% ----------------------------------------------------------------
+\documentclass{sotonExamBoxes}    % use option [answers] to include them
+%\documentclass[answers]{uosexamb}
+%% ----------------------------------------------------------------
+\usepackage{graphicx}
+%\usepackage{pstricks}
+\usepackage{alltt}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\thinmuskip=1mu
+%\renewcommand{\ttdefault}{pcr}
+\input{macros}
+\graphicspath{{figures/} {../2018-19/figures}}
+\graphicspath{{figures/}}
+\usepackage{parskip}
+\AddToHook{env/samepage/begin}{%
+\AddToHook{para/before}{\nopagebreak}%
+\AddToHook{para/after}{\nopagebreak}%
+}
+% \usepackage{picture}
+\begin{document}
+\unitTitle{ Problem Sheet}
+\authors{Adam Pr\"ugel-Bennett}
+\unitcode{AICE3001/AICE6002}
+\semester{2}
+\year{2022}
+\duration{45}{0}
+
+
+\maketitle
+
+
+% ***************************** question 1 **************************
+
+
+\begin{question}{20}
+  \begin{qparts}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}        
+    
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 2 **************************
+
+
+\begin{question}{20}
+  \begin{qparts}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}
+    
+      \qpart[5]{
+      \begin{answer}
+      \end{answer}}{\lines{5}}        
+    
+  \end{qparts}
+\end{question}
+
+% ***************************** End of exam *****************************
+\end{document}
+
+
+
+

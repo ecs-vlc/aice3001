@@ -27,7 +27,7 @@
 \begin{document}
 \unitTitle{Calculus Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
-\unitcode{AICE3001/6002}
+\unitcode{COMP6208}
 \semester{2}
 \year{2022}
 \duration{45}{0}
@@ -47,11 +47,11 @@
         unique inverse.  For the columns to not be independent implies
         there exists some set of coefficients $c_j$ such that
         \begin{align*}
-          \sum_{j=1}^n c_j\, \bm{m}_j = \bm{0}.
+          \sum_{i=1}^n c_j\, \bm{m}_j = \bm{0}.
         \end{align*}
         We note that the $i^{th}$ element of $\bm{m}_j = M_{ij}$ so
         \begin{align*}
-          \forall_{i=1}^n: \quad \sum_{i=1}^n c_j\, M_{ij} = 0
+          \sum_{i=1}^n c_j\, M_{ij} = 0
         \end{align*} 
       \begin{answer}
         We consider the vector $\bm{c}$ with elements $c_i$, then the
@@ -220,7 +220,7 @@
         \begin{align*}
           \mat{B}\,\mat{A}\,\bm{y} = \bm{y},
         \end{align*}
-        but as this is true for any vector $\bm{y}$ it follows that $\mat{B}\,\mat{A}=\Id$.
+        but as this is true for eany vector $\bm{y}$ it follows that $\mat{B}\,\mat{A}=\Id$.
       \end{answer}}{\lines{5}}
     
   \end{qparts}
@@ -681,13 +681,11 @@
       numerically.  Compare this to $\mat{U}^\tr (\mat{X}^{-1})^\tr$
       \begin{answer}
         Use the following
-\begin{alltt}
-eps = 0.0001\\
-estimate = (np.log(np.abs(np.linalg.det(A+eps*B)))\\
-\hspace*{2em}- np.log(np.abs(np.linalg.det(A-eps*B)))) / (2*eps)\\
-actual = (B.transpose()\\
-\hspace*{2em}@(np.linalg.inv(A)).transpose()).trace()
-\end{alltt}
+\begin{verbatim}
+eps = 0.0001
+estimate = (np.log(np.abs(np.linalg.det(A+eps*B)))-np.log(np.abs(np.linalg.det(A-eps*B))))/(2*eps)
+actual = (B.transpose()@(np.linalg.inv(A)).transpose()).trace()
+\end{verbatim}
       \end{answer}}{\lines{5}}
 
   \end{qparts}
