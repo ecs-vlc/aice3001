@@ -115,6 +115,24 @@
      $$ \bm{g}(\bm{x}+\epsilon\,\bm{u}) = \bm{g}(\bm{x}) + \epsilon\,\mat{J}\,\bm{u} + O(\epsilon^2) $$
      where the /Jacobian/ $\mat{J}$ is the $m\times n$ matrix with
      $J_{ij} = \partial g_i(\bm{x})/\partial x_j$
+     \begin{align*}
+       \mat{J} = \begin{pmatrix}
+         \frac{\partial g_1(\bm{x})}{\partial x_1} &
+         \frac{\partial g_1(\bm{x})}{\partial x_2} &
+         \ldots &
+         \frac{\partial g_1(\bm{x})}{\partial x_n} \\
+         \frac{\partial g_2(\bm{x})}{\partial x_1} &
+         \frac{\partial g_2(\bm{x})}{\partial x_2} &
+         \ldots &
+         \frac{\partial g_2(\bm{x})}{\partial x_n} \\
+         \vdots & \vdots & \ddots & \vdots \\
+         \frac{\partial g_m(\bm{x})}{\partial x_1} &
+         \frac{\partial g_m(\bm{x})}{\partial x_2} &
+         \ldots &
+         \frac{\partial g_mX(\bm{x})}{\partial x_n} \\
+         \end{pmatrix}
+     \end{align*}
+     
    * Then, to first order,
      $$ h(\bm{x}+\epsilon\,\bm{u}) = f\bra{\bm{g}(\bm{x}) + \epsilon\,\mat{J}\,\bm{u}} = h(\bm{x}) + \epsilon\,\bm{u}^\tr\mat{J}^\tr\grad_{\bm{g}} f(\bm{g}(\bm{x})) $$
    * Comparing with $h(\bm{x}+\epsilon\,\bm{u}) = h(\bm{x}) + \epsilon\,\bm{u}^\tr\grad_{\bm{x}} h(\bm{x})$

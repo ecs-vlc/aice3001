@@ -45,6 +45,15 @@
   $\lambda_1, \lambda_2, \ldots, \lambda_n$ (repeated eigenvalues
   being listed according to their multiplicity).
 
+  Recall if $\bm{v}$ is an eigenvector then $\mat{M}\bm{v} = \lambda
+  \bm{v}$ or $(\mat{M} - \lambda\, \Id) \bm{v} = \bm{0}$.  As all
+  vectors in the direction $\bm{v}$ are mapped to $\bm{0}$ the volume
+  of space after applying $(\mat{M} - \lambda\, \Id)$ is zero.
+  Consequently,  $\det\bra{\mat{M} - \lambda\, \Id} = 0$.  This is the
+  characteristic equation that allows us to find $\lambda$.  Using the
+  values of $\lambda$ we have found we can then solve $(\mat{M} -
+  \lambda\, \Id) \bm{v} = \bm{0}$ for $\bm{v}$.
+
   \begin{qparts}
 
     \qpart[3]{Find the eigenvalues and eigenvectors of
@@ -60,15 +69,17 @@
         2\Id)\bm{v} = \bm{0}$ gives $\bm{v}_2 =
         (1,-1)^\tr/\sqrt{2}$.  Then $\bm{v}_1^\tr \bm{v}_2 = (1 -
         1)/2 = 0$, so they are orthogonal.
-      \end{answer}}{\lines{6}}
+      \end{answer}}{\lines{8}}
 
     \qpart[4]{Show that the eigenvalues of $\mat{M}$ are real, and
       that two eigenvectors whose eigenvalues differ are necessarily
-      orthogonal.
+      orthogonal.  (Hint, for the first part consider $\bm{v}^*
+      \mat{M} \bm{v}$ where $\bm{v}^* = \bar{\bm{v}}^\tr$ is the
+      complex-conjugate transpose.)
       \begin{answer}
         Let $\mat{M}\bm{v} = \lambda \bm{v}$ where we allow $\bm{v}$
         and $\lambda$ to be complex.  Multiplying on the left by the
-        conjugate transpose $\bm{v}^*$
+        conjugate transpose $\bm{v}^* = \bar{\bm{v}}^\tr$
         \begin{align*}
           \bm{v}^* \mat{M} \bm{v} = \lambda\, \bm{v}^*\bm{v}
           = \lambda \len{\bm{v}}^2 .
@@ -117,7 +128,7 @@
         \mat{V}\mat{\Lambda}^k\mat{V}^\tr$.
       \end{answer}}{\lines{8}}
 
-    \qpart[4]{Using $\det(\mat{A}\mat{B}) = \det(\mat{A})
+    \qpart[5]{Using $\det(\mat{A}\mat{B}) = \det(\mat{A})
       \det(\mat{B})$, show that
       \begin{align*}
         \det(\mat{M}) = \prod_{i=1}^n \lambda_i .
@@ -135,7 +146,7 @@
         $\det(\mat{M}) = \prod_i \lambda_i$.
       \end{answer}}{\lines{7}}
 
-    \qpart[4]{Using the cyclic property of the trace,
+    \qpart[5]{Using the cyclic property of the trace,
       $\Tr(\mat{A}\mat{B}) = \Tr(\mat{B}\mat{A})$, show that
       \begin{align*}
         \Tr \mat{M} = \sum_{i=1}^n \lambda_i .
@@ -151,22 +162,6 @@
         \end{align*}
         where we used $\mat{V}^\tr\mat{V} = \Id$.
       \end{answer}}{\lines{6}}
-
-    \qpart[2]{Deduce a condition on the eigenvalues for $\mat{M}$ to
-      be singular.  If $\mat{M}$ is not singular, what does the
-      condition number $|\lambda|_{\max}/|\lambda|_{\min}$ tell you
-      about the difficulty of solving $\mat{M}\bm{x} = \bm{b}$
-      numerically?
-      \begin{answer}
-        $\mat{M}$ is singular if and only if $\det(\mat{M}) = 0$,
-        which by the previous part happens exactly when at least one
-        eigenvalue is zero.  A large condition number means the
-        matrix is close to being singular in at least one direction:
-        a small perturbation in $\bm{b}$ along the eigenvector with
-        the smallest $|\lambda|$ produces a change in $\bm{x}$
-        larger by a factor of the condition number, so the solution
-        is ill-conditioned.
-      \end{answer}}{\lines{5}}
 
   \end{qparts}
 \end{question}

@@ -371,7 +371,7 @@
       \partial_{\bm{u}} F(\bm{x}) = \lim_{\epsilon\rightarrow0}\;
       \frac{f(\bm{x}+ \epsilon \bm{u}) - f(\bm{x})}{\epsilon}\pause
     \end{align*}
-  \item If $\bm{u} = \bm{\delta}_i = (0,\ldots,0,1,0,\ldots,0)$
+  \item If $\bm{u} = \bm{\delta}_i = (0,\ldots,0,1,0,\ldots,0)^\tr$
     (i.e. $u_i = 1$) then
     \begin{align*}
       \pd{f(\bm{x})}{x_i} = \lim_{\epsilon\rightarrow0}\;
@@ -557,16 +557,11 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Chain Rule in High Dimensions}
+\section[-1]{Chain Rule in High Dimensions}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Since
-    \begin{align*}
-      h(\bm{x}+\epsilon \, \bm{u}) = h(\bm{x}^{*}) + \epsilon\,
-      \bm{u}^\tr \grad_{\bm{x}} h(\bm{x}) + O(\epsilon^2)\pause
-    \end{align*}
-    and (recall $h(\bm{x}) = f(\bm{g}(\bm{x}))$)
+  \item Using $h(\bm{x}) = f(\bm{g}(\bm{x}))$
     \begin{align*}
       h(\bm{x}+\epsilon \, \bm{u}) = h(\bm{x}) + \epsilon\,  \, 
         \bm{u}^\tr \mat{J}^\tr \grad_{\bm{g}} f\bra{\bm{g}(\bm{x})} \pause
@@ -579,8 +574,8 @@
     \begin{align*}
       \frac{\partial h(\bm{x})}{\partial x_i} =
       \frac{\partial f\bra{\bm{g}(\bm{x})}}{\partial x_i}\pause =
-      \sum_{j=1}^m \frac{\partial f(\bm{g}(\bm{x}))}{\partial g_j}
-      \frac{\partial g_j(\bm{x})}{\partial x_i} \pause
+      \sum_{j=1}^m \frac{\partial g_j(\bm{x})}{\partial x_i}
+      \frac{\partial f(\bm{g}(\bm{x}))}{\partial g_j} \pause
     \end{align*}
      
   \end{itemize}
