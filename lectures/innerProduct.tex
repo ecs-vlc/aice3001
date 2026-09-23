@@ -231,6 +231,88 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Projection Operator}
+
+\pb
+\begin{itemize}
+\item Given a vector $\bm{a}$ we can project it onto a vector
+  $\bm{b}$\pause
+  \begin{center}
+    \multipdf[width=0.35\textwidth]{projection}\pause
+  \end{center}
+\item Using $\inner{\bm{a}}{\bm{b}} = \len{\bm{a}} \, \len{\bm{b}} \,
+  \cos(\theta)$ and $\inner{\bm{b}}{\bm{b}} = \len{\bm{b}}^2$
+  \pauselevel{=6}\pause
+\item A defining feature of a projection operator is
+  \begin{align*}
+    \mathrm{proj}_{\bm{b}}\bra{\strut \mathrm{proj}_{\bm{b}}(\bm{a})}
+    &= \mathrm{proj}_{\bm{b}}\bra{
+      \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}}
+      \bm{b}}\pause\\
+        &= \inner{ \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}}
+      \bm{b}}{\bm{b}} \frac{\bm{b}}{\inner{\bm{b}}{\bm{b}}}\pause
+      = \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}} \bm{b} \pause
+      = \mathrm{proj}_{\bm{b}}(\bm{a})\pause
+  \end{align*}
+\end{itemize}
+
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Constructing an Orthonormal Basis}
+
+\pb
+\begin{itemize}
+\item Given a set of linear independent vectors $(\bm{a}_1, \bm{a}_2,
+  \ldots \bm{a}_n)$ we can construct an orthonormal basis\pause
+  \begin{center}
+    \multipdf[width=0.7\textwidth]{gram_schmidt}\pause
+  \end{center}
+\item We can iterate this
+  {\small
+  \begin{align*}
+    \bm{u}_1 &= \bm{a}_1
+    &
+      \bm{e}_1&= \frac{\bm{u}_1}{\len{\bm{u}_1}}\pause\\ 
+    \bm{u}_2 &= \bm{a}_2 - \mathrm{proj}_{\bm{a_1}}(\bm{a}_2)\pause
+    &
+      \bm{e}_2&= \frac{\bm{u}_2}{\len{\bm{u}_2}}\pause\\ 
+    \bm{u}_3 &= \bm{a}_3 - \mathrm{proj}_{\bm{a_1}}(\bm{a}_3) - \mathrm{proj}_{\bm{a_2}}(\bm{a}_3)\pause
+    &
+      \bm{e}_3&= \frac{\bm{u}_3}{\len{\bm{u}_3}}\pause
+  \end{align*}}
+\end{itemize}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Gram-Schmidt Orthogonalisation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The algorithm in the last slide is known as
+    \emph{Gram-Schmidt}\pause
+  \item We can perform it on any inner-product space\pause
+  \item For vectors in $\mathbb{R}^n$ it is prone to accumulate
+    rounding errors and is not the method of choice\pause
+  \item Numerical packages use ``Householder transformations'' to
+    perform orthogonalisation\pause
+  \item Nevertheless, it is nice to know that we can form an
+    orthonomal basis\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%

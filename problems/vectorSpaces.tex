@@ -254,6 +254,157 @@ language that is used to describe machine learning.
 
 
 
+\freshpage
+
+% ***************************** question 3 **************************
+
+
+\begin{question}{20}
+  In the previous question you showed that $\inner{\bm{x}}{\bm{y}} =
+  \sum_{i=1}^n w_i\, x_i\, y_i$ is an inner product provided every
+  weight $w_i$ is positive.  Functions form a vector space in just the
+  same way (we can add them and multiply them by scalars), and if we
+  replace the sum over components by an integral over $x$ we get
+  \begin{align*}
+    \inner{f}{g} = \int_{-\infty}^{\infty} w(x)\, f(x)\, g(x)\, \dd x
+  \end{align*}
+  which, by the same argument, is an inner product provided the
+  \emph{weight function} $w(x)$ is positive.
+
+  In this question we choose $w(x)$ to be the density of a standard
+  normal deviate
+  \begin{align*}
+    w(x) = \frac{1}{\sqrt{2\,\pi}}\, \e{-x^2/2}
+  \end{align*}
+  so that $\inner{f}{g} = \av{f(X)\, g(X)}$ where $X\sim
+  \mathcal{N}(0,1)$.  That is, this is exactly the inner product of
+  the previous question, applied to functions of a random variable.
+
+  The monomials $f_i(x) = x^i$ span the polynomials, but they are not
+  orthogonal.  We can orthogonalise them with the Gram--Schmidt
+  procedure: having found $p_0, p_1, \ldots, p_{n-1}$ we subtract from
+  $f_n$ its component along each of them,
+  \begin{align*}
+    p_n(x) = f_n(x) - \sum_{i=0}^{n-1}
+    \frac{\inner{f_n}{p_i}}{\inner{p_i}{p_i}}\, p_i(x) ,
+    \qquad p_0(x) = 1 .
+  \end{align*}
+
+  Orthogonal polynomials are useful because they make approximating a
+  function easy.  If we want the best polynomial approximation to some
+  function $f$ we can compute each coefficient separately with a
+  single inner product, and if we later decide to add a higher order
+  term none of the coefficients we have already found change.  Using
+  the monomials instead we would have to solve a set of simultaneous
+  equations, and start again from scratch each time we added a term.
+
+  You will need the integrals below, which you are not expected to
+  compute.  (They are the moments of a standard normal deviate.  All
+  the odd moments vanish because $w(x)\,x^n$ is an odd function.)
+  \begin{align*}
+    \begin{array}{c|ccccccc}
+      n & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
+      \av{X^n} = \int_{-\infty}^{\infty} w(x)\, x^n\, \dd x
+        & 1 & 0 & 1 & 0 & 3 & 0 & 15
+    \end{array}
+  \end{align*}
+
+  \begin{qparts}
+
+    \qpart[5]{Show that $\inner{f}{g} = \int w(x)\, f(x)\, g(x)\, \dd
+      x$ satisfies the five conditions for an inner product given at
+      the start of this sheet, provided $w(x)>0$.
+      \begin{answer}
+        The argument is the same as for the weighted sum, with the
+        sum over $i$ replaced by the integral over $x$.
+        \begin{enumerate}\squeeze
+        \item $\inner{f}{f} = \int w(x)\, f^2(x)\, \dd x \geq 0$,
+          since the integrand $w(x)\, f^2(x)\geq0$ everywhere.
+        \item If $\inner{f}{f} = 0$ then, as the integrand is
+          non-negative and $w(x)>0$, we need $f(x)=0$ (for all but a
+          set of points of zero total length).
+        \item $\inner{a\,f}{g} = \int w(x)\, a\, f(x)\, g(x)\, \dd x =
+          a \inner{f}{g}$.
+        \item $\inner{f}{g+h} = \int w(x) f(x) \bra{g(x)+h(x)} \dd x =
+          \inner{f}{g} + \inner{f}{h}$, as the integral of a sum is
+          the sum of the integrals.
+        \item $\inner{f}{g} = \inner{g}{f}$ since $f(x)\,g(x) =
+          g(x)\,f(x)$.
+        \end{enumerate}
+      \end{answer}}{\lines{12}}
+
+    \qpart[5]{Starting from $p_0(x) = 1$, use Gram--Schmidt to find
+      $p_1(x)$ and $p_2(x)$.
+      \begin{answer}
+        For $p_1$ we subtract from $f_1(x)=x$ its component along
+        $p_0$.  Since $\inner{f_1}{p_0} = \av{X} = 0$,
+        \begin{align*}
+          p_1(x) = x - \frac{0}{1}\, 1 = x .
+        \end{align*}
+        For $p_2$ we start from $f_2(x) = x^2$ and use
+        $\inner{p_0}{p_0} = \av{1} = 1$ and $\inner{p_1}{p_1} =
+        \av{X^2} = 1$,
+        \begin{align*}
+          \inner{f_2}{p_0} &= \av{X^2} = 1 , &
+          \inner{f_2}{p_1} &= \av{X^3} = 0 ,
+        \end{align*}
+        so that
+        \begin{align*}
+          p_2(x) = x^2 - \frac{1}{1}\, 1 - \frac{0}{1}\, x = x^2 - 1 .
+        \end{align*}
+      \end{answer}}{\lines{12}}
+
+    \qpart[5]{Find $p_3(x)$.
+      \begin{answer}
+        We need $\inner{p_2}{p_2} = \av{(X^2-1)^2} = \av{X^4} -
+        2\av{X^2} + 1 = 3-2+1 = 2$, and starting from $f_3(x) = x^3$
+        \begin{align*}
+          \inner{f_3}{p_0} &= \av{X^3} = 0 , &
+          \inner{f_3}{p_1} &= \av{X^4} = 3 , \\
+          \inner{f_3}{p_2} &= \av{X^3(X^2-1)} = \av{X^5} - \av{X^3} = 0 .
+        \end{align*}
+        Therefore
+        \begin{align*}
+          p_3(x) = x^3 - \frac{0}{1}\,1 - \frac{3}{1}\, x -
+          \frac{0}{2}\, (x^2-1) = x^3 - 3\, x .
+        \end{align*}
+        (These are the Hermite polynomials.  As a check, every
+        $p_n$ is either an odd or an even function, which had to
+        happen because $w(x)$ is symmetric about the origin.)
+      \end{answer}}{\lines{12}}
+
+    \qpart[5]{If we write a function as $f(x) = \sum_i a_i\, p_i(x)$,
+      show that $a_i = \inner{f}{p_i}/\inner{p_i}{p_i}$.  Use this to
+      write $f(x) = x^3$ in terms of $p_0$, $p_1$, $p_2$ and $p_3$,
+      and check your answer.
+      \begin{answer}
+        Taking the inner product of $f = \sum_j a_j\, p_j$ with $p_i$
+        \begin{align*}
+          \inner{f}{p_i} = \sum_j a_j \inner{p_j}{p_i}
+          = a_i \inner{p_i}{p_i}
+        \end{align*}
+        because $\inner{p_j}{p_i} = 0$ unless $i=j$.  Rearranging
+        gives $a_i = \inner{f}{p_i}/\inner{p_i}{p_i}$.  This is the
+        point of orthogonality: one integral gives one coefficient.
+
+        For $f(x) = x^3$ we computed the three inner products we need
+        in the previous part, and $\inner{f}{p_3} = \av{X^3(X^3-3X)} =
+        \av{X^6} - 3\av{X^4} = 15-9 = 6$ with $\inner{p_3}{p_3} =
+        \av{(X^3-3X)^2} = \av{X^6} - 6 \av{X^4} + 9 \av{X^2} =
+        15-18+9=6$.  Hence $a_0 = 0$, $a_1 = 3/1 = 3$, $a_2 = 0$ and
+        $a_3 = 6/6 = 1$, giving
+        \begin{align*}
+          x^3 = 3\, p_1(x) + p_3(x) .
+        \end{align*}
+        Checking, $3\,x + (x^3-3\,x) = x^3$ as required.
+      \end{answer}}{\lines{14}}
+
+  \end{qparts}
+\end{question}
+
+
+
+
 % ***************************** End of exam *****************************
 \end{document}
 

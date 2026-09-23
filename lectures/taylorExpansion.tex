@@ -65,16 +65,19 @@
   \item Suppose we wanted to approximate a function $f(x)$ around a
     point $x^*$ using a polynomial
     \begin{align*}
-      f(x) \approx a_0 + a_1 (x-x^*) + a_2 (x-x^*)^2 + \ldots + a_n (x-x^*)^n\pause
+      f(x) \approx a_0 + a_1 (x-x^*) + a_2 (x-x^*)^2 + \ldots + a_n
+      (x-x^*)^n\pauselevel{=1, highlight =4}\pause
     \end{align*}
   \item Taking derivatives
     \begin{align*}
-      f'(x) &\approx a_1 + 2\, a_2 (x-x^*) + 3\,a_3 (x-x^*)^2 + \ldots + n\, a_n (x-x^*)^{n-1}\pause\\
-      f''(x) &\approx 2\,a_2 + 6\, a_3 (x-x^*) + \ldots + n\,(n-1)\, a_n (x-x^*)^{n-2}\pauseb
+      f'(x) &\approx a_1 + 2\, a_2 (x-x^*) + 3\,a_3 (x-x^*)^2 + \ldots
+              + n\, a_n (x-x^*)^{n-1}\pauselevel{=2, highlight =5}\pause\\
+      f''(x) &\approx 2\,a_2 + 6\, a_3 (x-x^*) + \ldots + n\,(n-1)\,
+               a_n (x-x^*)^{n-2}\pauselevel{build =3 :5, highlight =3, highlight =6}\pause
     \end{align*}
   \item One way to decide on the coefficients is to set $x=x^*$ and
     assume equality
-    \begin{align*}
+    \begin{align*}\pauselevel{=4}
       a_0 &= f(x^*)\pauseb, & a_1&=f'(x^*)\pauseb, & a_2 &= \frac{1}{2} f''(x^*)\pauseb, & a_i
       &= \frac{1}{i!} f^{(i)}(x^*)\pauseb
     \end{align*}
@@ -443,7 +446,7 @@
       f(\bm{x}) = f(\bm{x}^*) + \frac{1}{2} (\bm{x} - \bm{x}^*)^\tr
       \mat{H}\, (\bm{x} - \bm{x}^*) + O\bra{\strut \|\bm{x} - \bm{x}^*\|^3}\pause
     \end{align*}
-  \item It we make a perturbation $\bm{x} = \bm{x}^* + \epsilon\, \bm{u}$ then
+  \item If we make a perturbation $\bm{x} = \bm{x}^* + \epsilon\, \bm{u}$ then
     \begin{align*}
       f(\bm{x}^*+\epsilon\,\bm{u}) = f(\bm{x}^*) + \frac{1}{2} \epsilon^2\, \bm{u}^\tr
       \mat{H} \, \bm{u} + O(\epsilon^3)\pause
@@ -470,7 +473,7 @@
     \end{align*}
   \item For an $n\times n$ symmetric matrices (such as the Hessian),
     the eigenvalues are all real, and we can choose $n$ orthogonal
-    eigenvectors such that $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}$\pause
+    eigenvectors such that $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}\pause = \pred{i=j}$\pauseb
   \item We note that
     \begin{align*}
        \bm{v}_i^\tr\, \mat{H} \, \bm{v}_i = 
@@ -520,7 +523,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item If all the eigenvalues are non-negative $\lambda_i>0$, then for
+  \item If all the eigenvalues are positive, $\lambda_i>0$, then for
     any $\bm{u}$ we have $\bm{u}^\tr \mat{H}\, \bm{u}>0$ and
     $\bm{x}^*$ would be a local minimum\pause. We say $\mat{H}$ is
     \emph{positive definite}\pauseb{} or $\mat{H}\succ 0$\pauseb
