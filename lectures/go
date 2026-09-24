@@ -7,6 +7,8 @@ standalone document rather than through the master file.
 
     ./go            choose from the lectures in `lectures:`
     ./go --all      choose from every lecture that has a .tex file
+    ./go --code     show the seat code now, whenever the lecture is, and
+                    even if the viewer is already open (for testing)
 """
 
 import os
@@ -32,6 +34,7 @@ def newer(a, b):
 
 
 def main():
+    force_code = "--code" in sys.argv
     section = "all" if "--all" in sys.argv else "lectures"
     lectures = [l for l in lecture_list.load(section=section) if l.exists]
     if not lectures:
@@ -66,7 +69,12 @@ def main():
     if not running:
         os.system(f"evince {pdf} 2> /dev/null &")
         sleep(2)
-        myengage()
+
+    # The code normally only appears in the ten minutes before the lecture,
+    # and only when the viewer has just been opened. --code lifts both, so
+    # the display can be checked at any time.
+    if force_code or not running:
+        myengage(show=force_code)
 
 
 if __name__ == "__main__":

@@ -4,9 +4,30 @@
 \begin{document}
 
 \lesson{Vector Spaces}
-\vspace{-1cm}
+\vspace{-2cm}
 \begin{center}
-  \includegraphics[width=16cm]{discontinuous_func-21}
+  \setlength{\unitlength}{1bp}
+  \begin{picture}(500,200)
+    \put(0,40){\textcolor{red}{\begin{rotate}{15}$\displaystyle
+          \begin{pmatrix}
+            1 & 1 & 1 & 1 & 1 \\
+            1 & 2 & 4 & 8 & 16 \\
+            1 & 3 & 9 & 27 & 81 \\
+            1 & 4 & 16 & 64 & 256 \\
+            1 & 5 & 25 & 125 & 625
+          \end{pmatrix}
+          \begin{pmatrix}
+            a_0 \\ a_1 \\ a_2 \\ a_3 \\ a_4
+          \end{pmatrix}
+          =
+          \begin{pmatrix}
+            1 \\ 1 \\ 2 \\ -3 \\ 1
+          \end{pmatrix}$\end{rotate}}}
+    \put(180,30){\textcolor{green}{\begin{rotate}{-15}$\displaystyle
+          \bm{\nabla}_{\mat{X}} \mathrm{Tr} (\mat{X}^{-1} \mat{A})
+          = -\mat{X}^{-1} \mat{A}\mat{X}^{-1}$\end{rotate}}}
+    \put(50,-100){\includegraphics[width=18cm]{linalg.eps}}
+  \end{picture}
 \end{center}
 \keywords{Vectors, metric spaces, norms}
 
@@ -23,7 +44,7 @@
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{10cm}
-  \includegraphics[width=\linewidth]{addingVectors-2}
+  \includegraphics[height=10cm]{linalg}
 \end{minipage}
 \end{slide}
 \addtocounter{outlineitem}{1}
@@ -48,7 +69,7 @@
   \item You need to master the language of mathematics, otherwise you
     won't understand the algorithms\pause
   \item I'm going to spend this lecture and the next revising the
-    mathematics you need to know\pause{} (but I'm going to use a slightly posher
+    mathematics you need to know\pause{} (but I'm going use a slightly posher
     language than you are probably used to)\pauseb
   \end{itemize}
 \end{PauseHighLight}
@@ -66,7 +87,7 @@
   \item These are quantities we can add together ($a+b$) and
     multiply together ($a\times b$)\pause
   \item Formally they form an Abelian group under addition with an identity $0$\pauseb{}
-    and excluding $0$ an Abelian group under multiplication\pauseb{} and they are distributive
+    and excluding $0$ an Abeilian group under multiplication\pauseb{} and they are distributive
     \begin{align*}
       a\times (b + c) = a\times b + a\times c\pauseb
     \end{align*}
@@ -103,7 +124,7 @@
     \begin{itemize}
     \item We represent vectors by bold symbols\pause
     \item All our vectors are column vectors by default\pause
-    \item We treat them as $n\times 1$ matrices\pause
+    \item We treat them as $n\times 1$ matrix\pause
     \end{itemize}
   \end{minipage}
   \begin{itemize}
@@ -155,9 +176,8 @@
       $\bm{0}$)\pause 
     \item $1 \, \bm{v} = \bm{v}$\hfill (existence of multiplicative identity
       $1$)\pause
-    \item $a\,(b\,\bm{v}) = (a\,b)\,\bm{v}$\hfill (associativity)
-    \item $a\,(\bm{v} + \bm{w}) = a\,\bm{v} + a\,\bm{w}$\hfill
-      (distributive properties)
+    \item $a\,(b\,\bm{v}) = (a\,b)\,\bm{v}$\hfill (distributive properties)
+    \item $a\,(\bm{v} + \bm{w}) = a\,\bm{v} + a\,\bm{w}$
     \item $(a+b)\,\bm{v} = a\,\bm{v} + b\,\bm{v}$\pause
     \end{enumerate}
     (You don't need to remember these)\pause
@@ -176,7 +196,7 @@
 \begin{PauseHighLight}
   \begin{minipage}{0.8\linewidth}
     \begin{itemize}
-    \item When we first learn about vectors we think of them as arrows in 3-D
+    \item When we first learn about vectors we think of them arrows in 3-D
       space\pause
     \item If we centre them all at the origin then there is a one-to-one
       correspondence between vectors and points in space\pause
@@ -207,15 +227,15 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Any objects that satisfy the axioms of a vector space are
-    \textit{vectors}\pause---not just $\bm{v}\in \mathbb{R}^n$\pauseb
+  \item Any set of object that satisfies the axioms of a vector spacer
+    are \textit{vectors}\pause---not just $\bm{v}\in \mathbb{R}^n$\pauseb
   \item Matrices satisfy all the conditions of a vector space\pause
   \item Infinite sequences form a vector space\pause
   \item Functions form a vector space\pause
     \begin{itemize}\squeeze
     \item Let $C(a,b)$ be the set of functions defined on the interval
       $[a,b]$
-    \item Note that if $f(x), g(x) \in C(a,b)$ then $\alpha\,f(x) \in C(a,b)$
+    \item Note that if $f(x), g(x) \in C(a,b)$ then $a\,f(x) \in C(a,b)$
       and $f(x)+g(x) \in C(a,b)$\pause
     \end{itemize}
   \item Bounded vectors in $\mathbb{R}^n$ \emph{don't} form a vector space\pause
@@ -245,7 +265,7 @@
     \end{enumerate}
   \item There are typically many possible distances (e.g. Euclidean
     distance, Manhattan distance, etc.)\pause
-  \item If one or more of the conditions aren't satisfied we have a
+  \item Often one or more condition isn't satisfied then we have a
     \emph{pseudo-metric}\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -264,7 +284,7 @@
     \begin{align*}
       f: \mathbb{R} \rightarrow \mathbb{R}\pauseb
     \end{align*}
-    ($f$ maps the reals to the reals, i.e. $f(x)$ takes a real $x$ and
+    ($f$ maps the reals onto reals, i.e. $f(x)$ takes a real $x$ and
     gives you a new real number $y=f(x)$)\pauseb
   \item We are often interested in functions that behave nicely\pauseb
   \item E.g. They are continuous\pauseb
@@ -280,7 +300,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item One way to characterise a well-behaved function, $f(x)$, is if there
+  \item One way to characterise a well behaved function, $f(x)$, is if there
     exists a number $K<\infty$ such that for all $x$ and $y$
     \begin{align*}
       d(f(x), f(y)) \leq K\, d(x,y)\pause
@@ -307,7 +327,7 @@
   \multipdf[width=\linewidth]{discontinuous_func}\pause
 \end{center}
 \begin{itemize}
-\item The definition applies to any function defined in a
+\item Definition is applicable to any function defined in a
   metric space\pause
 \end{itemize}
 \end{slide}
@@ -320,7 +340,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item An interesting class of functions are those for which
+  \item An interesting class of function are those for which
     $K<1$\pause
   \item These are said to be contractive mappings\pause
   \item A famous theorem that applies to contractive mappings is the
@@ -349,12 +369,12 @@
     $\bm{v}$ as  $\|\bm{v}\|$ satisfying
     \begin{enumerate}
     \item $\| \bm{v} \| >0$ if $\bm{v}\neq\bm{0}$ and $\|\bm{0}\|=0 $\hfill(non-negativity)\pause
-    \item $\| a\,\bm{v} \| = |a| \, \| \bm{v} \|$\hfill(``linearity'')\pause
+    \item $\| a\,\bm{v} \| = a \| \bm{v} \|$\hfill(``linearity'')\pause
     \item $\| \bm{u} + \bm{v} \| \leq \| \bm{u} \| + \| \bm{v} \|$
       \hfill (triangular inequality)\pause
     \end{enumerate}
   \item When some criteria aren't satisfied we have a
-    \emph{pseudo-norm}\pause
+    \emph{pseudo-norms}\pause
   \item Norms provide a metric $d(\bm{x}, \bm{y}) = \|\bm{x}-\bm{y}\|$
     (they are metric spaces)\pause
   \end{itemize}
@@ -484,10 +504,10 @@
   \item In CNNs we have convolutional layers and dense layers\pause
   \item The effect of applying these layers can be represented by a
     matrix multiplication $\bm{x}_n = \mat{L}_n \bm{x}_{n-1}$\pause
-  \item We also do other things like applying ReLUs or pooling that
-    change the magnitude, $\len{\bm{x}_n}$, of our representation\pause
+  \item We also do other things like applying ReLU's or pooling that
+    changes the magnitude, $\bm{x}_n$, of our representation\pause
   \item If you are developing new architectures you want
-    $\len{\bm{x}_n}$ neither to blow up nor vanish\pause
+    $\len{\bm{x}_n}$ neither to blow up or vanish\pause
   \item This can be controlled by carefully choosing $\len{\mat{L}_n}$\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -516,7 +536,7 @@
     \len{\mat{L}_n}_2$, the \emph{spectral norm}---this is just
     compatibility, $\len{\mat{L}\bm{v}} \leq \len{\mat{L}}_2
     \len{\bm{v}}$\pause
-  \item ReLUs and max-pooling neither stretch nor shrink: $K=1$\pause
+  \item ReLU's and max-pooling neither stretch nor shrink: $K=1$\pause
   \item A network is just a composition of layers, so
     \begin{align*}
       K_{\mathrm{net}} \leq \prod_n \len{\mat{L}_n}_2\pause
@@ -541,7 +561,7 @@
   \item \emph{Adversarial examples} are tiny $\bm{\delta}$ that change
     the classification: a network with small $K$ cannot be fooled this
     easily\pause
-  \item It is the same quantity that controls the signal: $K\gg1$ and
+  \item It is the same quantity as on the previous slide: $K\gg1$ and
     signals (and gradients) explode, $K\ll1$ and they vanish\pause
   \item Wasserstein GANs require the critic to have $K\leq1$.  This is
     enforced by \emph{spectral normalisation}: divide each
@@ -563,11 +583,11 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Functions can also have norms, for example, if $f(x)$ is defined
-    on some interval $\mathcal{I}$ {\small
+    in some interval $\mathcal{I}$ {\small
     \begin{align*}
       \| f \|_{L^2} = \sqrt{\int_{x\in\mathcal{I}} f^2(x) \, \dd x}\pause
     \end{align*}}
-  \item The $L^2$ vector space is the set of functions for which $\|
+  \item The $L^2$ vector space is the set of function where $\|
     f \|_{L^2}<\infty$\pause
   \item The $L^1$-norm is given by
     $\| f \|_{L^1} = \int_{x\in\mathcal{I}} |f(x)| \, \dd x$\pause
@@ -590,13 +610,13 @@
       d(\bm{x}, \bm{y}) = \| \bm{x} - \bm{y} \|\pause
     \end{align*}
   \item Any normed space has an associated metric space\pause
-  \item Thus we can define the Frobenius distance between matrices
+  \item Thus we can define the Frobenious-distance between matrices
     \begin{align*}
       d_F(\mat{A}, \mat{B}) = \| \mat{A} - \mat{B} \|_F\pause
     \end{align*}
-  \item It is easy to see that non-negativity, symmetry and the
+  \item It is easy to see that non-negativity, linearity and
     triangular inequality for distances are all inherited from the
-    same properties of norms\pause
+    same property for norms\pause
   \end{itemize}
 \end{PauseHighLight}
 
