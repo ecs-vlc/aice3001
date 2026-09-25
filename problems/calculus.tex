@@ -51,8 +51,12 @@
         \end{align*}
         We note that the $i^{th}$ element of $\bm{m}_j = M_{ij}$ so
         \begin{align*}
-          \forall_{i=1}^n: \quad \sum_{j=1}^n c_j\, M_{ij} = 0
-        \end{align*} 
+          \forall_{i=1}^n: \quad \sum_{j=1}^n c_j\, M_{ij} = 0.
+        \end{align*}
+        [Hint: consider acting on the vector $\bm{c}$ whose $i^{th}$
+        element is $c_i$.  Hence show that if $\bm{x}$ is a solution
+        to the equation $\bm{y} = \mat{M}\,\bm{x}$ then so is $\bm{x}
+        + b\, \bm{c}$ for any $c\in \mathbb{R}$.]
       \begin{answer}
         We consider the vector $\bm{c}$ with elements $c_i$, then the
         $i^{th}$ component of $\mat{M}\,\bm{c}$ is equal to
@@ -130,26 +134,27 @@
 
     
       \qpart[2]{For finite-dimensional square matrices if
-        $\mat{A}\mat{B}= \Id$ then $\mat{B}\mat{A}= \Id$. Thus
+        $\mat{A}\,\mat{B}= \Id$ then $\mat{B}\,\mat{A}= \Id$. Thus
         $\mat{B} = \mat{A}^{-1}$.  This is not entirely trivial to
         prove.  We break the proof down.
 
         Show that if $\mat{A}\mat{B}= \Id$ then $\mat{B}$ is
-        injective (one-to-one).  This means that for two different
-        vectors $\bm{x}$ and $\bm{y}$ then
-        $\mat{B}\, \bm{x} \neq \mat{B} \bm{y}$.  Equivalently
-        $\mat{B}\, (\bm{x} - \bm{y}) \neq \bm{0}$, unless $\bm{x}=\bm{y}$,
-        but as $\bm{x}$ and $\bm{y}$ are arbitrary the only vector for
-        which $\mat{B}\,\bm{x}=\bm{0}$ is the vector $\bm{x}=\bm{0}$.
-        Prove that if $\mat{A}\mat{B}= \Id$ and
-        $\mat{B}\,\bm{x}=\bm{0}$ then $\bm{x}=\bm{0}$.
+        injective (one-to-one).  This means that
+        \begin{align}
+          \mat{B}\, \bm{x} = \mat{B}\, \bm{y} \implies \bm{x} =
+          \bm{y}.
+          \label{eq:injective}
+        \end{align}
+        In other words if $\bm{x}\neq\bm{y}$ then $\mat{B}\, \bm{x}$
+        must be different for $\mat{B}\, \bm{y}$.  Assuming
+        $\mat{A}\mat{B}= \Id$ prove equation~(\ref{eq:injective}).
       \begin{answer}
-        Suppose $\mat{B}\,\bm{x}=\bm{0}$ then multiply by $\mat{A}$
+        Assume $\mat{B}\, \bm{x} = \mat{B}\, \bm{y}$ and multiply by $\mat{A}$
         \begin{align*}
-          \mat{A}\, \mat{B}\,\bm{x} &= \bm{0} \\
-          \Id\,\bm{x} &= \bm{0}
+          \mat{A}\,\mat{B}\, \bm{x} &= \mat{A}\,\mat{B}\, \bm{y} \\
+          \Id \bm{x} &= \Id \bm{y} \\
+          \bm{x} &= \bm{y}
         \end{align*}
-        Thus $\bm{x} = \bm{0}$.
       \end{answer}}{\lines{8}}
     
 
