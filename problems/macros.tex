@@ -78,7 +78,15 @@
 \newcommand{\mln}{\hat{f}_n(\bm{x})}
 
 
-\newcommand{\Tr}{\mathop{\mathrm{tr}}\,}
+%% \mathop makes "tr" an operator rather than three variables juxtaposed:
+%% it is set upright and TeX adds its own spacing on either side. \nolimits
+%% keeps a sub/superscript beside it rather than under it in a displayed
+%% equation.
+%%
+%% The space is \; (thickmuskip) and not \, (thinmuskip) because every sheet
+%% sets \thinmuskip=1mu, which would leave \, all but invisible. Use \: for a
+%% slightly tighter gap.
+\newcommand{\Tr}{\mathop{\mathrm{tr}}\nolimits\;}
 
 %% NOT SHARED: gaussianProcess.tex redefines \det to take an argument
 %% (\det{\mat{V}}), while calculus.tex and vectorSpaces.tex use the standard

@@ -234,8 +234,8 @@
   trace, namely that a matrix and its transpose have the same trace, and
   that the trace is unchanged by cyclically permuting a product
   \begin{align*}
-    \Tr \mat{A} &= \Tr \mat{A}^\tr
-    & \Tr \mat{A}\,\mat{B} &= \Tr \mat{B}\,\mat{A} .
+    \mathrm{tr}\bra{\mat{A}} &= \mathrm{tr}\bra{\mat{A}^\tr}
+    & \mathrm{tr}\bra{\mat{A}\,\mat{B}} &= \mathrm{tr}\bra{\mat{B}\,\mat{A}} .
   \end{align*}
 
   \begin{qparts}
@@ -245,20 +245,20 @@
       that
       \begin{align*}
         \bm{a}^\tr\, \mat{U}\, \bm{b}
-        = \Tr\bra{\strut \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr}.
+        = \mathrm{tr}\bra{\strut \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr}.
       \end{align*}
       We can show this by writing out this in terms of components (as
       we did in the lectures), however, we can do this much faster by
       treating $\bm{a}^\tr\, \mat{U}\, \bm{b}$ as a $1\times1$ matrix
-      which is equal to it trace: $\Tr \bm{a}^\tr\, \mat{U}\, \bm{b}$.
+      which is equal to it trace: $\mathrm{tr} \bm{a}^\tr\, \mat{U}\, \bm{b}$.
       \begin{answer}
         Thus
         \begin{align*}
           \bm{a}^\tr\, \mat{U}\, \bm{b}
-          &= \Tr \bm{a}^\tr\,\mat{U}\, \bm{b} \\
-          &= \Tr \bra{\bm{a}^\tr\,\mat{U}\, \bm{b}}^\tr
-            =  \Tr \bm{b}^\tr\,\mat{U}^\tr\, \bm{a} \\
-            &= \Tr \mat{U}^\tr\, \bm{a} \, \bm{b}^\tr
+          &= \mathrm{tr} \bm{a}^\tr\,\mat{U}\, \bm{b} \\
+          &= \mathrm{tr} \bra{\bm{a}^\tr\,\mat{U}\, \bm{b}}^\tr
+            =  \mathrm{tr} \bm{b}^\tr\,\mat{U}^\tr\, \bm{a} \\
+            &= \mathrm{tr} \mat{U}^\tr\, \bm{a} \, \bm{b}^\tr
         \end{align*}
       \end{answer}}{\lines{6}}
 
@@ -269,7 +269,7 @@
         & \mat{U} &= \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}
       \end{align*}
       by computing both $\bm{a}^\tr\,\mat{U}\,\bm{b}$ and
-      $\Tr\bra{\strut\mat{U}^\tr\,\bm{a}\,\bm{b}^\tr}$.
+      $\mathrm{tr}\bra{\strut\mat{U}^\tr\,\bm{a}\,\bm{b}^\tr}$.
       \begin{answer}
         For the left-hand side,
         \begin{align*}
@@ -366,7 +366,7 @@
       \begin{align*}
         \lim_{\epsilon\rightarrow 0}
         \frac{g(\mat{X} + \epsilon\, \mat{U}) - g(\mat{X})}{\epsilon}
-        = \Tr\bra{\mat{U}^\tr\,
+        = \mathrm{tr}\bra{\mat{U}^\tr\,
           \frac{\partial g(\mat{X})}{\partial \mat{X}}}
       \end{align*}
       which holds for every $\mat{U}$.  Part~(a) is what lets you read the
@@ -403,7 +403,7 @@
         $\bm{d} = \mat{X}^{-1}\bm{b}$.  By part~(a),
         \begin{align*}
           \bm{c}^\tr\, \mat{U}\, \bm{d}
-          = \Tr\bra{\strut \mat{U}^\tr\, \bm{c}\, \bm{d}^\tr} .
+          = \mathrm{tr}\bra{\strut \mat{U}^\tr\, \bm{c}\, \bm{d}^\tr} .
         \end{align*}
         Comparing with the definition above, and since this holds for
         every $\mat{U}$, the derivative is
@@ -430,7 +430,7 @@
   fact that
   \begin{align*}
     \lim_{\epsilon\rightarrow 0} \frac{\logg{\det(\mat{X} + \epsilon\, \mat{U})} -
-    \logg{\det\bra{\mat{X}}}}{\epsilon} = \Tr  \mat{U}^\tr \frac{\partial
+    \logg{\det\bra{\mat{X}}}}{\epsilon} = \mathrm{tr} \, \mat{U}^\tr \frac{\partial
     \logg{\det(\mat{X})}}{\partial \mat{X}}.
   \end{align*}
   We therefore expand $\logg{\det(\mat{X}+ \epsilon\, \mat{U})}$ to
@@ -502,13 +502,13 @@
         In consequence
         \begin{align*}
           \det\bra{\Id + \epsilon\, \mat{M}} = 1 + \epsilon
-          \Tr  \mat{M} + O(\epsilon^2)
+          \mathrm{tr} \, \mat{M} + O(\epsilon^2)
         \end{align*}
       \end{answer}}{\lines{8}}
 
     \qpart[3]{For a more elegant proof we can use the fact that
       \begin{align*}
-        \det(\mat{M}) &= \prod_{i=1}^n \lambda_i& \Tr\mat{M} &=
+        \det(\mat{M}) &= \prod_{i=1}^n \lambda_i& \mathrm{tr}\,\mat{M} &=
                                                                 \sum_{i=1}^n \lambda_i
       \end{align*}
       where $\lambda_i$ are the eigenvalues of the matrix $\mat{M}$.
@@ -523,13 +523,13 @@
         = (1+c\,\lambda_i)\, \bm{v}_i.
       \end{align*}
       Using these results show that $\det\bra{\Id + \epsilon\, \mat{M}} = 1 + \epsilon\,
-      \Tr  \mat{M} + O(\epsilon^2)$.
+      \mathrm{tr} \, \mat{M} + O(\epsilon^2)$.
       \begin{answer}
         \begin{align*}
           \det\bra{\Id + \epsilon\, \mat{M}}
           &= \prod_{i=1}^n (1+\epsilon\, \lambda_i)
             = 1 + \epsilon\, \sum_{i=1}^n \lambda_i + O(\epsilon^2) \\
-          &= 1 + \epsilon\, \Tr \mat{M} + O(\epsilon^2)
+          &= 1 + \epsilon\, \mathrm{tr}\, \mat{M} + O(\epsilon^2)
         \end{align*}
       \end{answer}}{\lines{5}}
 
@@ -538,20 +538,20 @@
         \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
         &= \logg{\det\bra{\Id + \epsilon\,\mat{X}^{-1}\mat{U}}} \\
         \det\bra{\Id + \epsilon\, \mat{M}} &= 1 + \epsilon
-      \Tr  \mat{M} + O(\epsilon^2)
+      \mathrm{tr} \, \mat{M} + O(\epsilon^2)
       \end{align*}
       compute $\frac{\partial \logg{\det(\mat{X})}}{\partial
         \mat{X}}$.  You may use the fact that $\log(1+x) = x +
-      O(x^2)$ and $\Tr \mat{A} = \Tr \mat{A}^\tr$.
+      O(x^2)$ and $\mathrm{tr}\, \mat{A} = \mathrm{tr}\, \mat{A}^\tr$.
       \begin{answer}
         We note that
         \begin{align*}
           \logg{\det(\mat{X} + \epsilon\, \mat{U})} - \logg{\det\bra{\mat{X}}}
-          &= \logg{1 + \epsilon\, \Tr  \mat{X}^{-1}\mat{U} +
+          &= \logg{1 + \epsilon\, \textrm{tr} \, \mat{X}^{-1}\mat{U} +
           O(\epsilon^2)} \\
-          &= \epsilon\,  \Tr  \mat{X}^{-1}\mat{U} +
+          &= \epsilon\,  \textrm{tr} \, \mat{X}^{-1}\mat{U} +
           O(\epsilon^2)  \\
-          &= \epsilon\, \Tr  \mat{U}^\tr (\mat{X}^{-1})^\tr
+          &= \epsilon\, \textrm{tr} \, \mat{U}^\tr (\mat{X}^{-1})^\tr
             + O(\epsilon^2)
         \end{align*}
         Thus,
@@ -616,9 +616,9 @@
       \end{answer}}{\lines{1}}
 
     \qpart[2]{
-      Compute (a) $\Tr \mat{A}\, \mat{B}$, (b)
-      $\bra{\Tr \mat{A}}\bra{\Tr \mat{B}}$ (c)
-        $\Tr \mat{B}\, \mat{A}$ and (d) $\Tr
+      Compute (a) $\mathrm{tr} \mat{A}\, \mat{B}$, (b)
+      $\bra{\mathrm{tr} \mat{A}}\bra{\mathrm{tr} \mat{B}}$ (c)
+        $\mathrm{tr} \mat{B}\, \mat{A}$ and (d) $\mathrm{tr}
         \mat{B}^\tr\, \mat{A}^\tr$.  Which quantities are the same?
         \begin{answer}
           (a) = (c) = (d)
@@ -638,7 +638,7 @@
       matrix using
       \begin{align*}
       \lim_{\epsilon\rightarrow 0}  \frac{f(\mat{A} +
-        \epsilon\,\mat{U}) - f(\mat{A})}{\epsilon} = \Tr
+        \epsilon\,\mat{U}) - f(\mat{A})}{\epsilon} = \mathrm{tr}\,
         \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
       \end{align*}
       numerically the convergence is slow.  This is problematic as $f(\mat{A} +
@@ -649,7 +649,7 @@
         \lim_{\epsilon\rightarrow 0}
         \frac{f(\mat{A} + \epsilon\,\mat{U}) -
         f(\mat{A}-\epsilon\,\mat{U})}{2\,\epsilon}
-        = \Tr \mat{U}^\tr
+        = \mathrm{tr}\, \mat{U}^\tr
         \frac{\partial f(\mat{A})}{\partial \mat{A}}.       
       \end{align*}
       If we want to obtain a more accurate numerical estimate of a
@@ -659,10 +659,10 @@
       unnecessary.   Let $f(\mat{A}) = \logg{\det(\mat{A})}$, set
       $\mat{U} = \mat{B}$ and compute
       \begin{align*}
-        \Tr \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
+        \mathrm{tr}\, \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
       \end{align*}
       numerically.  Compare this to
-      $\Tr \mat{U}^\tr (\mat{A}^{-1})^\tr$
+      $\mathrm{tr}\, \mat{U}^\tr (\mat{A}^{-1})^\tr$
       \begin{answer}
         Use the following
 \begin{alltt}
