@@ -45,19 +45,19 @@
       \qpart[3]{Show that if the columns, $\bm{m}_j$, of an $n\times n$ matrix,
         $\mat{M}$, are not independent then $\mat{M}$ does not have a
         unique inverse.  For the columns to not be independent implies
-        there exists some set of coefficients $c_j$, not all zero, such that
+        there exists some set of coefficients $c_j$ such that
         \begin{align*}
           \sum_{j=1}^n c_j\, \bm{m}_j = \bm{0}.
         \end{align*}
         We note that the $i^{th}$ element of $\bm{m}_j = M_{ij}$ so
         \begin{align*}
-          \forall_{i=1}^n: \quad \sum_{j=1}^n c_j\, M_{ij} = 0
+          \forall_{i=1}^n: \quad \sum_{i=1}^n c_j\, M_{ij} = 0
         \end{align*} 
       \begin{answer}
         We consider the vector $\bm{c}$ with elements $c_i$, then the
         $i^{th}$ component of $\mat{M}\,\bm{c}$ is equal to
         \begin{align*}
-          [\mat{M}\,\bm{c}]_i = \sum_{j=1}^n M_{ij}\, c_j = 0
+          [\mat{M}\,\bm{c}]_i = \sum_{i=0}^n M_{ij}\, c_j = 0
         \end{align*}
         or $\mat{M}\, \bm{c} = \bm{0}$.  Consequently for any vector
         $\bm{x}$ and any scalar $b$ we have that
@@ -74,7 +74,7 @@
         $\mat{B}$ and $\mat{C}$ the inverse of
         $\mat{A}\,\mat{B}\,\mat{C}$ is
         $\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$.  You can do this by
-        multiplying the product of matrices by its inverse and using
+        multiplying the product of matrices, but its inverse and use
         associativity of matrix multiplication
       \begin{answer}
         \begin{align*}
@@ -135,7 +135,7 @@
         prove.  We break the proof down.
 
         Show that if $\mat{A}\mat{B}= \Id$ then $\mat{B}$ is
-        injective (one-to-one).  This means that for two different
+        injective (one-to-one).  This mean that for two different
         vectors $\bm{x}$ and $\bm{y}$ then
         $\mat{B}\, \bm{x} \neq \mat{B} \bm{y}$.  Equivalently
         $\mat{B}\, (\bm{x} - \bm{y}) \neq \bm{0}$, unless $\bm{x}=\bm{y}$,
@@ -164,16 +164,16 @@
         that span the entire space $\mathbb{R}^n$.  We call these
         $\bm{v}_1$, $\bm{v}_2$, \ldots, $\bm{v}_n$.  Because these are
         independent the only set of numbers $c_i$ such that
-        $\sum_i c_i \bm{v}_i=\bm{0}$ is when $c_1=c_2=\ldots=c_n=0$.
+        $\sum_i c_i \bm{v}_i=\bm{0}$ are when $c_1=c_2=\ldots=c_n=0$.
         Show that the set of vectors $\bm{v}_i' = \mat{B}\, \bm{v}_i$
-        form a set of basis vectors (i.e. they are linearly
+        form a set of basis vectors (i.e. they are linear
         independent).  This is easily proved by contradiction.
       \begin{answer}
         Since $\mat{B}$ is injective and $\bm{v}_i\neq \bm{0}$ (since
         basis vectors are non-zero), clearly $\bm{v}_i' = \mat{B}\,
         \bm{v}_i$ are non-zero.  The non-trivial part is to show these
-        vectors are linearly independent.  Suppose this is not the case and
-        there exists a set of coefficients $c_i'$, not all zero, such that
+        vectors are linear independent.  Suppose this is no the case and
+        there exists a set of coefficients $c_i'$ such that
         \begin{align*}
           \sum_{i=1}^n c_i'\, \bm{v}_i' &= \bm{0} \\
           \sum_{i=1}^n c_i'\, \mat{B} \, \bm{v}_i &= \bm{0} \\
@@ -183,8 +183,8 @@
         \begin{align*}
           \sum_{i=1}^n c_i'\, \bm{v}_i &= \bm{0}.
         \end{align*}
-        Since the vectors $\bm{v}_i$ are linearly independent this
-        implies every $c_i'=0$, contradicting our assumption.
+        Since the vectors $\bm{v}_i$ are linear independent, so
+        this is a contradiction.
       \end{answer}}{\lines{8}}
     
 
@@ -193,14 +193,14 @@
         independent to show that, for any vector $\bm{y}$, we can find a
         vector $\bm{x}$ such that $\bm{y} = \mat{B}\,\bm{x}$
       \begin{answer}
-        Any vector $\bm{y}$ can be represented by a weighted sum of
+        For any vector $\bm{y}$ can be represented by a weighted sum of
         $n$ independent vectors.  In particular we can write
         \begin{align*}
           \bm{y} &= \sum_{i=1}^n c_i\, \bm{v}'_i = \sum_{i=1}^n c_i\,
                    \mat{B} \, \bm{v}_i  \\
                  &= \mat{B} \bra{\sum_{i=1}^n c_i\, \bm{v}_i} = \mat{B}\,\bm{x}
         \end{align*}
-        where $\bm{x} = \sum_{i=1}^n c_i\, \bm{v}_i$.
+        where $x = \sum_{i=1}^n c_i\, \bm{v}_i$.
       \end{answer}}{\lines{6}}
     
 
@@ -209,7 +209,7 @@
         $\mat{B}$ is surjective show $\mat{B}\,\mat{A} =
         \Id$
       \begin{answer}
-        We note that for all $\bm{x}$
+        We not that for all $\bm{x}$
         \begin{align*}
           \mat{A}\,\mat{B}\,\bm{x} &= \bm{x} \\
           \mat{B}\,\mat{A}\,\mat{B}\,\bm{x} &= \mat{B}\,\bm{x} 
@@ -450,7 +450,7 @@
     \logg{\det\bra{\mat{X}}}}{\epsilon} = \mathrm{tr} \, \mat{U}^\tr \frac{\partial
     \logg{\det(\mat{X})}}{\partial \mat{X}}.
   \end{align*}
-  We therefore expand $\logg{\det(\mat{X}+ \epsilon\, \mat{U})}$ to
+  We therefore expand $\logg{\det(\mat{X}+ \epsilon\, \mat{U}))}$ to
   first order in $\epsilon$, subtract $\logg{\det\bra{\mat{X}}}$, divide by
   $\epsilon$, rearrange and read off $\frac{\partial
     \logg{\det(\mat{X})}}{\partial \mat{X}}$.  However, rearranging in
@@ -459,7 +459,7 @@
   \begin{qparts}
     \qpart[5]{Using $\det(\mat{A}\,\mat{B}) =
       \det(\mat{A})\,\det(\mat{B})$ and $\log(a\,b)= \log(a) +
-      \log(b)$ expand $\logg{\det(\mat{X}+ \epsilon \mat{U})}$ as a
+      \log(b)$ expand $\logg{\det(\mat{X}+ \epsilon \mat{U}))}$ as a
       sum of $\logg{\det(\mat{X})}$ and another logarithm.
       \begin{answer}
         \begin{align*}
@@ -501,9 +501,9 @@
         \end{pmatrix}
       \end{align*}
       up to first order in $\epsilon$.  Recall we can compute the
-      determinant of a matrix $\mat{X}$ as
+      determinant a matrix $\mat{X}$ as
       \begin{align*}
-        \det(\mat{X}) = \sum_{j=1}^n (-1)^{1+j}\, X_{1j} \, \det(\hat{\mat{X}}_{1j})
+        \det(\mat{X}) = \sum_{i=1}^n (-1)^j\, X_{1j} \, \det(\hat{\mat{X}}_{1j})
       \end{align*}
       where $\hat{\mat{X}}_{1j}$ is the matrix obtained
       by removing row 1 and column $j$ from the matrix $\mat{X}$.
@@ -514,7 +514,7 @@
           \prod_{i=1}^n (1+\epsilon \, M_{ii}) = 1 +\epsilon\,
           \sum_{i=1}^n M_{ii} + O(\epsilon^2)
         \end{align*}
-        all other terms in the determinant involve terms of at least
+        all other terms in the determinant involve at least terms of
         order $\epsilon^2$ so do not contribute to order $\epsilon$.
         In consequence
         \begin{align*}
@@ -546,7 +546,7 @@
           \det\bra{\Id + \epsilon\, \mat{M}}
           &= \prod_{i=1}^n (1+\epsilon\, \lambda_i)
             = 1 + \epsilon\, \sum_{i=1}^n \lambda_i + O(\epsilon^2) \\
-          &= 1 + \epsilon\, \mathrm{tr}\, \mat{M} + O(\epsilon^2)
+          &= 1 + \epsilon\, \mathrm{tr}\, \mat{M} + O(\epsilon^2) \\
         \end{align*}
       \end{answer}}{\lines{5}}
 
@@ -557,6 +557,7 @@
         \det\bra{\Id + \epsilon\, \mat{M}} &= 1 + \epsilon
       \mathrm{tr} \, \mat{M} + O(\epsilon^2)
       \end{align*}
+      together with the fact that $\log(1+x) = x + O(x^2)$, 
       compute $\frac{\partial \logg{\det(\mat{X})}}{\partial
         \mat{X}}$.  You may use the fact that $\log(1+x) = x +
       O(x^2)$ and $\mathrm{tr}\, \mat{A} = \mathrm{tr}\, \mat{A}^\tr$.
@@ -568,8 +569,7 @@
           O(\epsilon^2)} \\
           &= \epsilon\,  \textrm{tr} \, \mat{X}^{-1}\mat{U} +
           O(\epsilon^2)  \\
-          &= \epsilon\, \textrm{tr} \, \mat{U}^\tr (\mat{X}^{-1})^\tr
-            + O(\epsilon^2)
+          &= \epsilon\, \textrm{tr} \mat{U}^\tr (\mat{X}^{-1})^\tr
         \end{align*}
         Thus,
         \begin{align*}
@@ -585,8 +585,8 @@
     In this question I want you to use a numerical package to do some
     simple algebra.  You can use MATLAB, OCTAVE, numpy in Python or
     any other language of your choosing.  The answers are only going
-    to be accurate up to the numerical precision of your machine
-    (typically around $10^{-16}$).  For python the following may be
+    to be accurate up to the numerically precision of your machine
+    (typically around $10^{-16}$).  For python the following my be
     useful
     \begin{tabularx}{\linewidth}{@{}l|X@{}}
       \hline
@@ -607,12 +607,12 @@
     \end{tabularx}
 
     Generate three $5\times 5$ random matrices $\mat{A}$, $\mat{B}$ and
-    $\mat{C}$ and two random vectors of length 5, $\bm{a}$ and $\bm{b}$.
+    $\mat{C}$ and two random vectors of length 5, $\bm{a}$ and $\bm{b}$
 
    \begin{qparts}
    \qpart[2]{Compute $\mat{D}= \mat{A}\, \mat{B}$ and $\mat{E} =
      \mat{B} \, \mat{C}$.  Which quantities are the same (a)
-     $\mat{A}\,\mat{B}\, \mat{C}$, (b) $\mat{D}\, \mat{E}$, (c)
+     $\mat{A}\,\mat{B}\, \mat{C}$, (b) $\mat{D}\ \mat{E}$, (c)
      $\mat{D}\, \mat{C}$, (d) $\mat{A}\,\mat{E}$, (e) $\mat{C}\,\mat{D}$
       \begin{answer}
         (a) = (c) = (d)
@@ -651,14 +651,14 @@
       \end{answer}}{\lines{1}}
 
     \qpart[10]{
-      Although we can define the gradient with respect to a
+      Although, we write can define the gradient with respect to a
       matrix using
       \begin{align*}
       \lim_{\epsilon\rightarrow 0}  \frac{f(\mat{A} +
-        \epsilon\,\mat{U}) - f(\mat{A})}{\epsilon} = \mathrm{tr}\,
-        \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
+        \epsilon\,\mat{U}) - f(\mat{A})}{\epsilon} = \mat{U}^\tr
+        \frac{\partial f(\mat{A})}{\partial \mat{A}}
       \end{align*}
-      numerically the convergence is slow.  This is problematic as $f(\mat{A} +
+      numerically the converges is slow.  This is problematic as $f(\mat{A} +
       \epsilon\,\mat{U})$ and $f(\mat{A})$ are very close in value
       so when we take their difference we lose a lot of precision.
       A ratio that converges much more quickly is
@@ -666,8 +666,7 @@
         \lim_{\epsilon\rightarrow 0}
         \frac{f(\mat{A} + \epsilon\,\mat{U}) -
         f(\mat{A}-\epsilon\,\mat{U})}{2\,\epsilon}
-        = \mathrm{tr}\, \mat{U}^\tr
-        \frac{\partial f(\mat{A})}{\partial \mat{A}}.       
+        = \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}.       
       \end{align*}
       If we want to obtain a more accurate numerical estimate of a
       derivative we would compute the ratio for different values of
@@ -676,10 +675,9 @@
       unnecessary.   Let $f(\mat{A}) = \logg{\det(\mat{A})}$, set
       $\mat{U} = \mat{B}$ and compute
       \begin{align*}
-        \mathrm{tr}\, \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
+        \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}
       \end{align*}
-      numerically.  Compare this to
-      $\mathrm{tr}\, \mat{U}^\tr (\mat{A}^{-1})^\tr$
+      numerically.  Compare this to $\mat{U}^\tr (\mat{X}^{-1})^\tr$
       \begin{answer}
         Use the following
 \begin{alltt}
