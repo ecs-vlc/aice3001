@@ -13,6 +13,26 @@ site_dir: ../site
 problems_page: problems.html
 answers_page: problems-answers-23948017554dfbf8.html
 
+# ---------------------------------------------------------------------------
+# Releasing answers. Each sheet's answers appear on the public problems page
+# once its tutorial has been taught; until then the answer PDF is published
+# under an unguessable name so demonstrators can still reach it from the
+# answers page.
+#
+#   auto   release after the tutorial date in tutorial_dates.yaml, which
+#          lectures/make_timetable.py derives from term_start. Change the
+#          year and everything un-releases by itself.
+#   none   release nothing
+#   all    release everything
+#
+# A sheet may override the decision with `release: true` or `release: false`.
+# Nothing is released until the site is rebuilt and pushed: this is a static
+# site, so the date is consulted at build time, not by the browser.
+# ---------------------------------------------------------------------------
+release_answers: auto
+release_delay_days: 0
+answers_token: 23948017554dfbf8
+
 sheets:
   - week: 1
     name: calculus
