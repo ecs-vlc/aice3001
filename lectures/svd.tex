@@ -48,21 +48,21 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Singular Valued Decomposition}
+\section{Singular Value Decomposition}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item One of the most immportant results in linear algebra is that
+  \item One of the most important results in linear algebra is that
     any matrix $\mat{X}$ can be decomposed as
     \begin{align*}
       \mat{X} = \mat{U} \mat{S} \mat{V}^\tr\pause
     \end{align*}
-  \item If $\mat{X}$ is a $m\times n$ matrix then $\mat{U}$ is a
-    $m\times m$ orthogonal matrix and $\mat{V}$ is an $n\times n$
+  \item If $\mat{X}$ is an $m\times p$ matrix then $\mat{U}$ is an
+    $m\times m$ orthogonal matrix and $\mat{V}$ is a $p\times p$
     orthogonal matrix\pause{} i.e. $\mat{U}\mat{U}^\tr =
     \mat{U}^\tr\mat{U} = \mat{I}, \; \mat{V}\,\mat{V}^\tr =
     \mat{V}^\tr\mat{V} = \mat{I}$\pauseb
-  \item And $\mat{S}$ is a $m\times n$ matrix with non-zero diagonal
+  \item And $\mat{S}$ is an $m\times p$ matrix with non-zero diagonal
     elements $S_{ii} = s_i$ known as the \emph{singular values}\pause
   \item Where did that come from?\pauseb
   \end{itemize}
@@ -77,8 +77,8 @@
 
 \pb
 \begin{itemize}\squeeze
-\item Consider an arbitrary $n\times m$ matrix $\mat{X}$, and construct
-  the $(n+m)\times(n+m)$ symmetric matrix, $\mat{B}$, \pauseh\pauselevel{=1}
+\item Consider an arbitrary $m\times p$ matrix $\mat{X}$, and construct
+  the $(m+p)\times(m+p)$ symmetric matrix, $\mat{B}$, \pauseh\pauselevel{=1}
   \vspace*{-1cm}
   \begin{center}
     \multipdf[height=6cm]{svd}\pause
@@ -112,15 +112,15 @@
     if $\binom{\bm{u}}{\bm{v}}$ is an eigenvector of $\mat{B}$ with
     eigenvalue $s$ then so is $\binom{\bm{u}}{-\bm{v}}$ 
     with eigenvalue $-s$\pause
-  \item If $n<m$ then $\mat{X}^\tr\mat{X}$ is not full rank so some
+  \item If $m<p$ then $\mat{X}^\tr\mat{X}$ is not full rank so some
     eigenvalues are zero\pause
-  \item As a consequence $m-n$ vectors exist such that
-    $\bm{X}\bm{v}=0$\pause
+  \item As a consequence $p-m$ vectors exist such that
+    $\mat{X}\bm{v}=0$\pause
   \item The eigenvalues and eigenvectors are
     \begin{align*}
-      n\times\left(s_i, \binom{\bm{u}_i}{\bm{v}_i}\right) \quad
-      n\times\left(-s_i, \binom{\bm{u}_i}{-\bm{v}_i}\right) \quad
-      m-n\times\left(0, \binom{0}{\bm{v}_k}\right) \pause
+      m\times\left(s_i, \binom{\bm{u}_i}{\bm{v}_i}\right) \quad
+      m\times\left(-s_i, \binom{\bm{u}_i}{-\bm{v}_i}\right) \quad
+      (p-m)\times\left(0, \binom{0}{\bm{v}_k}\right) \pause
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -209,9 +209,10 @@
     \mat{U}\,\mat{S}\,\mat{V}^\tr$
     \begin{itemize}
     \item $\mat{U}$, $\mat{V}$ are orthogonal matrices
-    \item $\mat{S} = \mathrm{diag}(s_1, s_2,\ldots,s_n)$\pause
+    \item $\mat{S} = \mathrm{diag}(s_1, s_2,\ldots,s_r)$ with
+      $r = \min(m,p)$\pause
     \end{itemize}
-  \item $s_i$ can always be chosen to be positive and are known as
+  \item $s_i$ can always be chosen to be non-negative and are known as
     \emph{singular values}\pause
   \item Singular value decomposition applies to both square and
     non-square matrices---they describe general linear mappings\pause
@@ -384,9 +385,9 @@
       &=
         \mat{V}\,(\mat{S}^\tr\,\mat{S})\,\mat{V}^\tr\pause                        
     \end{align*}
-  \item If $\mat{X}$ is an $p\times m$ matrix then $\mat{S}\mat{S}^\tr$
-    is a $p\times p$ diagonal matrix with elements $S_{ii}^2=s_i^2$\pause
-  \item $\mat{S}^\tr\mat{S}$  is an $m\times m$ matrix  with elements
+  \item If $\mat{X}$ is an $m\times p$ matrix then $\mat{S}\mat{S}^\tr$
+    is an $m\times m$ diagonal matrix with elements $S_{ii}^2=s_i^2$\pause
+  \item $\mat{S}^\tr\mat{S}$  is a $p\times p$ matrix  with elements
     $S_{ii}^2=s_i^2$\pause
   \item $\mat{U}$ and $\mat{V}$ are matrices of eigenvectors for
     $\mat{C}$ and $\mat{D}$\pause
@@ -469,14 +470,14 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Given a set of data $\mathcal{D}= \{(\bm{x}_i, y_i)|k=1,\,2,\,\ldots,\, m\}$\pause
+  \item Given a set of data $\mathcal{D}= \{(\bm{x}_k, y_k)|k=1,\,2,\,\ldots,\, m\}$\pause
   \item In linear regression we try to fit a linear model
     \begin{align*}
       f(\bm{x}| \bm{w}) = \bm{x}^\tr \bm{w}\pause
     \end{align*}
   \item Which we fit by minimising the squared error loss
     \begin{align*}
-      L(\bm{w}) = \sum_{k=1}^m \left(f(\bm{x}_i| \bm{w}) - y_i\right)^2\pause
+      L(\bm{w}) = \sum_{k=1}^m \left(f(\bm{x}_k| \bm{w}) - y_k\right)^2\pause
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -490,7 +491,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-    \item In matrix from we write $L(\bm{w})= \left\| \mat{X}\,\bm{w} -
+    \item In matrix form we write $L(\bm{w})= \left\| \mat{X}\,\bm{w} -
       \bm{y} \right\|^2$
     \begin{align*}
       \mat{X} &=
@@ -500,7 +501,7 @@
               &
       \bm{y} &=
                \begin{pmatrix}
-                 y_1 \\ y_2, \\ \vdots \\ y_m
+                 y_1 \\ y_2 \\ \vdots \\ y_m
                \end{pmatrix}\pause
     \end{align*}
   \item Then $\grad L(\bm{w}^*)=0$ implies
@@ -683,9 +684,9 @@
   \begin{itemize}
   \item Without regularisation if $s_i=0$ the problem would be ill-posed (even $\mat{S}^+$
     does not exist since $s_i^{-1}$ would be ill defined) and if $s_i$
-    is small then $\mat{S}^+$ is ill conditioned\pause
+    is small then $\mat{S}^+$ is ill-conditioned\pause
   \item Using $\hat{\mat{S}}^+
-    =(\mat{S}^\tr\mat{S}+\eta)^{-1}\,\mat{S}^\tr$ instead of
+    =(\mat{S}^\tr\mat{S}+\eta\,\mat{I})^{-1}\,\mat{S}^\tr$ instead of
     $\mat{S}^+$ then 
     \begin{center}
      \includegraphics[width=0.8\textwidth]{linregressreg} \pause
@@ -713,8 +714,8 @@
     $\mat{X}=\mat{U}\mat{S}\mat{V}^\tr$ where
     \begin{itemize}
     \item $\mat{U}$ and $\mat{V}$ are orthogonal (rotation matrices)\pause
-    \item $\mat{S}=\diag(s_1, \ldots, s_n)$ is a diagonal
-      matrix of positive singular values\pause
+    \item $\mat{S}=\diag(s_1, \ldots, s_r)$ is a diagonal
+      matrix of non-negative singular values\pause
     \end{itemize}
   \item This describes the most general linear transform\pause
   \item The transform exploits the duality between $\mat{X}\,\mat{X}^\tr$

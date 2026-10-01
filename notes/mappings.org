@@ -3,7 +3,7 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Mappings, Eigenvectors
+  * Least Squares, Under-constrained Systems, Ill-conditioning
 
 * Main Points
 
@@ -11,76 +11,244 @@
    * Much of machine learning can be viewed as solving an inverse problem
    * We collect data about the world by performing a series of measurements
    * Our task is to infer properties of the world from the data
+   * In linear regression we have $m$ observations $(\bm{x}_k, y_k)$
+     and want $p$ unknown weights $\bm{w}$ such that
+     $y_k = \bm{x}_k^\tr\,\bm{w}$
+   * Stacking the feature vectors $\bm{x}_k^\tr$ as the rows of the
+     /design matrix/ $\mat{X}$ (an $m\times p$ matrix) we can write this as
+     $\bm{y} = \mat{X}\,\bm{w}$
+   * If $m=p$ and $\mat{X}$ is invertible then $\bm{w} =
+     \mat{X}^{-1}\bm{y}$, but this is rarely the situation we are in
 
-** Over-Constrained Problems
+** Least Squares (Over-Constrained Problems)
    * We can have contradictory data that our model cannot explain
    * This may arise because
      * We have errors in the data
      * Our data contains insufficient information
      * Our model is too simple
-   * If we have more training data than free parameters this is likely to occur
-   * We typically solve this by introducing a loss function we minimise
-   * A classic example is to minimise the squared error
+   * If we have more training data than free parameters ($m>p$) this
+     is likely to occur
+   * We typically solve this by introducing a loss function we
+     minimise.  The classic example is the squared loss
+     \begin{align*}
+       L(\bm{w}) = \sum_{k=1}^m \left(\bm{x}_k^\tr\bm{w} - y_k\right)^2
+       = \len{\mat{X}\,\bm{w} - \bm{y}}^2
+     \end{align*}
+     This was introduced by Gauss to predict the orbit of the asteroid Ceres
+   * Setting the gradient to zero (see Exercise 1) gives
+     \begin{align*}
+       \bm{w} = \left(\mat{X}^\tr\mat{X}\right)^{-1}\mat{X}^\tr\bm{y}
+       = \mat{X}^+\bm{y}
+     \end{align*}
+     where $\mat{X}^+ = (\mat{X}^\tr\mat{X})^{-1}\mat{X}^\tr$ is the pseudo-inverse
+   * This requires $\mat{X}^\tr\mat{X}$ to be invertible, which
+     is the case when the columns of $\mat{X}$ are linearly independent
 
 ** Under-Constrained Problems
    * We can also be in a situation when many models (learning
      machines) explain the data
-   * This will typically happen when we have more free parameters than data
-   * Here we have to choose a particular model
-   * To do this requires (implicitly or explicitly) making additional
-     assumptions
+   * This will typically happen when we have more free parameters than
+     data ($m<p$), or when we are unlucky and the training examples
+     don't span the full space
+   * In linear regression $\mat{X}^\tr\mat{X}$ is then singular (see
+     Exercise 3), so the pseudo-inverse formula fails.  The problem is
+     said to be /ill-posed/
+   * As an example, consider fitting a polynomial of degree 5,
+     $y = w_0 + w_1\,x + \cdots + w_5\,x^5$ (6 parameters), to 4
+     data points $(x_i,y_i)$.  If $p_0(x)$ is the cubic through the
+     four points then
+     \begin{align*}
+       p(x) = p_0(x) + (a + b\,x)\,(x-x_1)(x-x_2)(x-x_3)(x-x_4)
+     \end{align*}
+     passes through all four points for /every/ choice of $a$ and $b$
+     (Exercise 4).  We have 6 unknowns and 4 equations, leaving 2 free
+     directions.  The figure shows five members of this family.  They
+     agree near the data but make wildly different predictions away
+     from it
+     #+ATTR_LATEX: :width 0.6\textwidth
+     [[file:figures/underConstrainedCurves-5.pdf]]
+   * Here we have to choose a particular model.  To do this requires
+     (implicitly or explicitly) making additional assumptions
+   * Ockham's razor suggests choosing the "simplest" solution, although
+     what counts as simplest is a choice we make
+   * For linear regression, adding an $L_2$ regulariser
+     $\eta\,\len{\bm{w}}^2$ to the loss makes the solution unique.  We
+     will see exactly how this works when we meet the singular value
+     decomposition
    * For high-dimensional inputs we can be over-constrained
      in some directions and under-constrained in others
 
 ** Ill-Conditioning
-   * Even when we are not under-constrained our inverse can be very sensitive to the data
-   * That is small errors can be strongly magnified
-   * Ill-condition leads to high variance in the bias-variance sense and hence poor generalisation
+   * Even when we are not under-constrained our inverse can be very
+     sensitive to the data
+   * That is, small errors can be strongly magnified
+   * A matrix that is close to singular is ill-conditioned: some of its
+     eigenvalues are tiny compared with the largest, so it squashes
+     space towards a lower-dimensional subspace.  Inverting it
+     stretches those directions back out, magnifying any noise in them
+   * A worked example: take two data points with two nearly identical features
+     \begin{align*}
+       \mat{X} = \begin{pmatrix} 1 & 1 \\ 1 & 1.001 \end{pmatrix}, \qquad
+       \bm{y} = \begin{pmatrix} 2 \\ 2.001 + \delta \end{pmatrix}
+     \end{align*}
+     Solving $\mat{X}\,\bm{w}=\bm{y}$, subtracting the first equation
+     from the second gives $0.001\,w_2 = 0.001 + \delta$, so
+     \begin{align*}
+       \bm{w} = \begin{pmatrix} 1 - 1000\,\delta \\ 1 + 1000\,\delta \end{pmatrix}
+     \end{align*}
+     * A change $\delta$ in the data produces a change $1000\,\delta$ in
+       the weights.  With $\delta = 0.001$ (a 0.05% change in $y_2$) the
+       weights jump from $(1,1)$ to $(0,2)$ and the prediction for a
+       new input $\bm{x}=(1,0)^\tr$ goes from 1 to 0
+     * The weights always move along $(-1,1)^\tr$.  This is (very
+       nearly) the eigenvector of $\mat{X}$ with the small eigenvalue
+       ($\approx 0.0005$, against $\approx 2$ for the other one)
+     * The data hardly constrain the weights in this direction: the two
+       features are so alike that the data cannot tell us how to share
+       the weight between them
+   * Common causes of ill-conditioning in machine learning
+     * Roughly as many data points as parameters
+     * Nearly collinear features (e.g. floor area and number of rooms)
+     * Polynomial features $x, x^2, \ldots, x^9$ for $x\in[0,1]$, which
+       all look alike (see the experiments)
+     * Features on very different scales (easily fixed by standardising
+       each feature to zero mean and unit variance)
+   * Ill-conditioning leads to high variance in the bias-variance sense
+     and hence poor generalisation
+   * Regularisers are one way of improving the conditioning
 
-** Linear Regression
-   * In linear regression we try to fit a linear model $y_i = \bm{x}_i^\tr\,\bm{w}$
-     (or in matrix form $\bm{y} = \mat{X}\,\bm{w}$)
-   * We use a squared error (so can cope with conflicting constraints)
-   * If we have more training examples than parameters the solution is given by the pseudo-inverse
-     $\bm{w} = (\mat{X}^\tr \mat{X})^{-1} \mat{X}^\tr \bm{y}$
-   * It we have less training examples than parameters (or we are
-     unlucky in that the training examples don't span the full space)
-     then the problem is under-constrained and there are an infinity
-     of solutions
-   * Even when we have more training examples than parameters the
-     problem can be ill-conditioned
+** Least Squares in Practice
+   * The formula $\bm{w} = (\mat{X}^\tr\mat{X})^{-1}\mat{X}^\tr\bm{y}$
+     is for understanding, not for computing
+   * Use a least squares solver such as =np.linalg.lstsq(X, y)=, which
+     works with $\mat{X}$ directly
+   * Forming $\mat{X}^\tr\mat{X}$ squares the ratio of the largest to
+     smallest eigenvalues (the /condition number/, defined properly in
+     the next lecture).  If that ratio is $10^8$ for $\mat{X}$ it becomes
+     $10^{16}$ for $\mat{X}^\tr\mat{X}$, beyond the roughly 16
+     significant figures of a double-precision number
+   * When $m<p$, =lstsq= returns the solution with the smallest
+     $\len{\bm{w}}$, which is one version of the "simplest" solution.
+     We will see why when we meet the singular value decomposition
+
+** Three Regimes
+   | Regime                      | Exact fit?  | Unique?       | Method                               |
+   |-----------------------------+-------------+---------------+--------------------------------------|
+   | $m>p$ (over-constrained)    | usually not | yes (usually) | minimise $\len{\mat{X}\bm{w}-\bm{y}}^2$ |
+   | $m=p$                       | yes         | yes (usually) | $\bm{w}=\mat{X}^{-1}\bm{y}$          |
+   | $m<p$ (under-constrained)   | yes, many   | no            | choose the "simplest"                |
+   * "Usually" means provided the columns of $\mat{X}$ are linearly
+     independent
+   * Real problems mix these: over-constrained in some directions and
+     (nearly) under-constrained in others.  The nearly under-constrained
+     directions are what make a problem ill-conditioned
 
 
 * Exercises
 
-** Linear Regression
-   * Derive the formula for the weight vector in linear regression
+1. Derive the formula
+   $\bm{w} = (\mat{X}^\tr\mat{X})^{-1}\mat{X}^\tr\bm{y}$ for the
+   weight vector in linear regression by minimising
+   $\len{\mat{X}\,\bm{w} - \bm{y}}^2$
+2. By writing $\bm{w}^\tr\mat{M}\,\bm{w} = \sum_{i,j} w_i\,M_{ij}\,w_j$
+   and differentiating with respect to $w_k$, show that
+   $\grad\,\bm{w}^\tr\mat{M}\,\bm{w} = (\mat{M}+\mat{M}^\tr)\,\bm{w}$
+3. Show that if $\mat{X}$ is an $m\times p$ matrix with $m<p$ then
+   $\mat{X}^\tr\mat{X}$ is singular.  (Hint: find a non-zero vector
+   $\bm{v}$ with $\mat{X}\,\bm{v}=\bm{0}$)
+4. For the polynomial example in the notes
+   1. Show that $p(x)$ passes through all four data points for any
+      $a$ and $b$, and that it is a polynomial of degree at most 5
+   2. (Harder) Show that /every/ polynomial of degree at most 5
+      through the four points has this form
+5. For the worked example with
+   $\mat{X} = \begin{pmatrix} 1 & 1 \\ 1 & 1.001 \end{pmatrix}$
+   1. Verify the solution $\bm{w} = (1-1000\,\delta, 1+1000\,\delta)^\tr$
+   2. Find the eigenvalues of $\mat{X}$ to 4 significant figures and
+      their ratio
+   3. What happens to the weights if instead the two features were
+      identical, $\mat{X} = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix}$?
 
 * Experiments
 
-** Eigensystems
-   * In either Matlab/Octave or python generate random matrices and check
-     the matrix identities
+** Ill-Conditioning and Under-Constrained Systems
+   * Using python (with numpy), try the following and check you
+     understand the output
 
-#+BEGIN_SRC matlab
-X = randn(5,4)  % generate a mock designer matrix with 5 inputs of length 4 
-M = X'*X        % compute a symmetrix matrix
-[V.L] = eig(M)  % compute eigenvalues
-V*L*V'          % should be identical to M
-V*V'            % should be the identity matrix (up to rounding precision)
-V'*V            % should be the identity matrix (up to rounding precision)
-x = randn(4,1)  % generate a random column matrix of length 4
-y = randn(4,1)  % generate another random column matrix of length 4
-xp = V*x        % apply V to x
-yp = V*y        % apply V to y
-norm(x)         % compute Euclidean norm of x
-norm(xp)        % should be the same as Euclidean nor of xp
-x'*y            % compute inner product of x and y
-xp'*yp'         % compute inner produce of xp and yp (should be the same as above)
+#+BEGIN_SRC python
+import numpy as np
 
-Z = rand(4,5)   % consider a designer matrix where we would have more unknowns the examples
-W = Z'*Z        % compute a covariance type matrix (except we don't subtract the mean
-eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
+# 1. The worked example: a tiny change in y, a big change in w
+X = np.array([[1, 1], [1, 1.001]])
+for y2 in [2.001, 2.002, 2.0005]:
+    print(y2, np.linalg.solve(X, [2, y2]))
+print(np.linalg.eigh(X))   # eigenvalues and eigenvectors (X is symmetric)
+
+# 2. Polynomial features are ill-conditioned
+x = np.linspace(0, 1, 50)
+for degree in [1, 3, 5, 9]:
+    Xp = np.vander(x, degree + 1, increasing=True)  # columns 1, x, x^2, ...
+    print(degree, np.linalg.cond(Xp), np.linalg.cond(Xp.T @ Xp))
+
+# 3. An under-constrained system: 3 equations, 6 unknowns
+rng = np.random.default_rng(1)
+X = rng.normal(size=(3, 6))
+y = rng.normal(size=3)
+w, *_ = np.linalg.lstsq(X, y)
+print(np.allclose(X @ w, y))                   # fits the data exactly
+print(np.linalg.eigvalsh(X.T @ X))             # three (numerically) zero eigenvalues
+v = np.linalg.svd(X)[2][-1]                    # a direction with X v = 0
+print(np.allclose(X @ (w + 5 * v), y))         # ...so this also fits exactly
+print(np.linalg.norm(w), np.linalg.norm(w + 5 * v))  # but a larger norm
 #+END_SRC
+
+   * In part 2, =np.linalg.cond= computes the condition number
+     (covered next lecture).  Notice that the condition number of
+     $\mat{X}^\tr\mat{X}$ is the square of that of $\mat{X}$, reaching
+     about $10^{13}$ for degree 9
+   * In part 3, try adding other multiples of =v=.  Why can the norm
+     never be smaller than that of =w=?
+
+* Answers
+
+1. Using $\len{\bm{a}}^2 = \bm{a}^\tr\bm{a}$ and
+   $\bm{w}^\tr\mat{X}^\tr\bm{y} = \bm{y}^\tr\mat{X}\,\bm{w}$ (a number
+   equals its own transpose)
+   \begin{align*}
+     \len{\mat{X}\,\bm{w} - \bm{y}}^2
+     = \bm{w}^\tr\mat{X}^\tr\mat{X}\,\bm{w} - 2\,\bm{w}^\tr\mat{X}^\tr\bm{y}
+       + \bm{y}^\tr\bm{y}
+   \end{align*}
+   As $\mat{X}^\tr\mat{X}$ is symmetric, Exercise 2 gives the gradient
+   $2\,(\mat{X}^\tr\mat{X}\,\bm{w} - \mat{X}^\tr\bm{y})$.  Setting this
+   to zero gives $\mat{X}^\tr\mat{X}\,\bm{w} = \mat{X}^\tr\bm{y}$ and, if
+   $\mat{X}^\tr\mat{X}$ is invertible, the result
+2. $\displaystyle \pd{}{w_k}\sum_{i,j} w_i\,M_{ij}\,w_j
+   = \sum_j M_{kj}\,w_j + \sum_i w_i\,M_{ik}
+   = (\mat{M}\,\bm{w})_k + (\mat{M}^\tr\bm{w})_k$
+3. The $p$ columns of $\mat{X}$ are vectors in $\mathbb{R}^m$ with
+   $m<p$, so they are linearly dependent: some non-zero $\bm{v}$ has
+   $\mat{X}\,\bm{v}=\bm{0}$.  Then $\mat{X}^\tr\mat{X}\,\bm{v} = \bm{0}$,
+   so $\bm{v}$ is an eigenvector of $\mat{X}^\tr\mat{X}$ with eigenvalue 0
+   and $\mat{X}^\tr\mat{X}$ has no inverse.  Any multiple of $\bm{v}$
+   can be added to a solution without changing the fit
+4. Polynomial example
+   1. At each data point one factor $(x-x_i)$ vanishes, so
+      $p(x_i) = p_0(x_i) = y_i$.  The degree is at most
+      $1 + 4 = 5$
+   2. If $r(x)$ is another such polynomial then $r(x)-p_0(x)$ has
+      degree at most 5 and is zero at $x_1,\ldots,x_4$, so it is
+      divisible by $(x-x_1)\cdots(x-x_4)$.  The quotient has degree at
+      most 1, i.e. it is $a+b\,x$ for some $a$ and $b$
+5. Worked example
+   1. Substitute back: $(1-1000\,\delta) + (1+1000\,\delta) = 2$ and
+      $(1-1000\,\delta) + 1.001\,(1+1000\,\delta) = 2.001 + \delta$
+   2. The eigenvalues satisfy $\lambda^2 - 2.001\,\lambda + 0.001 = 0$,
+      giving $\lambda \approx 2.001$ and $\lambda \approx 0.0004999$, a
+      ratio of about 4000
+   3. $\mat{X}$ is singular (eigenvalues 2 and 0).  If $y_1 = y_2$ there
+      are infinitely many solutions, $w_1+w_2 = y_1$; otherwise there is
+      no exact solution.  The ill-conditioned problem has become
+      under-constrained in the $(-1,1)^\tr$ direction
 
 * COMMENT [[file:innerProduct.org][Previous]]  [[file:eigensystems.org][Next]]

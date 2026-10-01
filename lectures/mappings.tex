@@ -8,7 +8,7 @@
 \begin{center}
   \includegraphics[width=0.9\linewidth]{inverseProblem}
 \end{center}
-\keywords{Mappings, Linear Maps, Solving Linear Systems}
+\keywords{Least Squares, Under-constrained Systems, Ill-conditioning}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -16,8 +16,9 @@
 
 \begin{minipage}{12cm}
   \begin{enumerate}\squeeze
-    \outlineitem{Mappings}{mappings}
-    \outlineitem{Linear Maps}{linearmaps}
+    \outlineitem{Least Squares}{leastsquares}
+    \outlineitem{Under-constrained Systems}{underconstrained}
+    \outlineitem{Ill-conditioning}{illconditioning}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{10cm}
@@ -37,7 +38,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item In the last lecture we spent time developing a sophisticate view
+  \item In the last lecture we spent time developing a sophisticated view
     of vector spaces and operators\pause
   \item At a mathematical level machine learning can be viewed as
     performing an inverse mapping
@@ -59,14 +60,14 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Given $m$ observations $\{(\bm{x}_k, y_k)| k=1,\ldots,m\}$ and
-    $p$ unknown $\bm{w}=(w_1,w_2, \ldots w_p)^\tr$ such that
-    $\bm{x}_k^\tr \bm{w} = y_k$ then to find $\bm{w}$\pause
+  \item Given $m$ observations $\{(\bm{x}_k, y_k)| k=1,\ldots,m\}$, find
+    the $p$ unknowns $\bm{w}=(w_1,w_2, \ldots, w_p)^\tr$ such that
+    $\bm{x}_k^\tr \bm{w} = y_k$\pause
 \item Define the \textit{design matrix} as the matrix of feature vectors
   \begin{displaymath}
     \mat{X} = 
     \begin{pmatrix}
-      \bm{x}_1^\tr \\ \bm{x}_2^\tr \\ \hdots \\ \bm{x}_m^\tr
+      \bm{x}_1^\tr \\ \bm{x}_2^\tr \\ \vdots \\ \bm{x}_m^\tr
     \end{pmatrix} =
     \begin{pmatrix}
       x_{11} & x_{12} & \cdots & x_{1p}\\
@@ -76,8 +77,8 @@
     \end{pmatrix}\pause
   \end{displaymath}
 \item and the target vector $\bm{y} = (y_1, y_2, \cdots, y_m)^\tr$\pause
-\item Then if $m=p$ we have $\bm{y} = \mat{X} \bm{w}$ or $\bm{w} =
-  \mat{X}^{-1} \bm{y}$\pause
+\item Then $\bm{y} = \mat{X} \bm{w}$ and if $m=p$ (and $\mat{X}$ is
+  invertible) $\bm{w} = \mat{X}^{-1} \bm{y}$\pause
 \end{itemize}
 
 \end{PauseHighLight}
@@ -90,15 +91,15 @@
 
 \pb
 \begin{itemize}\squeeze
-\item $\bm{x}_k^\tr \bm{w}$ depends on distance from separating\pauseh\pauselevel{=1}
+\item $\bm{x}_k^\tr \bm{w}$ depends on distance from the plane orthogonal to $\bm{w}$\pauseh\pauselevel{=1}
 \vspace*{-1cm}
 \begin{center}
 \multipdf[height=9.5cm]{linearRegression}\pause\\
 \vspace*{-0.5cm}
 \end{center}
 \item If $m>p$ then $\mat{X}$ isn't square so doesn't have an inverse\pauseh
-\item Worse unless the data is accurate $\bm{y} \approx \mat{X}
-  \bm{w}\Rightarrow$ no ``solution''\pauseh
+\item Worse, unless the data is exact, $\bm{y} \approx \mat{X}
+  \bm{w}\Rightarrow$ no exact ``solution''\pauseh
 \item Problem solved by Gauss to predict the orbit of the asteroid Ceres\pauseh
 \end{itemize}
 \end{slide}
@@ -115,18 +116,18 @@
   \begin{displaymath}
     \epsilon_k  = \bm{x}_k^\tr \bm{w}-y_k\pause
   \end{displaymath}
-\item The squared error
-  \begin{displaymath}
-    E(\bm{w}|\mathcal{D}) = 
-    \sum_{k=1}^m\left(\bm{x}_k^\tr \bm{w}-y_k\right)^2
-    = \sum_{k=1}^m \epsilon_k^2 = \| \bm{\epsilon} \|^2 \pause
-  \end{displaymath}
 \item We can define the error vector
   \begin{displaymath}
     \bm{\epsilon} = \mat{X} \bm{w} - \bm{y}
   \end{displaymath}
 (note that $\epsilon_k = \bm{x}_k^\tr \bm{w} -y_k$)\pause
-\item Minimising this error is known as the least squares problem\pause
+\item The squared loss
+  \begin{displaymath}
+    L(\bm{w}|\mathcal{D}) =
+    \sum_{k=1}^m\left(\bm{x}_k^\tr \bm{w}-y_k\right)^2
+    = \sum_{k=1}^m \epsilon_k^2 = \| \bm{\epsilon} \|^2 \pause
+  \end{displaymath}
+\item Minimising this loss is known as the least squares problem\pause
 \end{itemize}
 
 \end{PauseHighLight}
@@ -139,50 +140,21 @@
 
 \pb \pause
   \begin{itemize}
-  \item The minima of a one dimensional function, $f(x)$, are given by
+  \item At a minimum of a one-dimensional function, $f(x)$, we have
     $f'(x)=0$\pauseh
     \begin{center}
       \multipdf[width=0.5\linewidth]{gradient}\pause
     \end{center}
-  \item The minima of an $n$-dimensions function $f(\bm{x})$ are
-    given by the set of equations
+  \item At a minimum of an $n$-dimensional function $f(\bm{x})$
+    we have the set of equations
     \begin{align*}
       \frac{\partial f(\bm{x})}{\partial x_i}=0 
-      \quad \forall i=1,\ldots n\pause
+      \quad \forall i=1,\ldots, n\pause
     \end{align*}
   \end{itemize}
 
 \end{slide}
 
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-  \section[-1]{Gradients}
-
-  \begin{PauseHighLight}
-
-    \begin{itemize}
-    \item The \emph{grad} operator $\grad$ is the gradient operator in
-      high dimensions
-      \begin{displaymath}
-        \grad f(\bm{x}) = 
-        \begin{pmatrix}
-          \frac{\partial f(\bm{x})}{\partial x_1} \\
-          \frac{\partial f(\bm{x})}{\partial x_2} \\
-          \vdots \\
-          \frac{\partial f(\bm{x})}{\partial x_n}
-        \end{pmatrix}\pause
-      \end{displaymath}
-    \item The partial derivatives (curly d's)
-      \begin{displaymath}
-        \frac{\partial f(\bm{x})}{\partial x_i}
-      \end{displaymath}
-      means differentiate with respect to $x_i$ treating all other components
-      $x_j$ as constants\pause
-    \end{itemize}
-
-  \end{PauseHighLight}
-\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -192,9 +164,9 @@
 \begin{PauseHighLight}
 
 \begin{itemize}\squeeze
-\item The least squared solution is give by
+\item The least squares solution is given by
   \begin{align*}
-    \grad E(\bm{w}|\mathcal{D}) &= \grad \|\bm{\epsilon}\|^2 \pause
+    \grad L(\bm{w}|\mathcal{D}) &= \grad \|\bm{\epsilon}\|^2 \pause
                                   = \grad \| \mat{X} \bm{w} - \bm{y}\|^2 \pause \\
     &= \grad \left(\bm{w}^\tr
       \mat{X}^\tr\mat{X} \, \bm{w} -  2 \bm{w}^\tr\mat{X}^\tr \bm{y} +
@@ -208,7 +180,7 @@
     = \mat{X}^{+} \bm{y}
   \end{displaymath}
 \item $\mat{X}^{+} = \left(\mat{X}^\tr\mat{X}\right)^{-1} \mat{X}^\tr$ is
-  known as the pseudo inverse\pause
+  known as the pseudo-inverse\pause
 \end{itemize}
 
 \end{PauseHighLight}
@@ -234,7 +206,8 @@
   \item Where we have used $\bm{w}^\tr\mat{X}^\tr \bm{y} =
     \bm{y}^\tr\mat{X} \bm{w}$\pause{}, $\sum\limits_{i,j} w_i X_{ji} y_j
     = \sum\limits_{i,j} y_i X_{ij} w_j$\pauseb
-  \item Also $\grad \bm{w}^\tr \mat{M}\, \bm{w} = \mat{M}\,\bm{w} + \mat{M}^\tr\, \bm{w}$\pause
+  \item Also $\grad \bm{w}^\tr \mat{M}\, \bm{w} = \mat{M}\,\bm{w} +
+    \mat{M}^\tr\, \bm{w}\pause = (\mat{M} + \mat{M}^\tr)\, \bm{w}$\pauseb
   \item If $\mat{M}=\mat{M}^\tr$ (i.e.{} $\mat{M}$ is symmetric) then
     $\grad \bm{w}^\tr \mat{M}\, \bm{w} = 2\,\mat{M}\,\bm{w}$\pause
   \item As $(\mat{A}\mat{B})^\tr = \mat{B}^\tr \mat{A}^\tr$ then $(\mat{X}^\tr\mat{X})^\tr = \mat{X}^\tr\mat{X}^{\tr\tr}\pause=\mat{X}^\tr\mat{X}$ and
@@ -244,40 +217,9 @@
 
 \end{slide}
 
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Computing Gradients}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item To understand gradients we sometimes need to go back to
-    components\pause
-    \begin{align*}
-      \grad \bm{w}^\tr \mat{M}\, \bm{w}\pause &=
-      \begin{pmatrix}
-        \pd{\ }{w_1} \\  \pd{\ }{w_2} \\  \pd{\ }{w_3} \\ \vdots
-      \end{pmatrix}
-      \sum_{i,j} w_i M_{ij} w_j \pauseb =
-      \begin{pmatrix}
-        \sum_j M_{1j} w_j + \sum_i w_i M_{i1} \\
-        \sum_j M_{2j} w_j + \sum_i w_i M_{i2} \\
-        \sum_j M_{3j} w_j + \sum_i w_i M_{i3} \\ \vdots
-      \end{pmatrix} \pauseb\\
-      &= \mat{M}\, \bm{w} + \mat{M}^\tr\, \bm{w}\pauseb
-    \end{align*}
-  \item It is tedious to compute these things component-wise, but when
-    you need to understand what is going on then go back to the basics\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-  
-
-\end{slide}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % Linear Maps
+\Outline % Under-constrained Systems
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -289,7 +231,7 @@
     (we have more observations than parameters)\pause
   \item We seek a solution which isn't necessarily exact but minimises
     an error\pause
-  \item But, what if we have more parameters than observations\pause
+  \item But, what if we have more parameters than observations?\pause
   \item That is, we are \emph{under-constrained}\pause
   \item Note that in some directions you might be over-constrained and
     in other directions under-constrained\pause
@@ -302,17 +244,19 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Under Constrained Systems}
+\section[-2]{Under-constrained Systems}
 
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item If we have less data-points than parameters then there will be
-    multiple solutions
-  \begin{center}
-    \includegraphics[height=12cm]{curves}\pause
-  \end{center}
+\pb
+  \begin{itemize}\squeeze
+  \item If we have fewer data points than parameters then there will be
+    multiple solutions, e.g.{} fitting
+    $y = w_0 + w_1\,x + \cdots + w_5\,x^5$ to 4 points\pauseh
+    \begin{center}
+      \multipdf[height=10cm]{underConstrainedCurves}\pause
+    \end{center}
+  \item Every curve fits the data exactly, so which one should we
+    choose?\pause
   \end{itemize}
-\end{PauseHighLight}
 
 \end{slide}
 
@@ -324,7 +268,7 @@
 
 \pb
   \begin{itemize}
-  \item Many points can map to the same points\pause
+  \item Many points can map to the same point\pause
     \begin{center}
       \includegraphics[width=0.75\linewidth]{underConstrained0}\mypl{1}
       \llap{\includegraphics[width=0.75\linewidth]{underConstrained1}}\mypl{2}
@@ -349,18 +293,44 @@
   \item The inverse $\left(\mat{X}^\tr\mat{X}\right)^{-1}$ doesn't
     exist\pause 
   \item If we have a complicated learning machine and not sufficient
-    data we often end with an ill-posed inverse problem (there are lots
+    data we often end up with an ill-posed inverse problem (there are lots
     of sets of parameters that explain the data)\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-  \section{Ill-Conditions}
+\section{Handling Under-constrained Systems}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The issue with under-constrained systems is not that there is
+    no solution\pause
+  \item There is a whole family of solutions\pause, so which one
+    should we pick\pauseb
+  \item William of Ockham in the 14th century postulated that the
+    ``simplest solution'' is likely to be the correct solution\pause
+  \item How we determine the simplest solution is a bit of a black
+    art\pause
+  \item However, for linear regression, adding an $L_2$ regulariser
+    makes the solution unique
+    \begin{align*}
+      L_{full} = L_{fit}(\bm{w}) + \eta \, \len{\bm{w}}^2_2\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Ill-conditioning
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section{Ill-Conditioning}
 
   \begin{PauseHighLight}
     \begin{itemize}
@@ -368,9 +338,9 @@
       have enough data), but matrices that are close to
       being singular are common\pause
     \item If a matrix is close to singular it is ill-conditioned\pause
-    \item Ill-conditioned matrices have some small eigenvalues\pause
-    \item All points get contracted towards a plane\pause
-    \item Large matrices are very often ill conditioned\pause
+    \item Ill-conditioned matrices have some eigenvalues that are tiny compared with the largest\pause
+    \item All points get squashed towards a lower-dimensional subspace (a plane in 3-D)\pause
+    \item Large matrices are very often ill-conditioned\pause
     \end{itemize}
   \end{PauseHighLight}
 \end{slide}
@@ -392,6 +362,38 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
+\section[-1]{A Worked Example}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Two data points and two features that are almost the same
+    \begin{displaymath}
+      \mat{X} =
+      \begin{pmatrix}
+        1 & 1 \\ 1 & 1.001
+      \end{pmatrix},
+      \qquad
+      \bm{y} = \begin{pmatrix} 2 \\ 2.001 \end{pmatrix}
+      \quad\Rightarrow\quad
+      \bm{w} = \begin{pmatrix} 1 \\ 1 \end{pmatrix}\pause
+    \end{displaymath}
+  \item Change $y_2$ by $0.001$ (i.e.{} $0.05\%$)
+    \begin{displaymath}
+      \bm{y} = \begin{pmatrix} 2 \\ 2.002 \end{pmatrix}
+      \quad\Rightarrow\quad
+      \bm{w} = \begin{pmatrix} 0 \\ 2 \end{pmatrix}\pause
+    \end{displaymath}
+  \item The prediction for a new input $\bm{x}=(1,0)^\tr$ jumps from 1 to 0\pause
+  \item The eigenvalues of $\mat{X}$ are about $2$ and $0.0005$\pause
+  \item $\bm{w}$ moved along $(-1,1)^\tr$, the direction with the tiny
+    eigenvalue, which the data hardly constrains\pause
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
 \section{Ill-Conditioning in ML}
 
 \begin{PauseHighLight}
@@ -400,7 +402,7 @@
     change in the learning data causes a large change in the predictions
     of the learning machine\pause
   \item In linear regression the matrix $\mat{X}^\tr\mat{X}$ is typically
-    ill-conditioned when we have as many data points as parameters\pause
+    ill-conditioned when we have roughly as many data points as parameters\pause
   \item Much of machine learning is concerned with making learning
     machines better conditioned\pause
   \item Adding regularisers is one approach to achieve this\pause
@@ -409,6 +411,81 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Where Does Ill-Conditioning Come From?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Too little data: about as many data points as parameters\pause
+  \item Nearly collinear features, e.g.{} floor area and number of
+    rooms, or height measured in both cm and inches\pause
+    \begin{itemize}
+    \item The columns of $\mat{X}$ are nearly parallel so the data
+      cannot tell us how to share the weight between them\pause
+    \end{itemize}
+  \item Polynomial features $x, x^2, \ldots, x^9$ for $x\in[0,1]$ all
+    look alike: the eigenvalues of $\mat{X}^\tr\mat{X}$ span about
+    13 orders of magnitude\pause
+  \item Features on very different scales (income in pounds and age in
+    years)---easily fixed by standardising the features\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Least Squares in Practice}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item $\bm{w} = \left(\mat{X}^\tr\mat{X}\right)^{-1} \mat{X}^\tr
+    \bm{y}$ is for understanding, not for computing\pause
+  \item Never compute $\left(\mat{X}^\tr\mat{X}\right)^{-1}$; use a
+    least squares solver such as \texttt{np.linalg.lstsq(X, y)}, which
+    works with $\mat{X}$ directly\pause
+  \item Forming $\mat{X}^\tr\mat{X}$ squares the ratio of largest to
+    smallest eigenvalues: $10^8$ becomes $10^{16}$, beyond the
+    $\sim$16 significant figures of a double\pause
+  \item Standardise features (zero mean, unit variance) before
+    fitting\pause
+  \item When $m<p$, \texttt{lstsq} returns the solution with the
+    smallest $\len{\bm{w}}$---one version of the ``simplest''
+    solution (we will see why when we meet the SVD)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Three Regimes}
+
+\begin{PauseHighLight}
+
+  \begin{center}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|p{6.0cm}|p{4.9cm}|p{6.7cm}|}\hline
+      & $m>p$ \newline \mbox{over-constrained} & $m=p$ & $m<p$ \newline
+      \mbox{under-constrained} \\ \hline
+      Exact fit? & usually not & yes & yes, many \\ \hline
+      Unique? & yes (usually) & yes (usually) & no \\ \hline
+      Method & least squares & $\bm{w}=\mat{X}^{-1}\bm{y}$ & pick ``simplest'' \\ \hline
+    \end{tabular}\pause
+  \end{center}
+  \begin{itemize}
+  \item Real problems mix these: over-constrained in some directions
+    and (nearly) under-constrained in others\pause
+  \item The nearly under-constrained directions make the problem
+    ill-conditioned\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -419,9 +496,11 @@
   \begin{itemize}
   \item Linear mappings are commonly used in machine learning algorithms
     such as regression\pause
+  \item Systems can be over-constrained, under-constrained or
+    ill-conditioned---often all at once\pause
   \item We will often meet the pseudo-inverse involving inverting
     $\mat{X}^\tr\,\mat{X}$\pause 
-  \item They can be inherently unstable to noise in the inputs\pause
+  \item Inverting an ill-conditioned $\mat{X}^\tr\,\mat{X}$ amplifies noise in the data\pause
   \end{itemize}
 \end{PauseHighLight}
 

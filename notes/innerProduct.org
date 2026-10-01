@@ -34,15 +34,17 @@
      \begin{align*}
      \len{\mat{A}}_{F} = \sqrt{\inner{\mat{A}}{\mat{A}}_{F}} = \sqrt{ \sum_{i,j} A_{ij}^{2}}
      \end{align*}
-     The Frobenius norm is not a compatible norm.
+     The Frobenius norm is compatible with the Euclidean norm
+     ($\len{\mat{A}\bm{x}} \leq \len{\mat{A}}_{F}\len{\bm{x}}$), but it is
+     not /induced/ by any vector norm, unlike the spectral norm.
    * A really important inequality is the /Cauchy-Schwarz/ inequality
            \begin{align*}
-        \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{y}} \,
-        \inner{\bm{y}}{\bm{y}} = \len{\bm{x}}^2\,\len{\bm{y}}^2\pause
+        \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
+        \inner{\bm{y}}{\bm{y}} = \len{\bm{x}}^2\,\len{\bm{y}}^2
       \end{align*}
    * Inner products allow us to define the notion of similarity
      \begin{align*}
-	 \langle \bm{x}, \bm{y} \rangle &= \|\bm{x}\| \, \|\bm{x}\| \, \cos(\theta) \\
+	 \langle \bm{x}, \bm{y} \rangle &= \|\bm{x}\| \, \|\bm{y}\| \, \cos(\theta) \\
 	 \langle f(x), g(x) \rangle &= \|f(x)\| \, \|g(x)\|\, \cos(\theta)
      \end{align*}
    * $\cos(\theta)$ can be seen as a measure of the correlation
@@ -55,7 +57,7 @@
    * Any set of vectors that span the entire vector space can be
      considered a set of basis vectors or coordinates
    * If our bases are linearly independent then we have a set of
-     non-degenerate basis function where each vector is unique
+     non-degenerate basis functions where each vector is unique
    * The most convenient set of basis vectors are those where the
      bases are normalised and orthogonal
      $\langle\bm{b}_i,\bm{b}_j\rangle=\delta_{ij}$
@@ -65,13 +67,92 @@
        are the Fourier functions 
        $$ \{1,\, \cos(\theta),\, \sin(\theta),\, \cos(2\,\theta),\,
        \sin(2\,\theta),\, \cdots\} $$
-     * This basis set is orthogonal as for any two components $\langle
-       b_i(\theta),\,b_j(\theta)\rangle = \delta_{ij}$
+     * This set is orthogonal: $\langle b_i(\theta),\,b_j(\theta)\rangle = 0$
+       whenever $i \neq j$.  It is not normalised --- for example
+       $\langle 1,1\rangle = 2\pi$ while $\langle \cos\theta,\cos\theta\rangle
+       = \pi$ --- so divide each by its own norm to get an /orthonormal/ set
      * There are many orthogonal polynomials that have similar properties
-     * Given an orthogonal set of functions $\{b_i(\bm{x})\}$ we can decompose a function $f(\bm{x})$
-       as a (infinite) vector $\bm{f}$ with components $f_i = \langle f(\bm{x}),b_i(\bm{x})\rangle$
+     * Given an /orthonormal/ set of functions $\{b_i(\bm{x})\}$ we can decompose a function $f(\bm{x})$
+       as an (infinite) vector $\bm{f}$ with components $f_i = \langle f(\bm{x}),b_i(\bm{x})\rangle$.
+       If the set is orthogonal but not normalised the components are
+       $f_i = \langle f,b_i\rangle/\langle b_i,b_i\rangle$
      * This allows us to represent any function as a point in an infinite-dimensional space
      
+** Projection Operators
+   * Given a vector $\bm{a}$ we can ask how much of it lies along another
+     vector $\bm{b}$
+     \begin{align*}
+       \mathrm{proj}_{\bm{b}}(\bm{a}) =
+       \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}}\, \bm{b}
+     \end{align*}
+   * Read this as two steps: the scalar
+     $\inner{\bm{a}}{\bm{b}}/\inner{\bm{b}}{\bm{b}}$ says how many copies of
+     $\bm{b}$ are needed, and multiplying by $\bm{b}$ puts the answer back in
+     the direction of $\bm{b}$
+   * If $\bm{b}$ is normalised ($\len{\bm{b}}=1$) this is just
+     $\inner{\bm{a}}{\bm{b}}\,\bm{b}$
+   * Using $\inner{\bm{a}}{\bm{b}} = \len{\bm{a}}\len{\bm{b}}\cos(\theta)$ the
+     length of the projection is $\len{\bm{a}}\cos(\theta)$, which is the
+     picture you would draw
+   * The defining property of a projection is that doing it twice changes
+     nothing --- it is /idempotent/
+     \begin{align*}
+       \mathrm{proj}_{\bm{b}}\bra{\mathrm{proj}_{\bm{b}}(\bm{a})}
+       = \mathrm{proj}_{\bm{b}}(\bm{a})
+     \end{align*}
+     which follows because $\mathrm{proj}_{\bm{b}}(\bm{a})$ already points
+     along $\bm{b}$, so projecting it again leaves it alone
+   * The *remainder* is what matters for what follows: $\bm{a} -
+     \mathrm{proj}_{\bm{b}}(\bm{a})$ is orthogonal to $\bm{b}$, since
+     \begin{align*}
+       \inner{\bm{a} - \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}}
+       \bm{b}}{\bm{b}} = \inner{\bm{a}}{\bm{b}} -
+       \frac{\inner{\bm{a}}{\bm{b}}}{\inner{\bm{b}}{\bm{b}}}
+       \inner{\bm{b}}{\bm{b}} = 0
+     \end{align*}
+   * For vectors in $\mathbb{R}^n$ the projection is a matrix,
+     $\mat{P} = \bm{b}\,\bm{b}^\tr/(\bm{b}^\tr\bm{b})$, and idempotency reads
+     $\mat{P}^2 = \mat{P}$
+   * To project onto a whole subspace spanned by an orthonormal set
+     $\{\bm{e}_1,\ldots,\bm{e}_k\}$ just add the projections,
+     $\mat{P} = \sum_{i=1}^k \bm{e}_i \bm{e}_i^\tr$.  This is the operator
+     that appears again in PCA
+
+** Gram-Schmidt Orthogonalisation
+   * Projections let us turn any set of linearly independent vectors
+     $(\bm{a}_1,\ldots,\bm{a}_n)$ into an orthonormal basis
+   * Take each vector in turn and subtract off everything it shares with the
+     directions already found; normalise what is left
+     \begin{align*}
+       \bm{u}_1 &= \bm{a}_1,
+       & \bm{e}_1 &= \frac{\bm{u}_1}{\len{\bm{u}_1}} \\
+       \bm{u}_2 &= \bm{a}_2 - \mathrm{proj}_{\bm{u}_1}(\bm{a}_2),
+       & \bm{e}_2 &= \frac{\bm{u}_2}{\len{\bm{u}_2}} \\
+       \bm{u}_3 &= \bm{a}_3 - \mathrm{proj}_{\bm{u}_1}(\bm{a}_3)
+                            - \mathrm{proj}_{\bm{u}_2}(\bm{a}_3),
+       & \bm{e}_3 &= \frac{\bm{u}_3}{\len{\bm{u}_3}}
+     \end{align*}
+     and in general $\bm{u}_k = \bm{a}_k - \sum_{i<k}
+     \mathrm{proj}_{\bm{u}_i}(\bm{a}_k)$
+   * *The projections are onto the $\bm{u}_i$, not the $\bm{a}_i$.*  This is
+     the easy mistake.  Subtracting $\mathrm{proj}_{\bm{a}_2}(\bm{a}_3)$
+     instead of $\mathrm{proj}_{\bm{u}_2}(\bm{a}_3)$ does /not/ leave
+     something orthogonal to both, because $\bm{a}_2$ is not itself
+     orthogonal to $\bm{a}_1$.  Only $\bm{u}_2 = \bm{a}_2$ when $k=2$, which
+     is why the second step looks the same either way
+   * Each $\bm{u}_k$ is orthogonal to everything before it by construction:
+     it is a remainder, and we showed above that remainders are orthogonal to
+     what was subtracted
+   * If the $\bm{a}_i$ are /not/ linearly independent some $\bm{u}_k$ comes
+     out as $\bm{0}$, and the process tells you the set was degenerate
+   * The same algorithm works in any inner-product space.  Applied to
+     $1, x, x^2, \ldots$ with $\inner{f}{g} = \int f g \,\dd x$ it generates
+     the orthogonal polynomials
+   * In $\mathbb{R}^n$ it is numerically poor: rounding errors accumulate and
+     the later vectors drift away from orthogonality.  Numerical libraries
+     compute the same factorisation with Householder reflections instead.
+     Gram-Schmidt is how you /understand/ the result, not how you compute it
+
 ** Operators
    * Operators transform elements of a vector space
    * Consider the transformation or operator $\mathcal{T}: \mathcal{V} \rightarrow \mathcal{V}'$
@@ -97,7 +178,7 @@
    * Often we are interested in operators that map vectors in a vector space to new
      vectors in the same vector space
      * $\mathcal{T}: \mathcal{V}\rightarrow\mathcal{V}$
-     * The most general linear mapping for normal vectors that does this are square matrices
+     * The most general linear mapping for normal vectors that does this is a square matrix
 ** Matrices and Mappings
    * Matrices, $\mat{M}$ are linear maps from one point $\bm{x}$ to
      another $\bm{y}=\mat{M}\bm{x}$

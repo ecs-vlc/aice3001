@@ -16,7 +16,6 @@
    * You can prove they are orthogonal
    * *Orthogonal Matrices*
      * Putting the $n$ eigenvectors into a matrix $\mat{V}$ with
-
        columns $\bm{v}_i$ we obtain an orthogonal matrix
      * The defining property of an orthogonal matrix is
        $\mat{V}^\tr\mat{V} = \mat{V}\mat{V}^\tr=\mat{I}$
@@ -35,18 +34,18 @@
        2. scaling of the $i^{th}$ component by $\lambda_i$ and
        3. a rotation backwards given by $\mat{V}$
      * Equivalently if we work in a coordinate system defined by the
-       eigenvectors of $\mat{V}$ (this forms an orthonormal basis set)
+       eigenvectors of $\mat{M}$ (this forms an orthonormal basis set)
        then we just rescale in the directions $\bm{v}_i$ by $\lambda_i$
        * A symmetric matrix just squashes or expands in different
-         orthogonal directions (this is what  the eigensystem captures)
+         orthogonal directions (this is what the eigensystem captures)
 
    * *Inverse Matrices*
      * The inverse of a symmetric matrix $\mat{M}$ is given by
        \begin{align*}
-         \mat{M} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr
+         \mat{M}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr
        \end{align*}
      * Where $\mat{\Lambda}^{-1}$ is a diagonal matrix with elements $\Lambda_{ii}^{-1}=1/\lambda_i$
-     * This is only defined if $\mat{M}$ if all the eigenvalues of
+     * This is only defined if all the eigenvalues of
        $\mat{M}$ are non-zero  ($\mat{M}$ is said to be full rank)
      * If $\lambda_i$ is very small then $1/\lambda_i$ is large and in
        taking the inverse $\mat{M}^{-1}\bm{x}$ any component of $\bm{x}$
@@ -59,8 +58,19 @@
 
 * Exercises
 
-** Linear Regression
-   * Derive the formula for the weight vector in linear regression
+1. Let $\mat{M}$ be a symmetric matrix with eigenvectors $\bm{v}_1$ and
+   $\bm{v}_2$ and distinct eigenvalues $\lambda_1\neq\lambda_2$.  By
+   computing $\bm{v}_2^\tr\mat{M}\,\bm{v}_1$ in two different ways, show
+   that $\bm{v}_1$ and $\bm{v}_2$ are orthogonal
+2. Show that the eigenvalues of $\mat{X}^\tr\mat{X}$ are never
+   negative.  (Hint: consider $\len{\mat{X}\,\bm{v}}^2$)
+3. Using $\mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$
+   1. Show that $\mat{M}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr$
+      by multiplying the two together
+   2. Show that $\mat{M}^k = \mat{V}\,\mat{\Lambda}^k\,\mat{V}^\tr$
+4. Find the eigenvalues and eigenvectors of
+   $\mat{M} = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$ and check
+   that $\mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$
 
 * Experiments
 
@@ -69,9 +79,9 @@
      the matrix identities
 
 #+BEGIN_SRC matlab
-X = randn(5,4)  % generate a mock designer matrix with 5 inputs of length 4 
-M = X'*X        % compute a symmetrix matrix
-[V.L] = eig(M)  % compute eigenvalues
+X = randn(5,4)  % generate a mock design matrix with 5 inputs of length 4
+M = X'*X        % compute a symmetric matrix
+[V,L] = eig(M)  % compute eigenvectors and eigenvalues
 V*L*V'          % should be identical to M
 V*V'            % should be the identity matrix (up to rounding precision)
 V'*V            % should be the identity matrix (up to rounding precision)
@@ -80,13 +90,45 @@ y = randn(4,1)  % generate another random column matrix of length 4
 xp = V*x        % apply V to x
 yp = V*y        % apply V to y
 norm(x)         % compute Euclidean norm of x
-norm(xp)        % should be the same as Euclidean nor of xp
+norm(xp)        % should be the same as the Euclidean norm of x
 x'*y            % compute inner product of x and y
-xp'*yp'         % compute inner produce of xp and yp (should be the same as above)
+xp'*yp          % inner product of xp and yp (should be the same as above)
 
-Z = rand(4,5)   % consider a designer matrix where we would have more unknowns the examples
-W = Z'*Z        % compute a covariance type matrix (except we don't subtract the mean
+Z = rand(4,5)   % a design matrix with more unknowns than examples
+W = Z'*Z        % a covariance-like matrix (but without subtracting the mean)
 eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
 #+END_SRC
+
+* Answers
+
+1. On one hand $\bm{v}_2^\tr(\mat{M}\,\bm{v}_1) = \lambda_1\,\bm{v}_2^\tr\bm{v}_1$.
+   On the other, as $\mat{M}^\tr=\mat{M}$,
+   $\bm{v}_2^\tr\mat{M}\,\bm{v}_1 = (\mat{M}\,\bm{v}_2)^\tr\bm{v}_1
+   = \lambda_2\,\bm{v}_2^\tr\bm{v}_1$.  Subtracting,
+   $(\lambda_1-\lambda_2)\,\bm{v}_2^\tr\bm{v}_1 = 0$ and since
+   $\lambda_1\neq\lambda_2$ we must have $\bm{v}_2^\tr\bm{v}_1=0$
+2. If $\mat{X}^\tr\mat{X}\,\bm{v} = \lambda\,\bm{v}$ then
+   $\lambda\,\len{\bm{v}}^2 = \bm{v}^\tr\mat{X}^\tr\mat{X}\,\bm{v}
+   = \len{\mat{X}\,\bm{v}}^2 \geq 0$, so $\lambda\geq0$.  It is zero
+   exactly when $\mat{X}\,\bm{v}=\bm{0}$: a direction the data say
+   nothing about
+3. Matrix powers
+   1. $\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr\,\mat{V}\,\mat{\Lambda}^{-1}\mat{V}^\tr
+      = \mat{V}\,\mat{\Lambda}\,\mat{\Lambda}^{-1}\mat{V}^\tr
+      = \mat{V}\,\mat{V}^\tr = \mat{I}$, using $\mat{V}^\tr\mat{V}=\mat{I}$
+      twice
+   2. In $\mat{M}^k = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr\,\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr
+      \cdots\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$ every inner
+      $\mat{V}^\tr\mat{V}$ is $\mat{I}$, leaving
+      $\mat{V}\,\mat{\Lambda}^k\,\mat{V}^\tr$
+4. $\det(\mat{M}-\lambda\mat{I}) = (2-\lambda)^2-1 = 0$ gives
+   $\lambda=3$ with $\bm{v}=(1,1)^\tr/\sqrt{2}$ and $\lambda=1$ with
+   $\bm{v}=(1,-1)^\tr/\sqrt{2}$.  Then
+   \begin{align*}
+     \frac{1}{2}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}
+     \begin{pmatrix} 3 & 0 \\ 0 & 1 \end{pmatrix}
+     \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}
+     = \frac{1}{2}\begin{pmatrix} 4 & 2 \\ 2 & 4 \end{pmatrix} = \mat{M}
+   \end{align*}
 
 * COMMENT [[file:mappings.org][Previous]]  [[file:pca.org][Next]]

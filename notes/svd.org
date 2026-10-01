@@ -3,20 +3,22 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Singular Valued Decomposition, SVD, general linear maps
+  * Singular Value Decomposition, SVD, general linear maps
 
 * Main Points
 
 ** Singular Value Decomposition
-   * Any $n\times m$ matrix, $\mat{X}$ can be decomposed as $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
-     * $\mat{U}$ is an $n\times n$ orthogonal matrix
-     * $\mat{S}$ is an $n\times m$  matrix with zeros everywhere except the diagonal where $S_{ii}=s_i\geq0$
-     * $\mat{V}$ is an $m\times m$ orthogonal matrix
+   * Any $m\times p$ matrix, $\mat{X}$ can be decomposed as $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$
+     (for a design matrix, $m$ is the number of data points and $p$ the
+     number of features)
+     * $\mat{U}$ is an $m\times m$ orthogonal matrix
+     * $\mat{S}$ is an $m\times p$  matrix with zeros everywhere except the diagonal where $S_{ii}=s_i\geq0$
+     * $\mat{V}$ is a $p\times p$ orthogonal matrix
    * The values $s_i$ are known as the /singular values/ of $\mat{X}$
    * The SVD of a symmetric matrix is just the eigen-decomposition
    * *Economical SVD*
-     * If $n>m$ some algorithms won't bother outputting the last $n-m$ columns of $\mat{U}$ 
-     * If $m<m$ some algorithms won't bother outputting the last $m-n$ columns of $\mat{V}$
+     * If $m>p$ some algorithms won't bother outputting the last $m-p$ columns of $\mat{U}$
+     * If $p>m$ some algorithms won't bother outputting the last $p-m$ columns of $\mat{V}$
      * In this case it will output a square $\mat{S}$ matrix
 
 ** General Linear Mapping
@@ -29,49 +31,98 @@
      * A rotation (with possibly a reflection) defined by $\mat{U}$
    * *Duality*
      * Using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
-       * $\mat{C} = \mat{X}\,\mat{X}^\tr = \mat{U}\mat{S}\mat{S}^\tr\mat{U}$
-       * $\mat{D} = \mat{X}^\tr\mat{X} = \mat{V}\mat{S}^\tr\mat{S}\mat{V}$
+       * $\mat{C} = \mat{X}\,\mat{X}^\tr = \mat{U}\mat{S}\mat{S}^\tr\mat{U}^\tr$
+       * $\mat{D} = \mat{X}^\tr\mat{X} = \mat{V}\mat{S}^\tr\mat{S}\mat{V}^\tr$
      * $\mat{S}\mat{S}^\tr$ and $\mat{S}^\tr\mat{S}$ are diagonal
-       elements with non-zero diagonal elements $s_i^2$
+       matrices whose non-zero diagonal elements are $s_i^2$
 
 ** Ridge Regression
    * Ridge regression is linear regression with an $L_2$ regulariser
-   * Adding a regulariser $\nu\, \|\bm{w}\|^2$ the weights, $\bm{w}^*$, that
+   * Adding a regulariser $\eta\, \|\bm{w}\|^2$ to the squared loss, the weights, $\bm{w}^*$, that
      minimise the loss function are given by $\bm{w}^* =
-     (\mat{X}^\tr\mat{X}+\nu\,\mat{I})^{-1}\mat{X}^\tr \bm{y}$
+     (\mat{X}^\tr\mat{X}+\eta\,\mat{I})^{-1}\mat{X}^\tr \bm{y}$
    * Using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
      \begin{align*}
-     \bm{w}^* = \mat{V}\,\bar{\mat{S}}^+ \mat{U}^\tr \bm{y}
+     \bm{w}^* = \mat{V}\,\hat{\mat{S}}^+ \mat{U}^\tr \bm{y}
      \end{align*}
-     where $\bar{\mat{S}}^+$ is a regularised pseudo-inverse of $\mat{S}$ given by
+     where $\hat{\mat{S}}^+$ is a regularised pseudo-inverse of $\mat{S}$ given by
      \begin{align*}
-     \bar{\mat{S}}^+ = (\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{S}
+     \hat{\mat{S}}^+ = (\mat{S}^\tr\mat{S}+\eta\,\mat{I})^{-1}\mat{S}^\tr
      \end{align*}
-     - If $\nu=0$ this is equal to the pseudo-inverse of $\mat{S}$
-   * $\bar{\mat{S}}^+$ is and $n\times m$ matrix which is zero
-     everywhere except on the diagonal, where $\bar{S}^+_{ii} = \frac{s_i}{s_i^2+\nu}$
+     - If $\eta=0$ (and all $s_i>0$) this is equal to the pseudo-inverse of $\mat{S}$
+   * $\hat{\mat{S}}^+$ is a $p\times m$ matrix which is zero
+     everywhere except on the diagonal, where $\hat{S}^+_{ii} = \frac{s_i}{s_i^2+\eta}$
      * Note if $s_i=0$ linear regression has an infinity of solutions
-       and the pseudo-inverse of $\mat{X}$ does not exist (setting
-       $\nu=0$ we get $S^+_{ii}=1/s_i$ which is not define when $s_i=0$)
-     * In the regularised case $\bar{S}^+_{ii} = 0$ (we have selected
+       and the pseudo-inverse of $\mat{X}$, as we derived it, does not
+       exist (setting $\eta=0$ we get $S^+_{ii}=1/s_i$ which is not
+       defined when $s_i=0$).  See the Moore--Penrose pseudo-inverse below
+     * In the regularised case $\hat{S}^+_{ii} = 0$ (we have selected
        one of the solutions that minimise the squared error)
-     * If $s_i\ll\nu$ then without the regularisation term the inverse is
-       very ill-conditions while with the regularisation term
-       $\bar{S}^+_{ii}$ will be small
-     * If $s_i\gg\nu$ then $\bar{S}^+_{ii} \approx \frac{1}{s_i} = S^+_{ii}$
-   * Adding a $L_2$ regulariser means that the optimum weights,
+     * If $s_i\ll\eta$ then without the regularisation term the inverse is
+       very ill-conditioned while with the regularisation term
+       $\hat{S}^+_{ii}$ will be small
+     * If $s_i\gg\eta$ then $\hat{S}^+_{ii} \approx \frac{1}{s_i} = S^+_{ii}$
+   * Adding an $L_2$ regulariser means that the optimum weights,
      $\bm{w}^*$, will be less sensitive to the training data reducing
      the variance in the bias-variance dilemma
+
+** The Moore--Penrose Pseudo-Inverse (going further)
+   * The pseudo-inverse we derived,
+     $\mat{X}^+ = (\mat{X}^\tr\mat{X})^{-1}\mat{X}^\tr$, only exists
+     when $\mat{X}^\tr\mat{X}$ is invertible.  That needs every one of
+     the $p$ singular values to be non-zero, which is impossible when
+     $m<p$ (the under-constrained case)
+   * Using the SVD it can be written
+     $\mat{X}^+ = \mat{V}\,\mat{S}^+\mat{U}^\tr$, where $\mat{S}^+$ is
+     the $p\times m$ diagonal matrix with $S^+_{ii} = 1/s_i$
+   * The /Moore--Penrose pseudo-inverse/ makes one change: wherever
+     $s_i=0$ it sets $S^+_{ii}=0$ instead of $1/s_i$
+     \begin{align*}
+       S^+_{ii} = \begin{cases} 1/s_i & s_i \neq 0 \\ 0 & s_i = 0 \end{cases}
+     \end{align*}
+     This always exists.  When $\mat{X}^\tr\mat{X}$ is invertible it is
+     the same as our pseudo-inverse, and when $\mat{X}$ is square and
+     invertible it is $\mat{X}^{-1}$
+   * $\bm{w} = \mat{X}^+\bm{y}$ minimises $\len{\mat{X}\,\bm{w}-\bm{y}}^2$
+     and, of all the weight vectors that do so, it is the one with the
+     smallest $\len{\bm{w}}$
+   * To see why, rotate to the coordinates given by the SVD: let
+     $\bm{z} = \mat{V}^\tr\bm{w}$ and $\bm{c} = \mat{U}^\tr\bm{y}$.
+     Orthogonal matrices do not change lengths, so
+     $\len{\bm{w}} = \len{\bm{z}}$ and
+     \begin{align*}
+       \len{\mat{X}\,\bm{w}-\bm{y}}^2
+       = \len{\mat{U}^\tr(\mat{U}\,\mat{S}\,\mat{V}^\tr\bm{w}-\bm{y})}^2
+       = \len{\mat{S}\,\bm{z}-\bm{c}}^2
+       = \sum_{i:\,s_i\neq0} (s_i\,z_i - c_i)^2 + \sum_{i:\,s_i=0} c_i^2
+     \end{align*}
+     (in the second sum $i$ runs over the rows of $\mat{S}$ that have no
+     non-zero singular value)
+     * The loss is minimised by $z_i = c_i/s_i$ whenever $s_i\neq0$
+     * The other components of $\bm{z}$ do not appear in the loss at all:
+       these are the directions $\bm{v}_i$ with $\mat{X}\,\bm{v}_i = \bm{0}$,
+       where the data give no information
+     * Every choice of them fits equally well.  Setting them to zero gives
+       the smallest $\len{\bm{z}}=\len{\bm{w}}$, and that is exactly what
+       $S^+_{ii}=0$ does
+   * It is also the limit of ridge regression as the regularisation
+     vanishes: as $\eta\to0$,
+     $\hat{S}^+_{ii} = s_i/(s_i^2+\eta)$ tends to $1/s_i$ if $s_i\neq0$
+     and is $0$ if $s_i=0$
+   * This is what =np.linalg.pinv= computes, and =np.linalg.lstsq=
+     returns the same minimum-norm solution.  In practice "zero" means
+     below a small tolerance, so tiny singular values caused by rounding
+     errors are discarded rather than inverted
 
 
 * Exercises
 
 ** Ridge regression
-   * Ridge regression is just linear regression with an $L_2$ regularier
+   * Ridge regression is just linear regression with an $L_2$ regulariser
      1. Derive the optimal weights in ridge regression
      2. Show that using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
         $\bm{w}^* = \mat{V}\,(\mat{S}^\tr\mat{S} +
-        \nu\,\mat{I})^{-1}\mat{S}\,\mat{U}\bm{y}$
+        \eta\,\mat{I})^{-1}\mat{S}^\tr\,\mat{U}^\tr\bm{y}$
    * See answers
 
 * Experiments
@@ -102,10 +153,10 @@ V*inv(S'*S + 0.1*eye(4))*V'   % should be the same
      * Check that using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ that
        \begin{align*}
 	(\mat{X}^\tr\mat{X} + \eta\,\mat{I})^{-1} 
-	 = \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{V}^\tr
+	 = \mat{V}\,(\mat{S}^\tr\mat{S}+\eta\,\mat{I})^{-1}\mat{V}^\tr
        \end{align*}
        holds for some random matrix using Matlab/Octave or python
-     * Examine $\mat{S}^\tr\mat{S}$, $\mat{S}^\tr\mat{S}+0.1\,\mat{I}$.
+     * Examine $\mat{S}^\tr\mat{S}$, $\mat{S}^\tr\mat{S}+0.1\,\mat{I}$,
        $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1}$ and
        $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1} \mat{S}^\tr$
      * See if you can invert $\mat{X}^\tr\mat{X}$: it is singular,
@@ -122,7 +173,7 @@ V*inv(S'*S + 0.1*eye(5))*V'   % should be the same
 S'*S                          % singular
 S'*S + 0.1*eye(5)             % now invertible
 inv(S'*S + 0.1*eye(5))        
-inv(S'*S + 0.1*eye(5))*S'     % 4x5 diagonal matrix
+inv(S'*S + 0.1*eye(5))*S'     % 5x4 diagonal matrix
 
 inv(X'*X)                     % shouldn't be able to do this
 #+END_SRC
@@ -130,18 +181,18 @@ inv(X'*X)                     % shouldn't be able to do this
 * Answers
 ** Ridge regression
    1. It is straightforward to show
-      $$ \bm{w}^* = (\mat{X}^\tr\,\mat{X}+\nu\,\mat{I})^{-1}
-      \mat{X}^{-1} \bm{y} $$
-   2. The only hard part is to show is that
+      $$ \bm{w}^* = (\mat{X}^\tr\,\mat{X}+\eta\,\mat{I})^{-1}
+      \mat{X}^\tr \bm{y} $$
+   2. The only hard part is to show that
       \begin{align*}
-       (\mat{X}^\tr\mat{X} + \nu\,\mat{I})^{-1} 
-       = \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\,\mat{I})^{-1}\mat{V}^\tr
+       (\mat{X}^\tr\mat{X} + \eta\,\mat{I})^{-1} 
+       = \mat{V}\,(\mat{S}^\tr\mat{S}+\eta\,\mat{I})^{-1}\mat{V}^\tr
        \end{align*}
       * It is easy to show that $\mat{X}^\tr\mat{X}=\mat{V}\,\mat{S}^\tr\mat{S}\,\mat{V}^\tr$
       * But we also have $\mat{I}=\mat{V}\,\mat{V}^\tr$ as $\mat{V}$ is an orthogonal matrix
-      * Thus $\mat{M} = \mat{X}^\tr\mat{X} + \nu\,\mat{I} =
-        \mat{V}\,(\mat{S}^\tr\mat{S}+\nu\mat{I})\mat{V}^\tr =
-        \mat{V}\,\mat{W}\,\mat{V}^\tr$ where $\mat{W}= \mat{S}^\tr\mat{S}+\nu\mat{I}$
+      * Thus $\mat{M} = \mat{X}^\tr\mat{X} + \eta\,\mat{I} =
+        \mat{V}\,(\mat{S}^\tr\mat{S}+\eta\mat{I})\mat{V}^\tr =
+        \mat{V}\,\mat{W}\,\mat{V}^\tr$ where $\mat{W}= \mat{S}^\tr\mat{S}+\eta\mat{I}$
       * But $(\mat{A}\,\mat{B}\,\mat{C})^{-1} =
         \mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$ (which we can verify by
         multiplying $\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$ on either

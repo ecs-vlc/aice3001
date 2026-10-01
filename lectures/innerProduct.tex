@@ -40,15 +40,15 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We have looked at vector space\pause{} (closed sets where we can add
+  \item We have looked at vector spaces\pause{} (closed sets where we can add
     elements and multiply them by a scalar)\pauseb
   \item Recall that vector spaces don't just apply to normal vectors
     ($\mathbb{R}^n$), but to matrices, functions, sequences, random
     variables, \ldots\pause
   \item Proper distances or metrics, $d(\bm{x}, \bm{y})$, allow us to
     construct ideas about geometry of the vector space\pause
-  \item Norms, $\len{\bm{x}}$, that allow us to reason about the size of vector\pause
-  \item Norm induce a distance, $d(\bm{x}, \bm{y}) = \len{\bm{x}-\bm{y}}$\pause 
+  \item Norms, $\len{\bm{x}}$, allow us to reason about the size of a vector\pause
+  \item Norms induce a distance, $d(\bm{x}, \bm{y}) = \len{\bm{x}-\bm{y}}$\pause 
   \end{itemize}
 \end{PauseHighLight}
 
@@ -189,7 +189,7 @@
       0 \\ 0 \\ 1
     \end{pmatrix}\pause$
   \item This is not unique as we can rotate our basis vectors\pause
-  \item For an orthogonal basis we can write any vector as $\hat{\bm{x}} =
+  \item For an orthonormal basis we can write any vector as $\hat{\bm{x}} =
     \begin{pmatrix}
       \bm{x}^\tr\bm{b_1} \\ \bm{x}^\tr\bm{b_2} \\ \bm{x}^\tr\bm{b_3}
     \end{pmatrix}\pause$
@@ -270,7 +270,7 @@
 
 \pb
 \begin{itemize}
-\item Given a set of linear independent vectors $(\bm{a}_1, \bm{a}_2,
+\item Given a set of linearly independent vectors $(\bm{a}_1, \bm{a}_2,
   \ldots \bm{a}_n)$ we can construct an orthonormal basis\pause
   \begin{center}
     \multipdf[width=0.7\textwidth]{gram_schmidt}\pause
@@ -281,10 +281,11 @@
     \bm{u}_1 &= \bm{a}_1
     &
       \bm{e}_1&= \frac{\bm{u}_1}{\len{\bm{u}_1}}\pause\\ 
-    \bm{u}_2 &= \bm{a}_2 - \mathrm{proj}_{\bm{a_1}}(\bm{a}_2)\pause
+    \bm{u}_2 &= \bm{a}_2 - \mathrm{proj}_{\bm{u}_1}(\bm{a}_2)\pause
     &
       \bm{e}_2&= \frac{\bm{u}_2}{\len{\bm{u}_2}}\pause\\ 
-    \bm{u}_3 &= \bm{a}_3 - \mathrm{proj}_{\bm{a_1}}(\bm{a}_3) - \mathrm{proj}_{\bm{a_2}}(\bm{a}_3)\pause
+    \bm{u}_3 &= \bm{a}_3 - \mathrm{proj}_{\bm{u}_1}(\bm{a}_3) -
+                \mathrm{proj}_{\bm{u}_2}(\bm{a}_3)\pause
     &
       \bm{e}_3&= \frac{\bm{u}_3}{\len{\bm{u}_3}}\pause
   \end{align*}}
@@ -307,7 +308,7 @@
   \item Numerical packages use ``Householder transformations'' to
     perform orthogonalisation\pause
   \item Nevertheless, it is nice to know that we can form an
-    orthonomal basis\pause
+    orthonormal basis\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -328,7 +329,7 @@
   \item The notions of distance (geometry), norms (size of vectors) and
     inner products (angles between vectors) provides a very rich set
     of concepts\pause
-  \item Vectors form the backbone of  objects we will use repeated in
+  \item Vectors form the backbone of  objects we will use repeatedly in
     machine learning\pause
   \item The next piece of the jigsaw is to understand how we can
     transform these objects\pause
@@ -369,7 +370,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Operators are in general very complicated, but a particular nice set
+  \item Operators are in general very complicated, but a particularly nice set
     of operators are linear operators\pause
   \item $\mathcal{T}$ is a linear operator if
     \begin{enumerate}
@@ -401,10 +402,10 @@
       C_{ij} = \sum_{k=1}^m A_{ik}\,B_{kj}\pause \hspace{2cm}
       \raisebox{-1cm}{\includegraphics[width=0.3\linewidth]{matrixMult}}
     \end{align*}
-  \item Treating the vector $\bm{x}$ as a $n\times1$ matrix then
+  \item Treating the vector $\bm{x}$ as an $n\times1$ matrix then
     \begin{align*}
       \bm{y} = \mat{A}\, \bm{x} \quad \Rightarrow \quad y_i = \sum_{j}
-      M_{ij} x_j\pause \hspace{2cm}
+      A_{ij} x_j\pause \hspace{2cm}
       \raisebox{-1cm}{\includegraphics[width=0.27\linewidth]{matrixVector}}
     \end{align*}
   \item Using the same matrix notation we can define the inner product
@@ -582,9 +583,9 @@
   \item Mathematics is the language of machine learning and you have
     to get used to it\pause
   \item Mathematics is like programming, if you don't understand the
-    syntax and you can't write it down then its meaningless\pause
+    syntax and you can't write it down then it's meaningless\pause
   \item We've taken a high level view of inner product spaces and
-    operator, this will pay us back later as we look at kernel
+    operators, this will pay us back later as we look at kernel
     methods\pause
   \end{itemize}
 \end{PauseHighLight}
