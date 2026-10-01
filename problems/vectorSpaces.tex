@@ -23,7 +23,7 @@
 \begin{document}
 \unitTitle{Vector Space Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
-\unitcode{COMP6208}
+\unitcode{AICE3001/6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
@@ -31,15 +31,32 @@
 
 \maketitle
 
-This paper asks you to prove some well known results.  Although the
-algebra is easy the proofs are not entirely straightforward.  There
-are marks assigned to the readability of the solution and also how
-well laid out and explained the steps you make are. (A good proof
-needs to be easy to follow: you need not comment on trivial algebra,
-but there should not be steps that are difficult to follow).
+This sheet reinforces the lectures on vector spaces and inner
+products.  Question~1 uses actual numbers; the later questions guide
+you, one step at a time, through proving some well known results.  The
+algebra in each step is short.  Try to explain each step in words as
+well as symbols: a good proof is one that someone else can follow
+without having to fill in gaps.
 
 This looks very mathematical, but it helps to develop the tools and
-language that is used to describe machine learning.
+language that are used to describe machine learning.
+
+Throughout, an inner product $\inner{\bm{x}}{\bm{y}}$ between vectors
+in a vector space $\mathcal{V}$ satisfies the following properties
+% numbered, because the questions refer to them as properties 1--5
+{\renewcommand{\labelenumi}{\arabic{enumi}.}
+\begin{enumerate}\squeeze
+\item $\inner{\bm{x}}{\bm{x}} \geq 0$ for all $\bm{x}\in\mathcal{V}$
+\item $\inner{\bm{x}}{\bm{x}} = 0$  if and only if $\bm{x}=\bm{0}$
+\item $\inner{\alpha\, \bm{x}}{\bm{y}} = \alpha\,
+  \inner{\bm{x}}{\bm{y}}$
+\item $\inner{\bm{x}}{\bm{y}+\bm{z}} = \inner{\bm{x}}{\bm{y}} +
+  \inner{\bm{x}}{\bm{z}}$
+\item $\inner{\bm{x}}{\bm{y}} = \inner{\bm{y}}{\bm{x}}$
+\end{enumerate}}
+For vectors in $\mathbb{R}^n$ the usual inner product is
+$\inner{\bm{x}}{\bm{y}} = \bm{x}^\tr\bm{y} = \sum_{i=1}^n x_i\,y_i$,
+with norm $\len{\bm{x}} = \sqrt{\inner{\bm{x}}{\bm{x}}}$.
 
 %\blankpage
 
@@ -52,70 +69,158 @@ language that is used to describe machine learning.
 
 % ***************************** question 1 **************************
 
+\freshpage
 
 \begin{question}{20}
-  An inner product $\inner{\bm{x}}{\bm{y}}$ between vectors in a
-  vector space $\mathcal{V}$ satisfies the following
-  properties
-  \begin{enumerate}\squeeze
-  \item $\inner{\bm{x}}{\bm{x}} \geq 0$ for all $\bm{x}\in\mathcal{V}$
-  \item $\inner{\bm{x}}{\bm{x}} = 0$  if and only if $\bm{x}=\bm{0}$
-  \item $\inner{\alpha\, \bm{x}}{\bm{y}} = \alpha\,
-    \inner{\bm{x}}{\bm{y}}$
-  \item $\inner{\bm{x}}{\bm{y}+\bm{z}} = \inner{\bm{x}}{\bm{y}} +
-    \inner{\bm{x}}{\bm{z}}$
-  \item $\inner{\bm{x}}{\bm{y}} = \inner{\bm{y}}{\bm{x}}$
-  \end{enumerate}
-  The question explores properties of inner products.
-  \clearpage
+  This question is a warm-up using actual numbers.  Let
+  \begin{align*}
+    \bm{x} &= \begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}, &
+    \bm{y} &= \begin{pmatrix} 2 \\ 0 \\ 1 \end{pmatrix}
+  \end{align*}
+  with the usual inner product $\inner{\bm{x}}{\bm{y}} =
+  \bm{x}^\tr\bm{y}$ on $\mathbb{R}^3$.
   \begin{qparts}
-    \qpart[10]{Consider the quadratic
-      \begin{align*}
-        q(t ) = \inner{\bm{x} + t\, \bm{y}}{\bm{x} + t\, \bm{y}}
-      \end{align*}
-      By definition 1 of an inner product $q(t)$ must be non-negative
-      and will only be 0 when $\bm{x} + t\, \bm{y}=0$.
+    \qpart[4]{Compute $\inner{\bm{x}}{\bm{y}}$, the norms
+      $\len{\bm{x}}$ and $\len{\bm{y}}$, and the distance
+      $d(\bm{x},\bm{y}) = \len{\bm{x}-\bm{y}}$.
+      \begin{answer}
+        \begin{align*}
+          \inner{\bm{x}}{\bm{y}} &= 1\times2 + 2\times0 + 2\times1 = 4, \\
+          \len{\bm{x}} &= \sqrt{1+4+4} = 3, &
+          \len{\bm{y}} &= \sqrt{4+0+1} = \sqrt{5}.
+        \end{align*}
+        As $\bm{x}-\bm{y} = (-1, 2, 1)^\tr$,
+        $d(\bm{x},\bm{y}) = \sqrt{1+4+1} = \sqrt{6} \approx 2.45$.
+      \end{answer}}{\lines{8}}
 
-      Expand $q(t)$ in the form $q(t) = A\,t^2 + 2\, B \, t +C$ to       
-      find $A$, $B$ and $C$.  For $q(t)$ to not change sign its roots
-      (values of $t$ such that $q(t)=0$) must be complex (i.e. have an
-      imaginary part), or possible have a double root if there is a
-      value of $t$ such that $q(t)=0$.  Use the
-      standard solutions to a quadratic of the form $q(t) = A\,t^2 +
-      2\, B t + C$ to show that for our $q(t)$ to never become
-      negative implies
+    \qpart[5]{Using $\inner{\bm{x}}{\bm{y}} = \len{\bm{x}}\,
+      \len{\bm{y}}\,\cos(\theta)$, find the angle $\theta$ between
+      $\bm{x}$ and $\bm{y}$.  Check that the Cauchy-Schwarz inequality,
+      $|\inner{\bm{x}}{\bm{y}}| \leq \len{\bm{x}}\,\len{\bm{y}}$, and
+      the triangular inequality, $\len{\bm{x}+\bm{y}} \leq \len{\bm{x}}
+      + \len{\bm{y}}$, both hold for these two vectors.
+      \begin{answer}
+        \begin{align*}
+          \cos(\theta) = \frac{\inner{\bm{x}}{\bm{y}}}{\len{\bm{x}}\,
+          \len{\bm{y}}} = \frac{4}{3\sqrt{5}} \approx 0.596
+          \quad\Rightarrow\quad \theta \approx 53.4^\circ .
+        \end{align*}
+        Cauchy-Schwarz: $|\inner{\bm{x}}{\bm{y}}| = 4 \leq
+        3\sqrt{5} \approx 6.71$.  (Cauchy-Schwarz is exactly what
+        guarantees $|\cos(\theta)|\leq 1$, so the angle always makes
+        sense.)  For the triangular inequality, $\bm{x}+\bm{y} = (3, 2,
+        3)^\tr$ so $\len{\bm{x}+\bm{y}} = \sqrt{22} \approx 4.69 \leq 3 +
+        \sqrt{5} \approx 5.24$.
+      \end{answer}}{\lines{10}}
+
+    \qpart[5]{The projection of $\bm{y}$ onto $\bm{x}$ is
+      \begin{align*}
+        \mathrm{proj}_{\bm{x}}(\bm{y}) =
+        \frac{\inner{\bm{y}}{\bm{x}}}{\inner{\bm{x}}{\bm{x}}}\,\bm{x}.
+      \end{align*}
+      Compute it, and the remainder $\bm{r} = \bm{y} -
+      \mathrm{proj}_{\bm{x}}(\bm{y})$.  Show that $\bm{r}$ is orthogonal
+      to $\bm{x}$.
+      \begin{answer}
+        \begin{align*}
+          \mathrm{proj}_{\bm{x}}(\bm{y}) = \frac{4}{9}
+          \begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}
+          = \frac{1}{9} \begin{pmatrix} 4 \\ 8 \\ 8 \end{pmatrix}, \qquad
+          \bm{r} = \begin{pmatrix} 2 \\ 0 \\ 1 \end{pmatrix}
+          - \frac{1}{9} \begin{pmatrix} 4 \\ 8 \\ 8 \end{pmatrix}
+          = \frac{1}{9} \begin{pmatrix} 14 \\ -8 \\ 1 \end{pmatrix}.
+        \end{align*}
+        Then $\inner{\bm{r}}{\bm{x}} = \tfrac{1}{9}(14 - 16 + 2) = 0$, so
+        $\bm{r}$ is orthogonal to $\bm{x}$.  We have split $\bm{y}$ into
+        a part along $\bm{x}$ and a part at right angles to it.
+      \end{answer}}{\lines{10}}
+
+    \qpart[6]{Not every formula that looks like an inner product is one.
+      For $\bm{u}, \bm{v} \in \mathbb{R}^2$ consider
+      \begin{align*}
+        \inner{\bm{u}}{\bm{v}} = u_1\,v_1 - u_2\,v_2 .
+      \end{align*}
+      Find a vector $\bm{u}$ with $\inner{\bm{u}}{\bm{u}} < 0$, and a
+      non-zero vector with $\inner{\bm{u}}{\bm{u}} = 0$.  Which of the
+      five properties fail?  Why does this stop us defining a norm
+      $\len{\bm{u}} = \sqrt{\inner{\bm{u}}{\bm{u}}}$?
+      \begin{answer}
+        For $\bm{u} = (0, 1)^\tr$, $\inner{\bm{u}}{\bm{u}} = 0 - 1 =
+        -1 < 0$, so property~1 fails.  For $\bm{u} = (1, 1)^\tr$,
+        $\inner{\bm{u}}{\bm{u}} = 1 - 1 = 0$ although $\bm{u}\neq\bm{0}$,
+        so property~2 fails.  Properties 3, 4 and 5 still hold, since
+        the formula is linear in each argument and symmetric.
+
+        The ``norm'' would be the square root of a negative number for
+        $(0,1)^\tr$, and the non-zero vector $(1,1)^\tr$ would have zero
+        length.  Properties 1 and 2 are exactly what make
+        $\sqrt{\inner{\bm{u}}{\bm{u}}}$ a sensible length.
+      \end{answer}}{\lines{12}}
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 2 **************************
+
+\begin{question}{20}
+  This question uses the properties of an inner product to prove two
+  results that hold in \emph{every} inner-product space.
+  \begin{qparts}
+    \qpart[4]{Consider the quadratic
+      \begin{align*}
+        q(t ) = \inner{\bm{x} + t\, \bm{y}}{\bm{x} + t\, \bm{y}}.
+      \end{align*}
+      Use properties 3, 4 and 5 to expand $q(t)$ in the form $q(t) =
+      A\,t^2 + 2\, B \, t +C$, and write down $A$, $B$ and $C$ as
+      inner products.
+      \begin{answer}
+        Expanding using linearity in each argument (properties 3 and 4,
+        with symmetry, property 5, to apply them to the first argument)
+        \begin{align*}
+          q(t) &= \inner{\bm{x}}{\bm{x}} + t\,\inner{\bm{x}}{\bm{y}}
+          + t\,\inner{\bm{y}}{\bm{x}} + t^2\,\inner{\bm{y}}{\bm{y}} \\
+          &= \inner{\bm{y}}{\bm{y}}\, t^2 + 2\,
+          \inner{\bm{x}}{\bm{y}}\,t +  \inner{\bm{x}}{\bm{x}}
+        \end{align*}
+        So that $A= \inner{\bm{y}}{\bm{y}}$, $B= \inner{\bm{x}}{\bm{y}}$
+        and $C=\inner{\bm{x}}{\bm{x}}$.
+      \end{answer}}{\lines{10}}
+
+    \qpart[6]{By properties 1 and 2, $q(t)$ is never negative.  A
+      quadratic that is never negative cannot have two distinct real
+      roots (it would be negative between them), so its roots are either
+      complex or a double root.  Use the formula for the roots of
+      $A\,t^2 + 2\,B\,t + C = 0$ to show that this implies
       \begin{align*}
         \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
         \inner{\bm{y}}{\bm{y}}.
       \end{align*}
       This is the famous Cauchy-Schwarz inequality written in a very
       general form.
-      \begin{answer}    
+      \begin{answer}
+        If $\bm{y}=\bm{0}$ both sides of the inequality are zero, so we
+        can take $A>0$.  The roots of $A\,t^2 + 2\,B \, t + C = 0$ are
         \begin{align*}
-          q(t) = \inner{\bm{y}}{\bm{y}}  t^2 + 2\,
-          \inner{\bm{x}}{\bm{y}}\,t +  \inner{\bm{x}}{\bm{x}}
+          t = \frac{-2\,B \pm \sqrt{4\,B^2 - 4\,A\,C}}{2\,A}
+          = \frac{-B \pm \sqrt{B^2 - A\,C}}{A}.
         \end{align*}
-        So that $A= \inner{\bm{y}}{\bm{y}}$, $B= 2\,\inner{\bm{x}}{\bm{y}}$
-        and $C=\inner{\bm{x}}{\bm{x}}$.  The roots to the quadratic
-        equation $q(t)=A\,t^2 + B \, t + C = 0$ are
-        \begin{align*}
-          t = \frac{-B \pm \sqrt{B^2 - 4\,A\,C}}{2\,A}.
-        \end{align*}
-        The condition that these roots are complex is that
-        $B^2-4\,A\,C<0$, and where $B^2-4\,A\,C=0$ indicating there is a
-        double root.  Thus $B^2/4 \leq A\,C$.  Putting in the values of
-        $A$, $B$ and $C$ then
+        The roots are complex when $B^2-A\,C<0$, and there is a double
+        root when $B^2-A\,C=0$.  If $B^2-A\,C>0$ there would be two
+        distinct real roots and $q(t)$ would be negative between them.
+        Thus $B^2 \leq A\,C$.  Putting in the values of $A$, $B$ and $C$
+        then
         \begin{align*}
           \inner{\bm{x}}{\bm{y}}^2 \leq \inner{\bm{x}}{\bm{x}} \,
           \inner{\bm{y}}{\bm{y}}.
         \end{align*}
-      \end{answer}}{\lines{17}}
+      \end{answer}}{\lines{12}}
   
     \qpart[10]{From an inner product we can define a norm $\len{\bm{x}} =
       \sqrt{\inner{\bm{x}}{\bm{x}}}$.  This clearly satisfies
-      non-negativity and linearity.  The only non-trivial property to
-      show is that this norm satisfies the triangular inequality.  Expand out
-      $\len{\bm{x} + \bm{y}}$ and hence show that
+      non-negativity and ``linearity'' ($\len{a\,\bm{x}} =
+      |a|\,\len{\bm{x}}$).  The only non-trivial property to show is that
+      this norm satisfies the triangular inequality.  Expand out
+      $\len{\bm{x} + \bm{y}}^2$ and hence show that
       \begin{align*}
         \len{\bm{x}+\bm{y}}^2 = \len{\bm{x}}^2 + \len{\bm{y}}^2 + 2
         \inner{\bm{x}}{\bm{y}}
@@ -123,7 +228,7 @@ language that is used to describe machine learning.
       Then use the Cauchy-Schwarz inequality to prove the triangular
       inequality.
     \begin{answer}
-      We start form
+      We start from
       \begin{align*}
         \len{\bm{x}+\bm{y}}^2
         &=  \inner{\bm{x} + \bm{y}}{\bm{x} + \bm{y}}
@@ -131,7 +236,8 @@ language that is used to describe machine learning.
         &=  \inner{\bm{x}}{\bm{x}} + \inner{\bm{y}}{\bm{y}}
           + 2 \, \inner{\bm{x}}{\bm{y}}
       \end{align*}
-      Using the Cauchy-Schwarz inequality $|\inner{\bm{x}}{\bm{y}}|^2
+      Using $\inner{\bm{x}}{\bm{y}} \leq |\inner{\bm{x}}{\bm{y}}|$ and
+      the Cauchy-Schwarz inequality $|\inner{\bm{x}}{\bm{y}}|^2
       \leq \inner{\bm{x}}{\bm{x}}\, \inner{\bm{y}}{\bm{y}}$ so that
       \begin{align*}
          \len{\bm{x}+\bm{y}}^2
@@ -154,7 +260,7 @@ language that is used to describe machine learning.
 \end{question}
 \freshpage
 
-% ***************************** question 2 **************************
+% ***************************** question 3 **************************
 
 \begin{question}{20}
   Random variables, $X$, $Y$, etc.{} form a vector space (i.e. they
@@ -170,7 +276,7 @@ language that is used to describe machine learning.
       \begin{align*}
         \mathrm{Cov}(X,Y)^2 \leq \mathrm{Var}(X) \, \mathrm{Var}(Y)
       \end{align*}
-      hence show that the Pearson correlation is between -1 and 1.
+      hence show that the Pearson correlation is between $-1$ and $1$.
     \begin{answer}
       Let $\mu = \av{X}$ and $\nu = \av{Y}$ then
       \begin{align*}
@@ -179,9 +285,9 @@ language that is used to describe machine learning.
       From the Cauchy-Schwarz inequality
       \begin{align*}
         \mathrm{Cov}(X,Y)^2
-        &= \av{(X-\mu)\,(Y-\nu)}^2 = \inner{X-\mu}{Y-\mu}^2
+        &= \av{(X-\mu)\,(Y-\nu)}^2 = \inner{X-\mu}{Y-\nu}^2
         \\
-        &\leq \inner{X-\mu}{X-\mu} \, \inner{Y-\mu}{Y-\mu} =
+        &\leq \inner{X-\mu}{X-\mu} \, \inner{Y-\nu}{Y-\nu} =
           \av{(X-\mu)^2} \, \av{(Y-\nu)^2} = \mathrm{Var}(X)\,
           \mathrm{Var}(Y).
       \end{align*}
@@ -202,12 +308,12 @@ language that is used to describe machine learning.
       \begin{align*}
         \inner{\bm{x}}{\bm{y}} = \sum_{i=1}^n w_i \, x_i \,y_i
       \end{align*}
-      satisfies the condition of an inner product provided $w_i>0$ for
+      satisfies the conditions of an inner product provided $w_i>0$ for
       all $i$.  Write down the norm and distance induced by this
       inner product and provide an interpretation of what this
       distance means.
     \begin{answer}
-      We consider the five condition on the inner product
+      We consider the five conditions on the inner product
       \begin{enumerate}
       \item Non-negativity follows from
         \begin{align*}
@@ -222,7 +328,7 @@ language that is used to describe machine learning.
         \begin{align*}
           \inner{a\,\bm{x}}{\bm{y}}
           &= \sum_{i=1}^n w_i \, (a\,x_i)  \,y_i 
-          & a\, \sum_{i=1}^n w_i \, x_i \,y_i = a\,\inner{\bm{x}}{\bm{y}}
+          = a\, \sum_{i=1}^n w_i \, x_i \,y_i = a\,\inner{\bm{x}}{\bm{y}}
         \end{align*}
       \item The distributive law again follows trivially
         \begin{align*}
@@ -237,15 +343,17 @@ language that is used to describe machine learning.
           \inner{\bm{x}}{\bm{y}} &=  \sum_{i=1}^n w_i \, x_i \,y_i
           =  \sum_{i=1}^n w_i \, y_i \,x_i =  \inner{\bm{y}}{\bm{x}} 
         \end{align*}
-        The induced norm and distance for this inner product is
-        \begin{align*}
-          \len{x} &= \sqrt{\sum_{i=1}^n w_i \, x_i^2}, &
-          d(\bm{x}, \bm{y}) &= \sqrt{ \sum_{i=1}^n w_i \, (x_i-y_i)^2}.
-        \end{align*}
-        A natural interpretation of this is that this is a
-        generalisation of the Euclidean distance where we rescale each
-        axis by a factor $w_i$ and then compute the normal Euclidean distance.
       \end{enumerate}
+      The induced norm and distance for this inner product are
+      \begin{align*}
+        \len{\bm{x}} &= \sqrt{\sum_{i=1}^n w_i \, x_i^2}, &
+        d(\bm{x}, \bm{y}) &= \sqrt{ \sum_{i=1}^n w_i \, (x_i-y_i)^2}.
+      \end{align*}
+      A natural interpretation of this is that this is a
+      generalisation of the Euclidean distance where we rescale each
+      axis by a factor $\sqrt{w_i}$ and then compute the normal Euclidean
+      distance.  A large $w_i$ means that differences in feature $i$
+      count for a lot.
     \end{answer}}{\lines{19}}
   \end{qparts}
   
@@ -256,7 +364,7 @@ language that is used to describe machine learning.
 
 \freshpage
 
-% ***************************** question 3 **************************
+% ***************************** question 4 **************************
 
 
 \begin{question}{20}
@@ -368,7 +476,7 @@ language that is used to describe machine learning.
           p_3(x) = x^3 - \frac{0}{1}\,1 - \frac{3}{1}\, x -
           \frac{0}{2}\, (x^2-1) = x^3 - 3\, x .
         \end{align*}
-        (These are the Hermite polynomials.  As a check, every
+        (These are the (probabilists') Hermite polynomials.  As a check, every
         $p_n$ is either an odd or an even function, which had to
         happen because $w(x)$ is symmetric about the origin.)
       \end{answer}}{\lines{12}}
