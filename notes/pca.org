@@ -3,72 +3,274 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Covariance matrices, dimensionality reduction, PCA, Duality
+  * Covariance matrices, positive semi-definite, dimensionality reduction, PCA, reconstruction error, duality
 
 * Main Points
 
-** PCA
-   * This is revision as you should have all seen this in foundations of ML
-   * The covariance matrix is defined as 
-     $$ \mat{C}= \frac{1}{m-1} \sum_{i=1}^m
-     (\bm{x}_i-\hat{\bm{\mu}})\,(\bm{x}_i-\hat{\bm{\mu}})^\tr $$ 
-   * Defining the matrix $\mat{X}$ as
+** Why Reduce Dimensions?
+   * Data often varies significantly in only a few directions, even
+     when it has many features.  You cannot usually see this by
+     looking at the numbers
+   * Projecting onto the few directions of greatest variation gives
+     fewer, more informative features for a learning machine, and
+     discards directions that are mostly noise
+
+** Notation
+   * We have $m$ data points $\bm{x}_1,\ldots,\bm{x}_m$, each with $p$
+     features, and sample mean $\bm{\mu} = \frac{1}{m}\sum_k \bm{x}_k$
+   * In this lecture we collect the /centred/ data as the columns of a
+     $p\times m$ matrix
      \begin{align*}
        \mat{X} = \frac{1}{\sqrt{m-1}}\left( \strut \bm{x}_1-\bm{\mu},
-       \bm{x}_2-\bm{\mu}, \cdots \bm{x}_m-\bm{\mu} \right)
+       \bm{x}_2-\bm{\mu}, \cdots, \bm{x}_m-\bm{\mu} \right)
      \end{align*}
-     then $\mat{C} = \mat{X} \, \mat{X}^\tr$
-   * The /principal components/ are the eigenvectors of the covariance
-     matrix with the largest eigenvalues
-   * We can reduce the dimensionality of the inputs by projecting into
-     the subspace spanned by the principal components
-   * We can reconstruct a vector from its principal component projection
+     This is the transpose of the design matrix used in linear
+     regression (one row per data point), and it includes the
+     factor $1/\sqrt{m-1}$
+
+** The Direction of Maximum Variation
+   * The spread of the data along a unit vector $\bm{v}$
+     ($\len{\bm{v}}=1$) is the variance of the projections
+     $\bm{v}^\tr(\bm{x}_k-\bm{\mu})$
      \begin{align*}
-       \hat{\bm{x}} = \sum_i z_i \, \bm{v}_i
+       \sigma^2(\bm{v}) = \frac{1}{m-1}\sum_{k=1}^m
+       \left(\bm{v}^\tr(\bm{x}_k-\bm{\mu})\right)^2
+       = \bm{v}^\tr\mat{C}\,\bm{v}
      \end{align*}
-     - $\bm{v}_i$ are the principal components (eigenvectors of the
-       covariance matrix with largest eigenvalues)
-     - $z_i = \bm{v}_i^\tr \bm{x}$ are the values of the new features
-     - the sum is over the principal  components that we
-   * The expected squared error reconstruction loss
-     $\mathbb{E}\left[(\hat{\bm{x}}-\bm{x})^2\right]$ is equal to the
-     sum of the eigenvalues we ignore
+     where, writing $\left(\bm{v}^\tr\bm{a}\right)^2 =
+     \bm{v}^\tr\bm{a}\,\bm{a}^\tr\bm{v}$ and taking $\bm{v}$ outside the
+     sum, $\mat{C}$ is the /covariance matrix/
+     \begin{align*}
+       \mat{C} = \frac{1}{m-1}\sum_{k=1}^m (\bm{x}_k-\bm{\mu})\,(\bm{x}_k-\bm{\mu})^\tr
+       = \mat{X}\,\mat{X}^\tr
+     \end{align*}
+   * To maximise $\bm{v}^\tr\mat{C}\,\bm{v}$ subject to
+     $\bm{v}^\tr\bm{v}=1$ we use a Lagrange multiplier.  Setting the
+     gradient of
+     $\mathcal{L} = \bm{v}^\tr\mat{C}\,\bm{v} - \lambda\,(\bm{v}^\tr\bm{v}-1)$
+     to zero gives
+     \begin{align*}
+       2\,\mat{C}\,\bm{v} - 2\,\lambda\,\bm{v} = \bm{0}
+       \quad\Rightarrow\quad \mat{C}\,\bm{v} = \lambda\,\bm{v}
+     \end{align*}
+     (we used $\grad\,\bm{v}^\tr\mat{C}\,\bm{v} = 2\,\mat{C}\,\bm{v}$ for
+     symmetric $\mat{C}$, from the mappings lecture)
+   * So the stationary directions are the eigenvectors of $\mat{C}$,
+     and the variance along eigenvector $\bm{v}_i$ is
+     $\bm{v}_i^\tr\mat{C}\,\bm{v}_i = \lambda_i\,\bm{v}_i^\tr\bm{v}_i =
+     \lambda_i$.  The direction of greatest variation is the eigenvector
+     with the largest eigenvalue
+   * The next best direction /orthogonal to the first/ is the eigenvector
+     with the second largest eigenvalue, and so on
+
+** Properties of the Covariance Matrix
+   * $C_{ij} = \frac{1}{m-1}\sum_k (x_{ik}-\mu_i)(x_{jk}-\mu_j)$ measures
+     how features $i$ and $j$ vary together, the sample version of
+     $\mathrm{Cov}(X,Y) = \av{(X-\av{X})(Y-\av{Y})}$.  The diagonal holds
+     the variances of the individual features
+   * $\mat{C}$ is built from /outer products/ $\bm{a}\,\bm{a}^\tr$ (a
+     $p\times p$ matrix), compared with the inner product
+     $\bm{a}^\tr\bm{a}$ (a number)
+   * $\mat{C}$ is symmetric, so its eigenvectors can be chosen
+     orthonormal (eigensystems lecture)
+   * $\mat{C}$ is /positive semi-definite/: for any $\bm{v}$,
+     \begin{align*}
+       \bm{v}^\tr\mat{C}\,\bm{v} = \bm{v}^\tr\mat{X}\,\mat{X}^\tr\bm{v}
+       = \len{\mat{X}^\tr\bm{v}}^2 \geq 0
+     \end{align*}
+     Applying this to an eigenvector shows every eigenvalue is
+     $\lambda_i = \bm{v}_i^\tr\mat{C}\,\bm{v}_i/\len{\bm{v}_i}^2 \geq 0$
+     (they are variances, after all)
+   * The total variance, summed over all features, is
+     $\mathrm{Tr}\,\mat{C} = \sum_i C_{ii} = \sum_i\lambda_i$.  The
+     fraction $\sum_{i\leq k}\lambda_i/\sum_i\lambda_i$ is the
+     "variance explained" by the first $k$ components
+   * *Zero eigenvalues.*  $\lambda_i=0$ exactly when there is no
+     variation at all along $\bm{v}_i$
+     * The $m$ centred points sum to $\bm{0}$, so they span at most an
+       \((m-1)\)-dimensional subspace.  If $m\leq p$, $\mat{C}$ must have
+       zero eigenvalues
+     * With $m\geq p+1$ points that do not all lie in one hyperplane,
+       every eigenvalue is positive: $\mat{C}$ is /positive definite/,
+       full rank and invertible
+     * Typically, with $m>p$, $\mat{C}$ is positive definite unless the
+       features are linearly related (e.g. one is the sum of others)
+   * *The ellipsoid picture.*  The surface
+     $\bm{x}^\tr\mat{C}^{-1}\bm{x}=1$ is an ellipsoid whose principal axes
+     point along the eigenvectors.  Along $\bm{v}_i$, putting
+     $\bm{x}=r\,\bm{v}_i$ gives $r^2/\lambda_i=1$, so the radius is
+     $\sqrt{\lambda_i}$: the standard deviation of the data in that
+     direction
+
+** Principal Component Analysis
+   * The recipe
+     1. Compute the mean $\bm{\mu}$ and the covariance matrix $\mat{C}$
+     2. Find its eigenvalues and eigenvectors
+     3. Keep the $k$ eigenvectors with the largest eigenvalues, the
+        /principal components/
+     4. Project each input into the space they span
+   * The projection uses the $k\times p$ matrix whose rows are the
+     principal components
+     \begin{align*}
+       \mat{P} = \begin{pmatrix} \bm{v}_1^\tr \\ \vdots \\ \bm{v}_k^\tr \end{pmatrix},
+       \qquad
+       \bm{z} = \mat{P}\,(\bm{x}-\bm{\mu})
+     \end{align*}
+     The $k$ numbers $z_j = \bm{v}_j^\tr(\bm{x}-\bm{\mu})$ are the new
+     features
+   * *Reconstruction.*  We can map back to an approximation of the input
+     \begin{align*}
+       \hat{\bm{x}} = \bm{\mu} + \sum_{j=1}^k z_j\,\bm{v}_j
+     \end{align*}
+   * *Reconstruction error.*  All $p$ eigenvectors form an orthonormal
+     basis, so $\bm{x}-\bm{\mu} = \sum_{j=1}^p z_j\,\bm{v}_j$ exactly, and
+     the error is the part we dropped,
+     $\bm{x}-\hat{\bm{x}} = \sum_{j>k} z_j\,\bm{v}_j$.  By orthonormality
+     $\len{\bm{x}-\hat{\bm{x}}}^2 = \sum_{j>k} z_j^2$, and averaging over
+     the data (with the same $1/(m-1)$) each $z_j^2$ averages to the
+     variance along $\bm{v}_j$, which is $\lambda_j$.  So
+     \begin{align*}
+       \frac{1}{m-1}\sum_{k'=1}^m \len{\bm{x}_{k'}-\hat{\bm{x}}_{k'}}^2
+       = \sum_{j>k}\lambda_j
+     \end{align*}
+     the sum of the eigenvalues we ignored.  No other \(k\)-dimensional
+     subspace does better, which is why PCA keeps the largest
+     eigenvalues
+   * *Choosing $k$.*  Plot the eigenvalues in decreasing order (as for the
+     handwritten digits in the lecture) and keep enough components to
+     explain most of the variance.  There is no single right answer
+   * Images of handwritten digits: the leading eigenvectors look like
+     blurred digits, and a few tens of them reconstruct a recognisable
+     digit from its hundreds of pixels
 
 ** Duality
-   * We can define the dual matrix, $\mat{D}= \mat{X}^\tr\mat{X}$ with
-     components $D_{kl} = (\bm{x}_k-\bm{\mu})^\tr(\bm{x}_k-\bm{\mu})$
-   * If $\bm{v}_i$ is and eigenvector of $\mat{D}$ with eigenvalue
-     $\lambda_i$ then $\bm{u}_i = \mat{X} \, \bm{v}_i$ is an
-     eigenvector of $\mat{C}$ with the same eigenvalue
-   * Matrix $\mat{C}$ and $\mat{D}$ have exactly the same non-zero
-     eigenvalues
-   * If we have more features than training example it is more
-     efficient to work with $\mat{D}$ than $\mat{C}$
-   * Note in this case the training examples will not span the feature
-     space.  $\mat{D}$ describes the fluctuations in the space spanned
-     by the examples
+   * For images $p$ is huge: a $256\times256$ image has $p=65\,536$
+     pixels, and $\mat{C}$ would have over $4\times10^9$ entries.  But $m$
+     images span at most an \((m-1)\)-dimensional subspace, usually with
+     $m\ll p$
+   * Work instead with the $m\times m$ /dual matrix/
+     $\mat{D} = \mat{X}^\tr\mat{X}$, whose entries
+     $D_{kl} = \frac{1}{m-1}(\bm{x}_k-\bm{\mu})^\tr(\bm{x}_l-\bm{\mu})$
+     are inner products between data points.  Building it costs
+     $O(p\,m^2)$
+   * If $\mat{D}\,\bm{v} = \lambda\,\bm{v}$, multiply on the left by
+     $\mat{X}$:
+     \begin{align*}
+       \mat{X}\,\mat{X}^\tr\mat{X}\,\bm{v} = \lambda\,\mat{X}\,\bm{v}
+       \quad\Rightarrow\quad \mat{C}\,\bm{u} = \lambda\,\bm{u},
+       \qquad \bm{u} = \mat{X}\,\bm{v}
+     \end{align*}
+     so every eigenvector of $\mat{D}$ with $\lambda\neq0$ gives one of
+     $\mat{C}$ with the same eigenvalue.  (If $\lambda=0$ then
+     $\mat{X}\bm{v}=\bm{0}$ and there is nothing to map)
+   * $\mat{C}$ and $\mat{D}$ therefore have the same /non-zero/
+     eigenvalues.  The bigger matrix just has extra zeros
+   * *Normalising.*  $\len{\mat{X}\,\bm{v}}^2 = \bm{v}^\tr\mat{D}\,\bm{v} =
+     \lambda$ for a unit $\bm{v}$, so the unit eigenvector of $\mat{C}$
+     is $\bm{u} = \mat{X}\,\bm{v}/\sqrt{\lambda}$
+   * We have worked in the /dual space/, spanned by the examples.  The
+     same trick reappears in SVMs and kernel methods, and the pair
+     $\mat{X}\mat{X}^\tr$, $\mat{X}^\tr\mat{X}$ is the heart of the SVD
+     (next lecture)
 
 * Exercises
 
-** Duality
-   * Show that if $\bm{v}_i$ is and eigenvector of $\mat{D}$ with eigenvalue
-     $\lambda_i$ then $\bm{u}_i = \mat{X} \, \bm{v}_i$ is an
-     eigenvector of $\mat{C}$ with the same eigenvalue
-   * Answer in the lecture notes
+1. Show that $\frac{1}{m-1}\sum_k \left(\bm{v}^\tr(\bm{x}_k-\bm{\mu})\right)^2
+   = \bm{v}^\tr\mat{C}\,\bm{v}$
+2. Two data points $\bm{y}^1 = (2,4,5)^\tr$ and $\bm{y}^2 = (8,6,1)^\tr$
+   (the example in the lecture)
+   1. Find $\bm{\mu}$ and $\mat{X}$ (with $m=2$ the factor
+      $1/\sqrt{m-1}$ is 1)
+   2. Find $\mat{D} = \mat{X}^\tr\mat{X}$ and its eigenvalues and
+      eigenvectors
+   3. Use the dual to find the principal component of $\mat{C}$, and
+      explain why $\mat{C}$ has two zero eigenvalues
+3. Show that $\mathrm{Tr}\,\mat{C}$ equals the sum of the variances of the
+   individual features, and also the sum of the eigenvalues
+4. Data in two dimensions have covariance matrix
+   $\mat{C} = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$
+   1. Find the principal components and the variance along each
+   2. What fraction of the variance does the first component explain?
+   3. What are the radii and directions of the axes of the ellipse
+      $\bm{x}^\tr\mat{C}^{-1}\bm{x} = 1$?
+5. Show that if $\bm{v}$ is a unit eigenvector of $\mat{D}$ with
+   eigenvalue $\lambda>0$ then $\mat{X}\,\bm{v}/\sqrt{\lambda}$ is a unit
+   eigenvector of $\mat{C}$
 
 * Experiments
 
-** Duality
-   * Using Matlab/Octave of python illustrate that the dual matrix and
-     covariance matrix have the same eigenvalues
-#+BEGIN_SRC matlab
-X = randn(5,3)   % construct a random matrix
-C = X*X'         % compute a sort of covariance matrix (haven't bothered removing mean
-D = X'*X         % compute dual
-[V,LC] = eig(C)  % compute eigensystem of C
-[U,LD] = eig(D)  % compute eigensystem of D should have the same non-zero eigenvalues
-u1 = X*U(:,1)    % left multiply and eigenvector or D by X
-u1/norm(u1)      % normalise above should be the same as V(:,3) (could be V(:,4) or V(:,5))
+** PCA by hand
+   * Generate data in 10 dimensions that really lies close to a plane,
+     and check the claims in these notes
+
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+m, p = 200, 10
+basis = rng.normal(size=(p, 2))  # data really lives near a plane
+Y = (basis @ rng.normal(size=(2, m))).T + 0.1 * rng.normal(size=(m, p))
+mu = Y.mean(axis=0)
+X = (Y - mu).T / np.sqrt(m - 1)  # p x m, columns are centred points
+C = X @ X.T  # covariance matrix (p x p)
+lam, V = np.linalg.eigh(C)
+lam, V = lam[::-1], V[:, ::-1]  # largest eigenvalue first
+print(np.round(lam, 3))                           # two big, eight tiny
+print(np.allclose(C, np.cov(Y.T)))  # agrees with numpy's covariance
+
+for k in (1, 2, 3):
+    P = V[:, :k].T  # k x p projection matrix
+    Z = P @ (Y - mu).T                            # k x m new features
+    Yhat = mu + (V[:, :k] @ Z).T                  # reconstruction
+    err = np.sum((Y - Yhat) ** 2) / (m - 1)
+    # the error should equal the sum of the discarded eigenvalues
+    print(k, round(err, 4), round(lam[k:].sum(), 4))
+
+# duality: with more features than examples use the m x m matrix
+Xs = X[:, :5]  # pretend we have only 5 examples
+print(np.round(np.linalg.eigvalsh(Xs.T @ Xs)[::-1], 4))  # 5 eigenvalues of D
+print(np.round(np.linalg.eigvalsh(Xs @ Xs.T)[::-1], 4))  # same, plus zeros
 #+END_SRC
+
+   * Two eigenvalues (about 12 and 2.7) stand out; the other eight are
+     around $0.01$, the noise.  Keeping $k=2$ components cuts the
+     reconstruction error from about 2.8 to 0.08, and in every case the
+     error equals the sum of the discarded eigenvalues
+   * The $5\times5$ dual matrix has the same non-zero eigenvalues as the
+     $10\times10$ matrix, which just has five extra zeros
+
+* Answers
+
+1. $\left(\bm{v}^\tr\bm{a}\right)^2 = (\bm{v}^\tr\bm{a})(\bm{a}^\tr\bm{v}) =
+   \bm{v}^\tr\bm{a}\,\bm{a}^\tr\bm{v}$, since $\bm{v}^\tr\bm{a}$ is a
+   number and equals its transpose.  With
+   $\bm{a}=\bm{x}_k-\bm{\mu}$, summing over $k$ and taking $\bm{v}$
+   outside the sum gives $\bm{v}^\tr\mat{C}\,\bm{v}$
+2. The lecture example
+   1. $\bm{\mu} = (5,5,3)^\tr$ and
+      $\mat{X} = \begin{pmatrix} -3 & 3 \\ -1 & 1 \\ 2 & -2 \end{pmatrix}$
+   2. $\mat{D} = \begin{pmatrix} 14 & -14 \\ -14 & 14 \end{pmatrix}$,
+      with $\lambda=28$, $\bm{v} = (-1,1)^\tr/\sqrt{2}$ and $\lambda=0$,
+      $\bm{v} = (1,1)^\tr/\sqrt{2}$
+   3. $\mat{X}\,\bm{v} = (6,2,-4)^\tr/\sqrt{2}$ and dividing by
+      $\sqrt{28}$ gives $\bm{u} = (3,1,-2)^\tr/\sqrt{14}$, with variance
+      $28$.  The two centred points are $\pm(3,1,-2)^\tr$: they lie on a
+      line through the origin, so there is no variation in the two
+      directions perpendicular to it
+3. $\mathrm{Tr}\,\mat{C} = \sum_i C_{ii}$ and $C_{ii}$ is the variance of
+   feature $i$.  Using $\mat{C} = \mat{V}\mat{\Lambda}\mat{V}^\tr$ and the
+   cyclic property of the trace,
+   $\mathrm{Tr}\,\mat{C} = \mathrm{Tr}\,\mat{\Lambda}\mat{V}^\tr\mat{V}
+   = \mathrm{Tr}\,\mat{\Lambda} = \sum_i\lambda_i$
+4. The matrix from the eigensystems notes
+   1. $\lambda=3$ along $(1,1)^\tr/\sqrt2$ and $\lambda=1$ along
+      $(1,-1)^\tr/\sqrt2$.  The variances are $3$ and $1$
+   2. $3/(3+1) = 75\%$
+   3. Radii $\sqrt3$ along $(1,1)^\tr$ and $1$ along $(1,-1)^\tr$
+5. $\mat{C}\,(\mat{X}\bm{v}) = \mat{X}\,(\mat{X}^\tr\mat{X}\,\bm{v}) =
+   \lambda\,\mat{X}\bm{v}$, so it is an eigenvector, and
+   $\len{\mat{X}\bm{v}}^2 = \bm{v}^\tr\mat{X}^\tr\mat{X}\,\bm{v} =
+   \lambda\,\bm{v}^\tr\bm{v} = \lambda$, so dividing by $\sqrt{\lambda}$
+   makes it a unit vector
 
 * COMMENT [[file:eigensystems.org][Previous]]  [[file:svd.org][Next]]

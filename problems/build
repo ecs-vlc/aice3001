@@ -7,8 +7,9 @@ reveal the worked solutions.
 
 Nothing is written into this directory. pdflatex is given -output-directory,
 so the .aux/.log/.out files and the generated <name>_answers.tex all land in
-build/, and the finished PDFs are copied straight to the site. That removes
-the need for the old `websync` script.
+_build/. Publishing is left to make_problems_html.py, which copies the PDFs to
+the site and gives unreleased answers the token name; copying them here as
+<name>_answers.pdf would put them at a guessable URL before the tutorial.
 
     ./build                 build any sheet whose PDFs are out of date
     ./build calculus        just this one
@@ -35,11 +36,6 @@ CONFIG = HERE / "problems.yaml"
 def config() -> dict:
     with open(CONFIG) as f:
         return yaml.safe_load(f)
-
-
-def publish_dir(cfg: dict) -> Path:
-    """Where the finished PDFs go. Resolved from this file, not the cwd."""
-    return (HERE / cfg.get("site_dir", "../site") / "problem_pdf").resolve()
 
 
 def newer(a: Path, b: Path) -> bool:
@@ -173,14 +169,12 @@ def main() -> None:
         (built if pdfs else failed).extend(pdfs or [sheet["name"]])
 
     if publish and built:
-        target = publish_dir(cfg)
-        target.mkdir(parents=True, exist_ok=True)
-        copied = 0
-        for pdf in built:
-            if pdf.exists():
-                shutil.copy2(pdf, target / pdf.name)
-                copied += 1
-        print(f"\npublished {copied} PDFs -> {target}")
+        # make_problems_html.py owns the release rules (which answers are
+        # public, the token name for the rest) and resolves paths from the cwd
+        print()
+        os.chdir(HERE)
+        import make_problems_html
+        make_problems_html.main()
     elif not publish:
         print(f"\nbuilt into {BUILD_DIR} (not published)")
 

@@ -53,10 +53,10 @@
         \begin{align*}
           \forall_{i=1}^n: \quad \sum_{j=1}^n c_j\, M_{ij} = 0.
         \end{align*}
-        [Hint: consider acting on the vector $\bm{c}$ whose $i^{th}$
+        [Hint: consider $\mat{M}$ acting on the vector $\bm{c}$ whose $i^{th}$
         element is $c_i$.  Hence show that if $\bm{x}$ is a solution
         to the equation $\bm{y} = \mat{M}\,\bm{x}$ then so is $\bm{x}
-        + b\, \bm{c}$ for any $c\in \mathbb{R}$.]
+        + b\, \bm{c}$ for any $b\in \mathbb{R}$.]
       \begin{answer}
         We consider the vector $\bm{c}$ with elements $c_i$, then the
         $i^{th}$ component of $\mat{M}\,\bm{c}$ is equal to
@@ -79,7 +79,7 @@
         $\mat{A}\,\mat{B}\,\mat{C}$ is
         $\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}$.  You can do this by
         multiplying the product of matrices by its inverse and using
-        associativity of matrix multiplication
+        associativity of matrix multiplication.
       \begin{answer}
         \begin{align*}
           \bra{\mat{C}^{-1}\mat{B}^{-1}\mat{A}^{-1}} \bra{\strut
@@ -146,7 +146,7 @@
           \label{eq:injective}
         \end{align}
         In other words if $\bm{x}\neq\bm{y}$ then $\mat{B}\, \bm{x}$
-        must be different for $\mat{B}\, \bm{y}$.  Assuming
+        must be different from $\mat{B}\, \bm{y}$.  Assuming
         $\mat{A}\mat{B}= \Id$ prove equation~(\ref{eq:injective}).
       \begin{answer}
         Assume $\mat{B}\, \bm{x} = \mat{B}\, \bm{y}$ and multiply by $\mat{A}$
@@ -252,10 +252,10 @@
         \bm{a}^\tr\, \mat{U}\, \bm{b}
         = \Tr\bra{\strut \mat{U}^\tr\, \bm{a}\, \bm{b}^\tr}.
       \end{align*}
-      We can show this by writing out this in terms of components (as
+      We can show this by writing this out in terms of components (as
       we did in the lectures), however, we can do this much faster by
       treating $\bm{a}^\tr\, \mat{U}\, \bm{b}$ as a $1\times1$ matrix
-      which is equal to it trace: $\Tr \bm{a}^\tr\, \mat{U}\, \bm{b}$.
+      which is equal to its trace: $\Tr \bm{a}^\tr\, \mat{U}\, \bm{b}$.
       \begin{answer}
         Thus
         \begin{align*}
@@ -363,7 +363,9 @@
         \end{align*}
       \end{answer}}{\lines{10}}
 
-    \qpart[6]{Use this to find the derivative of
+    \qpart[6]{Let $\mat{X}$ be an invertible $n\times n$ matrix and
+      $\bm{a}, \bm{b}\in\mathbb{R}^n$ fixed vectors.  Use the previous
+      part to find the derivative of
       $g(\mat{X}) = \bm{a}^\tr\, \mat{X}^{-1}\, \bm{b}$ with respect to
       the matrix $\mat{X}$.  Replace $\mat{X}$ by
       $\mat{X} + \epsilon\, \mat{U}$, expand to first order in $\epsilon$,
@@ -461,8 +463,8 @@
 
     \qpart[2]{The hard part is to expand $\det\bra{\Id +
         \epsilon\,\mat{M}}$. Write out $\det\bra{\Id +
-        \epsilon\,\mat{M}}$ explicitly for a 2 
-      dimensional matrix and expand to first order in $\epsilon$
+        \epsilon\,\mat{M}}$ explicitly for a $2\times2$
+      matrix and expand to first order in $\epsilon$
       \begin{answer}
         \begin{align*}
           \det\bra{\Id+\epsilon\,\mat{M}}
@@ -485,7 +487,7 @@
           1 + \epsilon\, M_{11} & \epsilon\, M_{12} & \ldots & \epsilon\,M_{1n}  \\
           \epsilon \, M_{21} & 1 + \epsilon\, M_{22} & \ldots &\epsilon\,M_{2n}\\
           \vdots & \vdots & \ddots & \vdots \\
-          \epsilon \, M_{n,1} &  \epsilon\, M_{n2} & \ldots &1+\epsilon\,M_{nn}
+          \epsilon \, M_{n1} &  \epsilon\, M_{n2} & \ldots &1+\epsilon\,M_{nn}
         \end{pmatrix}
       \end{align*}
       up to first order in $\epsilon$.  Recall we can compute the
@@ -661,7 +663,9 @@
       derivative we would compute the ratio for different values of
       $\epsilon$ and then extrapolate this series to when
       $\epsilon\rightarrow0$.  However, for this exercise this is
-      unnecessary.   Let $f(\mat{A}) = \logg{\det(\mat{A})}$, set
+      unnecessary.   Let $f(\mat{A}) = \logg{\det(\mat{A})}$ (a random
+      matrix can have a negative determinant, so use $\logg{|\det(\mat{A})|}$,
+      which has the same derivative), set
       $\mat{U} = \mat{B}$ and compute
       \begin{align*}
         \Tr \mat{U}^\tr \frac{\partial f(\mat{A})}{\partial \mat{A}}

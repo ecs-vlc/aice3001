@@ -71,8 +71,9 @@
       a\times (b + c) = a\times b + a\times c\pauseb
     \end{align*}
   \item Although this sounds rather daunting don't panic\pauseb.  They behave
-    like numbers.\pauseb  The field might be integers, rational numbers,
-    reals, complex numbers or something a bit more exotic\pauseb---but
+    like numbers.\pauseb  The field might be rational numbers,
+    reals, complex numbers or something a bit more exotic (not the
+    integers: $2$ has no integer inverse)\pauseb---but
     we will almost always consider reals\pauseb
   \end{itemize}
 \end{PauseHighLight}
@@ -152,7 +153,9 @@
     \item $(\bm{u}+\bm{v}) + \bm{w} = \bm{u} + (\bm{v} + \bm{w})$\hfill
       (associativity of addition)\pause
     \item $\bm{v} + \bm{0} = \bm{v}$ \hfill(existence of additive identity
-      $\bm{0}$)\pause 
+      $\bm{0}$)\pause
+    \item $\bm{v} + (-\bm{v}) = \bm{0}$ \hfill(existence of additive
+      inverse $-\bm{v}$)\pause
     \item $1 \, \bm{v} = \bm{v}$\hfill (existence of multiplicative identity
       $1$)\pause
     \item $a\,(b\,\bm{v}) = (a\,b)\,\bm{v}$\hfill (associativity)
@@ -325,7 +328,8 @@
   \item These are said to be contractive mappings\pause
   \item A famous theorem that applies to contractive mappings is the
     Banach fixed-point theorem which says there exists a unique fixed
-    point such that $f(x) = x$\pause
+    point such that $f(x) = x$, and repeatedly applying $f$ converges
+    to it\pause
   \item This is used for example in showing that various algorithms
     will converge\pause
   \end{itemize}
@@ -404,7 +408,7 @@
     explain the training data equally well\pause
   \item We usually prefer a ``small'' $\bm{w}$, so we minimise
     \begin{align*}
-      \mathrm{loss}(\bm{w}) + \lambda \, \| \bm{w} \|\pause
+      \mathrm{loss}(\bm{w}) + \eta \, \| \bm{w} \|\pause
     \end{align*}
   \item Equivalently we minimise the loss subject to $\| \bm{w} \|\leq
     c$, confining $\bm{w}$ to a \emph{ball} of whichever norm we
@@ -516,7 +520,8 @@
     \len{\mat{L}_n}_2$, the \emph{spectral norm}---this is just
     compatibility, $\len{\mat{L}\bm{v}} \leq \len{\mat{L}}_2
     \len{\bm{v}}$\pause
-  \item ReLUs and max-pooling neither stretch nor shrink: $K=1$\pause
+  \item ReLUs and max-pooling never stretch distances (though they can
+    shrink them): $K=1$\pause
   \item A network is just a composition of layers, so
     \begin{align*}
       K_{\mathrm{net}} \leq \prod_n \len{\mat{L}_n}_2\pause
@@ -543,8 +548,8 @@
     easily\pause
   \item It is the same quantity that controls the signal: $K\gg1$ and
     signals (and gradients) explode, $K\ll1$ and they vanish\pause
-  \item Wasserstein GANs require the critic to have $K\leq1$.  This is
-    enforced by \emph{spectral normalisation}: divide each
+  \item Wasserstein GANs require the critic to have $K\leq1$.  One way to
+    enforce this is \emph{spectral normalisation}: divide each
     $\mat{L}_n$ by $\len{\mat{L}_n}_2$\pause
   \item Bounds on how well a network generalises also depend on
     $K$\pause

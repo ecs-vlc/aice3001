@@ -3,7 +3,7 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Eigenvectors, Orthogonal Matrices, Eigenvector Decomposition
+  * Eigenvectors, Orthogonal Matrices, Eigenvector Decomposition, Condition Number, Rank, Low Rank Approximation, Non-Normal Matrices
 
 * Main Points
 
@@ -19,7 +19,14 @@
        columns $\bm{v}_i$ we obtain an orthogonal matrix
      * The defining property of an orthogonal matrix is
        $\mat{V}^\tr\mat{V} = \mat{V}\mat{V}^\tr=\mat{I}$
-     * They correspond to rotations (with a possible reflection)
+     * They correspond to rotations (with a possible reflection): they
+       preserve lengths and angles, since
+       $(\mat{V}\bm{x})^\tr(\mat{V}\bm{y}) = \bm{x}^\tr\mat{V}^\tr\mat{V}\,\bm{y}
+       = \bm{x}^\tr\bm{y}$
+     * $\mat{V}^\tr\mat{V}=\mat{I}$ follows directly from the eigenvectors
+       being orthonormal.  $\mat{V}\mat{V}^\tr=\mat{I}$ then follows
+       because $\mat{V}$ is invertible: if $\mat{V}\bm{x}=\bm{0}$ then
+       $\bm{x}=\mat{V}^\tr\mat{V}\bm{x}=\bm{0}$
    * *Matrix Decomposition*
      * We can decompose a symmetric matrix, $\mat{M}$ as
        \begin{align*}
@@ -55,6 +62,163 @@
 	 associated eigenvalue will be small and the inverse inherently
 	 unstable
 
+** Condition Number
+   * Suppose we solve $\mat{M}\,\bm{x} = \bm{b}$ for a symmetric,
+     invertible $\mat{M}$, but $\bm{b}$ carries an error $\delta\bm{b}$.
+     The solution then carries an error
+     $\delta\bm{x} = \mat{M}^{-1}\delta\bm{b}$
+   * In the eigenvector basis $\mat{M}^{-1}$ just multiplies the
+     component along $\bm{v}_i$ by $1/\lambda_i$, so
+     \begin{align*}
+       \len{\delta\bm{x}} \leq \frac{\len{\delta\bm{b}}}{|\lambda_{\min}|}
+       \qquad\text{and}\qquad
+       \len{\bm{b}} = \len{\mat{M}\,\bm{x}} \leq |\lambda_{\max}|\,\len{\bm{x}}
+     \end{align*}
+     Rearranging the second as
+     $1/\len{\bm{x}} \leq |\lambda_{\max}|/\len{\bm{b}}$ and
+     multiplying it by the first gives
+     \begin{align*}
+       \frac{\len{\delta\bm{x}}}{\len{\bm{x}}} \leq
+       \kappa\, \frac{\len{\delta\bm{b}}}{\len{\bm{b}}},
+       \qquad
+       \kappa = \frac{|\lambda_{\max}|}{|\lambda_{\min}|}
+     \end{align*}
+   * $\kappa$ is the /condition number/.  A relative error in the data
+     can be amplified by up to a factor $\kappa$ in the solution
+   * For a symmetric matrix $|\lambda_{\max}|$ is the spectral norm
+     $\len{\mat{M}}_2$ from the vector spaces lecture, and
+     $|\lambda_{\min}|^{-1} = \len{\mat{M}^{-1}}_2$, so
+     $\kappa = \len{\mat{M}}_2\,\len{\mat{M}^{-1}}_2$
+   * Example: in the mappings lecture
+     $\mat{X} = \begin{pmatrix} 1 & 1 \\ 1 & 1.001 \end{pmatrix}$ has
+     eigenvalues $\approx 2.0005$ and $0.0005$, so $\kappa\approx 4000$.
+     Changing $y_2$ by $0.001$ is a relative change of $3.5\times10^{-4}$
+     in $\bm{y}$, but changed $\bm{w}$ from $(1,1)$ to $(0,2)$, a
+     relative change of $1$: an amplification of about $2800$, within
+     the bound
+
+** Rank and Null Space
+   * Writing out $\mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$ column by
+     column gives the useful form
+     \begin{align*}
+       \mat{M} = \sum_{i=1}^n \lambda_i\, \bm{v}_i\,\bm{v}_i^\tr
+     \end{align*}
+     a sum of $n$ rank-one pieces, one per eigenvector
+   * The /rank/ of a symmetric matrix is its number of non-zero
+     eigenvalues.  (For a general square matrix the rank is the number
+     of linearly independent columns; the two agree for symmetric
+     matrices but not in general)
+   * The eigenvectors with zero eigenvalue span the /null space/: any
+     $\bm{x} = \sum_k a_k\,\bm{v}_k$ built from them has
+     $\mat{M}\,\bm{x} = \bm{0}$
+   * A matrix is /rank deficient/ if it has a zero eigenvalue.
+     Equivalently its columns are linearly dependent, or
+     $\det(\mat{M}) = \prod_i\lambda_i = 0$.  It then has no inverse:
+     if $\bm{x}$ solves $\mat{M}\,\bm{x}=\bm{b}$ then so does $\bm{x}$
+     plus anything in the null space
+
+** Pseudo-Inverse of a Symmetric Matrix
+   * If $\mat{M}$ has $k$ non-zero eigenvalues $\lambda_1,\ldots,\lambda_k$
+     we define
+     \begin{align*}
+       \mat{M}^+ = \mat{V}\,\mat{\Lambda}^+\mat{V}^\tr
+       = \sum_{i=1}^k \frac{1}{\lambda_i}\, \bm{v}_i\,\bm{v}_i^\tr,
+       \qquad
+       \mat{\Lambda}^+ = \mathrm{diag}\Big(\tfrac{1}{\lambda_1},\ldots,
+       \tfrac{1}{\lambda_k}, 0,\ldots,0\Big)
+     \end{align*}
+     i.e. invert the non-zero eigenvalues and leave the zero ones at zero
+   * If $\mat{M}\,\bm{x}=\bm{b}$ has solutions, $\bm{x} = \mat{M}^+\bm{b}$
+     is the one with no component in the null space.  Since every other
+     solution adds a null-space vector, which is orthogonal to it, this
+     is the solution with the smallest $\len{\bm{x}}$
+   * If $\bm{b}$ has a component in the null space there is no exact
+     solution, and $\mat{M}^+\bm{b}$ minimises $\len{\mat{M}\,\bm{x}-\bm{b}}$
+     instead
+   * This is the symmetric case of the Moore--Penrose pseudo-inverse
+     described in the SVD notes
+
+** Low Rank Approximation
+   * Keeping only the $k$ largest (in magnitude) eigenvalues gives the
+     rank-$k$ approximation
+     $\mat{M}_k = \sum_{i=1}^k \lambda_i\,\bm{v}_i\,\bm{v}_i^\tr$
+     * It needs only $k$ eigenvalues and $k$ eigenvectors, $k(n+1)$
+       numbers rather than $n^2$
+     * The error, $\mat{M}-\mat{M}_k$, is made of the discarded terms,
+       so it is small when the discarded eigenvalues are small
+   * For an ill-conditioned matrix we can set the tiny eigenvalues to
+     zero and use the pseudo-inverse.  The directions that would have
+     amplified noise by $1/\lambda_i$ are simply ignored
+     * This trades a little bias (we lose whatever true signal lay in
+       those directions) for a large reduction in variance
+     * The experiment below shows it in action.  Ridge regression, in
+       the SVD lecture, is a smoother version of the same idea: it damps
+       small eigenvalues rather than discarding them
+
+** Non-Normal Matrices
+   * Symmetric matrices belong to a larger class, the /normal/
+     matrices, which satisfy
+     $\mat{M}\,\mat{M}^\dagger = \mat{M}^\dagger\mat{M}$, where
+     $\mat{M}^\dagger = (\mat{M}^\tr)^*$ is the conjugate transpose (for
+     real matrices just $\mat{M}^\tr$)
+     * Normal matrices are exactly the matrices with a full set of
+       orthonormal (possibly complex) eigenvectors
+     * Hermitian matrices ($\mat{M}=\mat{M}^\dagger$) are normal; they
+       matter in quantum theory, much less in machine learning
+     * A real matrix can be normal without being symmetric: the
+       rotation $\begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$ is
+       normal, with eigenvalues $\pm\mathrm{i}$
+     * Most non-symmetric real matrices are not normal, and their
+       eigenvectors behave less nicely
+   * *Complex eigenvalues.*  The eigenvalues are the roots of the
+     /characteristic equation/ $\det(\mat{M}-\lambda\,\mat{I})=0$.
+     $(\mat{M}-\lambda\,\mat{I})\,\bm{v}=\bm{0}$ can only have a non-zero
+     solution if $\mat{M}-\lambda\,\mat{I}$ is singular.  This is a
+     polynomial of order $n$ in $\lambda$, so there are $n$ roots
+     (counting repeats), and in general they are complex
+     * If $\mat{M}$ is real and $\lambda$ is complex then $\bm{v}$ is
+       complex too.  Taking the complex conjugate of
+       $\mat{M}\,\bm{v}=\lambda\,\bm{v}$ gives
+       $\mat{M}\,\bm{v}^*=\lambda^*\,\bm{v}^*$, so complex eigenvalues and
+       eigenvectors come in conjugate pairs
+   * *Defective matrices.*  A non-symmetric matrix need not have $n$
+     linearly independent eigenvectors; if it does not it is called
+     /defective/
+     * For example $\begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ has the
+       repeated eigenvalue $1$ but only one eigenvector, $(1,0)^\tr$
+     * A randomly generated matrix is almost never defective, but
+       defective matrices do turn up in structured problems
+   * *Left and right eigenvectors.*  As well as the usual (right)
+     eigenvectors $\mat{M}\,\bm{v}_i=\lambda_i\,\bm{v}_i$ there are left
+     eigenvectors $\bm{u}_i^\tr\mat{M} = \lambda_i\,\bm{u}_i^\tr$, i.e.
+     eigenvectors of $\mat{M}^\tr$.  As
+     $\det(\mat{M}^\tr-\lambda\,\mat{I}) = \det(\mat{M}-\lambda\,\mat{I})$
+     they have the same eigenvalues
+     * For a symmetric matrix the left eigenvectors are just the
+       transposes of the right ones
+     * In general they differ, and the right eigenvectors are not
+       orthogonal to one another.  Instead the two sets are
+       /biorthogonal/: computing $\bm{u}_i^\tr\mat{M}\,\bm{v}_j$ in two
+       ways (exactly as in the proof for symmetric matrices) gives
+       $(\lambda_i-\lambda_j)\,\bm{u}_i^\tr\bm{v}_j = 0$, so
+       $\bm{u}_i^\tr\bm{v}_j=0$ whenever $\lambda_i\neq\lambda_j$
+   * *Eigen-decomposition.*  If $\mat{M}$ is not defective, put the
+     right eigenvectors in the columns of $\mat{V}$.  Then
+     $\mat{M}\,\mat{V} = \mat{V}\,\mat{\Lambda}$ and, as the columns are
+     independent, $\mat{V}$ is invertible, so
+     \begin{align*}
+       \mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^{-1}
+     \end{align*}
+     * $\mat{V}$ is no longer orthogonal, so $\mat{V}^{-1}\neq\mat{V}^\tr$
+     * Multiplying $\mat{M}=\mat{V}\mat{\Lambda}\mat{V}^{-1}$ on the left
+       by $\mat{V}^{-1}$ gives $\mat{V}^{-1}\mat{M} =
+       \mat{\Lambda}\,\mat{V}^{-1}$: the rows of $\mat{V}^{-1}$ are the
+       left eigenvectors, scaled so that $\bm{u}_i^\tr\bm{v}_i=1$
+     * We still get $\mat{M}^k = \mat{V}\,\mat{\Lambda}^k\,\mat{V}^{-1}$,
+       but the geometric picture (rotate, stretch along orthogonal axes,
+       rotate back) is lost.  This is one reason we lean on the singular
+       value decomposition, which works for every matrix
+
 
 * Exercises
 
@@ -71,6 +235,34 @@
 4. Find the eigenvalues and eigenvectors of
    $\mat{M} = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$ and check
    that $\mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$
+5. Non-normal matrices
+   1. For $\mat{M} = \begin{pmatrix} 1 & 2 \\ 0 & 3 \end{pmatrix}$ find
+      the eigenvalues, the right eigenvectors $\bm{v}_1, \bm{v}_2$ and
+      the left eigenvectors $\bm{u}_1, \bm{u}_2$.  Check that
+      $\bm{v}_1^\tr\bm{v}_2\neq0$ but $\bm{u}_1^\tr\bm{v}_2 =
+      \bm{u}_2^\tr\bm{v}_1 = 0$
+   2. Verify that $\mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^{-1}$
+      and that the rows of $\mat{V}^{-1}$ are the left eigenvectors
+   3. Show that $\begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ has only
+      one independent eigenvector
+   4. Show that $\mat{R} = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$
+      is normal but not symmetric, and that $(1,-\mathrm{i})^\tr$ is an
+      eigenvector with eigenvalue $\mathrm{i}$.  What is the other
+      eigenvector?
+6. Show that $\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr = \sum_i \lambda_i\,
+   \bm{v}_i\,\bm{v}_i^\tr$, and use the sum form to check that
+   $\mat{M}\,\bm{v}_j = \lambda_j\,\bm{v}_j$
+7. For $\mat{M} = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix}$
+   1. Find the eigenvalues, eigenvectors, rank and null space
+   2. Find $\mat{M}^+$
+   3. Solve $\mat{M}\,\bm{x} = (2,2)^\tr$.  Write down all the
+      solutions and show $\mat{M}^+(2,2)^\tr$ is the shortest
+   4. What does $\mat{M}^+$ give for $\bm{b} = (1,3)^\tr$, which has no
+      exact solution?
+8. Work through the derivation of the condition-number bound
+   $\len{\delta\bm{x}}/\len{\bm{x}} \leq \kappa\,
+   \len{\delta\bm{b}}/\len{\bm{b}}$.  Find a choice of $\bm{b}$ and
+   $\delta\bm{b}$ for which it is an equality
 
 * Experiments
 
@@ -98,6 +290,54 @@ Z = rand(4,5)   % a design matrix with more unknowns than examples
 W = Z'*Z        % a covariance-like matrix (but without subtracting the mean)
 eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
 #+END_SRC
+
+** Non-Normal Matrices
+   * In python, look at the eigensystem of a random non-symmetric matrix
+
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(2)
+M = rng.normal(size=(4, 4))       # not symmetric
+lam, V = np.linalg.eig(M)         # columns of V are right eigenvectors
+print(lam)                        # complex eigenvalues come in conjugate pairs
+print(np.allclose(M, V @ np.diag(lam) @ np.linalg.inv(V)))   # M = V L V^-1
+U = np.linalg.inv(V)              # rows should be left eigenvectors
+print(np.round(U @ V, 10))        # u_i^T v_j: the identity (biorthogonal)
+print(np.round(V.conj().T @ V, 3))  # but the v_i are not orthogonal
+#+END_SRC
+
+** Low Rank Pseudo-Inverse
+   * Regression with two almost identical features: compare inverting
+     every eigenvalue of $\mat{X}^\tr\mat{X}$ with dropping the tiny one
+
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+m = 50
+X = rng.normal(size=(m, 3))
+X[:, 2] = X[:, 1] + 1e-3 * rng.normal(size=m)   # feature 3 is almost feature 2
+w_true = np.array([1.0, 2.0, 0.0])
+C = X.T @ X                                      # symmetric 3x3
+lam, V = np.linalg.eigh(C)                       # eigenvalues in ascending order
+print(lam, lam[-1] / lam[0])                     # tiny eigenvalue; condition no.
+for trial in range(3):                           # same X, fresh noise each time
+    y = X @ w_true + 0.1 * rng.normal(size=m)
+    w_full = V @ np.diag(1 / lam) @ V.T @ X.T @ y  # invert all eigenvalues
+    lam_plus = np.where(lam > 1e-2 * lam[-1], 1 / lam, 0)  # drop the tiny one
+    w_trunc = V @ np.diag(lam_plus) @ V.T @ X.T @ y
+    print(np.round(w_full, 2), np.round(w_trunc, 2))
+#+END_SRC
+
+   * The condition number is about $3\times10^6$.  With every eigenvalue
+     inverted the last two weights jump around from one noise sample to
+     the next (e.g. $(6.27,-4.26)$ then $(-1.38, 3.36)$), though their sum
+     stays near 2.  Dropping the tiny eigenvalue gives about $(1,1)$
+     every time
+   * Neither recovers the true $(2,0)$: the data cannot tell the two
+     features apart.  The truncated answer splits the weight equally,
+     the minimum-norm choice, and predicts just as well
 
 * Answers
 
@@ -130,5 +370,64 @@ eig(W)          % compute eigenvalues (one should be 0 up to machine precision)
      \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}
      = \frac{1}{2}\begin{pmatrix} 4 & 2 \\ 2 & 4 \end{pmatrix} = \mat{M}
    \end{align*}
+5. Non-normal matrices
+   1. $\mat{M}$ is upper triangular, so $\det(\mat{M}-\lambda\mat{I}) =
+      (1-\lambda)(3-\lambda)$ and the eigenvalues are $1$ and $3$.  Right
+      eigenvectors: $\bm{v}_1 = (1,0)^\tr$ and $\bm{v}_2 = (1,1)^\tr$.
+      Left eigenvectors (eigenvectors of $\mat{M}^\tr$):
+      $\bm{u}_1 = (1,-1)^\tr$ and $\bm{u}_2 = (0,1)^\tr$.  Then
+      $\bm{v}_1^\tr\bm{v}_2 = 1 \neq 0$, while $\bm{u}_1^\tr\bm{v}_2 =
+      1-1 = 0$ and $\bm{u}_2^\tr\bm{v}_1 = 0$.  (With these choices
+      $\bm{u}_1^\tr\bm{v}_1 = \bm{u}_2^\tr\bm{v}_2 = 1$ already.)
+   2. $\mat{V} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$,
+      $\mat{V}^{-1} = \begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix}$,
+      whose rows are $\bm{u}_1^\tr$ and $\bm{u}_2^\tr$, and
+      \begin{align*}
+        \mat{V}\,\mat{\Lambda}\,\mat{V}^{-1} =
+        \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}
+        \begin{pmatrix} 1 & 0 \\ 0 & 3 \end{pmatrix}
+        \begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix}
+        = \begin{pmatrix} 1 & 3 \\ 0 & 3 \end{pmatrix}
+        \begin{pmatrix} 1 & -1 \\ 0 & 1 \end{pmatrix}
+        = \begin{pmatrix} 1 & 2 \\ 0 & 3 \end{pmatrix} = \mat{M}
+      \end{align*}
+   3. The only eigenvalue is $1$ (twice).  An eigenvector must satisfy
+      $\begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}\bm{v} = \bm{0}$, i.e.
+      $v_2 = 0$, so every eigenvector is a multiple of $(1,0)^\tr$
+   4. $\mat{R}\,\mat{R}^\tr = \mat{R}^\tr\mat{R} = \mat{I}$ (it is a
+      rotation by $90^\circ$), but $\mat{R}^\tr \neq \mat{R}$.
+      $\mat{R}\,(1,-\mathrm{i})^\tr = (\mathrm{i}, 1)^\tr =
+      \mathrm{i}\,(1,-\mathrm{i})^\tr$.  The other eigenvector is the
+      complex conjugate, $(1,\mathrm{i})^\tr$, with eigenvalue
+      $-\mathrm{i}$.  As $\mat{R}$ is normal these two are orthogonal,
+      using the complex inner product (conjugate the first vector):
+      $(1,\mathrm{i})^\dagger (1,-\mathrm{i})^\tr = 1\cdot1 +
+      (-\mathrm{i})(-\mathrm{i}) = 1 - 1 = 0$
+6. $\mat{V}\,\mat{\Lambda}$ has columns $\lambda_i\bm{v}_i$, and a matrix
+   with columns $\bm{a}_i$ times one with rows $\bm{v}_i^\tr$ is
+   $\sum_i \bm{a}_i\bm{v}_i^\tr$.  So $\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr
+   = \sum_i\lambda_i\,\bm{v}_i\bm{v}_i^\tr$.  Then
+   $\mat{M}\,\bm{v}_j = \sum_i \lambda_i\,\bm{v}_i\,(\bm{v}_i^\tr\bm{v}_j)
+   = \lambda_j\,\bm{v}_j$, since $\bm{v}_i^\tr\bm{v}_j = 0$ unless $i=j$
+7. Rank-deficient example
+   1. $\lambda=2$ with $\bm{v}_1 = (1,1)^\tr/\sqrt{2}$, and $\lambda=0$
+      with $\bm{v}_2 = (1,-1)^\tr/\sqrt{2}$.  The rank is 1 and the null
+      space is all multiples of $(1,-1)^\tr$
+   2. $\mat{M}^+ = \tfrac{1}{2}\bm{v}_1\bm{v}_1^\tr =
+      \tfrac{1}{4}\begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix}$
+   3. The solutions are $x_1+x_2 = 2$, i.e. $(1,1)^\tr + t\,(1,-1)^\tr$
+      for any $t$, with $\len{\bm{x}}^2 = 2 + 2t^2$.  This is smallest at
+      $t=0$, and $\mat{M}^+(2,2)^\tr = \tfrac14(4,4)^\tr = (1,1)^\tr$
+   4. $\mat{M}^+(1,3)^\tr = \tfrac14(4,4)^\tr = (1,1)^\tr$, giving
+      $\mat{M}\,\bm{x} = (2,2)^\tr$.  That is the closest point to
+      $(1,3)^\tr$ that $\mat{M}$ can reach: the projection of $(1,3)^\tr$
+      onto $(1,1)^\tr$
+8. Equality needs both inequalities to be tight: $\bm{x}$ along the
+   eigenvector of $\lambda_{\max}$, so that
+   $\len{\mat{M}\bm{x}} = |\lambda_{\max}|\len{\bm{x}}$, and $\delta\bm{b}$ along the eigenvector
+   of $\lambda_{\min}$.  So take $\bm{b} = \bm{v}_{\max}$ and
+   $\delta\bm{b} = \epsilon\,\bm{v}_{\min}$: the signal lies in the
+   direction $\mat{M}$ stretches most and the noise in the one it
+   stretches least
 
 * COMMENT [[file:mappings.org][Previous]]  [[file:pca.org][Next]]

@@ -387,9 +387,9 @@ defines a surface\pause
   variation in the direction of the corresponding eigenvector\pause
 \item A covariance matrix will have zero eigenvalues if the number of
   patterns are less than or equal to the number of dimensions\pause
-\item A covariance matrix formed from $p+1$ patterns that are linearly
-  independent (i.e.\ you cannot form any one out of $p$ of the other
-  patterns) will have no zero eigenvalues
+\item A covariance matrix formed from $p+1$ patterns that do not all
+  lie in a hyperplane (i.e.\ the $p$ differences $\bm{x}_k - \bm{x}_1$
+  are linearly independent) will have no zero eigenvalues
   \begin{center}
     \setlength{\unitlength}{1mm}
     \begin{picture}(140,60)
@@ -430,7 +430,7 @@ defines a surface\pause
   matrices (as opposed to rank deficient)\pause
 \item Full rank matrices are invertible, rank deficient matrices are
   singular and non-invertible\pause
-\item Full rank covariance matrices that have positive eigenvalues only and are
+\item Full rank covariance matrices have only positive eigenvalues and are
   said to be \emph{positive definite}\pause
 \item We would expect that when $m>p$ the covariance matrix will be
   positive definite\pause{} unless there are some symmetries that linearly constrain the
@@ -543,8 +543,8 @@ defines a surface\pause
       \hat{\bm{x}}_i  &= \bm{\mu} + \sum_{j=1}^k z_j^i\,\bm{v}_j , &
       z_j^i &= \bm{v}_j^\tr (\bm{x}_i-\bm{\mu}), &  \|\bm{v}_j\|&=1    \pause
     \end{align*}
-  \item Principle component analysis projects the data into a subspace
-    of size $m$ with the minimal approximation error
+  \item Principal component analysis projects the data into the subspace
+    of dimension $k$ with the minimal approximation error
     $\av{\|\hat{\bm{x}}_i-\bm{x}_i\|^2}$ \pause
     \item The loss of ``energy'' (or squared error) is equal to the sum of the eigenvalues
       in the directions that are ignored\pause
@@ -643,7 +643,7 @@ defines a surface\pause
 \begin{PauseHighLight}
   \begin{itemize}
   \item Matrices $\mat{C} = \mat{X}\,\mat{X}^\tr$ and $\mat{D} =
-    \mat{X}^\tr\,\mat{X}$ have the same eigenvalues\pause
+    \mat{X}^\tr\,\mat{X}$ have the same non-zero eigenvalues\pause
   \item Can use the dual $m\times m$ matrix $\mat{D}$ to find eigenvalues
     and eigenvectors of $\mat{C}$\pause
   \item Note that $\mat{D} = \mat{X}^\tr\,\mat{X}$ has components
@@ -664,11 +664,11 @@ defines a surface\pause
 \begin{itemize}
 \item Consider $\bm{y}^1=
   \begin{psmallmatrix}
-    2\\ 4\\ 4
+    2\\ 4\\ 5
   \end{psmallmatrix}$,
   $\bm{y}^2=
   \begin{psmallmatrix}
-    8\\ 6\\ 2
+    8\\ 6\\ 1
   \end{psmallmatrix}$ with mean
   $\bm{\mu}=
   \begin{psmallmatrix}

@@ -8,7 +8,7 @@
 \begin{center}
   \includegraphics[height=10cm]{exp_taylor-5}
 \end{center}
-\keywords{Converge, residue, high-dimensions, Hessian}
+\keywords{Convergence, remainder, high-dimensions, Hessian}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -188,7 +188,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Guaranteed Convergences of Taylor Functions}
+\section[-2]{Guaranteed Convergence of Taylor Series}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -214,11 +214,13 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item The hyperbolic tangent, $\tanh$, is related to the normal
-    tangent function through $\tanh(x) = \ii \, \tan(\ii x)$\pause
+    tangent function through $\tanh(x) = -\ii \, \tan(\ii x)$\pause
   \item The function (along the real line) doesn't have any
     singularities\pause
-  \item But we know that $\tan(x)$ has a singularites at $\frac{\pi}{2} \pm
-    k\,\pi$ where $k$ is any integer\pause
+  \item But we know that $\tan(x)$ has singularities at $\frac{\pi}{2} +
+    k\,\pi$ where $k$ is any integer, so $\tanh(x)$ has singularities at
+    $x = \pm\ii\,\frac{\pi}{2}, \pm\ii\,\frac{3\pi}{2}, \ldots$ on the
+    imaginary axis\pause
   \item Thus a Taylor expansion of $\tanh(x)$ around $x=0$ is
     guaranteed to converge in a circle of radius $\pi/2$\pause, but not
     necessarily for larger values of $x$\pause
@@ -242,7 +244,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Residue}
+\section[-2]{Remainder}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -252,7 +254,7 @@
       \frac{(x-x^*)^n}{n!} \, f^{(n)}(\theta_x)
     \end{align*}
     $\theta_x$ is a number in the interval between $x^*$ and $x$\pause
-  \item The last term known as the \emph{residue} can often be very useful
+  \item The last term, known as the \emph{remainder}, can often be very useful
     \begin{rightImage}[0.3]{expBound2}
         \begin{align*}
           \e{x} &= 1 + x + \frac{x^2}{2}\e{\theta_x}\pause\\
@@ -283,7 +285,7 @@
           \log(x) &\leq x-1\pauseb &&\text{or} & \log(1+x) &\leq x\pauseb
         \end{align*}
     \end{rightImage}\pause
-  \item The proof of the residue for Taylors come from applying
+  \item The proof of the remainder term comes from applying
     multiple integrals to the term $f^{(n)}(x)$\pauseb. For the sake
     of time I will skip this\pauseb     
   \end{itemize}
@@ -301,7 +303,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Just as we defined a Taylor expansion by approximating the
-    function to a polynomial we can do the same for a function
+    function by a polynomial we can do the same for a function
     $f:\mathbb{R}^n \rightarrow \mathbb{R}$
     \begin{align*}
       f(\bm{x}) &\approx c^{(0)} + \sum_{i=1}^n c^{(1)}_i \, (x_i - x_i^*)
@@ -313,7 +315,8 @@
     \begin{align*}
       f(\bm{x}^*) &= c^{(0)} \pause\\
       \frac{\partial f(\bm{x}^*)}{\partial x_i} &= c^{(1)}_i \pauseb\\
-      \frac{\partial^2 f(\bm{x}^*)}{\partial x_i\partial x_j} &= 2\,c^{(2)}_{ij}\pauseb
+      \frac{\partial^2 f(\bm{x}^*)}{\partial x_i\partial x_j} &= 2\,c^{(2)}_{ij}
+      \quad\text{(choosing $c^{(2)}_{ij} = c^{(2)}_{ji}$)}\pauseb
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -357,7 +360,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item For smooth functions in $n$ dimensions the equation
-    $f(\bm{x}) = c$ defines a $(n-1)$-dimensional hyper-surface\pause{}
+    $f(\bm{x}) = c$ defines an $(n-1)$-dimensional hyper-surface\pause{}
     (because we have imposed one constraint)\pauseb
   \item This can be thought of as the high dimensional analogue of a
     contour line\pause
@@ -380,7 +383,7 @@
   \begin{itemize}
   \item Thus if $\bm{x}$ is in the tangent plane $T_{\bm{x^*}}$ then
     \begin{align*}
-      f(\bm{x}) &\approx f(\bm{x}^*) + O\bra{(\bm{x}-\bm{x}^*)^2}\pause
+      f(\bm{x}) &= f(\bm{x}^*) + O\bra{\|\bm{x}-\bm{x}^*\|^2}\pause
     \end{align*}
   \item Or $(\bm{x}-\bm{x}^*)^\tr \grad f(\bm{x}^*)=0$\pause
   \item That is the tangent plane at a point $\bm{x}^*$ is the set of
@@ -417,8 +420,8 @@
       f(\bm{x}^* + \epsilon\, \bm{u}) = f(\bm{x}^*) + \epsilon\,
       \bm{u}^\tr \grad f(\bm{x}^*) + O(\epsilon^2)\pause
     \end{align*}
-  \item The direction where local the function grows fastest is when
-    $\bm{u}$ is in the direction $\grad f(\bm{x}^*)$\pause
+  \item For a step $\bm{u}$ of fixed length, the function locally grows
+    fastest when $\bm{u}$ is in the direction $\grad f(\bm{x}^*)$\pause
   \item Likewise when $\bm{u}$ is in the direction $-\grad
     f(\bm{x}^*)$ the function decreases as fast as possible\pause
   \item This is only true locally (when $\epsilon \gg \epsilon^2$)\pause
@@ -449,7 +452,7 @@
   \begin{itemize}
   \item The second order term in the Taylor expansion tells us about
     the \emph{curvature} of the function\pause
-  \item This is very relevant when we are at an \emph{extremal point},
+  \item This is very relevant when we are at a \emph{stationary point},
     $\bm{x}^*$, where $\grad f(\bm{x}^*) = \bm{0}$ so that
     \begin{align*}
       f(\bm{x}) = f(\bm{x}^*) + \frac{1}{2} (\bm{x} - \bm{x}^*)^\tr
@@ -476,12 +479,12 @@
   \begin{itemize}\squeeze
   \item We will revisit eigen-systems, but recall that for a square
     matrix an eigenvector, $\bm{v}_i$, of a matrix $\mat{H}$
-    is define such that
+    is defined such that
     \begin{align*}
       \mat{H} \, \bm{v}_i = \lambda_i \, \bm{v}_i\pause
     \end{align*}
-  \item For an $n\times n$ symmetric matrices (such as the Hessian),
-    the eigenvalues are all real, and we can choose $n$ orthogonal
+  \item For an $n\times n$ symmetric matrix (such as the Hessian),
+    the eigenvalues are all real, and we can choose $n$ orthonormal
     eigenvectors such that $\bm{v}_i^\tr\bm{v}_j = \delta_{ij}\pause = \pred{i=j}$\pauseb
   \item We note that
     \begin{align*}
@@ -538,7 +541,9 @@
     \emph{positive definite}\pauseb{} or $\mat{H}\succ 0$\pauseb
   \item Similarly if all the eigenvalues are less than zero ($\mat{H}$
     is \emph{negative definite}, $\mat{H}\prec 0$), then $\bm{x}^*$ will be a local maximum\pause
-  \item Otherwise $\bm{x}^*$ is a saddle-point\pause
+  \item If there are both positive and negative eigenvalues then
+    $\bm{x}^*$ is a saddle-point\pause{} (if some eigenvalues are zero we
+    need higher order terms to decide)\pauseb
   \end{itemize}
   \begin{center}
     \includegraphics[width=0.9\linewidth]{extremal_points}
@@ -556,7 +561,7 @@
   \begin{itemize}
   \item We are often given a loss function, $L(\bm{w})$, which we wish
     to minimise\pause
-  \item The condition for $\bm{w}^*$ to be a minimum is that $\grad
+  \item A sufficient condition for $\bm{w}^*$ to be a local minimum is that $\grad
     L(\bm{w}^*)=\bm{0}$\pause{} and $\mat{H}\succ0$ where $\mat{H}$ is the
     Hessian of $L(\bm{w})$ at the point $\bm{w}^*$\pauseb
   \item Except for a few very simple loss functions, there are likely
@@ -598,15 +603,15 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item For functions that are continuous (as least almost everywhere)
+  \item For functions that are smooth (at least almost everywhere)
     Taylor series are really useful in understanding the local
     behaviour of the function\pause
   \item The gradient defines the direction in which a function
     increases fastest\pause
   \item This will be orthogonal to the tangent plane, where locally
     the function is a constant\pause
-  \item The Hessian (not to be mistaken with the Jacobian) is the
-    matrices of second derivative defining the curvature away from the
+  \item The Hessian (not to be confused with the Jacobian) is the
+    matrix of second derivatives defining the curvature away from the
     tangent plane\pause
   \end{itemize}
 \end{PauseHighLight}

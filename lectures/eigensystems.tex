@@ -21,6 +21,7 @@
     \outlineitem{Orthogonal Matrices}{orthogonal}
     \outlineitem{Eigen Decomposition}{decomposition}
     \outlineitem{Low Rank Approximation}{lowrank}
+    \outlineitem{Non-Normal Matrices}{nonnormal}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{10cm}
@@ -42,7 +43,7 @@
 
   \begin{itemize}
   \item Eigen-systems help us to understand mappings\pauseh
-  \item A vector $\bm{v}$ is said to be an \emph{eigenvector} if
+  \item A non-zero vector $\bm{v}$ is said to be an \emph{eigenvector} if
     \begin{minipage}{0.5\linewidth}
       \begin{displaymath}
         \mat{M} \bm{v} = \lambda \, \bm{v}\pauseh
@@ -124,13 +125,13 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item We can construct an \emph{orthogonal} matrix $\mat{V}$ from the
-    eigenvectors
+    normalised eigenvectors ($\bm{v}_i^\tr\bm{v}_i = 1$)
     \begin{displaymath}
       \mat{V} = (\bm{v}_1, \bm{v}_2 , \cdots, \bm{v}_n)\pause
     \end{displaymath}
     \vspace*{-1cm}
   \item Matrix $\mat{V}$ is an $n\stimes n$ matrix\pause
-  \item Because of the orthogonality of the vectors $\bm{v}_i$
+  \item Because the vectors $\bm{v}_i$ are orthogonal and normalised
     \begin{displaymath}
       \mat{V}^\tr \, \mat{V} \pause =
       \begin{pmatrix}
@@ -170,7 +171,7 @@
     \begin{align*}
       \mat{V}\,\mat{V}^\tr \, \mat{V} = \mat{V}\pause
     \end{align*}
-  \item $\mat{V}$ will have an inverse,
+  \item $\mat{V}$ will have an inverse (we show this on the next slide),
     $\mat{V}^{-1}$, such that
     $\mat{V} \, \mat{V}^{-1} = \mat{I}$\pause
   \item Multiplying the equation on the right by $\mat{V}^{-1}$
@@ -193,19 +194,19 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item A matrix, $\mat{M}$, will be singular (uninvertible) if there
+  \item A matrix, $\mat{M}$, will be singular (not invertible) if there
     exists a vector $\bm{x}$ ($\neq\bm{0}$) such that
     \begin{align*}
       \mat{M}\,\bm{x} = \bm{0}\pause
     \end{align*}
   \item Now if there exists such a vector such that $\mat{V}\,\bm{x} =
-    \bm{0}$ then multiply by $\mat{V}^\tr$ we get
+    \bm{0}$ then multiplying by $\mat{V}^\tr$ we get
     \begin{align*}
       \mat{V}^\tr\, \mat{V}\, \bm{x} &= \mat{V}^\tr\, \bm{0} \pause \\
       \bm{x} &= \bm{0}
     \end{align*}
     since $\mat{V}^\tr\, \mat{V} = \mat{I}$\pauseb
-  \item Thus $\bm{V}$ is invertible\pauseb
+  \item Thus $\mat{V}$ is invertible\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -222,7 +223,7 @@
   \begin{itemize}
   \item Orthogonal matrices satisfy $\mat{V}^\tr \mat{V} = \mat{V}\,
     \mat{V}^\tr=\mat{I}$\pause
-  \item As a consequent they define rotations (and possibly a reflection)\pause
+  \item As a consequence they define rotations (and possibly a reflection)\pause
   \item Consider a vector $\bm{x}$ and $\bm{x}'=\mat{V}\bm{x}$, now
     \begin{align*}
       \| \bm{x}' \|_2^2 = \bm{x}^{\prime\tr}\bm{x}'\pause
@@ -254,11 +255,11 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Taking the matrix of eigenvectors, $\bm{V}$, then
+  \item Taking the matrix of eigenvectors, $\mat{V}$, then
     \begin{align*}
-      \mat{M}\, \mat{V}  &= \mat{M} (\bm{v_1},\bm{v}_2,\ldots,\bm{v}_n)\pause
+      \mat{M}\, \mat{V}  &= \mat{M} (\bm{v}_1,\bm{v}_2,\ldots,\bm{v}_n)\pause
       =
-      (\lambda_1\,\bm{v_1},\lambda_2\,\bm{v}_2,\ldots,\lambda_n\,\bm{v}_n)\pause
+      (\lambda_1\,\bm{v}_1,\lambda_2\,\bm{v}_2,\ldots,\lambda_n\,\bm{v}_n)\pause
       = \mat{V} \,\mat{\Lambda}
     \end{align*}
   \item where $\mat{\Lambda} = \mathrm{diag}(\lambda_1,
@@ -322,7 +323,7 @@
        &= \mat{V}\,\mat{\Lambda}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr\pause
        = \mat{V}\,\mat{V}^\tr = \mat{I}\pause
     \end{align*}
-  \item I.e, Small eigenvalues become large eigenvalues and visa verse\pause
+  \item I.e.{} small eigenvalues become large eigenvalues and vice versa\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -352,11 +353,11 @@
   \item The stability of the inverse depends on the ratio of smallest
     eigenvalue to the largest eigenvalue (i.e. the biggest possible
     amplification compared to the smallest)\pause
-  \item For invertible matrices we can take the largest eigenvalue as
-    a norm of the matrix\pause
+  \item For symmetric matrices the largest $|\lambda|$ is the spectral
+    norm, $\|\mat{M}\|_2$, from the vector spaces lecture\pause
   \item The condition number is given by
     \begin{align*}
-      \|\mat{M}\|_H \times \|\mat{M}^{-1}\|_H =
+      \|\mat{M}\|_2 \times \|\mat{M}^{-1}\|_2 =
       \frac{|\lambda_{\text{\small max}}|}{|\lambda_{\text{\small min}}|}\pause
     \end{align*}
   \item Large condition number implies very ill-conditioned\pause
@@ -374,11 +375,11 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item The rank of a matrix, $\mat{M}$, is the number of non-zero
+  \item The rank of a symmetric matrix, $\mat{M}$, is the number of non-zero
     eigenvalues\pause
   \item The space spanned by the eigenvectors $\bm{v}_a$, $\bm{v}_b$,
     etc.{} with zero eigenvalue forms a \emph{null space}\pause
-  \item Any vector in the null space will get projected to the zero
+  \item Any vector in the null space will get mapped to the zero
     vector
     \begin{align*}
       \mat{M} \, (a\, \bm{v}_a + b \, \bm{v}_b + \cdots) = \bm{0}\pause
@@ -402,15 +403,17 @@
     the vector $\bm{x}$ such that $\mat{M} \bm{x} = \bm{b}$) as we don't know
     the component of the $\bm{x}$ in the null space\pause
   \item Although we don't know $\bm{x}$ we can find a vector,
-    $\bm{x}$, that satisfies $\mat{M} \bm{x} = \bm{b}$\pause
+    $\bm{x}$, that satisfies $\mat{M} \bm{x} = \bm{b}$ (provided one
+    exists)\pause
   \item Given a symmetric $n\times n$ matrix with $k$ non-zero eigenvalues
     $\lambda_1$, $\lambda_2$, $\ldots$, $\lambda_k$ we can construct
-    a ``pseudo inverse'' $\mat{M}^{+}$ as $\mat{V} \mat{\Lambda}^+
+    a ``pseudo-inverse'' $\mat{M}^{+}$ as $\mat{V} \mat{\Lambda}^+
     \mat{V}^\tr$ where  $\mat{\Lambda}^{+} = \diag(\tfrac{1}{\lambda_1},
     \tfrac{1}{\lambda_2}, \ldots, \tfrac{1}{\lambda_k}, 0, \ldots,0)$\pause
   \item This finds the vector $\bm{x}$ with no component in the null
     space\pause{} (it is the solution with the smallest norm)\pauseb
-  \item This is different to the pseudo inverse for non-square matrices\pause
+  \item This and $(\mat{X}^\tr\mat{X})^{-1}\mat{X}^\tr$ are special
+    cases of the pseudo-inverse we meet with SVD\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -423,11 +426,11 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Recall that matrices with large and small eigenvectors are
-    ill-conditions so the inverse has the potential to greatly amplify any
+  \item Recall that matrices with large and small eigenvalues are
+    ill-conditioned so the inverse has the potential to greatly amplify any
     measurement error\pause
   \item One work around is to set all small eigenvalues to zero and
-    use the pseudo inverse\pause
+    use the pseudo-inverse\pause
   \item Setting small eigenvalues to zero reduces the rank of the
     matrix and is an example of a low rank approximation\pause
   \item Low rank approximations are much used to obtain approximate
@@ -437,13 +440,160 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Non-Normal Matrices
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{slide}
+\section[-2]{Non-Normal Matrices}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Symmetric matrices are part of a class of matrices known as
+    \emph{normal matrices}, which satisfy $\mat{M}\,\mat{M}^\dagger =
+    \mat{M}^\dagger\mat{M}$\pause{} (for real matrices
+    $\mat{M}^\dagger = \mat{M}^\tr$)\pauseb
+  \item Hermitian matrices, $\mat{H}$, are complex matrices that equal
+    their conjugate transpose: $\mat{H} = (\mat{H}^\tr)^*
+    =\mat{H}^\dagger$\pause
+  \item Hermitian matrices are also normal; they are important in
+    quantum theory, less so in machine learning\pause
+  \item Normal matrices are exactly those with a full set of orthonormal
+    (possibly complex) eigenvectors\pause
+  \item Most non-symmetric real matrices are not normal (rotations are
+    an exception); their eigenvectors are more confusing\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Asymmetric Matrices}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item For $n\times n$ real symmetric matrices we are guaranteed there are
+    $n$ orthogonal real eigenvectors\pause
+  \item For non-symmetric matrices the eigenvectors will generally not
+    be orthogonal, they won't necessarily be real\pause
+  \item We are not even guaranteed there will be $n$ linearly
+    independent eigenvectors\pause
+  \item Matrices which don't have $n$ linearly independent
+    eigenvectors are said to be \emph{defective}, e.g.{}
+    $\begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ has only one\pause
+  \item Randomly generated matrices will typically not be defective,
+    but nevertheless they can arise in certain situations\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Characteristic Equation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Since our eigenvectors are defined by  $\mat{M}\,\bm{v} =
+    \lambda\,\bm{v}$ then
+    \begin{align*}
+      \bra{\strut \mat{M}-\lambda\mat{I}} \bm{v} &= \bm{0}
+      & &\text{has a solution $\bm{v}\neq\bm{0}$ only if} &
+      \det\bra{\strut \mat{M}-\lambda\mat{I}} = 0\pause
+    \end{align*}
+  \item This is known as the characteristic equation and leads to an
+    $n^{th}$ order polynomial in $\lambda$\pause
+  \item An $n^{th}$ order polynomial has $n$ roots (counting repeats),
+    which are in general complex\pause
+  \item Thus even for real (non-symmetric) matrices we can get complex
+    eigenvalues\pause 
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Complex Conjugate Pairs}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item If $\mat{M}$ is real and $\lambda$ is complex then $\bm{v}$ must
+    be complex too, otherwise $\mat{M}\,\bm{v}$ would be real but
+    $\lambda\,\bm{v}$ would not\pause
+  \item Furthermore
+    \begin{align*}
+      \mat{M}\,\bm{v} &= \lambda\,\bm{v} & &\implies& \mat{M}\,\bm{v}^* &= \lambda^*\,\bm{v}^*\pause
+    \end{align*}
+  \item So that eigenvectors and their corresponding eigenvalues exist
+    in complex conjugate pairs\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Left and Right Eigenvectors}
+  
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item For symmetric matrices if $\bm{v}$ is a right-hand eigenvector
+    in the sense that $\mat{M}\,\bm{v} = \lambda\, \bm{v}$ then
+    $\bm{v}^\tr$ is a left-hand eigenvector
+    \begin{align*}
+      \bm{v}^\tr \mat{M} = \lambda\, \bm{v}^\tr\pause
+    \end{align*}
+  \item Earlier we used this property to show that the eigenvectors
+    for symmetric matrices are orthogonal\pause
+  \item For asymmetric real matrices the left-hand eigenvectors
+    $\bm{u}^\tr$ are different from the right-hand eigenvectors, although
+    they share the same eigenvalues (they have the same characteristic
+    equation)
+    \begin{align*}
+      \mat{M}\,\bm{v} &= \lambda\, \bm{v}
+      & \bm{u}^\tr\,\mat{M} = \lambda \, \bm{u}^\tr\pause
+    \end{align*}
+  \item As before, $\bm{u}_i^\tr\bm{v}_j = 0$ if
+    $\lambda_i\neq\lambda_j$, but in general
+    $\bm{v}_i^\tr\,\bm{v}_j\neq 0$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Eigen-Decomposition}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item For a non-symmetric matrix, $\mat{M}$, provided it is
+    not defective, we can decompose the matrix as
+    \begin{align*}
+      \mat{M} = \mat{V}\,\mat{\Lambda}\,\mat{V}^{-1}\pause
+    \end{align*}
+  \item $\mat{\Lambda}$ is a diagonal matrix of eigenvalues\pause
+  \item $\mat{V}$ is a matrix whose columns are the right-hand
+    eigenvectors\pause---in general it is not an orthogonal matrix\pauseb
+  \item $\mat{V}^{-1}$ is a matrix whose rows are the left-hand
+    eigenvectors\pause{} (scaled so that $\bm{u}_i^\tr\bm{v}_i = 1$)\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Summary}
+\section[-2]{Summary}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -453,10 +603,13 @@
   \item Any symmetric matrix can be decomposed as $\mat{M} = \mat{V}
     \mat{\Lambda} \mat{V}^\tr$
     \begin{itemize}
-    \item where $\mat{V}$ are orthogonal matrices whose rows are the eigenvector
+    \item where $\mat{V}$ is an orthogonal matrix whose columns are the eigenvectors
     \item and $\mat{\Lambda}$ is a diagonal matrix of the eigenvalues\pause
     \end{itemize}
-  \item This decomposition allows us to understand inverse mappings\pause
+  \item This decomposition allows us to understand inverse
+    mappings\pause
+  \item Non-symmetric matrices are more complex\pause---we use the
+    eigen-decomposition less because of this\pauseb
   \end{itemize}
 \end{PauseHighLight}
 

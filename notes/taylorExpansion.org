@@ -3,7 +3,7 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Taylor expansion, convergence, residue, gradient, tangent plane, Hessian, minima, maxima, saddle points
+  * Taylor expansion, convergence, remainder, gradient, tangent plane, Hessian, minima, maxima, saddle points
 
 * Main Points
 
@@ -69,12 +69,12 @@
      #+ATTR_LATEX: :width 0.7\linewidth
      [[file:figures/tanh_taylor-6.pdf]]
 
-** The Residue
+** The Remainder
    * A Taylor expansion comes with an exact error term.  Stopping after
      $n$ terms,
      $$ f(x) = \sum_{i=0}^{n-1} \frac{(x-x^*)^i}{i!} f^{(i)}(x^*) + \frac{(x-x^*)^n}{n!} f^{(n)}(\theta_x) $$
      where $\theta_x$ is some number between $x^*$ and $x$
-   * This last term, the /residue/ (or remainder), is very useful for
+   * This last term, the /remainder/, is very useful for
      proving inequalities, because we often know the sign of
      $f^{(n)}$ even when we don't know $\theta_x$
    * Expanding $\e{x}$ about 0,
@@ -88,7 +88,7 @@
      so $\log(x) \leq x-1$, or equivalently $\log(1+x) \leq x$
      #+ATTR_LATEX: :width 0.4\linewidth
      [[file:figures/logBound.pdf]]
-   * The proof of the residue formula comes from integrating
+   * The proof of the remainder formula comes from integrating
      $f^{(n)}$ repeatedly; it was skipped in the lecture
 
 ** High Dimensional Taylor Expansion
@@ -172,8 +172,8 @@
      the $x^4$ term.  Without doing any further calculation, for what
      values of $x$ must the series converge?
 
-** A bound from the residue
-   * Use the residue form of Taylor's expansion to show that
+** A bound from the remainder
+   * Use the remainder form of Taylor's expansion to show that
      $\cos(x) \geq 1 - x^2/2$ for all real $x$
 
 ** Classifying a stationary point
@@ -195,7 +195,7 @@
    * $\log(1+z)$ is singular at $z=-1$, a distance 1 from the expansion
      point, so the series converges for $|x| < 1$
 
-** A bound from the residue
+** A bound from the remainder
    * With $f(x) = \cos(x)$ we have $f(0)=1$, $f'(0) = 0$ and
      $f''(\theta) = -\cos(\theta)$.  Stopping after two terms,
      $$ \cos(x) = 1 + 0\cdot x - \frac{x^2}{2}\cos(\theta_x) $$

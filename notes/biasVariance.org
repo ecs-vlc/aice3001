@@ -45,7 +45,7 @@
 
 
 
-** Bias-Variance Dilemms
+** Bias-Variance Dilemma
     - We assume that we are trying to learn some function $f(\bm{x})$
        where $\bm{x}$ are feature vectors
     - Our task is to learn a function $\hat{f}\left(\bm{x} |
