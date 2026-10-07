@@ -141,7 +141,7 @@
     \end{center}
     \vspace*{-5mm}
   \item Since the vectors $\binom{\bm{u}_i}{\bm{v}_i}$ are
-    eigenvectors of a symmetric matrix they from an orthogonal matrix
+    eigenvectors of a symmetric matrix they form an orthogonal matrix
     if they are normalised.\pause
   \item Multiply on the right by the transpose of the orthogonal matrix
     \vspace*{-5mm}
@@ -169,12 +169,12 @@
     \vspace*{-5mm}
     \begin{align*}
       \mat{X} &= 2\, \mat{U}\,\mat{S}\,\mat{V}^\tr &
-      \mat{X}^\tr &=2\,  \mat{V}\,\mat{S}\,\mat{U}^\tr\pause
+      \mat{X}^\tr &=2\,  \mat{V}\,\mat{S}^\tr\,\mat{U}^\tr\pause
     \end{align*}
     \vspace*{-15mm}
     
-  \item Now the vectors $\bm{u}_i$ and $\bm{v}_i$ form an orthogonal
-    set as it  satisfy
+  \item Now the vectors $\bm{u}_i$ and $\bm{v}_i$ form orthogonal
+    sets as they satisfy
     \vspace*{-5mm}
   \begin{align*}
     \mat{X}^\tr \mat{X} \bm{v} &= s^2 \bm{v} &
@@ -201,7 +201,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{SVD}
+\section[-1]{SVD}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -212,6 +212,11 @@
     \item $\mat{S} = \mathrm{diag}(s_1, s_2,\ldots,s_r)$ with
       $r = \min(m,p)$\pause
     \end{itemize}
+  \item If $\mat{X}$ is symmetric and positive semi-definite (e.g.\ a
+    covariance matrix) then $\mat{U} = \mat{V}$ and
+    $\mat{S} = \mat{\Lambda}$ (the matrix of
+    eigenvalues)\pause---SVD is the same as eigen-decomposition\pauseb{}
+    (for a general symmetric matrix $s_i = |\lambda_i|$)\pauseb
   \item $s_i$ can always be chosen to be non-negative and are known as
     \emph{singular values}\pause
   \item Singular value decomposition applies to both square and
@@ -221,6 +226,36 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Spectrum of a Matrix}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item The set of singular values (when ordered) is often referred
+    to as the (singular value) spectrum of a matrix\pause
+  \item The largest singular value, $s_{max}$, provides a measure of
+    the maximum change in the two norm of a vector
+    \begin{align*}
+      \mat{X}\,\bm{v}_{max} = \mat{U}\, \mat{S} \, \mat{V}^\tr
+      \bm{v}_{max} \pause
+      = s_{max} \, \bm{u}_{max}
+    \end{align*}
+    where $\bm{u}_{max}$ and $\bm{v}_{max}$ are the columns of the
+    matrix $\mat{U}$ and $\mat{V}$ corresponding to $s_{max}$\pauseb{}
+    (note $\len{\bm{v}_i} = \len{\bm{u}_i} = 1$)\pauseb
+  \item $s_{max} = \len{\mat{X}}_2$ is known as the \emph{spectral norm} or \emph{2
+      norm} of a matrix satisfying
+    \vspace*{-1cm}
+    \begin{align*}
+      \len{\mat{X}\, \bm{x}}_2 \leq s_{max} \, \len{\bm{x}}_2\pauseb
+    \end{align*}
+    with equality when $\bm{x} = \bm{v}_{max}$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 
 
@@ -230,16 +265,17 @@
 \section{Finding SVD}
 
 \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item Most libraries will compute the SVD for you\pause
-  \item They can do this by choosing the smaller of two matrices
-    $\mat{X}\,\mat{X}^\tr$ and $\mat{X}^\tr\,\mat{X}$ and then compute
-    the eigenvalues\pause
+  \item In principle we can choose the smaller of the two matrices
+    $\mat{X}\,\mat{X}^\tr$ and $\mat{X}^\tr\,\mat{X}$ and compute
+    its eigenvalues (libraries avoid this: it squares the condition
+    number)\pause
   \item The singular values are the square root of the eigenvalues
     (notice that $\mat{X}\,\mat{X}^\tr$ and $\mat{X}^\tr\,\mat{X}$ are
     both positive semi-definite so the eigenvalues will be
     non-negative)\pause
-  \item It can compute the $\mat{U}$ matrix or $\bm{V}$ matrix by
+  \item We can then compute the $\mat{U}$ matrix or $\mat{V}$ matrix by
     multiplying through by $\mat{X}$ or $\mat{X}^\tr$
     ($\mat{U} = \mat{X}\,\mat{V}\,\mat{S}^{-1}$ and $\mat{V} = \mat{X}^\tr
     \mat{U} \,\mat{S}^{-1}$)\pause 
@@ -261,15 +297,16 @@
     and $\mat{V}$ that are not associated with a singular value are
     ignored\pause
     \begin{center}
-      \includegraphics[width=\linewidth]{twoForms1}\\
+      \includegraphics[width=0.9\linewidth]{twoForms1}\\
       \ \\
-      \includegraphics[width=\linewidth]{twoForms2}
+      \includegraphics[width=0.9\linewidth]{twoForms2}
     \end{center}
-  \item In Matlab these are obtained using
-\begin{matlab}
-  >> [U, S, V] = svd(X)
-  >> [U, S, V] = svd(X,'econ'))
-\end{matlab}\pause
+  \item In numpy (which returns a vector \texttt{s} and $\mat{V}^\tr$)
+\begin{python}
+U, s, Vt = np.linalg.svd(X)    # full: U is m x m
+# economical: U is m x r
+U, s, Vt = np.linalg.svd(X, full_matrices=False)
+\end{python}\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -327,7 +364,7 @@
   \item Now for any two matrices $|\mat{A}\,\mat{B}| =
     |\mat{A}|\,|\mat{B}|$\pause
   \item Thus $|\mat{M}| = |\mat{U}| \, |\mat{S}| \, |\mat{V}^\tr|\pause$
-  \item For and orthogonal matrix $|\mat{U}| = \pm 1$\pause{} since
+  \item For an orthogonal matrix $|\mat{U}| = \pm 1$\pause{} since
     $\mat{U}\,\mat{U}^\tr=\mat{I}\pauseb \Rightarrow
     |\mat{U}\,\mat{U}^\tr| = |\mat{I}|\pauseb \Rightarrow |\mat{U}|\,|\mat{U}^\tr| = 1$\pauseb{} or $|\mat{U}|^2 = 1$\pauseb 
   \item Thus
@@ -347,7 +384,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item When the matrices are non-square then the matrix of singular
+  \item When the matrices are non-square then the singular
     value matrix will either
     \begin{itemize}
     \item Squash some directions to zero\pause
@@ -443,17 +480,19 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item It's really easy to verify this in MATLAB or OCTAVE\pause
-\begin{matlab}
->> X = rand(3,2)
->> [U, S, V] = svd(X)
->> U*S*V'
->> U(:,1)'*U(:,2)
->> U'*U
->> U*U'
->> [Ua,L] = eig(X*X')
->> S*S'
-\end{matlab}\pause
+  \item It's really easy to verify this in Python\pause
+\begin{python}
+import numpy as np
+X = np.random.rand(3, 2)
+U, s, Vt = np.linalg.svd(X)     # s: vector, Vt: V transposed
+S = np.zeros_like(X)            # rebuild the 3 x 2 matrix S
+np.fill_diagonal(S, s)
+U @ S @ Vt                      # should equal X
+U[:, 0] @ U[:, 1]               # columns of U are orthogonal
+U.T @ U, U @ U.T                # both the identity
+L, Ua = np.linalg.eigh(X @ X.T) # eigenvalues, ascending
+S @ S.T                         # the same values: s squared
+\end{python}\pause
   \item Test yourself!\pause
   \end{itemize}
 \end{PauseHighLight}

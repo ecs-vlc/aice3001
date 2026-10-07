@@ -117,7 +117,7 @@
  }[keywords,comments,strings]
 
 
-\lstloadlanguages{Java,pseudo}
+\lstloadlanguages{Java,pseudo,Python}
 \lstset{
   basicstyle=\footnotesize\ttfamily\color{DarkGreen},
   keywordstyle=\bfseries\footnotesize\ttfamily\color{DarkGreen},
@@ -129,6 +129,11 @@
 
 \lstnewenvironment{pseudo}[1][]{\lstset{language=pseudo,mathescape,literate={:=}{{$\gets$}}2 {!}{{$\neg$}}1 {!=}{{\!\!$\neq$\,\,}}2 {<=}{{\!\!$\leq$\,\,}}2 {>=}{{\!\!$\geq$\,\,}}2,escapechar=\#,#1}}{}
 \lstnewenvironment{java}[1][]{\lstset{escapechar=\$,#1}}{}
+% Python code: the language setting makes # comments use commentstyle.
+% Comments stay monospaced: the default italic roman letter-spaces badly
+% on listings' fixed columns.
+\lstnewenvironment{python}[1][frame=TB]{\lstset{language=Python,
+    commentstyle=\footnotesize\ttfamily\color{blue},#1}}{}
 
 \MyLogo{}
 %\Restriction{}

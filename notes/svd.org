@@ -3,7 +3,7 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Singular Value Decomposition, SVD, general linear maps
+  * Singular Value Decomposition, SVD, spectral norm, condition number, general linear maps, ridge regression
 
 * Main Points
 
@@ -15,20 +15,91 @@
      * $\mat{S}$ is an $m\times p$  matrix with zeros everywhere except the diagonal where $S_{ii}=s_i\geq0$
      * $\mat{V}$ is a $p\times p$ orthogonal matrix
    * The values $s_i$ are known as the /singular values/ of $\mat{X}$
-   * The SVD of a symmetric matrix is just the eigen-decomposition
+   * The columns $\bm{u}_i$ of $\mat{U}$ and $\bm{v}_i$ of $\mat{V}$ are the
+     left and right /singular vectors/.  Column by column the SVD says
+     $\mat{X}\,\bm{v}_i = s_i\,\bm{u}_i$ and $\mat{X}^\tr\bm{u}_i = s_i\,\bm{v}_i$
+   * If $\mat{X}$ is symmetric and positive semi-definite (e.g. a
+     covariance matrix) then $\mat{U}=\mat{V}$ and $\mat{S}=\mat{\Lambda}$:
+     the SVD is the eigen-decomposition.  For a general symmetric
+     matrix $s_i = |\lambda_i|$, and the columns of $\mat{U}$ and $\mat{V}$
+     belonging to a negative eigenvalue differ in sign
+   * *Where it comes from.*  The $(m+p)\times(m+p)$ matrix
+     $\mat{B} = \begin{pmatrix} \mat{0} & \mat{X} \\ \mat{X}^\tr & \mat{0} \end{pmatrix}$
+     is symmetric.  Writing an eigenvector as $(\bm{u},\bm{v})$, the
+     equation $\mat{B}\,(\bm{u},\bm{v}) = s\,(\bm{u},\bm{v})$ says exactly
+     $\mat{X}\,\bm{v} = s\,\bm{u}$ and $\mat{X}^\tr\bm{u} = s\,\bm{v}$.  So
+     everything we know about symmetric matrices (real eigenvalues,
+     orthogonal eigenvectors) carries over to every matrix.  The lecture
+     works through the details, including why $\bm{u}$ and $\bm{v}$ each
+     need rescaling by $\sqrt{2}$
    * *Economical SVD*
      * If $m>p$ some algorithms won't bother outputting the last $m-p$ columns of $\mat{U}$
      * If $p>m$ some algorithms won't bother outputting the last $p-m$ columns of $\mat{V}$
      * In this case it will output a square $\mat{S}$ matrix
+     * In numpy, =U, s, Vt = np.linalg.svd(X)= gives the full form and
+       =np.linalg.svd(X, full_matrices=False)= the economical one.  Note
+       that numpy returns the singular values as a vector =s= and
+       returns $\mat{V}^\tr$, not $\mat{V}$
+   * *Finding the SVD.*  In principle we can take whichever of
+     $\mat{X}\,\mat{X}^\tr$ and $\mat{X}^\tr\mat{X}$ is smaller, find its
+     eigenvalues $s_i^2$ and eigenvectors, and recover the other set of
+     singular vectors from $\mat{U} = \mat{X}\,\mat{V}\,\mat{S}^{-1}$ (for
+     the non-zero $s_i$).  Good libraries do not do this: forming
+     $\mat{X}^\tr\mat{X}$ squares the condition number (see the mappings
+     notes), so they use a more stable algorithm on $\mat{X}$ itself
+
+** Spectrum and the Spectral Norm
+   * The singular values, ordered $s_1\geq s_2\geq\cdots\geq0$, are the
+     (singular value) /spectrum/ of $\mat{X}$
+   * The largest, $s_{\max}$, is the most that $\mat{X}$ can stretch a
+     vector.  It is the /spectral norm/ from the vector spaces lecture:
+     \begin{align*}
+       \len{\mat{X}}_2 = \max_{\bm{x}\neq\bm{0}}
+       \frac{\len{\mat{X}\,\bm{x}}_2}{\len{\bm{x}}_2} = s_{\max}
+     \end{align*}
+   * *Proof.*  Write $\bm{x} = \sum_i c_i\,\bm{v}_i$ in the orthonormal
+     basis of right singular vectors, so $\len{\bm{x}}^2 = \sum_i c_i^2$.
+     Then $\mat{X}\,\bm{x} = \sum_i c_i\,s_i\,\bm{u}_i$, and as the
+     $\bm{u}_i$ are orthonormal too
+     \begin{align*}
+       \len{\mat{X}\,\bm{x}}^2 = \sum_i s_i^2\,c_i^2
+       \leq s_{\max}^2 \sum_i c_i^2 = s_{\max}^2\,\len{\bm{x}}^2
+     \end{align*}
+     with equality when $\bm{x} = \bm{v}_{\max}$, which is mapped to
+     $\mat{X}\,\bm{v}_{\max} = s_{\max}\,\bm{u}_{\max}$
+   * Consequences
+     * For a symmetric matrix $\len{\mat{X}}_2 = \max_i|\lambda_i|$, as
+       used in the eigensystems notes
+     * For any square matrix $\len{\mat{X}}_2 \geq \max_i|\lambda_i|$
+       (if $\mat{X}\bm{v}=\lambda\bm{v}$ then $\bm{v}$ is stretched by
+       $|\lambda|$, which cannot exceed $s_{\max}$).  The two can differ
+       a lot for non-symmetric matrices (Exercise 3)
+     * $\len{\mat{X}}_F^2 = \sum_{ij}X_{ij}^2 = \sum_i s_i^2 \geq s_{\max}^2$,
+       so $\len{\mat{X}}_2 \leq \len{\mat{X}}_F$ (Exercise 2)
+     * For a square invertible matrix the smallest stretch is $s_{\min}$
+       and $\len{\mat{X}^{-1}}_2 = 1/s_{\min}$, so the condition number is
+       $\kappa = \len{\mat{X}}_2\,\len{\mat{X}^{-1}}_2 = s_{\max}/s_{\min}$.
+       This generalises the eigenvalue ratio for symmetric matrices
+     * Spectral normalisation of a network layer (vector spaces notes)
+       divides $\mat{L}$ by $s_{\max}$ so that $\len{\mat{L}}_2 = 1$
 
 ** General Linear Mapping
    * Recall that matrices are the most general linear operators
-   * Since any matrix $\mat{M}$ can be written as
+   * Since any matrix $\mat{X}$ can be written as
      $\mat{U}\,\mat{S}\,\mat{V}^\tr$ we can interpret any linear
      mapping as doing three operations
      * A rotation (with possibly a reflection) defined by $\mat{V}^\tr$
      * A rescaling of each coordinate by $s_i$
      * A rotation (with possibly a reflection) defined by $\mat{U}$
+   * When $\mat{X}$ is not square, $\mat{S}$ also either squashes some
+     directions to zero or embeds the result in a space with extra
+     dimensions
+   * The /rank/ of any matrix is its number of non-zero singular values
+     (the number of linearly independent rows or columns)
+   * For a square matrix, using $|\mat{A}\mat{B}| = |\mat{A}|\,|\mat{B}|$
+     and $|\mat{U}| = \pm1$ for an orthogonal matrix,
+     $|\det\mat{X}| = \prod_i s_i$: the singular values multiply up to
+     the change of volume
    * *Duality*
      * Using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ then
        * $\mat{C} = \mat{X}\,\mat{X}^\tr = \mat{U}\mat{S}\mat{S}^\tr\mat{U}^\tr$
@@ -125,58 +196,60 @@
         \eta\,\mat{I})^{-1}\mat{S}^\tr\,\mat{U}^\tr\bm{y}$
    * See answers
 
+** Spectral norm
+   1. Show that $\len{\mat{X}\,\bm{x}}_2 \leq s_{\max}\,\len{\bm{x}}_2$,
+      with equality for $\bm{x} = \bm{v}_{\max}$
+   2. Show that $\len{\mat{X}}_F^2 = \mathrm{Tr}\,\mat{X}^\tr\mat{X} = \sum_i
+      s_i^2$, and hence that $\len{\mat{X}}_2 \leq \len{\mat{X}}_F$
+   3. For $\mat{J} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$
+      1. Show that both eigenvalues of $\mat{J}$ are $1$
+      2. Find the singular values of $\mat{J}$ from the eigenvalues of
+         $\mat{J}^\tr\mat{J}$, and hence $\len{\mat{J}}_2$ and the
+         condition number
+      3. Repeat for the symmetric matrix
+         $\begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$, whose eigenvalues
+         are $3$ and $-1$
+
 * Experiments
 
 ** SVD
-   * Using Matlab/Octave or python have a play with svd
-#+BEGIN_SRC matlab
-X = randn(3,4)      % construct a random matrix
-[U,S,V] = svd(X)    % compute singular value decomposition
-U*S*V'              % should be the same as X
-U*U'                % should be the identity up to round error
-U'*U                % should be the identity up to round error
-V*V'                % should be the identity up to round error
-V'*V                % should be the identity up to round error
-[Ue,L1] = eig(X*X') % Ue should be the same as U up to permutation
-S*S'                % same as L1 up to permutation
-[Ve,L2] = eig(X'*X) % Ve should be the same as V up to permutation
-S'*S                % same as L2 up to permutation
+   * Check the claims in these notes on a random $3\times4$ matrix
 
+#+BEGIN_SRC python
+import numpy as np
 
-inv(X'*X + 0.1*eye(4))        % check identity
-V*inv(S'*S + 0.1*eye(4))*V'   % should be the same
+rng = np.random.default_rng(0)
+X = rng.normal(size=(3, 4))
+U, s, Vt = np.linalg.svd(X)       # s is a vector, Vt is V transposed
+S = np.zeros_like(X)
+np.fill_diagonal(S, s)            # the 3 x 4 matrix S
+V = Vt.T
+print(np.allclose(U @ S @ Vt, X))                        # X = U S V^T
+print(np.allclose(U @ U.T, np.eye(3)), np.allclose(V.T @ V, np.eye(4)))
+print(np.linalg.eigvalsh(X @ X.T)[::-1], s**2)           # eigenvalues are s_i^2
+print(np.linalg.eigvalsh(X.T @ X)[::-1])                 # the same, plus a 0
+
+# spectral norm: the largest stretch of any unit vector
+print(np.linalg.norm(X, 2), s[0])                        # both s_max
+print(np.linalg.norm(X @ V[:, 0]), np.linalg.norm(X @ V[:, 1]))  # s_1, s_2
+x = rng.normal(size=4)
+print(np.linalg.norm(X @ x) <= s[0] * np.linalg.norm(x))   # never above s_max
+print(np.linalg.norm(X, 'fro')**2, np.sum(s**2))           # Frobenius^2
+
+# ridge regression through the SVD
+eta = 0.1
+lhs = np.linalg.inv(X.T @ X + eta * np.eye(4))
+rhs = V @ np.linalg.inv(S.T @ S + eta * np.eye(4)) @ V.T
+print(np.allclose(lhs, rhs))
+print(np.linalg.cond(X.T @ X))    # X^T X is singular (rank 3): enormous
 #+END_SRC
 
-** Verify Identity
-   * Again use Matlab/Octave or python
-   * For a random $4\times5$ matrix $\mat{X}$
-     * Check that using $\mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr$ that
-       \begin{align*}
-	(\mat{X}^\tr\mat{X} + \eta\,\mat{I})^{-1} 
-	 = \mat{V}\,(\mat{S}^\tr\mat{S}+\eta\,\mat{I})^{-1}\mat{V}^\tr
-       \end{align*}
-       holds for some random matrix using Matlab/Octave or python
-     * Examine $\mat{S}^\tr\mat{S}$, $\mat{S}^\tr\mat{S}+0.1\,\mat{I}$,
-       $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1}$ and
-       $(\mat{S}^\tr\mat{S}+0.1\,\mat{I})^{-1} \mat{S}^\tr$
-     * See if you can invert $\mat{X}^\tr\mat{X}$: it is singular,
-       but due to rounding errors it might be inverted (it was a scary
-       matrix when I tried it)
-
-#+BEGIN_SRC matlab
-X = randn(4,5)                % construct a random matrix
-[U,S,V] = svd(X)              % compute singular value decomposition
-
-inv(X'*X + 0.1*eye(5))        % check identity
-V*inv(S'*S + 0.1*eye(5))*V'   % should be the same
-
-S'*S                          % singular
-S'*S + 0.1*eye(5)             % now invertible
-inv(S'*S + 0.1*eye(5))        
-inv(S'*S + 0.1*eye(5))*S'     % 5x4 diagonal matrix
-
-inv(X'*X)                     % shouldn't be able to do this
-#+END_SRC
+   * Every check prints =True=.  The unit vector $\bm{v}_1$ is stretched
+     by exactly $s_1$ and $\bm{v}_2$ by $s_2$
+   * $\mat{X}^\tr\mat{X}$ is $4\times4$ but only has rank 3, so it has no
+     inverse.  Rounding errors mean numpy may still return one, with a
+     condition number around $10^{16}$: a warning sign never to ignore.
+     Adding $\eta\,\mat{I}$ makes it safely invertible
 
 * Answers
 ** Ridge regression
@@ -201,5 +274,29 @@ inv(X'*X)                     % shouldn't be able to do this
         (\mat{V}^\tr)^{-1}\,\mat{W}^{-1}\mat{V}^{-1} =
         \mat{V}\,\mat{W}^{-1}\mat{V}^\tr$ where we use
         $\mat{V}^{-1}=\mat{V}^\tr$ as $\mat{V}$ is an orthogonal matrix
+** Spectral norm
+   1. See the proof in the main points: expand $\bm{x}$ in the right
+      singular vectors, so $\len{\mat{X}\bm{x}}^2 = \sum_i s_i^2c_i^2
+      \leq s_{\max}^2\sum_i c_i^2$.  For $\bm{x}=\bm{v}_{\max}$ only one
+      $c_i$ is non-zero and the inequality is an equality
+   2. $\sum_{ij}X_{ij}^2 = \sum_j (\mat{X}^\tr\mat{X})_{jj} =
+      \mathrm{Tr}\,\mat{X}^\tr\mat{X}$.  With
+      $\mat{X}^\tr\mat{X} = \mat{V}\,\mat{S}^\tr\mat{S}\,\mat{V}^\tr$ and the
+      cyclic property of the trace this is $\mathrm{Tr}\,\mat{S}^\tr\mat{S}
+      = \sum_i s_i^2$.  Every term is non-negative, so the sum is at least
+      $s_{\max}^2$
+   3. Two $2\times2$ matrices
+      1. $\mat{J}$ is triangular, so its eigenvalues are its diagonal
+         entries, $1$ and $1$
+      2. $\mat{J}^\tr\mat{J} = \begin{pmatrix} 1 & 1 \\ 1 & 2 \end{pmatrix}$
+         has $\lambda^2 - 3\lambda + 1 = 0$, so $\lambda = (3\pm\sqrt{5})/2$
+         and the singular values are $s = (\sqrt{5}\pm1)/2$, i.e. $1.618$
+         and $0.618$.  So $\len{\mat{J}}_2 = (1+\sqrt5)/2 \approx 1.618$
+         (the golden ratio) although every eigenvalue is $1$, and
+         $\kappa = 1.618/0.618 \approx 2.62$.  The eigenvalues of a
+         non-symmetric matrix do not tell you how much it stretches
+      3. Here $s_i = |\lambda_i| = 3$ and $1$, so the spectral norm is $3$
+         and $\kappa = 3$.  For a symmetric matrix the eigenvalues do tell
+         the whole story
 
 * COMMENT [[file:pca.org][Previous]]  [[file:optimisation.org][Next]]
