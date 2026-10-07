@@ -10,20 +10,34 @@ and evince re-renders a PDF in place when the file changes. That second
 behaviour is the point of the edit-rebuild-look loop, and it is why a viewer
 that is already open is left alone below rather than having a second window
 stacked on top of it.
+
+    ./go             choose a sheet; open questions and answers side by side
+    ./go --tutorial  for the start of a Friday tutorial: open only the
+                     questions, then show the seat code and the sheet's URL
+                     in a full-screen Space of their own. Swipe (or
+                     Ctrl-arrow) to the desktop to reach the questions. The
+                     default sheet is the one taught at the next tutorial in
+                     ../lectures/myengage.csv. Escape or q closes the code.
 """
 
 import subprocess
 import sys
 import time
+from datetime import date, datetime
 from pathlib import Path
 
 import psutil
 import yaml
 from ask import Ask
+from myengage import read_lectures
 
 HERE = Path(__file__).resolve().parent
 BUILD_DIR = HERE / "_build"
 VIEWER = "evince"
+SEATS_CSV = HERE.parent / "lectures" / "myengage.csv"
+TUTORIAL_DATES = HERE / "tutorial_dates.yaml"
+# Where make_problems_html.py publishes the question PDFs (site/problem_pdf/).
+SHEET_URL = "https://ecs-vlc.github.io/aice3001/problem_pdf/{name}.pdf"
 
 
 def viewer_running() -> bool:
@@ -45,14 +59,20 @@ def viewer_running() -> bool:
 
 
 def main() -> None:
+    tutorial_mode = "--tutorial" in sys.argv
     sheets = yaml.safe_load((HERE / "problems.yaml").read_text())["sheets"]
-    for sheet in sheets:
+    for i, sheet in enumerate(sheets, 1):
         marker = "" if (HERE / f"{sheet['name']}.tex").exists() else "   (no .tex)"
-        print(f"{sheet['week']}: {sheet['name']} ({sheet['keywords']}){marker}")
+        print(f"{i:3}  week {sheet['week']}: {sheet['name']} ({sheet['keywords']}){marker}")
 
     names = [s["name"] for s in sheets]
-    choice = int(Ask()("What problem do you want to see", 1, names)) - 1
-    name = names[choice]
+    if tutorial_mode:
+        tutorial = next_tutorial()
+        name = choose_sheet(names, sheet_taught_on(tutorial["start"].date())
+                            if tutorial else None)
+    else:
+        choice = int(Ask()("What problem do you want to see", "sheet", 1, names)) - 1
+        name = names[choice]
 
     if subprocess.call([sys.executable, str(HERE / "build"), name], cwd=HERE) != 0:
         print(f"build failed -- see _build/{name}.log")
@@ -63,6 +83,10 @@ def main() -> None:
     if missing:
         print("not produced: " + ", ".join(missing))
         sys.exit(1)
+
+    if tutorial_mode:
+        start_tutorial(name, pdfs[0], tutorial)
+        return
 
     if viewer_running():
         # evince reloads the file it already has open, so a rebuild of the
@@ -78,6 +102,122 @@ def main() -> None:
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     tile_side_by_side()
+
+
+def next_tutorial() -> dict | None:
+    """The next tutorial in myengage.csv that has not yet finished."""
+    now = datetime.now()
+    return next((t for t in read_lectures(str(SEATS_CSV))
+                 if t["type"] == "Tutorial" and t["end"] >= now), None)
+
+
+def sheet_taught_on(day: date) -> str | None:
+    """The sheet whose tutorial is on this day, from tutorial_dates.yaml."""
+    if not TUTORIAL_DATES.exists():
+        return None
+    dates = yaml.safe_load(TUTORIAL_DATES.read_text()) or {}
+    return next((name for name, d in dates.items() if d == day), None)
+
+
+def choose_sheet(names: list[str], default: str | None) -> str:
+    """Ask for a sheet by number or name, defaulting to the tutorial's sheet.
+
+    Ask is not used here: it would offer last time's choice, whereas the
+    right default for a tutorial is whatever that week's tutorial covers.
+    """
+    shown = default or "none"
+    while True:
+        ans = input(f"Which sheet for the tutorial [{shown}]? ").strip()
+        if not ans and default:
+            return default
+        if ans in names:
+            return ans
+        if ans.isdigit() and 1 <= int(ans) <= len(names):
+            return names[int(ans) - 1]
+        print(f"  enter 1-{len(names)} or a sheet name")
+
+
+def start_tutorial(name: str, pdf: Path, tutorial: dict | None) -> None:
+    """Open the questions, then show the seat code in front of them."""
+    published = HERE.parent / "site" / "problem_pdf" / pdf.name
+    if not published.exists():
+        print(f"warning: {published} is missing, so the URL will not work "
+              f"until the site is rebuilt and pushed")
+
+    subprocess.Popen([VIEWER, str(pdf)], stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL)
+    # Let evince's window appear before the code goes full screen. A window
+    # opening while a full-screen Space is showing makes macOS switch back
+    # to the desktop, which would hide the code.
+    time.sleep(2)
+
+    url = SHEET_URL.format(name=name)
+    if tutorial is None:
+        print(f"No tutorial left in {SEATS_CSV}. Download a new one from")
+        print("https://southampton.seats.cloud/angular/#/lectures/")
+        code, label = "", ""
+    else:
+        code, label = tutorial["code"], tutorial["label"]
+        print(f"{tutorial['type']} in {tutorial['location']}")
+        print(f"{tutorial['start']:%a %d %b %H:%M}: {code}")
+        if tutorial["start"].date() != date.today():
+            print(f"  (not today: this is the code for "
+                  f"{tutorial['start']:%a %d %b})")
+    print(url)
+    show_code(code, url, label)
+    raise_viewer()
+
+
+def show_code(code: str, url: str, label: str) -> None:
+    """The seat code and the sheet's URL full screen until Escape or q.
+
+    Like myengage's countdown window but without the timer, since a
+    tutorial has no fixed moment at which the code should go. Unlike that
+    window, this one uses Tk's -fullscreen, which on macOS is native full
+    screen: the code gets a Space of its own and the questions stay on the
+    desktop, one swipe away. That suits a mirrored projector, where there is
+    no second display to put the questions on.
+    """
+    import tkinter as tk
+    from tkinter import font as tkfont
+
+    bg, fg = "#264941", "yellow"
+    root = tk.Tk()
+    root.title("Seat code for tutorial")
+    root.attributes("-fullscreen", True)
+    width = root.winfo_screenwidth()
+    root.configure(background=bg)
+    root.bind_all("<Escape>", lambda e: root.destroy())
+    root.bind_all("<KeyPress-q>", lambda e: root.destroy())
+
+    tk.Label(root, text=code, font=("times", 360), fg=fg, bg=bg).pack(
+        expand=True)
+
+    # A URL that ran off the side of the screen would be useless, so the
+    # font shrinks until it fits.
+    url_font = tkfont.Font(family="Helvetica", size=72)
+    while url_font.cget("size") > 12 and url_font.measure(url) > width - 40:
+        url_font.configure(size=url_font.cget("size") - 2)
+    tk.Label(root, text=url, font=url_font, fg=fg, bg=bg).pack(pady=(0, 40))
+
+    info_font = tkfont.Font(family="Helvetica", size=48)
+    while (info_font.cget("size") > 12 and
+           max(map(info_font.measure, label.splitlines() or [""])) > width - 40):
+        info_font.configure(size=info_font.cget("size") - 2)
+    tk.Label(root, text=label, font=info_font, justify="left",
+             fg=fg, bg=bg).pack(anchor="w", padx=10, pady=10)
+
+    root.lift()
+    root.focus_force()
+    root.after(100, root.focus_force)
+    root.mainloop()
+
+
+def raise_viewer() -> None:
+    """Bring the viewer to the front once the code window has gone."""
+    subprocess.run(["osascript", "-e",
+                    f'tell application "System Events" to set frontmost'
+                    f' of process "{VIEWER}" to true'], capture_output=True)
 
 
 # The fn-Control-arrow tiling shortcut never reaches evince, so the two

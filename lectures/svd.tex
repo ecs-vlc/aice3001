@@ -212,13 +212,13 @@
     \item $\mat{S} = \mathrm{diag}(s_1, s_2,\ldots,s_r)$ with
       $r = \min(m,p)$\pause
     \end{itemize}
+  \item $s_i$ can always be chosen to be non-negative and are known as
+    \emph{singular values}\pause
   \item If $\mat{X}$ is symmetric and positive semi-definite (e.g.\ a
     covariance matrix) then $\mat{U} = \mat{V}$ and
     $\mat{S} = \mat{\Lambda}$ (the matrix of
     eigenvalues)\pause---SVD is the same as eigen-decomposition\pauseb{}
     (for a general symmetric matrix $s_i = |\lambda_i|$)\pauseb
-  \item $s_i$ can always be chosen to be non-negative and are known as
-    \emph{singular values}\pause
   \item Singular value decomposition applies to both square and
     non-square matrices---they describe general linear mappings\pause
   \end{itemize}
@@ -428,7 +428,8 @@ U, s, Vt = np.linalg.svd(X, full_matrices=False)
     $S_{ii}^2=s_i^2$\pause
   \item $\mat{U}$ and $\mat{V}$ are matrices of eigenvectors for
     $\mat{C}$ and $\mat{D}$\pause
-  \item The eigenvalues are $\lambda_i = S_{ii}^2 = s_i^2$\pause
+  \item The eigenvalues of $\mat{X}\, \mat{X}^\tr$ and $\mat{X}^\tr\,
+    \mat{X}$ are $\lambda_i = S_{ii}^2 = s_i^2$\pause 
   \end{itemize}
 \end{PauseHighLight}
 
@@ -627,6 +628,35 @@ S @ S.T                         # the same values: s squared
         0 & 0 & 0 & \cdots & s_p^{-1} & 0 & 0 \cdots & 0
         \end{pmatrix}\pause
 \end{align*}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Moore--Penrose Pseudo-Inverse}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item $\left(\mat{X}^\tr\mat{X}\right)^{-1}\mat{X}^\tr$ needs every
+    $s_i>0$: it fails if $m<p$ or the columns of $\mat{X}$ are
+    dependent\pause
+  \item The \emph{Moore--Penrose} pseudo-inverse,
+    $\mat{X}^{+} = \mat{V}\,\mat{S}^{+}\mat{U}^\tr$, just skips the zero
+    singular values: $S^{+}_{ii} = 1/s_i$ if $s_i\neq0$, and $0$
+    otherwise\pause
+  \item \emph{Over-constrained} ($m>p$, all $s_i>0$): nothing changes,
+    $\bm{w} = \mat{X}^{+}\bm{y}$ minimises $\len{\mat{X}\,\bm{w}-\bm{y}}^2$\pause
+  \item \emph{Under-constrained} ($m<p$): infinitely many $\bm{w}$ fit
+    the data, and $\mat{X}^{+}\bm{y}$ picks the one with the smallest
+    $\len{\bm{w}}$\pause
+    \begin{itemize}
+    \item If $s_i=0$ then $\mat{X}\,\bm{v}_i=\bm{0}$: the data say nothing
+      about $\bm{w}$ along $\bm{v}_i$, so that component is set to
+      zero\pause
+    \end{itemize}
+  \item In numpy: \texttt{np.linalg.pinv} or \texttt{np.linalg.lstsq}\pause
+  \end{itemize}
 \end{PauseHighLight}
 \end{slide}
 
