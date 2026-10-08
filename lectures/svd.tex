@@ -159,17 +159,18 @@
 \begin{slide}
   \section[-1.5]{Normalisation Subtlety}
 
+  \pb \pause\pauselevel{=1}
   \begin{center}
-    \includegraphics[height=4cm]{svdContinued-1}
+    \multipdf[height=4cm]{svdMultiply}\pause
   \end{center}
     \vspace*{-5mm}
-  \begin{PauseHighLight}\squeeze
-    \begin{itemize}
-    \item Multiplying out we have
+  \squeeze
+  \begin{itemize}
+  \item Multiplying out we have
     \vspace*{-5mm}
     \begin{align*}
       \mat{X} &= 2\, \mat{U}\,\mat{S}\,\mat{V}^\tr &
-      \mat{X}^\tr &=2\,  \mat{V}\,\mat{S}^\tr\,\mat{U}^\tr\pause
+             \mat{X}^\tr &=2\,  \mat{V}\,\mat{S}^\tr\,\mat{U}^\tr\pauseh
     \end{align*}
     \vspace*{-15mm}
     
@@ -178,7 +179,7 @@
     \vspace*{-5mm}
   \begin{align*}
     \mat{X}^\tr \mat{X} \bm{v} &= s^2 \bm{v} &
-    \mat{X} \mat{X}^\tr \bm{u} &= s^2 \bm{u}\pause
+    \mat{X} \mat{X}^\tr \bm{u} &= s^2 \bm{u}\pauseh
   \end{align*}
   \vspace*{-15mm}
   
@@ -189,10 +190,9 @@
     \vspace*{-5mm}
   \begin{align*}
     \mat{X}   &=      \tilde{\mat{U}} \,\mat{S}\, \tilde{\mat{V}}^\tr &
-    \mat{X}^\tr &= \tilde{\mat{V}} \,\mat{S}^\tr\, \tilde{\mat{U}}^\tr\pause
+    \mat{X}^\tr &= \tilde{\mat{V}} \,\mat{S}^\tr\, \tilde{\mat{U}}^\tr\pauseh
   \end{align*}
 \end{itemize}
-\end{PauseHighLight}
 
 \end{slide}
 

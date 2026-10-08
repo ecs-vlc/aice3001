@@ -23,15 +23,8 @@
      the SVD is the eigen-decomposition.  For a general symmetric
      matrix $s_i = |\lambda_i|$, and the columns of $\mat{U}$ and $\mat{V}$
      belonging to a negative eigenvalue differ in sign
-   * *Where it comes from.*  The $(m+p)\times(m+p)$ matrix
-     $\mat{B} = \begin{pmatrix} \mat{0} & \mat{X} \\ \mat{X}^\tr & \mat{0} \end{pmatrix}$
-     is symmetric.  Writing an eigenvector as $(\bm{u},\bm{v})$, the
-     equation $\mat{B}\,(\bm{u},\bm{v}) = s\,(\bm{u},\bm{v})$ says exactly
-     $\mat{X}\,\bm{v} = s\,\bm{u}$ and $\mat{X}^\tr\bm{u} = s\,\bm{v}$.  So
-     everything we know about symmetric matrices (real eigenvalues,
-     orthogonal eigenvectors) carries over to every matrix.  The lecture
-     works through the details, including why $\bm{u}$ and $\bm{v}$ each
-     need rescaling by $\sqrt{2}$
+   * *Where it comes from.*  The SVD can be built from the eigenvectors
+     of a symmetric matrix; the derivation is in the next section
    * *Economical SVD*
      * If $m>p$ some algorithms won't bother outputting the last $m-p$ columns of $\mat{U}$
      * If $p>m$ some algorithms won't bother outputting the last $p-m$ columns of $\mat{V}$
@@ -47,6 +40,82 @@
      the non-zero $s_i$).  Good libraries do not do this: forming
      $\mat{X}^\tr\mat{X}$ squares the condition number (see the mappings
      notes), so they use a more stable algorithm on $\mat{X}$ itself
+
+** Where the SVD Comes From
+   * Take $m\leq p$ (otherwise apply the argument to $\mat{X}^\tr$) and
+     build the $(m+p)\times(m+p)$ matrix
+     \begin{align*}
+       \mat{B} = \begin{pmatrix} \mat{0} & \mat{X} \\ \mat{X}^\tr & \mat{0} \end{pmatrix}
+     \end{align*}
+     It is symmetric, so it has real eigenvalues and orthonormal
+     eigenvectors.  This is the whole trick: everything we know about
+     symmetric matrices transfers to an arbitrary $\mat{X}$
+   * *Eigenvectors come in pairs.*  Write an eigenvector as
+     $(\bm{u},\bm{v})$, with $\bm{u}\in\mathbb{R}^m$ and
+     $\bm{v}\in\mathbb{R}^p$.  Then $\mat{B}\,(\bm{u},\bm{v}) =
+     s\,(\bm{u},\bm{v})$ says exactly
+     \begin{align*}
+       \mat{X}\,\bm{v} = s\,\bm{u}, \qquad \mat{X}^\tr\bm{u} = s\,\bm{v}
+     \end{align*}
+     Changing the sign of $\bm{v}$ changes the sign of both right-hand
+     sides, so $(\bm{u},-\bm{v})$ is an eigenvector with eigenvalue $-s$.
+     The eigenvalues therefore come as $m$ pairs $\pm s_i$ (with
+     $s_i\geq0$) together with $p-m$ zeros, whose eigenvectors have the
+     form $(\bm{0},\bm{v}_k)$ with $\mat{X}\,\bm{v}_k = \bm{0}$
+   * Applying $\mat{X}^\tr$ to the first equation gives
+     $\mat{X}^\tr\mat{X}\,\bm{v} = s\,\mat{X}^\tr\bm{u} = s^2\,\bm{v}$, and
+     similarly $\mat{X}\,\mat{X}^\tr\bm{u} = s^2\,\bm{u}$: the $s_i^2$ are
+     the eigenvalues of $\mat{X}^\tr\mat{X}$ and $\mat{X}\,\mat{X}^\tr$
+   * *Normalisation.*  For $s_i>0$, $(\bm{u}_i,\bm{v}_i)$ and
+     $(\bm{u}_i,-\bm{v}_i)$ have different eigenvalues, so they are
+     orthogonal: $\len{\bm{u}_i}^2 - \len{\bm{v}_i}^2 = 0$.  Normalising the
+     eigenvector gives $\len{\bm{u}_i}^2 + \len{\bm{v}_i}^2 = 1$, so
+     $\len{\bm{u}_i}^2 = \len{\bm{v}_i}^2 = \tfrac12$.  In the same way,
+     $(\bm{u}_i,\bm{v}_i)$ is orthogonal to both $(\bm{u}_j,\pm\bm{v}_j)$,
+     giving $\bm{u}_i^\tr\bm{u}_j = \bm{v}_i^\tr\bm{v}_j = 0$ for $i\neq j$
+     (for simplicity we take every $s_i>0$)
+   * *Stacking the eigenvectors.*  Put the eigenvectors into the
+     orthogonal matrix $\mat{W}$ and the eigenvalues into the diagonal
+     matrix $\mat{D}$:
+     \begin{align*}
+       \mat{W} = \begin{pmatrix} \mat{U} & \mat{U} & \mat{0} \\
+                                 \mat{V} & -\mat{V} & \mat{V}_0 \end{pmatrix},
+       \qquad
+       \mat{D} = \begin{pmatrix} \mat{S} & \mat{0} & \mat{0} \\
+                                 \mat{0} & -\mat{S} & \mat{0} \\
+                                 \mat{0} & \mat{0} & \mat{0} \end{pmatrix}
+     \end{align*}
+     where $\mat{U}$ ($m\times m$) and $\mat{V}$ ($p\times m$) have
+     columns $\bm{u}_i$ and $\bm{v}_i$, $\mat{V}_0$ ($p\times(p-m)$) has
+     columns $\bm{v}_k$, and $\mat{S} = \mathrm{diag}(s_1,\ldots,s_m)$.
+     The eigen-decomposition of $\mat{B}$ is
+     $\mat{B} = \mat{W}\,\mat{D}\,\mat{W}^\tr$
+     #+ATTR_LATEX: :width 0.85\textwidth
+     [[file:figures/svdMultiply-0.pdf]]
+   * *Multiplying out.*  First multiply $\mat{W}$ by the diagonal matrix
+     $\mat{D}$, which scales each block column.  Note that the $-\mat{V}$
+     block meets $-\mat{S}$, giving $+\mat{V}\mat{S}$, and $\mat{V}_0$
+     meets $\mat{0}$
+     #+ATTR_LATEX: :width 0.85\textwidth
+     [[file:figures/svdMultiply-1.pdf]]
+   * Then multiply by $\mat{W}^\tr$.  The top-left block is
+     $\mat{U}\mat{S}\mat{U}^\tr - \mat{U}\mat{S}\mat{U}^\tr = \mat{0}$, the
+     top-right is $\mat{U}\mat{S}\mat{V}^\tr + \mat{U}\mat{S}\mat{V}^\tr =
+     2\,\mat{U}\mat{S}\mat{V}^\tr$, and similarly for the bottom row
+     #+ATTR_LATEX: :width 0.85\textwidth
+     [[file:figures/svdMultiply-3.pdf]]
+   * Comparing the two sides block by block,
+     $\mat{X} = 2\,\mat{U}\,\mat{S}\,\mat{V}^\tr$.  The columns of
+     $\mat{U}$ and $\mat{V}$ are orthogonal but have length
+     $1/\sqrt{2}$, so define $\tilde{\mat{U}} = \sqrt{2}\,\mat{U}$ and
+     $\tilde{\mat{V}} = \sqrt{2}\,\mat{V}$, whose columns are orthonormal.
+     Then
+     \begin{align*}
+       \mat{X} = \tilde{\mat{U}}\,\mat{S}\,\tilde{\mat{V}}^\tr
+     \end{align*}
+     which is the (economical) SVD.  Adding the columns of $\mat{V}_0$ to
+     $\tilde{\mat{V}}$ completes it to a $p\times p$ orthogonal matrix and
+     gives the full SVD
 
 ** Spectrum and the Spectral Norm
    * The singular values, ordered $s_1\geq s_2\geq\cdots\geq0$, are the
