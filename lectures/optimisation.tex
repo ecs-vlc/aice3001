@@ -324,21 +324,19 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \begin{slide}
 \section[-1]{Using the Second Derivative}
 
-\begin{PauseHighLight}
-
-\begin{itemize}\squeeze
-\item If we are optimising $N$ parameters the Hessian is an $N\times N$
-  matrix\pause
-\item It is time-consuming to compute\pause\ (and prone to errors when
+\pb
+\begin{itemize}
+\item If we are optimising $n$ parameters the Hessian is an $n\times n$
+  matrix\pauseh
+\item It is time-consuming to compute\pauseh\ (and prone to errors when
   coding)\pause---for deep learning it is impossible even to store the
   Hessian\pauseb
 \item Away from minima they can be misleading
   \begin{center}
-    \includegraphics[width=20cm]{hess-missleading}\pause
+    \multipdf[width=20cm]{newtonInflection}\pause
   \end{center}
 \end{itemize}
 
-\end{PauseHighLight}
 \end{slide}
 
 
