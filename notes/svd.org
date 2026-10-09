@@ -66,14 +66,37 @@
      $\mat{X}^\tr\mat{X}\,\bm{v} = s\,\mat{X}^\tr\bm{u} = s^2\,\bm{v}$, and
      similarly $\mat{X}\,\mat{X}^\tr\bm{u} = s^2\,\bm{u}$: the $s_i^2$ are
      the eigenvalues of $\mat{X}^\tr\mat{X}$ and $\mat{X}\,\mat{X}^\tr$
-   * *Normalisation.*  For $s_i>0$, $(\bm{u}_i,\bm{v}_i)$ and
-     $(\bm{u}_i,-\bm{v}_i)$ have different eigenvalues, so they are
-     orthogonal: $\len{\bm{u}_i}^2 - \len{\bm{v}_i}^2 = 0$.  Normalising the
-     eigenvector gives $\len{\bm{u}_i}^2 + \len{\bm{v}_i}^2 = 1$, so
-     $\len{\bm{u}_i}^2 = \len{\bm{v}_i}^2 = \tfrac12$.  In the same way,
-     $(\bm{u}_i,\bm{v}_i)$ is orthogonal to both $(\bm{u}_j,\pm\bm{v}_j)$,
-     giving $\bm{u}_i^\tr\bm{u}_j = \bm{v}_i^\tr\bm{v}_j = 0$ for $i\neq j$
-     (for simplicity we take every $s_i>0$)
+   * *Normalisation: why $\len{\bm{u}} = \len{\bm{v}}$.*  Normalise the
+     eigenvector so that $\len{\bm{u}}^2 + \len{\bm{v}}^2 = 1$.  If its
+     eigenvalue $s$ is not zero, the two halves have the same length.
+     Take the inner product of $\mat{X}\,\bm{v} = s\,\bm{u}$ with $\bm{u}$,
+     and of $\mat{X}^\tr\bm{u} = s\,\bm{v}$ with $\bm{v}$:
+     \begin{align*}
+       s\,\len{\bm{u}}^2 = \bm{u}^\tr\mat{X}\,\bm{v},
+       \qquad
+       s\,\len{\bm{v}}^2 = \bm{v}^\tr\mat{X}^\tr\bm{u}
+     \end{align*}
+     The right-hand sides are equal, since
+     $\bm{v}^\tr\mat{X}^\tr\bm{u} = (\bm{u}^\tr\mat{X}\,\bm{v})^\tr$ and a
+     number equals its own transpose.  So
+     $s\,\len{\bm{u}}^2 = s\,\len{\bm{v}}^2$, and dividing by $s\neq0$,
+     \begin{align*}
+       \len{\bm{u}}^2 = \len{\bm{v}}^2 = \tfrac12
+     \end{align*}
+     * In words: $\mat{X}$ takes $\bm{v}$ to $s\,\bm{u}$ and $\mat{X}^\tr$
+       takes $\bm{u}$ back to $s\,\bm{v}$.  Both directions scale by the
+       same factor, so neither half can be longer than the other
+     * Another route: $(\bm{u},\bm{v})$ and $(\bm{u},-\bm{v})$ have
+       eigenvalues $s$ and $-s$, which differ when $s\neq0$, so they are
+       orthogonal: $0 = \len{\bm{u}}^2 - \len{\bm{v}}^2$
+     * It fails when $s=0$.  The equations become $\mat{X}\,\bm{v}=\bm{0}$
+       and $\mat{X}^\tr\bm{u}=\bm{0}$, which no longer link $\bm{u}$ to
+       $\bm{v}$.  For example the eigenvectors $(\bm{0},\bm{v}_k)$ have
+       $\len{\bm{u}}=0$ and $\len{\bm{v}}=1$
+     * Similarly, $(\bm{u}_i,\bm{v}_i)$ is orthogonal to both
+       $(\bm{u}_j,\pm\bm{v}_j)$ for $j\neq i$, giving
+       $\bm{u}_i^\tr\bm{u}_j = \bm{v}_i^\tr\bm{v}_j = 0$.  (For simplicity we
+       take every $s_i>0$)
    * *Stacking the eigenvectors.*  Put the eigenvectors into the
      orthogonal matrix $\mat{W}$ and the eigenvalues into the diagonal
      matrix $\mat{D}$:

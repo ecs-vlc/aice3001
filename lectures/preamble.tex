@@ -13,8 +13,11 @@
 \usepackage{ifthen}
 \usepackage{pdf14}
 
-% figures/ is not duplicated here -- the originals in ../lectures/figures are used
-\graphicspath{{figures/}{../lectures/figures/}{~/Documents/figures/}{~/Documents/teaching/courses/comp6208/old_lectures/figures/}{~/Documents/teaching/courses/comp3008/new_lectures/figures/}{~/Documents/teaching/courses/comp6208/new_lectures/figures/}{~/Documents/teaching/courses/MLshort/figures/}{~/Documents/teaching/courses/comp3212/lectures/figures/}{/Users/apb1/Documents/teaching/courses/comp6208/github/lectures/figures}}
+% Every figure lives in this course's lectures/figures (consolidated
+% 2026-10-08).  Do not add other courses' folders back: when a name exists in
+% several folders LaTeX silently takes the first, which mixed old and new
+% frames of the same animation.  A missing figure should be a build error.
+\graphicspath{{figures/}{../lectures/figures/}}
 
 \date{}
 
