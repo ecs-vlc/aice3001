@@ -3,79 +3,224 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Gradient descent, quadratic minima, differing length scales
+  * Gradient descent, Newton's method, linear, super-linear and quadratic convergence, condition number, BFGS, Levenberg--Marquardt
 
 * Main Points
 
-** Optimisation
-   * Once you've designed your learning machine and chosen you loss
-     function the rest is optimisation
-   * A very general method is to iteratively reduce your loss function
-   * In high dimensions the gradient of the loss function points in
-     the direction of maximum increasing loss
-   * We still have the problem of determining the step size
-   * *Newton's Method*
-     * Uses the Hessian, $\mat{H}$, with elements
-       $$ H_{ij} = \frac{\partial^2 L(\bm{w})}{\partial w_i\,\partial w_j} $$
-     * Assuming we are in a quadratic minimum the optima will be given by
-       $$ \bm{w}^* = \bm{w} - \mat{H}^{-1} \grad L(\bm{w}) $$
-     * If we are not in a quadratic minimum, but sufficiently close we
-       will converge to the minima /quadratically/
-       - quadratically means that if we start with an error $\epsilon$
-         the error will be $\epsilon^2$ after one iteration
-         $\epsilon^4$ after two iterations, etc.
-     * If we are a long way from the minimum we might go anywhere
-     * In very high dimensions it is not practical
-   * *Quasi-Newton Methods*
-     * There exists a host of methods that approximate the Hessian
-     * By ensuring the approximation is positive definite it means we
-       move in directions that are positively correlated with the gradient
-     * Methods include /conjugate gradient/ and /Levenberg-Marquardt/
-     * Levenberg-Marquardt is used for least squares problems
-     * These are usually preferred over Newton's methods as the are
-       computationally cheaper
-   * *Gradient Descent*
-     * The alternative to (quasi-)Newton methods is to just follow the
-       negative gradient 
-       $$ w^{(t+1)} = w^{(t)} - r\,\grad L(\bm{w}^{(t)}) $$
-     * If the step size, $r$, is too large we can diverge from quadratic minimum
-     * Need to tune the step size to the curvature of the problem
-     * In high dimension our maximum step size is limited by the
-       direction with the greatest curvature (the largest eigenvalue
-       of the Hessian)
+** Machine Learning as Optimisation
+   * Once you've designed your learning machine and chosen your loss
+     function the rest is optimisation: find the weights $\bm{w}$ that
+     minimise the loss $L(\bm{w})$
+   * This lecture covers the classical methods, which work well for up
+     to thousands of parameters (L-BFGS: millions) when we can afford
+     gradients computed from all the data.  The next lecture covers
+     the very large problems of deep learning
+
+** Gradient Descent
+   * At a minimum (or a maximum, or a saddle point) $\grad L = \bm{0}$.
+     For most models we cannot solve this, so we search iteratively
+   * The gradient points in the direction in which the loss increases
+     fastest, so we step the other way
+     $$ \bm{w}^{(t+1)} = \bm{w}^{(t)} - r\,\grad L(\bm{w}^{(t)}) $$
+   * The learning rate (step size) $r$ is the difficulty: too small and
+     we crawl, too large and we diverge
+
+** Newton's Method
+   * Near a minimum almost every loss is quadratic (higher order terms
+     in the Taylor expansion are negligible).  In one dimension, if
+     $f(x) = a + \tfrac{b}{2}(x-x^*)^2$ then $f'(x) = b\,(x-x^*)$ and
+     $f''(x) = b$, so
+     $$ x^* = x - \frac{f'(x)}{f''(x)} $$
+   * In many dimensions the second derivative becomes the Hessian,
+     $H_{ij} = \partial^2 L/\partial w_i\,\partial w_j$, and
+     $$ \bm{w}^* = \bm{w} - \mat{H}^{-1} \grad L(\bm{w}) $$
+   * For a loss that is not exactly quadratic we iterate this.  Close to
+     a minimum it converges /quadratically/: an error $\epsilon$ becomes
+     one of order $\epsilon^2$, then $\epsilon^4$, and so on, roughly
+     doubling the number of correct digits each step (Exercise 4)
+   * Its drawbacks: the Hessian has $N^2$ entries and is costly to
+     compute and invert, and far from a minimum Newton's method can head
+     in the wrong direction (towards a maximum or saddle, or anywhere)
+
+** Step Size and Different Length Scales
+   * Near a minimum $\bm{w}^*$ take the quadratic approximation
+     $L(\bm{w}) \approx L(\bm{w}^*) + \tfrac12(\bm{w}-\bm{w}^*)^\tr\mat{H}(\bm{w}-\bm{w}^*)$.
+     A gradient step gives
+     $$ \bm{w}^{(t+1)} - \bm{w}^* = (\mat{I} - r\,\mat{H})\,(\bm{w}^{(t)} - \bm{w}^*) $$
+   * Write $\mat{H} = \mat{V}\mat{\Lambda}\mat{V}^\tr$ and
+     $u_i = \bm{v}_i^\tr(\bm{w}-\bm{w}^*)$, the error along the \(i\)-th
+     eigenvector.  Then each component evolves on its own:
+     $$ u_i^{(t+1)} = (1 - r\,\lambda_i)\, u_i^{(t)} $$
+   * Every component must shrink, $|1-r\lambda_i|<1$, so we need
+     $r < 2/\lambda_{\max}$.  The steepest direction limits the step
+     size
+   * With $r$ that small, the flattest direction shrinks by only about
+     $1 - \lambda_{\min}/\lambda_{\max}$ per step.  The best fixed step,
+     $r = 2/(\lambda_{\max}+\lambda_{\min})$, gives the factor
+     $$ \frac{\kappa-1}{\kappa+1}, \qquad \kappa = \frac{\lambda_{\max}}{\lambda_{\min}} $$
+     where $\kappa$ is the condition number of the Hessian (eigensystems
+     notes).  Badly conditioned problems ($\kappa\gg1$) are slow
+   * *Rates of convergence.*  If the error shrinks by a constant factor
+     each step, convergence is /linear/ (a straight line on a log
+     plot).  If the factor itself tends to zero it is /super-linear/,
+     and if the error is squared each step it is /quadratic/
+     #+ATTR_LATEX: :width 0.75\textwidth
+     [[file:figures/convRates.pdf]]
+     Gradient descent is linear, quasi-Newton methods such as BFGS are
+     super-linear, and Newton's method is quadratic
+
+** Line Minimisation and Zig-Zags
+   * Rather than a fixed step we can minimise along the gradient
+     direction (a line search) at every step
+   * At the line minimum the new gradient is orthogonal to the
+     direction we came from, so in a narrow valley successive steps are
+     at right angles: the path zig-zags across the valley rather than
+     going along it
+
+** Quasi-Newton Methods
+   * These use curvature information without computing the full Hessian
+   * *Conjugate gradient* chooses search directions that do not undo
+     the progress made along earlier ones.  With exact line searches it
+     reaches the minimum of an \(N\)-dimensional quadratic in $N$ steps
+   * *BFGS* (Broyden--Fletcher--Goldfarb--Shanno) builds an
+     approximation $\mat{B}\approx\mat{H}^{-1}$ from the gradients it has
+     already seen, requiring at each step that
+     $$ \mat{B}\,\bigl(\grad L(\bm{w}^{(t+1)}) - \grad L(\bm{w}^{(t)})\bigr) = \bm{w}^{(t+1)} - \bm{w}^{(t)} $$
+     (for a quadratic, $\grad L$ changes by exactly $\mat{H}$ times the
+     step).  It steps along $-\mat{B}\,\grad L$ with a line search and
+     converges super-linearly
+     * $\mat{B}$ is $N\times N$.  /L-BFGS/ keeps only the last ten or
+       so steps and gradient changes, so its memory is $O(N)$
+   * *Levenberg--Marquardt* is for least-squares losses
+     $L(\bm{w}) = \len{\bm{\epsilon}(\bm{w})}^2$ with residuals
+     $\epsilon_i = f(\bm{x}_i|\bm{w}) - y_i$
+     * Linearise the residuals about the current weights,
+       $\bm{\epsilon}(\bm{w}) \approx \bm{\epsilon}(\bm{w}^{(k)}) + \mat{J}(\bm{w}-\bm{w}^{(k)})$,
+       where $\mat{J}$ is the Jacobian $J_{ij} = \partial\epsilon_i/\partial w_j$
+     * Minimising the linearised loss gives the Gauss--Newton step
+       $\bm{w}^{(k+1)} = \bm{w}^{(k)} - (\mat{J}^\tr\mat{J})^{-1}\mat{J}^\tr\bm{\epsilon}(\bm{w}^{(k)})$:
+       Newton's method with $\mat{J}^\tr\mat{J}$ standing in for the
+       Hessian
+     * Adding a penalty $\nu\,\len{\bm{w}-\bm{w}^{(k)}}^2$ on the step
+       size gives the Levenberg--Marquardt step (Exercise 5)
+       $$ \bm{w}^{(k+1)} = \bm{w}^{(k)} - (\mat{J}^\tr\mat{J} + \nu\,\mat{I})^{-1}\mat{J}^\tr\bm{\epsilon}(\bm{w}^{(k)}) $$
+     * Large $\nu$ gives a short step along the negative gradient; small
+       $\nu$ gives Gauss--Newton.  $\nu$ is reduced when the linear model
+       predicts the drop in loss well and increased when it does not
+       (a /trust region/)
+   * Non-gradient methods (Nelder--Mead, Powell's method, evolutionary
+     strategies) also exist, but are not competitive in high dimensions
+
+** Where These Methods Are Used
+   * Logistic regression: scikit-learn's default solver is L-BFGS, and
+     Newton's method is the standard fit for generalised linear models
+   * Gaussian processes: the kernel hyper-parameters are usually fitted
+     with L-BFGS
+   * Curve fitting (non-linear least squares): Levenberg--Marquardt, e.g.
+     SciPy's =curve_fit=
+   * Support vector machines: training is a quadratic programme (later
+     lectures)
+   * With millions to billions of parameters, and gradients estimated
+     from mini-batches, we need the methods of the next lecture
 
 * Exercises
 
-** Divergence
-   * Assume a loss $L(w) = \tfrac{1}{2} w^2$ (we are in 1-dimension)
-   * If we update $w^{(t+1)} = w^{(t)} - r\,\grad L(\bm{w}^{(t)})$
-     1. Compute the optimum step size
-     2. What is $r_{\max}$ such that we no longer converge if $r\geq r_{\max}$
-     3. If $r>r_{\max}$ calculate how $w^{(t)}$ grows with time
-   * Answer given below
+1. *Divergence.*  Take $L(w) = \tfrac{1}{2} w^2$ (one dimension) and
+   update $w^{(t+1)} = w^{(t)} - r\,L'(w^{(t)})$
+   1. Compute the optimum step size
+   2. What is $r_{\max}$ such that we no longer converge if $r\geq r_{\max}$?
+   3. If $r>r_{\max}$ calculate how $w^{(t)}$ grows with time
+2. *Quadratic optima.*  Consider the 2-d loss
+   $L(\bm{w}) = w_1^2/2 + w_2^2 -w_1\,w_2$
+   1. Compute the gradient
+   2. Compute the Hessian
+   3. Compute the eigenvalues of the Hessian
+   4. Plot the contour lines of $L(\bm{w})$
+3. *Condition number.*  For the loss in Exercise 2
+   1. Find the condition number $\kappa$ and the largest stable step
+      size
+   2. With the best fixed step $r = 2/(\lambda_{\max}+\lambda_{\min})$,
+      how many gradient steps reduce the error by a factor $10^6$?
+   3. How many steps does Newton's method need?
+4. *Newton's method converges quadratically.*  Let $\epsilon = x - x^*$
+   be the error before a Newton step and $\epsilon'$ the error after.
+   By Taylor expanding $f'(x)$ and $f''(x)$ about $x^*$, show that
+   $$ \epsilon' \approx \frac{f'''(x^*)}{2\,f''(x^*)}\,\epsilon^2 $$
+5. *Levenberg--Marquardt.*  Show that minimising
+   $\len{\bm{\epsilon} + \mat{J}\,\bm{d}}^2 + \nu\,\len{\bm{d}}^2$ over the
+   step $\bm{d}$ gives $\bm{d} = -(\mat{J}^\tr\mat{J}+\nu\,\mat{I})^{-1}\mat{J}^\tr\bm{\epsilon}$.
+   What happens when $\nu$ is very large?
 
-** Quadratic Optima
-   * Consider a 2-d loss function $L(\bm{w}) = w_1^2/2 + w_2^2 -w_1\,w_2$
-     1. Compute the gradient
-     2. Compute the Hessian
-     3. Compute the eigenvalues of the Hessian
-     4. Plot the contour lines of $L(\bm{w})$
+* Experiments
+
+** Comparing optimisers on the Rosenbrock function
+   * The Rosenbrock function $L = 100\,(w_2-w_1^2)^2 + (1-w_1)^2$ (the
+     example in the lecture, with residuals $\epsilon_1 = 10\,(w_2-w_1^2)$
+     and $\epsilon_2 = 1-w_1$) has a long, curved, narrow valley
+
+#+BEGIN_SRC python
+import numpy as np
+from scipy.optimize import minimize, least_squares, rosen, rosen_der, rosen_hess
+
+x0 = np.array([-1.2, 1.0])        # the classic start; the minimum is at (1, 1)
+
+x, r = x0.copy(), 1e-3            # gradient descent: a larger r diverges
+for t in range(1, 200001):
+    x = x - r * rosen_der(x)
+    if np.linalg.norm(x - 1) < 1e-6: break
+print("gradient descent:", t, "steps")
+
+for method in ["BFGS", "L-BFGS-B", "trust-exact"]:   # trust-exact: Newton
+    hess = rosen_hess if method == "trust-exact" else None
+    res = minimize(rosen, x0, method=method, jac=rosen_der, hess=hess, tol=1e-12)
+    print(f"{method}: {res.nit} iterations")
+
+# Levenberg-Marquardt on the residuals from the lecture
+eps = lambda x: np.array([10 * (x[1] - x[0]**2), 1 - x[0]])
+res = least_squares(eps, x0, method="lm", xtol=1e-12)
+print("Levenberg-Marquardt:", res.nfev, "function evaluations")
+#+END_SRC
+
+   * Gradient descent needs about 34,000 steps; BFGS, L-BFGS, Newton
+     (with a trust region) and Levenberg--Marquardt need 20--40.  Try
+     increasing =r= to see gradient descent diverge
 
 * Answers
 
-** Divergence
-   * The update equation is 
-     $$ w^{(t+1)} = (1-r) \, w^{(t)} $$
-     1. The optimum step size is $r=1$ (the minimum is at $w=0$)
-     2. $r_{\max}=2$
-     3. $w^{(t)} = (1-r)^t \, w^{(0)}$ 
-
-** Quadratic Optima
+1. The update is $w^{(t+1)} = (1-r)\, w^{(t)}$
+   1. The optimum step size is $r=1$, which jumps straight to the minimum at $w=0$
+   2. $r_{\max}=2$, where $|1-r| = 1$
+   3. $w^{(t)} = (1-r)^t \, w^{(0)}$: its size grows as $(r-1)^t$, with
+      alternating sign
+2. Quadratic optima
    1. $$ \grad L(\bm{w}) = \begin{pmatrix} w_1 - w_2 \\ 2\,w_2 - w_1 \end{pmatrix} $$
    2. $$ \mat{H} = \begin{pmatrix} 1 & -1\\ -1 & 2 \end{pmatrix} $$
    3. Let $T = \mathrm{tr}\, \mat{H} =3$ and $D = \det(\mat{H}) = 1$ then
       $\lambda = \tfrac{1}{2} \left(T \pm \sqrt{T^2-4\,D}\right) =
       (3\pm\sqrt{5})/2 = \{0.382, 2.618\}$
-   4. [[./figures/quadProblem.pdf]]
+   4. [[file:figures/quadProblem.pdf]]
+3. Condition number
+   1. $\kappa = 2.618/0.382 \approx 6.85$, and stability needs
+      $r < 2/2.618 \approx 0.76$
+   2. $r = 2/3$ gives the factor $(\kappa-1)/(\kappa+1) \approx 0.745$ per
+      step, so we need $n$ with $0.745^n = 10^{-6}$:
+      $n = \ln 10^{-6}/\ln 0.745 \approx 47$ steps
+   3. One: the loss is exactly quadratic, so a single Newton step lands
+      on the minimum
+4. Expanding about $x^*$, where $f'(x^*)=0$:
+   $f'(x) \approx f''\epsilon + \tfrac12 f'''\epsilon^2$ and
+   $f''(x) \approx f'' + f'''\epsilon$ (derivatives at $x^*$).  Then
+   \begin{align*}
+     \epsilon' = \epsilon - \frac{f'(x)}{f''(x)}
+     \approx \epsilon - \epsilon\,\frac{1 + \tfrac{f'''}{2f''}\epsilon}{1 + \tfrac{f'''}{f''}\epsilon}
+     \approx \epsilon - \epsilon\left(1 - \frac{f'''}{2f''}\epsilon\right)
+     = \frac{f'''}{2f''}\,\epsilon^2
+   \end{align*}
+   using $1/(1+a)\approx1-a$ for small $a$
+5. The gradient with respect to $\bm{d}$ is
+   $2\mat{J}^\tr(\bm{\epsilon}+\mat{J}\bm{d}) + 2\nu\,\bm{d}$.  Setting it to
+   zero gives $(\mat{J}^\tr\mat{J}+\nu\,\mat{I})\,\bm{d} = -\mat{J}^\tr\bm{\epsilon}$.
+   For large $\nu$, $\bm{d}\approx -\mat{J}^\tr\bm{\epsilon}/\nu =
+   -\grad L/(2\nu)$: a short gradient-descent step
 
 * COMMENT [[file:svd.org][Previous]]  [[file:sgd.org][Next]]

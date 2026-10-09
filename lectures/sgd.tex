@@ -8,7 +8,7 @@
 \begin{center}
   \includegraphics[width=0.9\linewidth]{momentumDynamics-23}
 \end{center}
-\keywords{SGD, momentum, step size, ADAM}
+\keywords{SGD, momentum, step size, RMSProp, Adam, learning-rate schedules}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -44,9 +44,8 @@
     loss function\pause
   \item The rest requires simple optimisation\pause
   \item Although Newton and Quasi-Newton methods ensure rapid
-    convergence for many tasks this apparent advantage is
-    delusionary\pause
-  \item Since the raise of deep learning, gradient descent and its
+    convergence for many tasks this apparent advantage is illusory\pause
+  \item Since the rise of deep learning, gradient descent and its
     variants have become dominant\pause    
   \end{itemize}
 \end{PauseHighLight}
@@ -62,14 +61,14 @@
   \begin{itemize}
   \item Rather than computing the gradient of the loss function, e.g.
     \begin{align*}
-      \grad L_{\mathcal{D}}(\bm{w}) = \grad \sum_{(\bm{x},y)\in\mathcal{D}}
-      L\!\left( \strut f(\bm{x}|\bm{w}), y \right)^2\pause
+      \grad L_{\mathcal{D}}(\bm{w}) = \frac{1}{|\mathcal{D}|}\grad \sum_{(\bm{x},y)\in\mathcal{D}}
+      L\!\left( \strut f(\bm{x}|\bm{w}), y \right)\pause
     \end{align*}
   \item We often compute an approximation
     \begin{align*}
       \grad L_{\mathcal{B}}(\bm{w})
-      = \grad \sum_{(\bm{x},y)\in\mathcal{B}}
-      L\!\left( \strut f(\bm{x}|\bm{w}), y \right)^2
+      = \frac{1}{|\mathcal{B}|}\grad \sum_{(\bm{x},y)\in\mathcal{B}}
+      L\!\left( \strut f(\bm{x}|\bm{w}), y \right)
     \end{align*}
   \item where $\mathcal{B}\subset\mathcal{D}$ is a randomly sampled
     subset of the training set\pause
@@ -117,7 +116,7 @@
   \item This is a \textit{game changer}!\pause{}  We are no longer afraid of
     large models\pause
   \item We can differentiate through algorithms allowing us to
-    training incredible sophisticated networks\pause
+    train incredibly sophisticated networks\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -136,11 +135,9 @@
   \item But there are three reasons why we don't really care\pause
     \begin{itemize}
     \item For complex models we spend a lot of time before we are
-      close to a quadratic minima where asymptotic convergence kicks
-      in\pause
-    \item These days we often use ReLUs (rectified linear units) which
-      are non-analytic.  The convergence we discussed depends on a
-      Taylor expansion that assumes analyticity\pause
+      close to a quadratic minimum where asymptotic convergence kicks in\pause
+    \item These days we often use ReLUs (rectified linear units) which are not differentiable at 0.  The convergence we discussed depends on a
+      Taylor expansion that assumes a smooth (twice differentiable) loss\pause
     \item We want to minimise the generalisation error, but are only
       minimising a poor surrogate, namely the training error\pause
     \end{itemize}
@@ -157,59 +154,21 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Step Size}
-
+\section[-2]{Recap: One Step Size, Many Curvatures}
 \begin{rightImage}{eigspec}
 \begin{PauseHighLight}
   \begin{itemize}
-  \item The optimal step size depends on the gradient and the
-    curvature (second derivative)\pause
-  \item For a quadratic minima the minimum is given by
-    \begin{align*}
-      x^* &= x - \frac{f'(x)}{f''(x)},
-      &
-      \bm{x}^* &= \bm{x} - \mat{H}^{-1} \grad f(\bm{x})\pause
-    \end{align*}
-  \item In high dimensions the Hessian $\mat{H}$ will have a spectrum
-    of eigenvalues\pause
-  \item This means there are different scales\pause
+  \item The Hessian has a spectrum of eigenvalues: some directions are
+    steep, others nearly flat\pause
+  \item One step size $r$ must satisfy $r<2/\lambda_{\max}$, or we
+    diverge (and quickly get NaN errors)\pause
+  \item The flat directions then shrink by only about $1-1/\kappa$ per
+    step\pause
+  \item This seems hopelessly slow\pauseb, yet plain SGD (nearly always
+    with momentum) is widely used in deep learning\pauseb
   \end{itemize}
 \end{PauseHighLight}
-  
 \end{rightImage}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Gradient Descent}
-
-\pauselevel{1:}
-\pb\pause\pauselevel{=1}
-\begin{center}
-  \multipdf[width=\linewidth]{gradDescent}\pause
-\end{center}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Avoiding Divergence}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We saw in the last lecture that gradient descent can actually
-    diverge from a local optimum if you have a too big step size\pause
-  \item If we use too large a step size we quickly get NaN
-    errors\pause
-  \item If we only use SGD the step size is determined by the largest
-    eigenvalue of the Hessian\pause
-  \item This seems impossibly slow\pauseb, but weirdly straightforward
-    SGD is often used in deep learning\pauseb{} (although nearly always with momentum)\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -226,13 +185,12 @@
         directions with high curvature\pause
       \end{itemize}
     \item By introducing ``momentum'' we can increase our steps in
-      low curvature directions and decrease it in high curvature
-      directions
+      low curvature directions and decrease them in high curvature directions
       \begin{align*}
-        \bm{v}(t+1) &= \gamma \, \bm{v}(t) -  \eta\, \grad f(\bm{x}(t))\\
+        \bm{v}(t+1) &= \gamma \, \bm{v}(t) -  r\, \grad f(\bm{x}(t))\\
         \bm{x}(t+1) &= \bm{x}(t) + \bm{v}(t+1)\pause
       \end{align*}
-      $0<\gamma<1$ is a damping term\pauseb 
+      $0<\gamma<1$ sets how much velocity is kept ($1-\gamma$ acts as friction)\pauseb 
     \end{itemize}
   \end{PauseHighLight}
 
@@ -255,13 +213,37 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
+\section[-2]{Nesterov Momentum}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item Nesterov's variant takes the gradient where momentum is about to
+    carry us
+    \begin{align*}
+      \bm{v}(t+1) &= \gamma\,\bm{v}(t) - r\,\grad f\bigl(\bm{x}(t)+\gamma\,\bm{v}(t)\bigr)\\
+      \bm{x}(t+1) &= \bm{x}(t) + \bm{v}(t+1)\pause
+    \end{align*}
+  \item With well-tuned momentum the number of steps needed scales as
+    $\sqrt{\kappa}$ rather than $\kappa$\pause
+  \item The convergence is still \emph{linear}: momentum fixes the
+    condition number, not the order of convergence\pause
+  \item On convex problems Nesterov reaches error $O(1/t^2)$ rather
+    than $O(1/t)$, the best any gradient method can do (much more in
+    COMP6260, Optimisation for Machine Learning)\pause
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
   \section{Adaptive Methods}
 
   \begin{PauseHighLight}
     \begin{itemize}
     \item A major difficulty of high dimensional optimisation is the
       existence of different scales\pause
-    \item That is, there are some directions were we have to move a
+    \item That is, there are some directions where we have to move a
       lot (low curvature), while other directions we have to make small
       steps\pause
     \item In adaptive methods we use a dynamic algorithm to rescale
@@ -287,50 +269,25 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-  \section[-2]{AdaDelta}
-
-  \begin{PauseHighLight}
-    \begin{itemize}
-    \item We want to rescale the coordinates in proportion to the
-      curvature in that direction\pause
-    \item To estimate the curvature we compute a running average of
-      the squared gradients
-      \begin{align*}
-        S^g_i(t+1) = (1-\gamma)\, S^g_i(t) + \gamma \left(
-        \pd{L_{\mathcal{B}}(\bm{w}(t))}{w_i(t)} \right)^2\pause
-      \end{align*}
-    \item To estimate the relative scale of the weights we compute a
-      running average of the squared weights
-      \begin{align*}
-        S^w_i(t+1) = (1-\gamma) \, S^w_i(t) + \gamma \, w_i(t)^2\pause
-      \end{align*}
-     \end{itemize}
-  \end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{AdaDelta}
+\section[-2]{RMSProp}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item The AdaDelta algorithm uses the update
+  \begin{itemize}\squeeze
+  \item Rescale each coordinate by the typical size of its gradient\pause
+  \item Keep a running average of the squared gradients
     \begin{align*}
-       w_i(t+1)
-        = w_i(t) - \eta \,
-        \sqrt{\frac{S^w_i(t+1)+\epsilon}{S^g_i(t+1)+\epsilon}}\,
-        \pd{L_{\mathcal{B}}(\bm{w}(t))}{w_i(t)}\pause
+      S_i(t+1) = (1-\gamma)\, S_i(t) + \gamma \left(
+      \pd{L_{\mathcal{B}}(\bm{w}(t))}{w_i(t)} \right)^2\pause
     \end{align*}
-  \item Note that we can rescale the weights or rescale the
-    gradients yet the update would be the same\pause---this is one
-    aspect of a covariant algorithm\pauseb
-  \item Because we are adaptively changing our step size we can use a
-    single step size throughout the optimisation\pause
+  \item and divide the step by its square root
+    \begin{align*}
+      w_i(t+1) = w_i(t) - \frac{r}{\sqrt{S_i(t+1)}+\epsilon}\,
+      \pd{L_{\mathcal{B}}(\bm{w}(t))}{w_i(t)}\pause
+    \end{align*}
+  \item Steep directions take small steps and flat ones large steps:
+    each weight moves about $r$ per step, whatever the scale of the loss\pause
   \end{itemize}
 \end{PauseHighLight}
-
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -340,8 +297,8 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item AdaDelta doesn't use momentum (there is an argument this isn't
-    so important as it has ``regularised the landscape')'\pause
+  \item RMSProp has no momentum (one argument is that rescaling has
+    already ``regularised the landscape'')\pause
   \item Nevertheless we can learn a momentum term
     {\small
     \begin{align*}
@@ -353,11 +310,11 @@
       &= (1-\gamma)\,S_i(t) + \gamma \,
         \left( \pd{L_{\mathcal{B}}(\bm{w}(t))}{w_i(t)} \right)^2\pause
     \end{align*}}
-  \item These running averages have a lag time which we can remove
+  \item Starting from $M_i(0)=S_i(0)=0$ biases these averages towards zero at first, which we correct
     \begin{align*}
-      \hat{M}_i(t+1) &= \frac{M_i(t+1)}{1-(1-\beta)^t}
+      \hat{M}_i(t+1) &= \frac{M_i(t+1)}{1-(1-\beta)^{t+1}}
       &
-        \hat{S}_i(t+1) &= \frac{S(t+1)}{1-(1-\gamma)^t}\pause
+        \hat{S}_i(t+1) &= \frac{S_i(t+1)}{1-(1-\gamma)^{t+1}}\pause
     \end{align*}
  \end{itemize}
 \end{PauseHighLight}
@@ -370,18 +327,19 @@
 \section{ADAM}
 
 \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item Adaptive Moment Estimation (Adam) adapts the scale of the
     parameters, but also uses momentum\pause
   \item Update weights
     \begin{align*}
-      w_i(t+1) = w_i(t) - \frac{\eta}{\sqrt{\hat{S}_i(t+1)} + \epsilon}\,
+      w_i(t+1) = w_i(t) - \frac{r}{\sqrt{\hat{S}_i(t+1)} + \epsilon}\,
       \hat{M}_i(t+1)\pause
     \end{align*}
-  \item ADAM and its variants are very successful in deep
-    learning\pause
-  \item It is very robust so often results in a network learning which
-    might not learn under standard SGD (with momentum)\pause
+  \item Adam and its variants are very successful in deep learning: a
+    network often learns with Adam when it would not with SGD\pause
+  \item \emph{AdamW} applies weight decay directly to the weights,
+    $w_i \leftarrow w_i - r\,\eta\,w_i$, rather than through the loss,
+    where Adam's rescaling would weaken it; the default for transformers\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -402,7 +360,7 @@
         the same result\pause
       \item That is not true of element-wise multiplication of
         vectors\pause
-      \item Many ML algorithms do this (including ADAM and adaDelta), but
+      \item Many ML algorithms do this (including RMSProp and Adam), but
         they aren't invariant if we rotate our coordinates\pause
       \end{itemize}
     \end{minipage}\hfil
@@ -472,8 +430,8 @@
   \begin{itemize}
   \item Our objective is to minimise our loss\pause
   \item This would mean finding the global minimum\pause
-  \item There are no algorithms that are guaranteed to find the global
-    minimum\pause
+  \item For non-convex losses no efficient algorithm is guaranteed to find
+    the global minimum\pause
   \item The best we can hope is to find a local minimum by doing
     gradient descent\pause
   \item In practice, our landscapes are so large that we are probably
@@ -511,7 +469,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item My view of the loss landscape is that we have valleys inside
-    bigger valleys insider bigger valleys, and so on\pause
+    bigger valleys inside bigger valleys, and so on\pause
   \item If our noise is high (we use large step size), we can navigate
     away from local valleys and move towards the big valley\pause
   \item But, we can't explore the small valleys\pause
@@ -541,6 +499,27 @@
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Learning-Rate Schedules}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Large $r$ early: noisy steps cross the small valleys and find the
+    big ones\pause
+  \item Small $r$ late: settle into a valley\pause
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=0.7\linewidth]{lrSchedules}\pause
+  \end{center}
+  \begin{itemize}\squeeze
+  \item A short warm-up stops the first steps diverging before Adam's
+    running averages have settled; common for transformers\pause
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -551,8 +530,8 @@
 \begin{itemize}
 \item When training neural networks (deep or shallow) there are
   typically many symmetries\pauseh
-\item Examples come from exchanging the weights of neurons (or
-  filters in CNNs) in two layers\pauseh
+\item Examples come from permuting the neurons (or filters in CNNs)
+  within a layer, together with their weights\pauseh
   \begin{center}
     \multipdf[width=0.6\linewidth]{permutationSymmetry}\pause
   \end{center}
@@ -568,8 +547,8 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item With $n$ hidden nodes there are $n!$ symmetries\pause
-  \item Often if I multiply all the input and output weights to a node
-    by $-1$ the network will be the same\pause
+  \item For odd activation functions such as $\tanh$, multiplying all the
+    input and output weights of a node by $-1$ gives the same network\pause
   \item There are also continuous symmetries.  For linear networks
     with two layers performing a mapping $\mat{W}_2 \mat{W}_1$ then
     for any invertible matrix $\mat{U}$ (where
@@ -639,8 +618,8 @@
   \item SGD together with automatic differentiation has revolutionised
     machine learning\pause
   \item There are a number of techniques to get the step size
-    right\pause: momentum\pauseb, adaptive step size\pauseb,
-    ADAM\pauseb
+    right\pause: momentum (and Nesterov)\pauseb, adaptive step sizes
+    (RMSProp)\pauseb, Adam and AdamW\pauseb, learning-rate schedules\pauseb
   \item Still need to understand that we are exploring a huge and
     complex loss landscape\pause
   \item What works is problem specific\pause{} (as always)\pauseb

@@ -192,8 +192,15 @@
         so $\mat{C}$ is positive semi-definite.  It is positive
         definite if $\mat{X}^\tr\bm{w} \neq \bm{0}$ for every
         $\bm{w}\neq\bm{0}$, that is when the rows of $\mat{X}$ are
-        linearly independent, so $\mat{X}$ has rank $d$.  This
-        requires at least $d$ data points, $m \geq d$.
+        linearly independent, so $\mat{X}$ has rank $d$.
+
+        Because the data are centred on their empirical mean, the
+        columns of $\mat{X}$ sum to zero, $\mat{X}\,\bm{1} = \bm{0}$,
+        so the columns are linearly dependent and $\mat{X}$ has rank at
+        most $m-1$.  Rank $d$ therefore needs $m-1 \geq d$, i.e.\ at
+        least $m \geq d+1$ data points, and they must not all lie in
+        one hyperplane.  For example, two centred points in 2-D are
+        $\pm\bm{a}$, which lie on a line, so $\mat{C}$ is singular.
       \end{answer}}{\lines{7}}
 
     \qpart[5]{The first principal component is the unit vector

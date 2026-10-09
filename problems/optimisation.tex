@@ -1,95 +1,433 @@
-%% ELEC2013 2007
-
 %% ----------------------------------------------------------------
-%% exam.tex
+%% Optimisation problem sheet (lectures: optimisation, sgd, constrainedOpt)
 %% ----------------------------------------------------------------
 \documentclass{sotonExamBoxes}    % use option [answers] to include them
-%\documentclass[answers]{uosexamb}
 %% ----------------------------------------------------------------
 \usepackage{graphicx}
-%\usepackage{pstricks}
 \usepackage{alltt}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \thinmuskip=1mu
-%\renewcommand{\ttdefault}{pcr}
 \input{macros}
-\graphicspath{{figures/} {../2018-19/figures}}
 \graphicspath{{figures/}}
 \usepackage{parskip}
 \AddToHook{env/samepage/begin}{%
 \AddToHook{para/before}{\nopagebreak}%
 \AddToHook{para/after}{\nopagebreak}%
 }
-% \usepackage{picture}
 \begin{document}
-\unitTitle{ Problem Sheet}
+\unitTitle{Optimisation Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
-
 \maketitle
 
+This sheet covers the three optimisation lectures.  Question~1 looks
+at gradient descent and Newton's method on simple functions, where we
+can see exactly what happens.  Questions~2 and~3 use Lagrange
+multipliers and duality.  Question~4 asks you to check some of these
+results in Python.  The early parts of each question are short; the
+later parts ask you to put the pieces together.
 
 % ***************************** question 1 **************************
 
-
 \begin{question}{20}
+  Gradient descent with learning rate $r$ updates
+  $w \leftarrow w - r\,f'(w)$ (or $\bm{w} \leftarrow \bm{w} - r\,\grad
+  f(\bm{w})$ in several dimensions).  In this question we see exactly
+  when it works on quadratic functions.
+
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[3]{For $f(w) = \tfrac12\,a\,w^2$ with $a>0$, write down the
+      gradient descent update and show that after $t$ steps
+      $w_t = (1-r\,a)^t\, w_0$.
       \begin{answer}
+        $f'(w) = a\,w$, so
+        \begin{align*}
+          w_{t+1} = w_t - r\,a\,w_t = (1-r\,a)\,w_t .
+        \end{align*}
+        Each step multiplies $w$ by the same factor $1-r\,a$, so after
+        $t$ steps $w_t = (1-r\,a)^t\,w_0$.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[4]{For which learning rates does $w_t\to0$ (the minimum)?
+      Which learning rate is best?  Describe what happens when
+      $r = 1.5/a$ and when $r = 2.5/a$.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        We need $|1-r\,a|<1$, i.e.\ $0 < r < 2/a$.  The best choice is
+        $r=1/a$, which gives a factor of $0$ and reaches the minimum
+        in one step.
+        \begin{itemize}
+        \item $r=1.5/a$: the factor is $-0.5$.  Each step overshoots
+          the minimum, so $w$ alternates in sign, but it still shrinks
+          and converges.
+        \item $r=2.5/a$: the factor is $-1.5$.  Each step overshoots by
+          more than it started from, so $w$ alternates in sign and
+          grows: gradient descent diverges.
+        \end{itemize}
+      \end{answer}}{\lines{6}}
+
+    \qpart[5]{Now take $f(\bm{w}) = \tfrac12\,(a\,w_1^2 + b\,w_2^2)$
+      with $a\geq b>0$.  Show that the two components evolve
+      independently, and find the condition on $r$ for convergence.
+      Show that the fixed learning rate that makes the slower of the
+      two components converge fastest is $r = 2/(a+b)$, and that the
+      error is then multiplied by $(\kappa-1)/(\kappa+1)$ each step,
+      where $\kappa = a/b$ is the condition number.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $\grad f = (a\,w_1, b\,w_2)^\tr$, so
+        $w_1 \leftarrow (1-r\,a)\,w_1$ and $w_2 \leftarrow (1-r\,b)\,w_2$:
+        each component behaves like part (a).  Both converge only if
+        $r < 2/a$: the steepest direction limits the step size.
+
+        The overall rate is set by the larger of $|1-r\,a|$ and
+        $|1-r\,b|$.  As $r$ grows, $|1-r\,b| = 1-r\,b$ falls, while for
+        $r>1/a$, $|1-r\,a| = r\,a-1$ rises.  The best $r$ balances them:
+        \begin{align*}
+          r\,a - 1 = 1 - r\,b \quad\Rightarrow\quad r = \frac{2}{a+b},
+          \qquad
+          1 - r\,b = \frac{a-b}{a+b} = \frac{\kappa-1}{\kappa+1} .
+        \end{align*}
+      \end{answer}}{\lines{9}}
+
+    \qpart[4]{Take $a = 100$ and $b = 1$.  What is the largest stable
+      learning rate, and the best one?  Roughly how many gradient
+      descent steps are needed to reduce the error by a factor of
+      $10^6$?  How many steps would Newton's method need?
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        Stability needs $r<2/a = 0.02$; the best rate is
+        $r = 2/101 \approx 0.0198$.  Then $\kappa = 100$ and each step
+        multiplies the error by $99/101 \approx 0.980$, so we need
+        \begin{align*}
+          n \approx \frac{\ln 10^{-6}}{\ln(99/101)} \approx 690
+          \text{ steps.}
+        \end{align*}
+        Newton's method takes \emph{one} step.  The Hessian is
+        $\mat{H} = \mathrm{diag}(100, 1)$, and for a quadratic
+        $\bm{w} - \mat{H}^{-1}\grad f(\bm{w}) = \bm{0}$ exactly.
+      \end{answer}}{\lines{7}}
+
+    \qpart[4]{Newton's method in one dimension updates
+      $w \leftarrow w - f'(w)/f''(w)$.  For $f(w) = \e{w} - 2\,w$, show
+      that the minimum is at $w^* = \ln 2$ and that Newton's update is
+      $w \leftarrow w - 1 + 2\,\e{-w}$.  Starting from $w_0=0$, use a
+      calculator to compute four iterations and the error
+      $|w_t - \ln 2|$.  What happens to the error?
+      \begin{answer}
+        $f'(w) = \e{w}-2 = 0$ at $w^*=\ln 2$, and $f''(w) = \e{w}>0$
+        so it is a minimum.  Newton's update is
+        $w - (\e{w}-2)/\e{w} = w - 1 + 2\,\e{-w}$.
+        \begin{center}
+          \begin{tabular}{c|ccccc}
+            $t$ & 0 & 1 & 2 & 3 & 4 \\ \hline
+            $w_t$ & 0 & 1 & 0.735759 & 0.694042 & 0.693148 \\
+            $|w_t-\ln 2|$ & $0.69$ & $0.31$ & $4.3\times10^{-2}$
+              & $9.0\times10^{-4}$ & $4.0\times10^{-7}$
+          \end{tabular}
+        \end{center}
+        Once we are close, the error is roughly \emph{squared} at each
+        step (the number of correct digits doubles): quadratic
+        convergence.  The next step gives about $10^{-13}$.
+      \end{answer}}{\lines{8}}
+
   \end{qparts}
 \end{question}
 \freshpage
 
 % ***************************** question 2 **************************
 
+\begin{question}{20}
+  To minimise (or maximise) $f(\bm{x})$ subject to $g(\bm{x}) = 0$ we
+  form the Lagrangian $\mathcal{L}(\bm{x},\alpha) = f(\bm{x}) -
+  \alpha\, g(\bm{x})$ and set its derivatives with respect to $\bm{x}$
+  and $\alpha$ to zero.  For an inequality constraint $g(\bm{x})\geq0$
+  the KKT conditions add $\alpha\geq0$ and $\alpha\,g(\bm{x}) = 0$.
+
+  \begin{qparts}
+
+    \qpart[5]{A rectangle has sides $x$ and $y$ and a fixed perimeter
+      $2x + 2y = P$.  Use a Lagrange multiplier to find the sides that
+      maximise its area $A = x\,y$.  Show that $\alpha$ equals
+      $\mathrm{d}A^*/\mathrm{d}P$, where $A^*$ is the maximum area:
+      the Lagrange multiplier tells us how much the optimum improves if
+      we relax the constraint.
+      \begin{answer}
+        $\mathcal{L} = x\,y - \alpha\,(2x+2y-P)$.  Setting the
+        derivatives to zero:
+        \begin{align*}
+          \pd{\mathcal{L}}{x} = y - 2\alpha = 0, \qquad
+          \pd{\mathcal{L}}{y} = x - 2\alpha = 0, \qquad
+          2x+2y = P .
+        \end{align*}
+        So $x = y = 2\alpha$: a square with $x = y = P/4$, and
+        $\alpha = P/8$.  Then $A^* = P^2/16$ and
+        $\mathrm{d}A^*/\mathrm{d}P = P/8 = \alpha$.
+      \end{answer}}{\lines{8}}
+
+    \qpart[6]{Find the point $\bm{x}$ closest to the origin on the
+      hyperplane $\bm{a}^\tr\bm{x} = b$, by minimising
+      $\len{\bm{x}}^2$ subject to this constraint.  Hence show that
+      the distance from the origin to the hyperplane is
+      $|b|/\len{\bm{a}}$.  (This is the geometry behind the margin of a
+      support vector machine.)
+      \begin{answer}
+        $\mathcal{L} = \bm{x}^\tr\bm{x} - \alpha\,(\bm{a}^\tr\bm{x}-b)$,
+        so $\grad_{\bm{x}}\mathcal{L} = 2\,\bm{x} - \alpha\,\bm{a} =
+        \bm{0}$ and $\bm{x} = \tfrac{\alpha}{2}\,\bm{a}$: the closest point
+        is along the normal $\bm{a}$.  The constraint gives
+        $\tfrac{\alpha}{2}\len{\bm{a}}^2 = b$, so $\alpha =
+        2b/\len{\bm{a}}^2$ and
+        \begin{align*}
+          \bm{x}^* = \frac{b}{\len{\bm{a}}^2}\,\bm{a}, \qquad
+          \len{\bm{x}^*} = \frac{|b|}{\len{\bm{a}}} .
+        \end{align*}
+      \end{answer}}{\lines{8}}
+
+    \qpart[3]{Minimise $f(x,y) = (x-2)^2 + (y-1)^2$ subject to the
+      inequality $x + y \leq 2$.  Write the constraint in the form
+      $g(x,y)\geq0$, decide whether it is active, and find the
+      solution and the value of $\alpha$.
+      \begin{answer}
+        $g = 2 - x - y \geq 0$.  The unconstrained minimum $(2,1)$ has
+        $x+y = 3 > 2$, so it is not allowed and the constraint is
+        active: the solution lies on $x+y=2$.  From
+        $\grad f = \alpha\,\grad g$: $2(x-2) = -\alpha$ and $2(y-1) =
+        -\alpha$, so $x - 2 = y - 1$.  With $x + y = 2$ this gives
+        $(x,y) = (1.5, 0.5)$ and $\alpha = 1 \geq 0$, as KKT requires.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Repeat with the constraint $x + y \leq 4$.
+      \begin{answer}
+        Now the unconstrained minimum $(2,1)$ satisfies $x+y = 3 \leq
+        4$, so the constraint is inactive: $\alpha = 0$ and the
+        solution is $(2,1)$ with $f = 0$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[3]{Finally, take the \emph{equality} constraint $x + y = 4$.
+      Find the solution and $\alpha$.  Why would a negative $\alpha$ be
+      impossible for the inequality constraint $x+y\leq4$?
+      \begin{answer}
+        As in part (c), $x-2 = y-1$, and now $x+y = 4$, so $(x,y) =
+        (2.5, 1.5)$ with $f=0.5$, and $2(x-2) = -\alpha$ gives
+        $\alpha = -1$.  The equality forces us onto the line even
+        though $f$ would prefer to move \emph{into} the region
+        $x + y < 4$.  A negative multiplier says exactly that: the
+        constraint is pushing the wrong way, so as an inequality it
+        would not be active.  KKT's $\alpha\geq0$ rules this case out
+        and sends us back to part (d).
+      \end{answer}}{\lines{6}}
+
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 3 **************************
 
 \begin{question}{20}
+  In the lectures we saw that the linear programme (the \emph{primal})
+  \begin{align*}
+    \min_{\bm{x}}\; \bm{c}^\tr\bm{x} \quad \text{subject to} \quad
+    \mat{M}\,\bm{x}\geq\bm{b}, \quad \bm{x}\geq\bm{0}
+  \end{align*}
+  has the \emph{dual}
+  \begin{align*}
+    \max_{\bm{\alpha}}\; \bm{b}^\tr\bm{\alpha} \quad \text{subject to}
+    \quad \mat{M}^\tr\bm{\alpha}\leq\bm{c}, \quad \bm{\alpha}\geq\bm{0} .
+  \end{align*}
+
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[6]{Solve the linear programme: minimise $2x_1 + 3x_2$
+      subject to $x_1 + x_2 \geq 4$, $x_1 + 3x_2 \geq 6$ and $x_1, x_2
+      \geq 0$.  (The optimum of a linear programme is at a corner of
+      the feasible region, so check the corners.)  Write down the dual,
+      solve it in the same way, and compare the two optimal values.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        The corners of the primal feasible region are $(0,4)$, $(3,1)$
+        and $(6,0)$, with costs $12$, $9$ and $12$.  The minimum is $9$
+        at $(3,1)$.
+
+        Here $\bm{c} = (2,3)^\tr$, $\bm{b} = (4,6)^\tr$ and
+        $\mat{M} = \begin{pmatrix} 1 & 1 \\ 1 & 3\end{pmatrix}$, so the
+        dual is: maximise $4\alpha_1 + 6\alpha_2$ subject to
+        $\alpha_1 + \alpha_2 \leq 2$, $\alpha_1 + 3\alpha_2 \leq 3$,
+        $\alpha_1,\alpha_2\geq0$.  Its corners $(0,0)$, $(2,0)$,
+        $(1.5, 0.5)$ and $(0,1)$ have values $0$, $8$, $9$ and $6$.  The
+        maximum is $9$ at $(1.5,0.5)$: the same value as the primal.
+      \end{answer}}{\lines{10}}
+
+    \qpart[4]{Show that for \emph{any} $\bm{x}$ satisfying the primal
+      constraints and \emph{any} $\bm{\alpha}$ satisfying the dual
+      constraints, $\bm{b}^\tr\bm{\alpha} \leq \bm{c}^\tr\bm{x}$.  Why
+      is this useful?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        Using $\bm{\alpha}\geq\bm{0}$ with $\mat{M}\bm{x}\geq\bm{b}$, and
+        then $\bm{x}\geq\bm{0}$ with $\mat{M}^\tr\bm{\alpha}\leq\bm{c}$:
+        \begin{align*}
+          \bm{b}^\tr\bm{\alpha} \leq (\mat{M}\bm{x})^\tr\bm{\alpha}
+          = \bm{x}^\tr\mat{M}^\tr\bm{\alpha} \leq \bm{x}^\tr\bm{c} .
+        \end{align*}
+        This is \emph{weak duality}.  Any feasible dual point gives a
+        lower bound on the primal optimum, so if we find feasible
+        $\bm{x}$ and $\bm{\alpha}$ with equal values, as in part (a),
+        both must be optimal.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{If the primal has $n$ variables and $k$ constraints (not
+      counting $\bm{x}\geq\bm{0}$), how many variables and constraints
+      does the dual have?  Which would you rather solve when $n =
+      10^6$ and $k = 10$?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        The dual has $k$ variables (one per primal constraint) and $n$
+        constraints (one per primal variable).  With $n=10^6$ and
+        $k=10$ the dual has only 10 unknowns, which is usually far
+        easier.  The roles swap when $k\gg n$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[7]{Now consider the quadratic programme: minimise
+      $\bm{x}^\tr\bm{x}$ subject to $\mat{M}\,\bm{x} = \bm{b}$, where
+      $\mat{M}$ is $k\times n$ with $k<n$.  Form the Lagrangian, find
+      $\bm{x}^*(\bm{\alpha})$, and show that the dual problem is
+      \begin{align*}
+        \max_{\bm{\alpha}}\; -\tfrac14\,\bm{\alpha}^\tr\mat{M}\mat{M}^\tr\bm{\alpha}
+        + \bm{\alpha}^\tr\bm{b} .
+      \end{align*}
+      Solve it, and show that $\bm{x}^* =
+      \mat{M}^\tr(\mat{M}\mat{M}^\tr)^{-1}\bm{b}$.  How big is the
+      matrix we have to invert?  Check that $k=1$ recovers question
+      2(b).
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        $\mathcal{L} = \bm{x}^\tr\bm{x} - \bm{\alpha}^\tr(\mat{M}\bm{x}-\bm{b})$,
+        so $\grad_{\bm{x}}\mathcal{L} = 2\bm{x} - \mat{M}^\tr\bm{\alpha} =
+        \bm{0}$ and $\bm{x}^*(\bm{\alpha}) = \tfrac12\mat{M}^\tr\bm{\alpha}$.
+        Substituting,
+        \begin{align*}
+          \mathcal{L} = \tfrac14\bm{\alpha}^\tr\mat{M}\mat{M}^\tr\bm{\alpha}
+          - \tfrac12\bm{\alpha}^\tr\mat{M}\mat{M}^\tr\bm{\alpha} + \bm{\alpha}^\tr\bm{b}
+          = -\tfrac14\,\bm{\alpha}^\tr\mat{M}\mat{M}^\tr\bm{\alpha} + \bm{\alpha}^\tr\bm{b} .
+        \end{align*}
+        Setting its gradient $-\tfrac12\mat{M}\mat{M}^\tr\bm{\alpha} +
+        \bm{b}$ to zero gives $\bm{\alpha} = 2(\mat{M}\mat{M}^\tr)^{-1}\bm{b}$,
+        so $\bm{x}^* = \mat{M}^\tr(\mat{M}\mat{M}^\tr)^{-1}\bm{b}$.  We
+        invert a $k\times k$ matrix rather than work with $n$ unknowns.
+        This is the minimum-norm solution of an under-constrained
+        system from the mappings lecture.  With $k=1$ and $\mat{M} =
+        \bm{a}^\tr$ it gives $\bm{x}^* = b\,\bm{a}/\len{\bm{a}}^2$, as in
+        question 2(b).
+      \end{answer}}{\lines{12}}
+
+  \end{qparts}
+\end{question}
+\freshpage
+
+% ***************************** question 4 **************************
+
+\begin{question}{20}
+  In this question you check some of these results in Python (or any
+  other language).  The following may be useful.
+
+  \begin{tabularx}{\linewidth}{@{}l|X@{}}
+    \hline
+    \verb+import numpy as np+ & import the numpy module\\ \hline
+    \verb+H = np.diag([100.0, 1.0])+ & a diagonal matrix\\ \hline
+    \verb+np.array([1.0, 1.0])+ & a vector\\ \hline
+    \verb+H @ w+ & matrix--vector multiplication\\ \hline
+    \verb+np.linalg.norm(w)+ & the length $\len{\bm{w}}$\\ \hline
+    \verb+rng = np.random.default_rng(1)+ & a random number generator
+      with a fixed seed, so results can be repeated\\ \hline
+    \verb+rng.integers(0, m, size=10)+ & 10 random indices, for a
+      mini-batch\\ \hline
+  \end{tabularx}
+
+  \begin{qparts}
+
+    \qpart[5]{Run gradient descent on $f(\bm{w}) = \tfrac12\,(100\,w_1^2
+      + w_2^2)$ from $\bm{w} = (1,1)^\tr$.  For $r = 0.005$, $r = 2/101$
+      and $r = 0.0201$, count the steps until $\len{\bm{w}}<10^{-6}$ (or
+      report that it diverges).  Compare with question 1.
+      \begin{answer}
+\begin{alltt}
+H = np.diag([100.0, 1.0])\\
+def run(r, gamma=0.0):\\
+\hspace*{2em}w = np.array([1.0, 1.0]); v = np.zeros(2)\\
+\hspace*{2em}for t in range(1, 100001):\\
+\hspace*{4em}v = gamma*v - r*(H @ w)\\
+\hspace*{4em}w = w + v\\
+\hspace*{4em}if np.linalg.norm(w) < 1e-6: return t\\
+\hspace*{4em}if np.linalg.norm(w) > 1e6: return 'diverged'\\
+for r in [0.005, 2/101, 0.0201]: print(r, run(r))
+\end{alltt}
+        This gives 2757 steps, 709 steps, and divergence.  With
+        $r=2/101$ both components shrink by $99/101$ per step, and
+        starting from $\len{\bm{w}}=\sqrt2$ that needs about 709 steps,
+        close to the 690 of question 1(d).  At $r = 0.0201 > 2/100$ the
+        steep component is multiplied by $-1.01$ each step and grows.
+      \end{answer}}{\lines{8}}
+
+    \qpart[5]{Add momentum, $\bm{v}\leftarrow\gamma\,\bm{v} - r\,\grad
+      f(\bm{w})$, $\bm{w}\leftarrow\bm{w}+\bm{v}$.  Count the steps for
+      $\gamma = 0.9$, $r=0.01$, and for the tuned values $r = 4/121$,
+      $\gamma = (9/11)^2$.  Compare with plain gradient descent.
+      \begin{answer}
+        Using \texttt{run} from part (a): \texttt{run(0.01, 0.9)} takes
+        264 steps and \texttt{run(4/121, (9/11)**2)} takes 95, against
+        709 for the best plain gradient descent.  With tuned momentum the
+        error falls by about $9/11 = (\sqrt\kappa-1)/(\sqrt\kappa+1)$ per
+        step rather than $99/101 = (\kappa-1)/(\kappa+1)$: the steps
+        needed scale as $\sqrt{\kappa}=10$ rather than $\kappa=100$.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{Code Newton's method for $f(w) = \e{w} - 2w$ (question
+      1(e)) and print $\log_{10}|w_t-\ln2|$ for the first six steps.
+      \begin{answer}
+\begin{alltt}
+w = 0.0\\
+for t in range(6):\\
+\hspace*{2em}print(t, np.log10(abs(w - np.log(2))))\\
+\hspace*{2em}w = w - 1 + 2*np.exp(-w)
+\end{alltt}
+        The logarithm of the error goes roughly $-0.2$, $-0.5$, $-1.4$,
+        $-3.0$, $-6.4$, $-13.1$: it roughly doubles each step, the
+        signature of quadratic convergence.
+      \end{answer}}{\lines{6}}
+
+    \qpart[6]{Generate 1000 data points with $x$ uniform on $[-1,1]$
+      and $y = 2x + 1 + 0.5\,\epsilon$, where $\epsilon$ is a standard
+      normal deviate.  Fit $y \approx w_1 x + w_2$ by mini-batch SGD on
+      the mean squared error, with batches of 10, $r = 0.1$ for 2000
+      steps and then $r=0.01$ for 2000 steps.  Record the loss on all
+      the data after every step.  Compare its average over the last
+      200 steps of each phase with the best possible loss, found by
+      least squares.  What does lowering $r$ do?
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(1)\\
+x = rng.uniform(-1, 1, 1000)\\
+y = 2*x + 1 + 0.5*rng.normal(size=1000)\\
+X = np.column\_stack([x, np.ones(1000)])\\
+w = np.zeros(2); r = 0.1; L = []\\
+for t in range(4000):\\
+\hspace*{2em}if t == 2000: r = 0.01\\
+\hspace*{2em}b = rng.integers(0, 1000, size=10)\\
+\hspace*{2em}w = w - r*2*X[b].T @ (X[b] @ w - y[b])/10\\
+\hspace*{2em}L.append(np.mean((X @ w - y)**2))
+\end{alltt}
+        The best possible loss is about $0.264$.  With $r=0.1$ the loss
+        hovers about $0.006$ above it, and after the drop to $r=0.01$
+        only about $0.0003$ above (the exact numbers depend on the
+        random seed).  Mini-batch noise keeps SGD jiggling around the
+        minimum, and the size of the jiggle shrinks with $r$.  That is
+        why learning-rate schedules lower $r$ towards the end of
+        training.
+      \end{answer}}{\lines{10}}
+
   \end{qparts}
 \end{question}
 
-% ***************************** End of exam *****************************
 \end{document}
-
-
-
-

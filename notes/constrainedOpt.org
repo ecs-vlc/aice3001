@@ -61,12 +61,14 @@
        - note if $\alpha<0$ we could find a better solution moving
          away from the constraint into the feasible region
      * /Karush-Kuhn-Tucker (KKT) Conditions/
-       - For inequality constraints we require either
-	 1. $\alpha=0$ and there is an unconstrained minimum in the
-            regions $g(\bm{x})\geq0$ or
+       - For inequality constraints we require $\alpha\geq0$ and
+	 $\alpha\,g(\bm{x})=0$ (/complementary slackness/), so either
+	 1. $\alpha=0$: the constraint plays no part, and the minimum
+            is an unconstrained one in the region $g(\bm{x})\geq0$ (it can
+            happen to lie exactly on the boundary), or
 	 2. $\alpha>0$ and the solution lies on $g(\bm{x})=0$
    * If we have multiple inequality constraints we just introduce a
-     Lagrange multiply for each constraint with $\alpha\geq0$
+     Lagrange multiplier for each constraint with $\alpha\geq0$
 
 ** Duality
    * Our problem of solving $f(\bm{x})$ subject to some constraints is
@@ -77,7 +79,7 @@
    * This leaves us with the /dual problem/
      $$ \max_{\bm{\alpha}} \;
      \mathcal{L}(\bm{x}^*(\bm{\alpha}),\bm{\alpha}) $$
-     possible with constraints on $\bm{\alpha}$ (e.g. $\alpha_i\geq0$)
+     possibly with constraints on $\bm{\alpha}$ (e.g. $\alpha_i\geq0$)
      that arise from KKT conditions
    * *Linear Programming*
      * In linear programming we are trying to find a value of $\bm{x}$
@@ -91,7 +93,7 @@
        inequality constraints in the primal problem)
      * We can rearrange the Lagrangian as
        $$ \mathcal{L} = \bm{\alpha}^\tr  \bm{b} + \left( \bm{c}^\tr - \bm{\alpha}^\tr \mat{M} \right) \bm{x} $$
-     * Using the identity $\bm{a}^\tr\bm{b} = \bm{b}^\tr \bm{a}$ w can rewrite this
+     * Using the identity $\bm{a}^\tr\bm{b} = \bm{b}^\tr \bm{a}$ we can rewrite this
        as
        $$ \mathcal{L} =  \bm{b}^\tr \bm{\alpha} - \bm{x}^\tr \left(\mat{M}^\tr \bm{\alpha} - \bm{c} \right) $$
      * But we can now treat $\bm{x}$ as a Lagrange multiplier so we
@@ -99,7 +101,10 @@
        $$ \max_{\bm{\alpha}} \; \bm{b}^\tr \bm{\alpha} $$
        subject to the constraint
        $$ \mat{M}^\tr \bm{\alpha} =  \bm{c} $$
-     *  If the original constraints were inequality constraints the $\bm{\alpha}\geq0$
+     * If the original constraints were inequalities, $\mat{M}\bm{x}\geq\bm{b}$,
+       then $\bm{\alpha}\geq\bm{0}$; if also $\bm{x}\geq\bm{0}$ (as in the
+       potato and rice example) the dual constraint becomes
+       $\mat{M}^\tr\bm{\alpha} \leq \bm{c}$
      * The dimensionality of the dual problem can sometimes be much
        lower than that of the primal problem making it easier to solve
    * *Quadratic Program*

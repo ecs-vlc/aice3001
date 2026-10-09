@@ -45,7 +45,7 @@ sheets:
     keywords: Eigensystems, PCA, SVD
   - week: 4
     name: optimisation
-    keywords: Gradient methods, Newton methods, stochastic optimisation
+    keywords: Gradient descent, Newton's method, momentum, SGD, Lagrange multipliers, duality
   - week: 5
     name: convexity
     keywords: convexity, SVMs

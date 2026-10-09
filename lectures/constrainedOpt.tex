@@ -119,7 +119,7 @@
       f(\bm{x}) = f(\bm{x}_0) + (\bm{x}-\bm{x}_0)^\tr \gradx f(\bm{x}_0) + 
       \frac{1}{2}(\bm{x}-\bm{x}_0)^\tr \mat{H} (\bm{x}-\bm{x}_0) + \ldots
     \end{align*}
-    where $\mat{H}$ is a matrix of second derivative known as the
+    where $\mat{H}$ is the matrix of second derivatives known as the
     Hessian\pause
   \item If we consider the set of points perpendicular to $\gradx f(\bm{x}_0)$ which
     go through $\bm{x}_0$ (the tangent plane), these will have values
@@ -169,7 +169,7 @@
       \end{pmatrix}
     \end{align*}
     and $\pd{\mathcal{L}}{\alpha} = -g(\bm{x}) = -x + 2\,y +3 = 0$\pause
-  \item Solving simultaneous equations gives minima at $(x,y)=(\frac{3}{4}, -
+  \item Solving simultaneous equations gives the minimum at $(x,y)=(\frac{3}{4}, -
   \frac{9}{8})$ with $\alpha= \frac{21}{8}$\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -217,7 +217,7 @@
       \mathcal{L}(\bm{x},\bm{\alpha}) 
       = f(\bm{x}) - \sum_{k=1}^m \alpha_k\, g_k(\bm{x})\pause
     \end{align*}
-  \item The condition for an optima is $\gradx
+  \item The condition for an optimum is $\gradx
     \mathcal{L}(\bm{x},\bm{\alpha}) =0$ which implies
     \begin{align*}
       \gradx f(\bm{x}) = \sum_{k=1}^m  \alpha_k \, \gradx g_k(\bm{x})\pause
@@ -239,7 +239,7 @@
   \item Minimise $f(\bm{x}) = x^2 + 2\,y^2 + 5\,z^2- x\,y -x\,z$ subject
   to $g_1(\bm{x}) = x - 2\,y -z -3 = 0$ and $g_2(\bm{x}) = 
   2\,x + 3\,y +z - 2 = 0$ \pause
-  \item Writing $\mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \alpha_1\,g_1(\bm{x}) 
+  \item Writing $\mathcal{L}(\bm{x},\bm{\alpha}) = f(\bm{x}) - \alpha_1\,g_1(\bm{x}) 
     - \alpha_2\,g_2(\bm{x})$\pause
   \item Condition for minima is $\gradx \mathcal{L} = 0$ or $\gradx
   f(\bm{x}) = \sum_{k=1}^2 \alpha_k \gradx g_k(\bm{x})$
@@ -257,7 +257,7 @@
       \end{pmatrix}
     \end{align*}
     and $\pd{\mathcal{L}}{\alpha_i} = -g_i(\bm{x}) = 0$\pause
-  \item Solving simultaneous equations gives minima at $(\frac{37}{20}, -
+  \item Solving simultaneous equations gives the minimum at $(\frac{37}{20}, -
   \frac{11}{20}, -\frac{1}{20})$ with $\alpha_1=3$ and
   $\alpha_2=\frac{13}{20}$\pause
   \end{itemize}
@@ -323,7 +323,7 @@
 \section[-1]{KKT Conditions}
 
 \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item To minimise $f(\bm{x})$ subject to $g(\bm{x})\geq0$
     \begin{align*}
       \mathcal{L}(\bm{x},\alpha) =  f(\bm{x}) - \alpha\, g(\bm{x})\pause
@@ -332,12 +332,9 @@
     \begin{align*}
       \gradx \mathcal{L} = \gradx f(\bm{x}) - \alpha\,\gradx g(\bm{x}) =0\pause
     \end{align*}
-  \item where either
-    \begin{itemize}
-    \item $\alpha = 0$ and the solutions in the interior\pause\ or
-    \item $\alpha>0$ and $g(\bm{x})=0$, i.e. the solution is on the
-      boundary\pause
-    \end{itemize}
+  \item with $\alpha\geq0$ and $\alpha\, g(\bm{x})=0$: either $\alpha = 0$
+    (the constraint plays no part)\pause\ or $\alpha>0$ and $g(\bm{x})=0$
+    (the solution is on the boundary)\pause
   \item These conditions are known as the Karush-Kuhn-Tucker
     conditions\pause
   \end{itemize}
@@ -351,7 +348,7 @@
 \section[-2]{Many Inequalities}
 
 \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item Given the problem
     \begin{align*}
       \min_{\bm{x}} f(\bm{x}) \quad \mbox{subject to $g_k(\bm{x})\geq 0$ for
@@ -359,15 +356,14 @@
     \end{align*}
   \item We introduce multiple Lagrange multipliers
     \begin{align*}
-      \mathcal{L}(\bm{x},\alpha) = f(\bm{x}) - \sum_{k=1}^m \alpha_k\,
+      \mathcal{L}(\bm{x},\bm{\alpha}) = f(\bm{x}) - \sum_{k=1}^m \alpha_k\,
       g_k(\bm{x})\pause 
     \end{align*}
-  \item The condition for an optima is
+  \item The condition for an optimum is
     \begin{align*}
       \gradx f(\bm{x}) = \sum_{k=1}^m  \alpha_k \, \gradx g_k(\bm{x})\pause
     \end{align*}
-  \item Plus the constraints that either $\alpha_k=0$ or $\alpha_k>0$ and
-    $g_k(\bm{x})=0$\pause
+  \item Plus, for each $k$, $\alpha_k\geq0$ and $\alpha_k\,g_k(\bm{x})=0$\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -384,15 +380,14 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Consider minimising a function $f(\bm{x})$ subject to a set of
-    constraints $g_i(\bm{x})=0$ or $g_i(\bm{x})\leq 0$\pause
+    constraints $g_i(\bm{x})=0$ or $g_i(\bm{x})\geq 0$\pause
   \item We can consider this a double optimisation problem
     \begin{align*}
-      \max_\alpha \, \min_{\bm{x}} \mathcal{L}(\bm{x},\bm{\alpha})
-      = \max_\alpha \, \min_{\bm{x}} \left( f(\bm{x}) + \sum_i \alpha_i
+      \max_{\bm{\alpha}} \, \min_{\bm{x}} \mathcal{L}(\bm{x},\bm{\alpha})
+      = \max_{\bm{\alpha}} \, \min_{\bm{x}} \left( f(\bm{x}) - \sum_i \alpha_i
       g_i(\bm{x}) \right)
     \end{align*}
-    where there would be constraints on $\alpha_i$ if we had an
-    inequality constraint\pause
+    where $\alpha_i\geq0$ for each inequality constraint\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -413,7 +408,7 @@
     \end{align*}
   \item This leaves us with the \emph{dual problem}
     \begin{align*}
-      \max_\alpha \mathcal{L}(\bm{x}^*(\bm{\alpha}),\bm{\alpha})\pause
+      \max_{\bm{\alpha}} \mathcal{L}(\bm{x}^*(\bm{\alpha}),\bm{\alpha})\pause
     \end{align*}
   \item If we had an inequality constraint $g_i(\bm{x})\geq 0$ then we
     would have the additional constraint in the dual problem
@@ -432,7 +427,8 @@
   \begin{itemize}
   \item In linear programming we minimise a linear objective function
     $\bm{c}^\tr \bm{x}$ subject to linear constraints $\bm{g}(\bm{x}) =
-    \mat{M}\, \bm{x} - \bm{b} =0$ (or $\bm{g}(\bm{x})\geq0$)\pause
+    \mat{M}\, \bm{x} - \bm{b} =0$ (or $\bm{g}(\bm{x})\geq\bm{0}$ with
+    $\bm{x}\geq\bm{0}$)\pause
   \item The Lagrangian becomes
     \begin{align*}
       \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{c}^\tr \bm{x} - \bm{\alpha}^\tr
@@ -447,7 +443,7 @@
   \item An entirely equivalent interpretation is that we maximise an
     objective function $\bm{b}^\tr\bm{\alpha}$ subject to constraints
     $\mat{M}^\tr \bm{\alpha} - \bm{c} = 0$ (or $\mat{M}^\tr
-    \bm{\alpha} - \bm{c} \leq 0$)\pause
+    \bm{\alpha} - \bm{c} \leq \bm{0}$ with $\bm{\alpha}\geq\bm{0}$)\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -517,7 +513,7 @@
       \min_{P,R} \max_{A,C} \quad 5\,P + 4\,R - A\,(3 P + 5 R - 20)
       - C \, (5 P + 2 R - 24)\pause
     \end{align*}
-  \item subject to $P,R,A,B \geq 0$\pause
+  \item subject to $P,R,A,C \geq 0$\pause
   \item $A$ and $C$ are Lagrange multipliers for vitamin A and C\pause
   \item We can rearrange the Lagrangian to obtain
     \begin{align*}
@@ -587,7 +583,7 @@
   \begin{itemize}
   \item Why are we bothered about translating one linear programme
     into another?\pause
-  \item Sometime one form is massively easier to solve than the
+  \item Sometimes one form is massively easier to solve than the
     other\pause
   \item This is because the first linear programme depends on the
     dimensionality of $\bm{x}$ while the second linear programme
@@ -610,7 +606,7 @@
   \item A quadratic programme involves minimising a quadratic function
     $\bm{x}^\tr \mat{Q} \bm{x}$ (with $\mat{Q}\succ 0$) subject to
     linear constraints $\mat{M}\,\bm{x} = \bm{b}$ (or
-    $\mat{M}\,\bm{x} \leq \bm{b}$)\pause
+    $\mat{M}\,\bm{x} \geq \bm{b}$)\pause
   \item We can define the Lagrangian
     \begin{align*}
       \mathcal{L}(\bm{x},\bm{\alpha}) = \bm{x}^\tr \mat{Q}\, \bm{x} -
@@ -674,7 +670,7 @@
   \item If the constraints were inequality constraints then we have
     $\alpha_i\geq 0$\pause
   \item We have exchanged one quadratic programme for another, but
-    sometimes that very useful (e.g. SVMs)\pause    
+    sometimes that is very useful (e.g. SVMs)\pause    
   \end{itemize}
 \end{PauseHighLight}
 

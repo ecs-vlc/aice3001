@@ -102,7 +102,7 @@ where, for example, $g(V) = \frac{1}{1+\e{-V}}$\pause
   \end{displaymath}
 \item We define an error or loss function that we want to minimise
   \begin{displaymath}
-    L(\bm{w|\data}) = \frac{1}{m} \sum_{k=1}^m \left( \strut
+    L(\bm{w}|\data) = \frac{1}{m} \sum_{k=1}^m \left( \strut
     f(\bm{x}_k|\bm{w}) - y_k \right)^2\pause
   \end{displaymath}
 \item We then use the machine with the weights $\bm{w}^*$ which minimise
@@ -124,7 +124,7 @@ where, for example, $g(V) = \frac{1}{1+\e{-V}}$\pause
   \begin{center}
     \includegraphics[height=7cm]{rough_landscape}\pause
   \end{center}
-\item To minimise we $L(\bm{w}|\data)$ we compute the gradient $\grad
+\item To minimise $L(\bm{w}|\data)$ we compute the gradient $\grad
   L(\bm{w}|\data)$\pause 
 \item For neural networks an efficient algorithm for computing the
   gradient is known as back-propagation of errors (\textit{back-prop})\pause
@@ -145,7 +145,7 @@ where, for example, $g(V) = \frac{1}{1+\e{-V}}$\pause
 \hypertarget{descent}{}
 
 \begin{itemize}\squeeze
-\item A maximum or minimum occurs when $\grad L(\bm{w}|\data)=\bm{0}$\pause
+\item At a maximum or minimum (or a saddle point) $\grad L(\bm{w}|\data)=\bm{0}$\pause
 \item E.g.
 \begin{displaymath}
 L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
@@ -168,7 +168,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \begin{itemize}
 \item For a simple function $L(\bm{w}|\data)$ we can solve $\grad
   L(\bm{w}|\data)=\bm{0}$ explicitly\pause.  E.g. the linear perceptron\pause
-\item For a non-linear functions we usually can't solve this set of
+\item For non-linear functions we usually can't solve this set of
   simultaneous equations\pause
 \item We can find a maximum or minimum \textbf{iteratively}\pause
 \item If we know the gradient then we can follow the gradient\pause
@@ -277,12 +277,12 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \begin{PauseHighLight}
 
 \begin{itemize}
-\item This is Newton's methods\pause
-\item For non-quadratic functions Newtons method converges
+\item This is Newton's method\pause
+\item For non-quadratic functions Newton's method converges
   \textbf{quadratically} provided we are sufficiently close to a minimum\pause
-\item If we are at a distance $x-x^*=\epsilon$ from the minima then
-  after one iteration we will be a distance $\epsilon^2$\pause, after
-  two iterations we will be at a distance $\epsilon^4$, etc.\pauseb
+\item If we are at a distance $x-x^*=\epsilon$ from the minimum then
+  after one iteration we will be a distance of order $\epsilon^2$\pause, after
+  two iterations of order $\epsilon^4$, etc.\pauseb
 \item If we are too far from a minimum we might go anywhere!\pause
 \item We should follow the gradient until we are near the minimum\pause
 \end{itemize}
@@ -356,9 +356,9 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
   \begin{displaymath}
     \bm{x}' = \bm{x} - r \, \grad \,f(\bm{x})\pause
   \end{displaymath}
-\item Need to choose the learning rate of step size, $r$\pause
-\item Too small steps takes lots of time\pause
-\item Too large steps takes you away from a minimum\pause
+\item Need to choose the learning rate or step size, $r$\pause
+\item Too small a step takes lots of time\pause
+\item Too large a step takes you away from a minimum\pause
 \end{itemize}
 
 \end{PauseHighLight}
@@ -420,7 +420,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \pb
 \begin{itemize}
 \item Increasing the step size, just a little further, increases the
-  rate of converge in one direction, but \ldots\pauseh
+  rate of convergence in one direction, but \ldots\pauseh
 \end{itemize}
 \begin{center}
   \includegraphics[width=\linewidth]{min2d-bg}\pause
@@ -430,6 +430,27 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Linear and Quadratic Convergence}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item Near a minimum, along each eigenvector of the Hessian, a gradient
+    step multiplies the error by $(1-r\,\lambda_i)$\pause
+  \item Stable only if $r<2/\lambda_{\max}$, so the flattest direction
+    shrinks by only about $1-\lambda_{\min}/\lambda_{\max} = 1-1/\kappa$
+    per step ($\kappa$ is the condition number)\pause
+  \item A constant factor per step is \emph{linear} convergence; Newton
+    squares the error: \emph{quadratic} convergence\pause
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=0.55\linewidth]{convRates}\pause
+  \end{center}
+\end{PauseHighLight}
+\end{slide}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -437,9 +458,10 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \begin{slide}
 \section{Line Minimisation}
 
+\pb
 \begin{itemize}
 \item We can systematically seek the minimum along a line of the
-  gradient\pauseh
+  gradient\pauseh\pauselevel{=1}
 \end{itemize}
 \begin{center}
   \includegraphics[width=\linewidth]{min2d-bg}\pause
@@ -455,7 +477,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Note that in high dimensions gradient descent tends to zigzag
+  \item Note that in narrow valleys line minimisation zigzags (each step is at right angles to the last)
     \begin{center}
       \includegraphics[width=0.5\linewidth]{min2d-bg}\pause
       \multido{\ia=0+1}{10}{%
@@ -479,8 +501,8 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 \begin{PauseHighLight}
 
 \begin{itemize}
-\item Good optimisation algorithms often compute an approximation of the
-  Hessian\pause
+\item Good optimisation algorithms use second-order (curvature)
+  information without computing the full Hessian\pause
 \item E.g. Conjugate gradient\pause
   \begin{itemize}\squeeze
   \item Performs Line Minimisation\pause
@@ -503,6 +525,30 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
+\section[-1]{BFGS and L-BFGS}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item BFGS (Broyden--Fletcher--Goldfarb--Shanno) is the most widely used
+    quasi-Newton method\pause
+  \item It builds an approximation $\mat{B}\approx\mat{H}^{-1}$ from how
+    the gradient changes from one step to the next
+    \begin{align*}
+      \mat{B}\,\bigl(\grad f(\bm{x}_{t+1}) - \grad f(\bm{x}_t)\bigr)
+      = \bm{x}_{t+1} - \bm{x}_t\pause
+    \end{align*}
+  \item Steps $\bm{x}_{t+1} = \bm{x}_t - \alpha\,\mat{B}\,\grad f(\bm{x}_t)$,
+    with a line search for $\alpha$\pause
+  \item Converges \emph{super-linearly} without ever computing the Hessian\pause
+  \item $\mat{B}$ is $N\times N$; \emph{L-BFGS} keeps only the last ten
+    or so steps instead, so its memory is $O(N)$\pause
+  \end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
 \section[-2]{Levenberg-Marquardt}
 
 \begin{PauseHighLight}
@@ -512,7 +558,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
   \item Use linear approximation
     \begin{align*}
       \epsilon_i(\bm{w}) \approx \epsilon_i(\bm{w}^{(k)}) +
-      (\bm{w}-\bm{w}^{(k)}) \grad \epsilon_i(\bm{w}^{(k)})
+      (\bm{w}-\bm{w}^{(k)})^\tr \grad \epsilon_i(\bm{w}^{(k)})
     \end{align*}
     with $\grad \epsilon_i(\bm{w}^{(k)}) = \grad f(\bm{x}_i|\bm{w}^{(k)})$\pause
   \item Solve quadratic minimisation of approximate error
@@ -554,7 +600,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
     \begin{align*}
       \bm{w}^{(k+1)} = \bm{w}^{(k)} -
       \left(\mat{J}^\tr\mat{J} + \nu \mat{I}\right)^{-1} \mat{J}^\tr
-      \bm{\epsilon}(\bm{w})\pause
+      \bm{\epsilon}(\bm{w}^{(k)})\pause
     \end{align*}
   \item $\nu$ limits the step size\pause
   \item If predicted reduction in error is accurate then reduce $\nu$,
@@ -568,7 +614,7 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{$\epsilon_1 = 10\,(x_2-x_1^2)$ and $\epsilon_2=1-x_1$}
+\section[-2]{Rosenbrock: $\epsilon_1 = 10\,(x_2-x_1^2)$, $\epsilon_2=1-x_1$}
 \pb\pause
 \begin{center}
   \includegraphics[width=0.9\linewidth]{lm1}\mypl{1}
@@ -576,6 +622,29 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
     \llap{\includegraphics[width=0.9\linewidth]{lm\i}\mypl{\i}}}
 \end{center}
 
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Where Are These Used?}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item For up to thousands of parameters (L-BFGS: millions), with
+    gradients computed from all the data\pause
+  \item \emph{Logistic regression}: scikit-learn's default solver is
+    L-BFGS; Newton's method for generalised linear models\pause
+  \item \emph{Gaussian processes}: fitting the kernel hyper-parameters
+    with L-BFGS\pause
+  \item \emph{Curve fitting} (non-linear least squares):
+    Levenberg--Marquardt, e.g.\ SciPy's \texttt{curve\_fit}\pause
+  \item \emph{Support vector machines}: a quadratic programme (later
+    lectures)\pause
+  \item With millions to billions of parameters and mini-batches of data
+    we need different methods: next lecture\pause
+  \end{itemize}
+\end{PauseHighLight}
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -590,14 +659,15 @@ L = \e{-(x+1)^2-(y-1)^2} + 0.6\,\e{-(x-1)^2-0.5(y+1)^2+0.1(x-3)(y-3)}
     are not very competitive\pause
   \item There are \emph{gradient methods} (first order methods) that
     suffer from the problem of having to choose a single step size
-    with conflicting requirements in different directions\pause
+    with conflicting requirements in different directions; they
+    converge \emph{linearly}\pause
   \item \emph{Newton's method} (a second order method) requires
-    computing the Hessian matrix, gives very fast convergent, but can
+    computing the Hessian matrix, converges \emph{quadratically}, but can
     take you in the wrong direction if you are not sufficiently close
     to a minimum\pause
-  \item There exist a number of \emph{pseudo-Newton methods}
-    (conjugate gradient, Levenberg-Marquardt, etc.) that
-    approximates Newton's method often without explicitly computing
+  \item There exist a number of \emph{quasi-Newton methods}
+    (BFGS, conjugate gradient, Levenberg-Marquardt, etc.) that
+    approximate Newton's method often without explicitly computing
     the Hessian\pause
   \end{itemize}
 \end{PauseHighLight}
