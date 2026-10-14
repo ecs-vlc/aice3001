@@ -1,9 +1,12 @@
+import myutil;
 import contour;
 import stats;
 size(400);
 real f(real x, real y) {return x^2+2y^2-x*y;}
 real g(real x, real y) {return x-3y-2;}
+real gy(real x) {return (x-2)/3;}
 
+draw(box((-1.3,-1), (1.3,0.9)), white);
 
 real[] con = {0.25,0.5,0.75,1};
 Label[] Labels=sequence(new Label(int i) {
@@ -12,6 +15,12 @@ UnFill(1bp));
 },con.length);
 guide[][] contours = contour(f,(-1.2,-1.0),(1.2,1.0), con);
 draw(Labels, contours, lightred);
+label("$f(\mathbf{x})$",(0,0), red);
+ship();
+draw((-1, gy(-1))--(1.2, gy(1.2)), blue);
+label("$g(\mathbf{x})=0$", (0.9, (0.9-2)/3), SE, blue);
+ship();
+
 real[] con2 = {-1,0,1};
 Label[] Labels2=sequence(new Label(int i) {
 return Label((string) con2[i],Relative(unitrand()),(0,0),
@@ -20,25 +29,14 @@ UnFill(1bp));
 draw(Labels2, contour(g,(-1.2,-1.0),(1.2,1.0), con2), lightblue);
 draw(new Label[]{Labels2[1]}, contour(g,(-1.2,-1.0),(1.2,1.0), new real[]{0}), blue);
 
-label("$g(\mathbf{x})=0$", (0.9, (0.9-2)/3), SE, blue);
-label("$f(\mathbf{x})$",(0,0), red);
 
-int piccnt = 0;
-void out() {
-  string fn = "constrainedopt"+string(piccnt)+".eps";
-  ++piccnt;
-  shipout(fn);
-}
 
-out();
+
+
+ship();
 picture contour;
 add(contour,currentpicture);
 
-for(real x=-0.5; x<0.8; x+=0.3) {
-  real y = (x-2)/3.0;
-  pair d = 0.05*(1,-3);
-  draw((x,y)--(x,y)+d, blue, Arrow);
-}
 
 for(int i=0; i<con.length; ++i) {
   real len = length(contours[i][0]);
@@ -49,7 +47,15 @@ for(int i=0; i<con.length; ++i) {
   }
 }
 
-out();
+ship();
+
+for(real x=-0.5; x<0.8; x+=0.3) {
+  real y = (x-2)/3.0;
+  pair d = 0.05*(1,-3);
+  draw((x,y)--(x,y)+d, blue, Arrow);
+}
+
+ship();
 erase();
 add(contour);
 draw(contour(f,(-1.2,-1.0),(1.2,1.0), new real[]{7/8}), red);
@@ -65,4 +71,4 @@ dot(maxi);
 
 
 
-out();
+ship();

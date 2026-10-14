@@ -54,8 +54,8 @@
    * Every component must shrink, $|1-r\lambda_i|<1$, so we need
      $r < 2/\lambda_{\max}$.  The steepest direction limits the step
      size
-   * With $r$ that small, the flattest direction shrinks by only about
-     $1 - \lambda_{\min}/\lambda_{\max}$ per step.  The best fixed step,
+   * With $r$ that small, the flattest direction shrinks by
+     $1 - r\lambda_{\min} > 1 - 2\lambda_{\min}/\lambda_{\max}$ per step.  The best fixed step,
      $r = 2/(\lambda_{\max}+\lambda_{\min})$, gives the factor
      $$ \frac{\kappa-1}{\kappa+1}, \qquad \kappa = \frac{\lambda_{\max}}{\lambda_{\min}} $$
      where $\kappa$ is the condition number of the Hessian (eigensystems
