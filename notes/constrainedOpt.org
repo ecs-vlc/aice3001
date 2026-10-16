@@ -60,6 +60,19 @@
        i.e. in the region that violates the constraint
        - note if $\alpha<0$ we could find a better solution moving
          away from the constraint into the feasible region
+       - In the figures below the unconstrained minimum $\bm{x}^*$ is
+         feasible on the left.  Three boundary points (green) still have
+         $\grad f = \alpha\,\grad g$, but with $\alpha<0$, so none is a
+         local optimum.  On the right the constraint excludes the
+         unconstrained minimum, and at the constrained minimum
+         $\alpha\approx1.4>0$
+
+         #+BEGIN_EXPORT latex
+         \begin{center}
+           \includegraphics[width=0.48\linewidth]{figures/ineqcon1-3.pdf}\hfill
+           \includegraphics[width=0.48\linewidth]{figures/ineqcon-2.pdf}
+         \end{center}
+         #+END_EXPORT
      * /Karush-Kuhn-Tucker (KKT) Conditions/
        - For inequality constraints we require $\alpha\geq0$ and
 	 $\alpha\,g(\bm{x})=0$ (/complementary slackness/), so either
