@@ -86,7 +86,8 @@ later parts ask you to put the pieces together.
         each component behaves like part (a).  Both converge only if
         $r < 2/a$: the steepest direction limits the step size.
 
-        The overall rate is set by the larger of $|1-r\,a|$ and
+        The overall contraction factor (how much the error shrinks
+        each step) is the larger of $|1-r\,a|$ and
         $|1-r\,b|$.  As $r$ grows, $|1-r\,b| = 1-r\,b$ falls, while for
         $r>1/a$, $|1-r\,a| = r\,a-1$ rises.  The best $r$ balances them:
         \begin{align*}
@@ -104,7 +105,7 @@ later parts ask you to put the pieces together.
       descent steps are needed to reduce the error by a factor of
       $10^6$?  How many steps would Newton's method need?
       \begin{answer}
-        Stability needs $r<2/a = 0.02$; the best rate is
+        Stability needs $r<2/a = 0.02$; the best learning rate is
         $r = 2/101 \approx 0.0198$.  Then $\kappa = 100$ and each step
         multiplies the error by $99/101 \approx 0.980$, so we need
         \begin{align*}
