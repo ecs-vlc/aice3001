@@ -11,9 +11,9 @@
    * We are familiar geometrically with convex regions
    * To define convexity we need to define an intermediate point
      $\bm{z} = a\,\bm{x} + (1-a)\,\bm{y}$
-     - we requires $a\in[0,1]$ (i.e. $x$ is in the interval between 0 and 1)  for $\bm{z}$ to be between $\bm{x}$ and $\bm{y}$
+     - we require $a\in[0,1]$ (i.e. $a$ is in the interval between 0 and 1)  for $\bm{z}$ to be between $\bm{x}$ and $\bm{y}$
      - to define convexity we only need to have addition and scalar multiplication
-   * We can the define convexity in a very general way: a set
+   * We can then define convexity in a very general way: a set
      $\mathcal{S}$ is convex if for every pair of points
      $\bm{x},\bm{y}\in \mathcal{S}$ and for every possible $a\in[0,1]$ then
      $\bm{z} = a\,\bm{x} + (1-a)\,\bm{y} \in \mathcal{S}$
@@ -21,7 +21,7 @@
    * For example the set of positive semi-definite matrices forms a convex set
      * This follows from the fact the sum of two positive
        semi-definite matrices is also positive semi-definite and if we
-       multiply a positive semi-definite matrix by a positive number
+       multiply a positive semi-definite matrix by a non-negative number
        then the matrix is still positive semi-definite
 
 ** Convex Functions
@@ -29,47 +29,76 @@
      if for all pairs of points in the domain of the function and all
      $a\in[0,1]$ $$ f(a \,\bm{x} + (1-a)\, \bm{y}) \leq a \,
      f(\bm{x}) + (1-a) \, f(\bm{y}) $$
-   * This means that the function sits on or below the linear chord
-     connecting any two points in the domain of the function
+   * This means that the function sits on or below the straight chord
+     joining the function values at any two points of its domain
    * The epigraph of a function is the area that lies on or above the
-     functions
+     function
      - The epigraph of a convex function forms a convex region
      - If the epigraph of a function forms a convex region then the
        function is convex
-   * We can define /convex-down/ or /concave/ functions by inverting the constraint
+   * We can define /convex-down/ or /concave/ functions by reversing the inequality
      $$  f(a \,\bm{x} + (1-a)\, \bm{y}) \geq  a \, f(\bm{x}) + (1-a) \, f(\bm{y}) $$
      - for clarity I will sometimes refer to "convex" functions as
        /convex-up/ functions
      - convex-down functions have similar (but opposite) properties to
        convex up functions
-   * A function where for every pair of points and for any $a$ such
-     that $0<a<1$ (i.e. a lies strictly between 0 and 1) then if
+   * A function where for every pair of distinct points
+     $\bm{x}\neq\bm{y}$ and for any $a$ such that $0<a<1$ (i.e. $a$
+     lies strictly between 0 and 1)
      $$  f(a \,\bm{x} + (1-a)\, \bm{y}) < a \, f(\bm{x}) + (1-a) \, f(\bm{y}) $$
-     then function is said to be /strictly convex/
-   * Linear functions $f(\bm{x}) = a\,\bm{x} +c$ are both convex-up
+     is said to be /strictly convex/
+   * Linear functions $f(\bm{x}) = \bm{m}^\tr\bm{x} +c$ are both convex-up
      and convex-down functions
      - For a function to be a strictly convex function it cannot have
        a linear section
-   * Convex functions lie on or above their tangent plane
-     - The tangent plane to a function $f(\bm{x})$ at a point
-       $\bm{x}_0$ is the plane orthogonal to the gradient, $\grad
-       f(\bm{x}_0)$ that goes through the point $\bm{x}_0$
-   * A necessary and sufficient condition for a function to be convex
-     is that its second derivative is non-negative or for
-     multi-dimensional functions the Hessian is positive semi-definite
+   * Convex functions lie on or above their tangent plane (where
+     they are differentiable)
+     $$ f(\bm{x}) \geq f(\bm{x}_0) + (\bm{x}-\bm{x}_0)^\tr \grad f(\bm{x}_0) $$
+     - The tangent plane at $\bm{x}_0$ is the linear function that
+       matches both the value $f(\bm{x}_0)$ and the gradient $\grad
+       f(\bm{x}_0)$ there.  (The gradient is orthogonal to the
+       /contour/ through $\bm{x}_0$, not to the tangent plane)
+     - Where $f$ is not differentiable (e.g. $|x|$ at $x=0$) there is
+       no unique tangent, but a convex function still lies above some
+       line through each point (a /supporting/ line, whose slope is
+       called a /subgradient/).  This is enough for everything below,
+       including Jensen's inequality
+   * Why the second derivative is non-negative: the tangent lines at
+     $x$ and $x+\epsilon$ (with $\epsilon>0$) give
+     \begin{align*}
+       f(x+\epsilon) &\geq f(x) + \epsilon\, f'(x) \\
+       f(x) &\geq f(x+\epsilon) - \epsilon\, f'(x+\epsilon)
+     \end{align*}
+     Adding these, $0 \geq \epsilon\,\bigl(f'(x) - f'(x+\epsilon)\bigr)$,
+     so $f'(x+\epsilon)\geq f'(x)$: the slope never decreases, and
+     hence $f''(x)\geq0$
+   * A necessary and sufficient condition for a twice-differentiable
+     function to be convex is that its second derivative is
+     non-negative or for multi-dimensional functions the Hessian is
+     positive semi-definite
      - If the second derivative is positive (i.e. always greater
        than 0) or the Hessian is positive definite then the function
-       is strictly positive
+       is strictly convex
+     - This is sufficient but not necessary: $x^4$ is strictly convex
+       although its second derivative vanishes at $x=0$
    * Examples
      * Convex-up Functions
        * $f(x) = x^2$  is strictly convex since $f''(x)=2>0$
-       * $f(x) = x^{-2}$  is strictly convex since $f''(x)=2\,x^{-4}>0$
-       * $f(x) = x^4$  is convex since $f''(x)=12\,x^2\geq0$
-       * $f(x) = \e{c\,x}$ is strictly convex for all $c$ as $f''(x)=c^2\,\e{c\,x}>0$
-       * $f(\bm{x}) = \|\bm{x}\|^2$  is strictly convex since $\mat{H}(x)=\mat{I}\succ0$
+       * $f(x) = x^{-2}$ (for $x>0$) is strictly convex since $f''(x)=6\,x^{-4}>0$
+       * $f(x) = x^4$  is convex since $f''(x)=12\,x^2\geq0$ (in fact
+         strictly convex, see above)
+       * $f(x) = \e{c\,x}$ is strictly convex for $c\neq0$ as $f''(x)=c^2\,\e{c\,x}>0$
+       * $f(\bm{x}) = \|\bm{x}\|^2$  is strictly convex since $\mat{H}=2\,\mat{I}\succ0$
        * $f(x) = |x|$ is convex since for $a\in[0,1]$ we have $|a\,x +
-         (1-a)\,y| \leq a\,|x| + (1-a)\,|y|$ with equality only when
-         $x\,y\geq 0$
+         (1-a)\,y| \leq a\,|x| + (1-a)\,|y|$ (the triangular
+         inequality), with equality when $x\,y\geq 0$, so it is not
+         strictly convex
+       * $f(\bm{x}) = \|\bm{x}\|_1 = \sum_i |x_i|$ is convex, as a sum
+         of convex functions
+       * $f(x,y) = x^2/y$ (for $y>0$) is convex: its Hessian
+         $$ \mat{H} = \frac{2}{y^3} \begin{pmatrix} y^2 & -x\,y \\ -x\,y & x^2 \end{pmatrix} $$
+         has eigenvalues $0$ and $2(x^2+y^2)/y^3$, both
+         non-negative
      * Convex-down Functions
        1. $f(x) = -x^2$  is strictly convex-down since $f''(x)=-2<0$
        2. $f(x) = \sqrt{x}$  (for $x>0$) is strictly convex-down since $f''(x)=-x^{-3/2}/4<0$
@@ -82,25 +111,42 @@
      - This is just a more precise definition of a convex function
      - Note that by limiting the domain of a function some non-convex
        functions may be convex over that domain
-       - e.g. $\cos(x)$ is convex in the interval $[-\pi/2,3\pi/3]$
+       - e.g. $\cos(x)$ is convex in the interval $[\pi/2,3\pi/2]$,
+         where $-\cos(x)\geq0$, and $\sin(x)$ is convex-down in
+         $[0,\pi]$
      - A convex function constrained to lie in a convex set will still
        be convex
      - Any combination of linear constraints will form a convex set
+     - Non-linear constraints may or may not: with $\mat{M}\succeq0$,
+       $\bm{x}^\tr\mat{M}\bm{x}\leq1$ is a convex set (an ellipsoid)
+       but $\bm{x}^\tr\mat{M}\bm{x}\geq1$ is not
      - Therefore convex functions restricted to satisfy linear
        constraints will be convex
-   * The minimum of a convex function will form a convex set
-     - There can be no local minima
-     - For a strictly convex function the minimum will be unique
-   * The sum of convex functions will be convex
+   * The minima of a convex function (if it has any) form a convex set
+     - There can be no local minima that are not global: on the line
+       from such a point to a lower point the function lies on or
+       below the chord, so there would be lower points arbitrarily
+       close by
+     - A strictly convex function has at most one minimum: if
+       $\bm{x}\neq\bm{y}$ were both minima, strict convexity would
+       make $f((\bm{x}+\bm{y})/2)$ smaller than $f(\bm{x})$.  It need
+       not have one at all ($\e{x}$ has none)
+   * A sum of convex functions with non-negative weights is convex
+     - Adding a strictly convex function to a convex one gives a
+       strictly convex function (add the two defining inequalities;
+       one is strict)
    * *Linear regression*
      - The loss function of linear regression is convex
        $$ L(\bm{w}) = \| \mat{X}\bm{w} - \bm{y} \|^2 $$
-       - The Hessian is $\mat{X}^\tr\mat{X}$ which is positive
+       - The Hessian is $2\,\mat{X}^\tr\mat{X}$ which is positive
          semi-definite which is a sufficient condition for $L(\bm{w})$
          to be convex
      - Both the $L_2$ regulariser and the $L_1$ regulariser are convex
-     - The $L_2$ regulariser is strictly convex so there will be a
-       unique solution
+     - The $L_2$ regulariser is strictly convex so adding it (ridge
+       regression, with $\eta>0$) gives a unique solution.  So does
+       the elastic net ($L_1$ plus $L_2$), while the $L_1$ regulariser
+       alone (lasso) gives a convex loss whose minimum need not be
+       unique
      - Many machine learning algorithms are chosen because they
        involve minimising a convex function leading to a unique minimum
 
@@ -112,8 +158,9 @@
      $$ \av{f(\bm{x})} \leq f(\av{\bm{x}}) $$
    * These are known as /Jensen's Inequality/
    * *Proof*
-     * We can prove this starting from the fact that $f(\bm{x})$ lies
-       above the tangent plane at any point
+     * We can prove this (for differentiable $f$; a supporting plane
+       does the same job otherwise) starting from the fact that
+       $f(\bm{x})$ lies above the tangent plane at any point
        $$ f(\bm{x}) \geq f(\bm{x}^*) + (\bm{x}-\bm{x}^*)^\tr \grad
        f(\bm{x}^*) $$
      * This has to be true at the point $\bm{x}^*=\av{\bm{x}}$
@@ -126,22 +173,22 @@
            &= f(\av{\bm{x}}) \hspace{2cm} \square
          \end{align*}
    * Using Jensen's Inequality
-     * Consider the strictly convex function $f(\bm{x})=x^2$ by
+     * Consider the strictly convex function $f(x)=x^2$ by
        Jensen's inequality
        $$ \av{x^2} \geq \av{x}^2$$
        - or $\av{x^2}-\av{x}^2 \geq 0$
 	 - the left-hand side is the variance so we see variances are non-negative
-	 - because $f(\bm{x})=x^2$ is strictly convex we only get
+	 - because $f(x)=x^2$ is strictly convex we only get
            equality where $\bm{x}$ doesn't vary at all
-     * Consider the Kullback-Liebler (KL) divergence defined for
-       discrete probability probability distributions defined over the
+     * Consider the Kullback-Leibler (KL) divergence defined for
+       discrete probability distributions defined over the
        same range as
-       $$ \mathcal{KL}(f \| g) = - \sum_i f_i \,  \logg{\frac{g_i}{f_i}} $$
+       $$ \mathrm{KL}(f \| g) = - \sum_i f_i \,  \logg{\frac{g_i}{f_i}} $$
        - This is often used to measure how different distribution are
          from each other
-       - Note if $g_i=f_i$ then $\mathcal{KL}(f \| g) =0$ since $\log(1)=0$
+       - Note if $g_i=f_i$ then $\mathrm{KL}(f \| g) =0$ since $\log(1)=0$
        - Now we can use Jensen's inequality to show that
-         $\mathcal{KL}(f \| g) \geq 0$
+         $\mathrm{KL}(f \| g) \geq 0$
 	 \begin{align*}
          \mathrm{KL}(f \| g) &= - \sum_i f_i \, \logg{\frac{g_i}{f_i}}
          =- \av[f]{\logg{\frac{g_i}{f_i}}}\\
@@ -152,11 +199,15 @@
            values $X_i=g_i/f_i$ that occur with probability $f_i$
 	 - The KL-divergence is therefore equal to $\av{-\log(X_i)}$
 	 - Since $-\log(x)$ is convex up we have by Jensen's
-           inequality that the KL-divergences is greater than or equal
+           inequality that the KL-divergence is greater than or equal
            to $-\logg{\av{X_i}} = -\logg{\sum_i f_i\,X_i}$
-	 - But $X_i=g_i/f_i$ so the KL-divergence is greater than
+	 - But $X_i=g_i/f_i$ so the KL-divergence is greater than or equal to
            $-\logg{\sum_i g_i}$
 	 - But $g_i$ is a probability so $\sum_i g_i=1$ giving us our result
+         - If some $f_i=0$ we take $0\log(0)=0$, and $X_i$ is only
+           defined where $f_i>0$, so every sum runs over those $i$.
+           Then $\sum_{i:f_i>0} g_i\leq1$, so $-\log$ of it is still
+           $\geq0$ and the result holds
        - This is known as the Gibbs' inequality after the mathematical
          physicist, J. Willard Gibbs, (founder of modern statistical
          mechanics) who first proved it
@@ -188,11 +239,11 @@
      $p(x)$ is defined as
      $$ G(\lambda) = \logg{\av{\e{\lambda\,x}}} $$
      - the expectation is over the random variable $x$ drawn from $p(x)$
-   * It is called the cumulant generating function because it we take
-     then $n^{th}$ derivative and set $\lambda$ to zero we obtain the
+   * It is called the cumulant generating function because if we take
+     the $n^{th}$ derivative and set $\lambda$ to zero we obtain the
      $n^{th}$ cumulant (i.e. $\kappa_n = G^{(n)}(0)$)
    * The first cumulant is the mean, the second the variance while the
-     third and forth are proportional to the skewness and kurtosis
+     third and fourth are proportional to the skewness and excess kurtosis
    * Cumulant generating functions appear a lot when you work with
      probabilities, but go beyond this course
    * Nevertheless let's show they are convex
@@ -212,9 +263,9 @@
      $\bm{v} = c\,\bm{x}\in\mathcal{P}$ since each element of $\bm{v}$ will
      be non-negative (i.e. $v_i=c\,x_i\geq0$)
    * Also for any two vectors $\bm{x},\bm{y}\in\mathcal{P}$ clearly
-     $\bm{w} = \bm{x} + \bm{y} \in \mathcal{P}$ since $w_i=x_+y_i$
+     $\bm{w} = \bm{x} + \bm{y} \in \mathcal{P}$ since $w_i=x_i+y_i$
    * Thus for any two vectors  $\bm{x},\bm{y}\in\mathcal{P}$ and any
-     $a\in\{0,1\}$ the vector $\bm{z} = a\,\bm{x} +(1-a)\,\bm{y}$ will
+     $a\in[0,1]$ the vector $\bm{z} = a\,\bm{x} +(1-a)\,\bm{y}$ will
      be in $\mathcal{P}$
 
 ** Inverse of Convex Functions
@@ -229,7 +280,7 @@
       $y=f^{-1}(x)$) also $(g'(x))^2\geq0$ so for the inverse of
       $f(x)$ to be convex down we require $f'(f^{-1}(x))>0$
    5. Use this to show
-      1. Let $f(x)=x^2$, so that $f''(x)=2>0$ and $f'(y)=y$ which is
+      1. Let $f(x)=x^2$ for $x\geq0$, so that $f''(x)=2>0$ and $f'(y)=2\,y$ which is
          non-negative if $y\geq0$, but $f^{-1}(x)=\sqrt{x}>0$ so
          $f'(f^{-1}(x))\geq0$ and consequently $\sqrt{x}$ is
          convex-down
@@ -247,7 +298,7 @@
       \av{\e{\lambda\,x}} } - \frac{ \av{x\,\e{\lambda\,x}}^2 }{
       \av{\e{\lambda\,x}}^2 } $$
    2. 
-      * Now if $p(x)$ is a probability distribution is will be
+      * Now if $p(x)$ is a probability distribution it will be
 	non-negative for all $x$ and sum or integrate to 1
       * But then $q(x) = p(x)\,\e{\lambda\,x}/\av{\e{\lambda\,x}}$
         will be non-negative as $\e{\lambda\,x}>0$ and
@@ -262,7 +313,7 @@
    3. Using the result of 1. and 2
       $$ G''(\lambda) = \frac{ \av[p]{x^2\,\e{\lambda\,x}} }{
       \av[p]{\e{\lambda\,x}} } - \frac{ \av[p]{x\,\e{\lambda\,x}}^2 }{
-      \av[p]{\e{\lambda\,x}}^2 } = \av[g]{x^2} - \av[g]{x}^2 \geq 0 $$
+      \av[p]{\e{\lambda\,x}}^2 } = \av[q]{x^2} - \av[q]{x}^2 \geq 0 $$
       - since variances are non-negative
 
 * COMMENT [[file:constrainedOpt.org][Previous]]  [[file:svm.org][Next]]

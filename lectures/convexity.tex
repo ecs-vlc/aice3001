@@ -62,7 +62,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item For any set, $\mathcal{S}$, where addition and scalar
-    multiplication is defined (e.g. a vector space) then:
+    multiplication are defined (e.g. a vector space) then:
     \begin{quotation}
       \noindent If for any two elements $\bm{x},\bm{y} \in \mathcal{S}$ and any
       $a\in[0,1]$
@@ -179,7 +179,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Any function, $f(x)$, that satisfies the inverse inequality
+  \item Any function, $f(x)$, that satisfies the reverse inequality
     \begin{align*}
       f(a \,x + (1-a)\, y) \geq a f(x) + (1-a) f(y)\pause
     \end{align*}
@@ -224,7 +224,7 @@
       f(a \,x + (1-a)\, y) = a f(x) + (1-a) f(y)\pause
     \end{align*}
   \item As such they are both convex(-up) and convex-down
-    function\pause    
+    functions\pause    
   \item $|x|$ is a convex-up function \raisebox{-1cm}{\includegraphics[width=0.3\linewidth]{modx}}\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -284,12 +284,12 @@
 
 \pb
 \begin{itemize}
-\item Convex functions lie on or above any tangent line
+\item Differentiable convex functions lie on or above any tangent line
   \begin{align*}
     f(x) \geq f(x^*) + (x-x^*) f'(x^*)\pause
   \end{align*}
   \begin{center}
-    \multipdf[width=0.9\linewidth]{aboveGrad}\pauseb
+    \multipdf[width=0.85\linewidth]{aboveGrad}\pauseb
   \end{center}
 \end{itemize}
 
@@ -301,8 +301,9 @@
 \section[-2]{Second Derivatives}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item As $f(x)$ lies on or above its tangent line then for any $\epsilon>0$
+  \begin{itemize}\squeeze
+  \item Adding the tangent-line inequalities at $x$ and $x+\epsilon$,
+    for any $\epsilon>0$
     \begin{align*}
       f'(x+\epsilon)\geq f'(x)\pause
     \end{align*}
@@ -337,7 +338,7 @@
 \begin{PauseHighLight}\squeeze
   \begin{itemize}
   \item $f(x)=x^2$ is strictly convex as $f''(x)=2>0$\pause
-  \item $f(x)=\e{c\,x}$ is strictly convex as $f''(x) =
+  \item $f(x)=\e{c\,x}$ ($c\neq0$) is strictly convex as $f''(x) =
     c^2\,\e{c\,x}>0$\pause
   \item $f(x) = \log(x)$ is strictly convex-down
     as $f''(x)=-\frac{1}{x^2}<0$\pause
@@ -391,10 +392,10 @@
     \begin{align*}
       g''(x) = \sum_i a_i \, f_i''(x)
     \end{align*}
-    but $f_i''(x)\geq 0$ so $g''(x)$ is a sum on non-negative
+    but $f_i''(x)\geq 0$ so $g''(x)$ is a sum of non-negative
     terms\pause
   \item This generalises to higher dimensions as the sum of PSD
-    matrices times positive factors is a PSD matix\pause
+    matrices times non-negative factors is a PSD matrix\pause
   \end{itemize}
 \end{PauseHighLight}
   
@@ -411,7 +412,7 @@
 \begin{itemize}
 \item All the properties we have discussed hold for functions
   defined on a convex set\pauseh
-\item $\sin(x)$ is not generally neither convex up or down\pauseh
+\item $\sin(x)$ is neither convex-up nor convex-down on the whole real line\pauseh
 \item $\sin(x)$ for $x\in[0, \pi]$ is convex-down\pauseh{} (its second
   derivative $-\sin(x)$ is less than or equal to 0 in this
   range)\pause
@@ -419,10 +420,10 @@
     \multipdf[width=0.75\linewidth]{sinConvex}\pause
   \end{center}\pauselevel{=7}
 \item For a convex function defined on a non-convex set,
-  $\mathcal{S}$, there exists points $\bm{x},\bm{y} \in \mathcal{S}$
-  such that for some $a\in[0,1]$ there will be points
+  $\mathcal{S}$, there exist points $\bm{x},\bm{y} \in \mathcal{S}$
+  such that for some $a\in[0,1]$ the point
   $\bm{z}=a\,\bm{x}+(1-a)\bm{y}\not\in\mathcal{S}$\pauseh{} (the
-  function isn't defined on such points)\pause
+  function isn't defined at such points)\pause
 \end{itemize}
   
 
@@ -464,13 +465,14 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Strictly convex function have a unique minimum\pause
-  \item The existence of a local minimum would break convexity\pause
+  \item A strictly convex function has at most one minimum ($\e{x}$
+    has none)\pause
+  \item A local minimum that is not global would break convexity\pause
 
     \begin{rightImage}{doubleDip}
       \begin{itemize}
-      \item The line connecting a local minimum to a global minimum
-        would be strictly decreasing\pause
+      \item On the line from a local minimum to a lower global minimum
+        $f$ lies on or below the chord, which strictly decreases\pause
       \item Thus there are points next to the local minimum with lower
         values\pause
       \item This is a contradiction\pause
@@ -500,11 +502,9 @@
     \in \mathcal{M}$ then for any $a\in[0,1]$ the point
     $\bm{z}=a\,\bm{x} + (1-a)\, \bm{y}\in \mathcal{M}$\pause
   \item The sum of a convex function, $f(x)$, and a strictly convex function
-    $g(x)$ will always be strictly convex since
-    \begin{align*}
-      f''(x) + g''(x) >0 
-    \end{align*}
-    as $f''(x)\geq 0$ and $g''(x)>0$\pause
+    $g(x)$ will always be strictly convex: adding the inequality that
+    defines convexity for $f$ to the strict inequality for $g$ gives a
+    strict inequality\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -525,11 +525,11 @@
       \bm{y}^\tr \bm{y}
     \end{align*}
     is convex\pause
-  \item Since the Hessian $\mat{H} = 2\,\bm{X}^\tr \bm{X} \succeq 0$
+  \item Since the Hessian $\mat{H} = 2\,\mat{X}^\tr \mat{X} \succeq 0$
     (positive semi-definite)\pause\\
     (For any vector $\bm{v}$ then $\bm{v}^\tr \mat{H} \bm{v} =
     2\,\bm{v}^\tr\mat{X}^\tr \mat{X}\bm{v} = 2\,\| \mat{X}\bm{v} \|^2 \geq 0$)\pauseb
-  \item If $\mat{H}\succ 0$ there will be a unique minima\pause, while
+  \item If $\mat{H}\succ 0$ there will be a unique minimum\pause, while
     if $\mat{H}$ has some zero eigenvalues there will be a family of
     solutions\pauseb
   \end{itemize}
@@ -576,7 +576,7 @@
   \begin{itemize}
   \item In proving many properties of learning machines inequalities
     are really useful\pause
-  \item One of the most useful inequalities involve expectations of
+  \item One of the most useful inequalities involves expectations of
     convex functions, this is known as \emph{Jensen's
       Inequality}\pause
   \item If $f(\bm{x})$ is a convex(-up) function then
@@ -599,8 +599,8 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We said before that a convex function must lie on or above its
-    tangent plane at any point $\bm{x}^*$
+  \item We said before that a (differentiable) convex function must
+    lie on or above its tangent plane at any point $\bm{x}^*$
     \begin{align*}
       f(\bm{x}) \geq f(\bm{x}^*) + (\bm{x}-\bm{x}^*)^\tr \grad f(\bm{x}^*)\pause
     \end{align*}
@@ -632,10 +632,10 @@
       \av{X^2} \geq  (\av{X})^2\pause \quad \text{or} \quad
       \av{X^2}-\av{X}^2 \geq 0
     \end{align*}
-    (i.e. variance are non-negative)\pause
+    (i.e. variances are non-negative)\pause
   \item The KL-divergence $\mathrm{KL}(f \| g)$ between two
     categorical probability distributions $(f_1,f_2,\ldots)$ and
-    $(g_1,g_2,\ldots)$ is define as
+    $(g_1,g_2,\ldots)$ is defined as
     \begin{align*}
       \mathrm{KL}(f \| g) = - \sum_i f_i \, \logg{\frac{g_i}{f_i}}
     \end{align*}
@@ -664,7 +664,7 @@
   \section[-1]{Proof of Gibbs' Inequality}
 
   \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item To show that $\mathrm{KL}(f \| g)\geq 0$ (Gibbs' inequality) we
     note that since the logarithm is a convex-down function
     \begin{align*}
@@ -675,6 +675,8 @@
       &= - \logg{\sum_i f_i \frac{g_i}{f_i}}\pauseb
       = -\logg{\sum_i g_i}\pauseb = -\log(1) \pauseb = 0\pauseb
     \end{align*}
+  \item {\small If some $f_i=0$ the sums run over $f_i>0$ only (as
+    $0\log(0)=0$), so $\sum_i g_i\leq1$: still $\geq0$}\pauseb
   \item We will meet KL-divergences later on\pauseb
   \end{itemize}
 \end{PauseHighLight}
