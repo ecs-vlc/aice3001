@@ -83,17 +83,17 @@
     \begin{align*}
       \bm{x}=(x_1,\,x_2,\,\ldots,\,x_p)^\tr \rightarrow \bm{\phi}(\bm{x}) =
       (\phi_1(\bm{x}),\,\phi_2(\bm{x}),\,\ldots,\,
-      \phi_r(\bm{x}))^\tr
+      \phi_{p'}(\bm{x}))^\tr
     \end{align*}
-    $r\gg p$\pause
+    with $p'\gg p$\pause
   \item Finding the maximum margin hyper-plane is time consuming in
-    ``primal'' form if $r$ is large\pause
+    ``primal'' form if $p'$ is large\pause
   \item We can work in the ``dual'' space of patterns, then we only need to
     compute inner-products
     \begin{align*}
       \inner{\bm{\phi}(\bm{x}_i)}{\bm{\phi}(\bm{x}_j)} =
       \bm{\phi}(\bm{x}_i)^\tr \bm{\phi}(\bm{x}_j)  \pause
-      =  \sum_{k=1}^r \phi_k(\bm{x}_i) \, \phi_k(\bm{x}_j)\pauseb
+      =  \sum_{k=1}^{p'} \phi_k(\bm{x}_i) \, \phi_k(\bm{x}_j)\pauseb
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -108,8 +108,8 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item If we choose a \emph{positive semi-definite} kernel function
-    $K(\bm{x}, \bm{y})$ then there exists functions
-    $\bm{\phi}(\bm{x}) = (\phi_k(\bm{x})|k=1,\,2,\,\ldots,\,r)$,
+    $K(\bm{x}, \bm{y})$ then there exist functions
+    $\bm{\phi}(\bm{x}) = (\phi_k(\bm{x})|k=1,\,2,\,\ldots,\,p')$,
     such that
     \begin{align*}
       K(\bm{x}_i, \bm{x}_j) = \inner{\bm{\phi}(\bm{x}_i)}{
@@ -133,7 +133,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Kernel functions are symmetric functions of two variable\pause
+  \item Kernel functions are symmetric functions of two variables\pause
   \item Strong restriction: \textit{positive semi-definite}\pause
   \item Examples
     \begin{align*}
@@ -176,7 +176,7 @@
   x_2^2 \\ y_2^2 \\ \sqrt{2}\,x_2\,y_2 
 \end{pmatrix}\pause
 =  x_1^2\,x_2^2 + y_1^2\,y_2^2 + 2 \,x_1\,y_1\,x_2\,y_2 \pause \\
-&= (x_1\,x_2 + y_1\,y_2)^2 \pause =  \left(\bm{x}_1^T\bm{x}_2\right)^2\pause
+&= (x_1\,x_2 + y_1\,y_2)^2 \pause =  \left(\bm{x}_1^\tr\bm{x}_2\right)^2\pause
 \end{align*}}
 \setlength{\unitlength}{\linewidth}
 \begin{picture}(1,0.4)
@@ -249,7 +249,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-1]{Distance to hyperplanes}
+\section[-1]{Distance to Hyperplanes}
 
 \pb\pause\pauselevel{=1}
 \begin{center}
@@ -337,11 +337,11 @@
   \item We have a quadratic programming problem for the weights
     $\hat{\bm{w}} = (\hat{w}_1,\,\hat{w}_2,\,\ldots,\,\hat{w}_p)$ and
     bias $\hat{b}$ and $m$ constraints\pause
-  \item This is a classic but fiddly optimisation problems\pause
-  \item It is a \emph{strongly convex} optimisation problem so will
-    have a unique minimum\pause
-  \item It can be solved in $O(p^3)$ time (it involves inverting
-    matrices)\pause{} (phew it is not NP-complete!)\pauseb
+  \item This is a classic but fiddly optimisation problem\pause
+  \item It is a \emph{convex} optimisation problem (strictly convex
+    in $\hat{\bm{w}}$) so the optimal $\hat{\bm{w}}$ is unique\pause
+  \item It can be solved in roughly $O(p^3)$ time (it involves solving
+    $p\times p$ linear systems)\pause{} (phew it is not NP-complete!)\pauseb
   \item We will see that there is an equivalent dual problem which
     allows us to use the kernel trick with time complexity $O(m^3)$\pause
   \end{itemize}
@@ -356,41 +356,12 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Extended Feature Space}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We can generalise the SVM if we map all our features vectors
-    to an extended feature space
-    \begin{align*}
-      \bm{x} \rightarrow \bm{\phi}(\bm{x})\pause
-    \end{align*}
-  \item The components of $\bm{\phi}(\bm{x})$ will typically be
-    (non-linear) functions of $\bm{x}$ (e.g. $\phi_1(\bm{x}) = x_1^2,
-    \, \phi_2(\bm{x}) = x_2^2,\, \phi_3(\bm{x}) = \sqrt{2}\,
-    x_1\,x_2$)\pause
-  \item We are free to choose whatever mappings we like\pause
-  \item There may be many more components of $\bm{\phi}(\bm{x})$ than
-    of $\bm{x}$\pause{} making it easier to find a linear separation
-    of the two classes\pauseb
-      \item But in the extended feature space (involving
-    $\bm{\phi}(\bm{x}) = \left(\strut \phi_1(\bm{x}), \phi_2(\bm{x}), \ldots,
-      \phi_r(\bm{x})\right)$) the time complexity is $O(r^3)$\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section[-2]{Lagrangian}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item In the extended feature space we can find a separating
-    plane (given by $\bm{w}$ and $b$) with maximum margin by solving
-    the problem
+  \item In the extended feature space, $\bm{\phi}(\bm{x})$, the
+    maximum-margin plane ($\bm{w}$, $b$) solves
    \begin{align*}
      \hspace*{-1em} \min_{\bm{w},\,b} \frac{\|\bm{w}\|^2}{2} \quad 
      \mbox{subject to $y_k\left(\inner{\bm{w}}{\bm{\phi}(\bm{x}_k)} -
@@ -468,8 +439,9 @@
     $H_{kl} = - y_k\,y_l\,
     \inner{\bm{\phi}(\bm{x}_k)}{\bm{\phi}(\bm{x}_l)}$ so
     $\bm{v}^\tr\mat{H}\bm{v} = -\left\|\sum_k
-      v_k\,y_k\,\phi_k(\bm{x}_k)\right\|^2\leq0$\pause{} (note this is negative
-    semi-definite so there is a unique maximum)\pauseb
+      v_k\,y_k\,\bm{\phi}(\bm{x}_k)\right\|^2\leq0$\pause{} (negative
+    semi-definite, so $\mathcal{L}(\bm{\alpha})$ is concave: every local
+    maximum is a global maximum)\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -496,6 +468,32 @@
       \,y_k\,y_l\,K(\bm{x}_k,\bm{x}_l)\pause
     \end{align*}
   \item We therefore never have to compute $\bm{\phi}(\bm{x})$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Classifying New Data}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Having trained the SVM we now have to use it\pause
+  \item Given a new input $\bm{x}$ we decide on the class
+    \begin{align*}
+      &y=\mathrm{\mathop{sgn}}\!\left(\inner{\bm{w}}{\bm{\phi}(\bm{x})}-b\right)\pause
+        & \text{but}&& \bm{w} = \sum_{k=1}^m
+    \alpha_k\,y_k \, \bm{\phi}(\bm{x}_k)\pause
+    \end{align*}
+  \item In the dual representation this becomes
+    \begin{align*}
+      \mathrm{\mathop{sgn}}\!\left(\sum_{k=1}^m \alpha_k\, y_k \,
+      K(\bm{x}_k,\bm{x})-b\right)
+    \end{align*}
+    where we only need to sum over the non-zero $\alpha_k$ (i.e. the
+    support vectors SVs)\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -545,7 +543,7 @@
       \includegraphics[width=\linewidth]{slack-variables}\pause
     \end{center}
     \end{minipage}
-  \item Minimise $\frac{\|\bm{w}\|^2}{2} + C \sum_{k=1}^n s_k$\pause
+  \item Minimise $\frac{\|\bm{w}\|^2}{2} + C \sum_{k=1}^m s_k$\pause
   \item Larger $C$ punishes slack variables more\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -616,11 +614,11 @@
   \begin{itemize}
   \item Recall that we can introduce soft-margins using slack
     variables where we minimise
-    $\frac{\|\hat{\bm{w}}\|^2}{2} + C \sum_{k=1}^m s_k$ subject to
+    $\frac{\|\bm{w}\|^2}{2} + C \sum_{k=1}^m s_k$ subject to
     constraints\pause
   \item In practice it can make a huge difference to the performance if
     we change $C$\pause
-  \item Optimal $C$ values changes by many orders of magnitude
+  \item Optimal $C$ values change by many orders of magnitude
     e.g. $2^{-5}$--$2^{15}$\pause
   \item Typically optimised by a grid search (start from $2^{-5}$ say and
     double until you reach $2^{15}$)\pause
@@ -637,7 +635,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item There are kernels design for particular data types (e.g. string
+  \item There are kernels designed for particular data types (e.g. string
     kernels for text or biological sequences)\pause
   \item For numerical data, people tend to look at using no kernel
     (linear SVM), a radial basis function (Gaussian) kernel or
@@ -666,12 +664,12 @@
     SVMs\pause
   \item There are two major ways practitioners do this
     \begin{description}
-    \item[One-versus-all:] for each class, train a separate classify to
-      determine that class versus all others\pause
-    \item[All-pairs:] train a classify for all pairs of classes\pause
+    \item[One-versus-all:] for each class, train a separate classifier to
+      determine that class versus all others; choose the class whose
+      classifier is most certain\pause
+    \item[All-pairs:] train a classifier for every pair of classes;
+      each votes, and the class with most votes wins\pause
     \end{description}
-  \item In both cases choose the class which the classifier is most
-    certain about\pause
   \item Beware SVMs don't like imbalanced datasets\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -689,10 +687,10 @@
   \item Although SVMs have unique solutions, they require very well
     written optimisers\pause
   \item If you have a large data set they can be very slow\pause
-  \item There are good libraries out there: svmlib, svm-lite, (now old),
-    scikit-learn, etc.\pause
-  \item These will often automate normalisation of data and grid search
-    for parameters\pause
+  \item There are good libraries out there: LIBSVM, SVMlight (now old),
+    scikit-learn (which uses LIBSVM), etc.\pause
+  \item These provide tools for normalising data and grid-searching
+    parameters\pause
   \end{itemize}
 \end{PauseHighLight}
 

@@ -16,14 +16,14 @@
        not sure their performance dominates other techniques)
    * They are basically a perceptron that regularises itself by
      choosing the maximum margin separating plane
-   * Of course perceptrons only work with linear separable data
+   * Of course perceptrons only work with linearly separable data
      * SVMs overcome this limitations in two ways
-       1. It often prejects the data into a high dimensional extended
-          feature space making it more likely that the data is linear separable
+       1. It often projects the data into a high dimensional extended
+          feature space making it more likely that the data is linearly separable
 	  + In the extended feature space the features will usually be
             non-linear functions of the original features, so we can
             separate data in the extended feature space that isn't
-            necessarily linear separable in the original feature space
+            necessarily linearly separable in the original feature space
        2. It tolerates some errors using slack variables
 	  + We need to tune a hyper-parameter (usually called $C$) to
             decide how much slack we want to tolerate
@@ -35,8 +35,8 @@
      - The dual problem only depends on the inner (dot) product
        between vectors in the (extended) feature space
      - As positive semi-definite kernels can be represented as inner
-       product between vectors in an extended feature space (which are
-       the eigen-functions of the kernel) we often never need to
+       products between vectors in an extended feature space (built
+       from the eigenfunctions of the kernel) we often never need to
        explicitly compute the vectors in the extended feature space
 
 ** Maximum Margins
@@ -54,18 +54,18 @@
      $$ y_k \left(\frac{ \bm{w}^\tr \bm{x}_k}{\|\bm{w}\|} -b \right)
      \geq \Delta $$
    * We can divide through by the margin size $\Delta$ giving
-     $$ y_k \left(\ \bar{\bm{w}}^\tr \bm{x}_k - \bar{b} \right) \geq 1 $$
-     - where $\bar{\bm{w}} = \bm{w}/(\Delta\,\|\bm{w}\|)$ and $\bar{b}
+     $$ y_k \left( \hat{\bm{w}}^\tr \bm{x}_k - \hat{b} \right) \geq 1 $$
+     - where $\hat{\bm{w}} = \bm{w}/(\Delta\,\|\bm{w}\|)$ and $\hat{b}
        = b/\Delta$
    * We note that
-     $$ \frac{1}{2} \| \bar{\bm{w}}\|^2 = \frac{1}{2\,\Delta^2} $$
-     - thus if we minimise $\| \bar{\bm{w}}\|^2/2$ subject to the
+     $$ \frac{1}{2} \| \hat{\bm{w}}\|^2 = \frac{1}{2\,\Delta^2} $$
+     - thus if we minimise $\| \hat{\bm{w}}\|^2/2$ subject to the
       constraint this is equivalent to maximising $\Delta$
      - the factor of a half is just for convenience
-     - we minimise $\| \bar{\bm{w}}\|^2$ rather than $\| \bar{\bm{w}}\|$
+     - we minimise $\| \hat{\bm{w}}\|^2$ rather than $\| \hat{\bm{w}}\|$
        again for convenience
-     - we will just drop the bar notation (i.e. we talk about $\bm{w}$ and $b$
-       rather than $\bar{\bm{w}}$ and $\bar{b}$): after all what's in
+     - we will just drop the hat notation (i.e. we talk about $\bm{w}$ and $b$
+       rather than $\hat{\bm{w}}$ and $\hat{b}$): after all what's in
        a name? (More seriously it has the same optimum whatever we
        call it)
    * *Soft Margins*
@@ -76,9 +76,9 @@
        - This is known as a /soft margin/ SVM
      - We do this by introducing slack variables $s_k$ so that our
        constraints become
-       $$ y_k \left(\frac{ \bm{w}^\tr \bm{x}_k}{\|\bm{w}\|} -b \right)
+       $$ y_k \left( \bm{w}^\tr \bm{x}_k -b \right)
        \geq 1 - s_k $$
-       (I've dropped the bars for simplicity)
+       (I've dropped the hats for simplicity)
      - We punish the slack variables by adding $C\,\sum\limits_{k=1}^m
        s_k$ to the objective function
      - We also constrain the slack variables so that $s_k\geq0$ (so we
@@ -87,7 +87,7 @@
      * Our optimisation problem becomes 
        $$ \min_{\bm{w},b,\bm{s}} \quad \frac{ \|\bm{w}\|^2 }{2} + C \, \sum_{k=1}^m s_k $$
 	subject to
-	$$  y_k \left(\frac{ \bm{w}^\tr \bm{x}_k}{\|\bm{w}\|} -b \right)
+	$$  y_k \left( \bm{w}^\tr \bm{x}_k -b \right)
        \geq 1 - s_k  \quad \text{and} \quad s_k\geq0 $$
        for $k=1,\,2,\,\ldots,m$
      * We can write this as a Lagrange problem
@@ -95,9 +95,9 @@
        \mathcal{L}(\bm{w}, b, \bm{s},\bm{\alpha}, \bm{\beta}) $$
        where
        $$ \mathcal{L}(\bm{w}, b, \bm{s},\bm{\alpha}, \bm{\beta}) =
-       \frac{\|\bm{w}\|^2}{2} + C \, \sum_{k=1}^m s_k -  \sum_{k=0}^m
+       \frac{\|\bm{w}\|^2}{2} + C \, \sum_{k=1}^m s_k -  \sum_{k=1}^m
        \alpha_k \left(y_k \left( \bm{w}^\tr \bm{x}_k - b \right) - 1+
-       s_k \right) - \sum_{k=0}^m         \beta_k \, s_k $$
+       s_k \right) - \sum_{k=1}^m         \beta_k \, s_k $$
        - $\alpha_k$ and $\beta_k$ are Lagrange multipliers
 	 + $\alpha_k$ ensures the margin condition
 	 + $\beta_k$ ensures the non-negativity of the slack variables
@@ -108,9 +108,6 @@
      * To help linear separability we can map our inputs to a
        high-dimensional feature space
        $$ \bm{x} \rightarrow \bm{\phi}(\bm{x}) $$
-     * Note in the slides I wrote this as $\vec{\phi}(\bm{x})$ to
-       make it clear that this is a different feature space (I won't
-       do it here as it is a slightly ugly way of writing vectors)
      * Note this is a function of the original feature vector
        meaning that if I change $\bm{x}$ I will get a different
        vector $\bm{\phi}(\bm{x})$
@@ -124,27 +121,27 @@
      * More often this feature mapping is defined implicitly through
        a kernel function (more of that later)
      * We usually choose the dimensionality, $p'$, of the extended feature
-       space to be much larger that that of the original feature space
+       space to be much larger than that of the original feature space
      * Usually we would be scared of this because it can lead to over-fitting
      * However, because of choosing the maximal-margin hyper-plane
        this regularises the problem so strongly that we get good
        generalisation despite working in an enormous dimensional space
      * The Lagrange problem in this extended feature space is
        $$ \mathcal{L}(\bm{w}, b, \bm{s},\bm{\alpha}, \bm{\beta}) =
-       \frac{\|\bm{w}\|^2}{2} + C \, \sum_{k=1}^m s_k -  \sum_{k=0}^m
+       \frac{\|\bm{w}\|^2}{2} + C \, \sum_{k=1}^m s_k -  \sum_{k=1}^m
        \alpha_k \left( y_k \left( \bm{w}^\tr \bm{\phi}(\bm{x}_k) - b
-       \right) - 1 + s_k \right) - \sum_{k=0}^m   \beta_k \, s_k $$
+       \right) - 1 + s_k \right) - \sum_{k=1}^m   \beta_k \, s_k $$
        + Note that the weight vector, $\bm{w}$, is now in the extended weight space
 
 ** Dual Problem
    * To obtain the dual problem we compute the minimum of the
      Lagrangian with respect to $\bm{w}$, $b$ and $\bm{s}$
      - Weight minimisation
-       $$ \grad_{\bm{x}} \mathcal{L} = \bm{w} - \sum_{k=1}^m
+       $$ \grad_{\bm{w}} \mathcal{L} = \bm{w} - \sum_{k=1}^m
        \alpha_k\,y_k\,\bm{\phi}(\bm{x}_k) = 0 $$
        - So that $\bm{w} = \sum\limits_{k=1}^m \alpha_k\,y_k\,\bm{\phi}(\bm{x}_k)$
      - Threshold minimisation
-       $$ \frac{\partial \mathcal{L}}{\partial b} = -\sum_{k=1}^m
+       $$ \frac{\partial \mathcal{L}}{\partial b} = \sum_{k=1}^m
        \alpha_k\,y_k = 0 $$
        - This gives us a global constraint on the Lagrange multipliers $\alpha_k$
      - Slack variable minimisation
@@ -153,17 +150,17 @@
        - Thus $\alpha_k = C - \beta_k$
        - When substituting back into the Lagrangian all the terms
          proportional to $s_k$ cancel
-       - But $\beta_m\geq0$ so this implies $\alpha_k \leq C$ (recall
+       - But $\beta_k\geq0$ so this implies $\alpha_k \leq C$ (recall
          that $\alpha_k\geq0$ from the KKT condition)
-   * Substituting the optimal values of $\bm{w}$, $b$ and $\bm{S}$
+   * Substituting the optimal values of $\bm{w}$, $b$ and $\bm{s}$
      into the Lagrangian we obtain the dual problem
-     $$ \max_{\bm{\alpha}}\;- \frac{1}{2} \sum_{k,l=0}^m
+     $$ \max_{\bm{\alpha}}\;- \frac{1}{2} \sum_{k,l=1}^m
      \alpha_k\,\alpha_l \,
      y_k\,y_l\, \bm{\phi}^\tr(\bm{x}_k) \, \bm{\phi}(\bm{x}_l) +
-     \sum_{k=0}^m \alpha_k$$
+     \sum_{k=1}^m \alpha_k$$
      \hspace{6cm} /subject to the conditions/
-     $$ \sum_{k=1}^m \alpha_k\, y_k=0, \quad \quad \forall_k  \; 0 \geq
-     \alpha_k\geq C $$
+     $$ \sum_{k=1}^m \alpha_k\, y_k=0, \quad \quad \forall_k  \; 0 \leq
+     \alpha_k\leq C $$
      - Note that a large number of terms vanished (you really need to
        go through this carefully to see that this happens)
      - Amazingly adding slack variables is equivalent to preventing
@@ -171,6 +168,10 @@
      - the dual problem is another quadratic programming problem but
        involves the $m$ Lagrange multipliers $\alpha_k$ rather than
        the $p'$ weights
+     - its objective is concave (its Hessian, with elements $-y_k\,y_l\,
+       \bm{\phi}^\tr(\bm{x}_k)\,\bm{\phi}(\bm{x}_l)$, is negative
+       semi-definite), so every local maximum is global.  The optimal
+       $\bm{\alpha}$ need not be unique, but $\bm{w}$ is
      - importantly the dual problem depends only on
        $\bm{\phi}(\bm{x}_k)$ through the inner product
        $\bm{\phi}^\tr(\bm{x}_k) \, \bm{\phi}(\bm{x}_l)$
@@ -183,7 +184,7 @@
      - sometimes it will pay to solve the primal problem rather than
        dual problem
      - however we can work with very high dimensional feature vectors
-       + this is useful when we work with text where out input vectors
+       + this is useful when we work with text where our input vectors
          are naturally high dimensional
        + In this case we would want to solve the dual problem
    * We can explicitly define our extended feature vectors
@@ -192,7 +193,7 @@
        doing this
    * *Kernel Trick*
      - There is however a really nice trick
-     - Any positive definite kernel, $K(\bm{x},\bm{y})$, can be
+     - Any positive semi-definite kernel, $K(\bm{x},\bm{y})$, can be
        decomposed as
        $$ K(\bm{x},\bm{y}) =\bm{\phi}^\tr(\bm{x}) \, \bm{\phi}(\bm{y}) $$ 
        (we will talk much more about this in the next lecture)
@@ -204,10 +205,10 @@
        K(\bm{x},\bm{y})$ then we never have to explicitly compute
        $\bm{\phi}(\bm{x})$
      - Our dual problem in this case is
-       $$ \max_{\bm{\alpha}}\;- \frac{1}{2} \sum_{k,l=0}^m
+       $$ \max_{\bm{\alpha}}\;- \frac{1}{2} \sum_{k,l=1}^m
         \alpha_k\,\alpha_l \,
           y_k\,y_l\, K(\bm{x}_k,\bm{x}_l) +
-           \sum_{k=0}^m \alpha_k$$
+           \sum_{k=1}^m \alpha_k$$
      - In using an SVM we have to determine which side of the dividing
        plane a new data point, $\bm{x}$, would lie
        + Our prediction would be
@@ -221,13 +222,13 @@
          \alpha_k\,y_k\,\bm{\phi}^\tr(\bm{x}_k)\,\bm{\phi}(\bm{x})
          -b\right)  =  \mathrm{sgn}\!\left(  \sum_{k=1}^m
          \alpha_k\,y_k\,K(\bm{x}_k,\bm{x})-b\right)  $$
-       + Thus we don't need to computer the weight or the extended
+       + Thus we don't need to compute the weight or the extended
          feature vectors
 
 ** Practical Consideration
    * To get SVMs to work in practice requires a lot of tuning
    * Firstly you need to normalise the inputs
-   * You might need to *balance* you data set
+   * You might need to *balance* your data set
      - SVMs perform poorly on problems where the training set has many
        more examples of one class than the other
      - You can balance the data set by ignoring examples from the
@@ -243,7 +244,7 @@
      - This could be no kernel (linear SVM)
      - A polynomial kernel (you have to try different degrees)
      - A radial basis kernel
-     - Sometimes you use a special designed kernel for the problem
+     - Sometimes you use a specially designed kernel for the problem
      - Kernels also come with hyper-parameters (often called $\gamma$)
        which you also have to tune
    * It is a lot of work but for many problems (particularly with
@@ -255,69 +256,49 @@
        + /One-versus-all/: for each class train a separate SVM
          using all other classes as negative examples (but see note on
          balancing)
-       + /All-pairs/:  Train a set of SVM between all pairs of classes
-         (this is obviously expensive when you have large classes)
-     - You then have to get your SVMs to vote in some way to determine
-       the true class
+       + /All-pairs/:  Train an SVM for every pair of classes (with
+         $c$ classes that is $c(c-1)/2$ SVMs, which gets expensive
+         when there are many classes)
+     - For one-versus-all you pick the class whose SVM is most
+       confident; for all-pairs each SVM votes and the class with the
+       most votes wins
 
 
 
 * Experiments
 
 ** SVM in Practice
-   * SVMs are hard to code (they need a quadratic programming solver
-     which are complicate)
-   * However, there a lots of good implementations out there so have a go
+   * SVMs are hard to code (they need a quadratic programming solver,
+     which is complicated)
+   * However, there are lots of good implementations out there so have a go
    * Stolen from the web\ldots
 
 #+BEGIN_SRC python
-#Import scikit-learn dataset library
-from sklearn import datasets
-
-#Load dataset
-cancer = datasets.load_breast_cancer()
-# print the names of the 13 features
-print("Features: ", cancer.feature_names)
-
-# print the label type of cancer('malignant' 'benign')
-print("Labels: ", cancer.target_names)
-
-# print data(feature)shape
-cancer.data.shape
-
-# Import train_test_split function
+from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
-# Split dataset into training set and test set
-X_train, X_test, y_train, y_test  =
-          train_test_split(cancer.data, cancer.target, test_size=0.3,random_state=109) 
-                                # 70% training and 30% test
+cancer = datasets.load_breast_cancer()
+print("Features:", cancer.feature_names)    # 30 features
+print("Labels:", cancer.target_names)       # 'malignant', 'benign'
+print("Data shape:", cancer.data.shape)
 
-#Import svm model
-from sklearn import svm
+# 70% training and 30% test
+X_train, X_test, y_train, y_test = train_test_split(
+    cancer.data, cancer.target, test_size=0.3, random_state=109)
 
-#Create a svm Classifier
-clf = svm.SVC(kernel='linear') # Linear Kernel
-
-#Train the model using the training sets
+# scale each feature to zero mean and unit variance, then a linear SVM
+clf = make_pipeline(StandardScaler(), svm.SVC(kernel='linear'))
 clf.fit(X_train, y_train)
-
-#Predict the response for test dataset
 y_pred = clf.predict(X_test)
 
-#Import scikit-learn metrics module for accuracy calculation
-from sklearn import metrics
-
-# Model Accuracy: how often is the classifier correct?
-print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
-
-# Model Precision: what percentage of positive tuples are labeled as such?
-print("Precision:",metrics.precision_score(y_test, y_pred))
-
-# Model Recall: what percentage of positive tuples are labelled as such?
-print("Recall:",metrics.recall_score(y_test, y_pred))
-
-
+# accuracy: fraction of test points classified correctly
+print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+# precision: of the points predicted positive, the fraction that are
+print("Precision:", metrics.precision_score(y_test, y_pred))
+# recall: of the truly positive points, the fraction predicted positive
+print("Recall:", metrics.recall_score(y_test, y_pred))
 #+END_SRC
 
 * COMMENT [[file:convexity.org][Previous]]  [[file:kernelTrick.org][Next]]

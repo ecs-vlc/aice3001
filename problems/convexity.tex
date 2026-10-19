@@ -26,15 +26,20 @@
 
 % \usepackage{picture}
 \begin{document}
-\unitTitle{Convexity Problem Sheet}
+\unitTitle{Convexity and SVMs Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
-\unitcode{COMP6208}
+\unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
 
 \maketitle
+
+This sheet covers convexity, support vector machines and kernels.
+Questions~1 and~2 are about convex functions and Jensen's inequality.
+Question~3 solves a tiny SVM by hand, in both the primal and the dual
+form.  Question~4 asks which functions are valid kernels.
 
 % ***************************** question 1 **************************
 
@@ -111,7 +116,7 @@
           - \epsilon\,\bra{f'(x) + \epsilon\,f''(x) +
                            O(\epsilon^2) }
         \end{align*}
-        Or subtraction $f(x)$ on both sides
+        Or subtracting $f(x)$ from both sides
         \begin{align*}
           0 \geq - \frac{\epsilon^2}{2} \, f''(x) + O(\epsilon^3)
         \end{align*}
@@ -136,19 +141,19 @@
     \qpart[5]{If $\len{\bm{x}}$ is a proper norm use the triangular
       inequality
       ($\len{\bm{x} + \bm{y}}\leq \len{\bm{x}} + \len{\bm{y}}$),
-      linearity of a norm ($\len{a\,\bm{x}} = a\,\len{\bm{x}}$) and
+      ``linearity'' of a norm ($\len{a\,\bm{x}} = |a|\,\len{\bm{x}}$) and
       the definition of convexity, to show that the norm is
       convex.}{\lines{12}}
     \begin{answer}
-      For any vectors, $\bm{x}$, and $\bm{y}$ and any scale
+      For any vectors, $\bm{x}$, and $\bm{y}$ and any scalar
       $a\in[0,1]$ then
       \begin{align*}
         \len{a\, \bm{x} + (1-a)\, \bm{y}} \leq \len{a\,\bm{x}} +
         \len{(1-a)\,\bm{y}} = a\, \len{\bm{x}} + (1-a)\, \len{\bm{y}}
       \end{align*}
       where the first inequality follows from the triangular
-      inequality and the second equality from the linearity of the
-      norm.  However,
+      inequality and the second equality from the ``linearity'' of the
+      norm (with $a,1-a\geq0$).  However,
       \begin{align*}
          \len{a\, \bm{x} + (1-a)\, \bm{y}} \leq a\, \len{\bm{x}} + (1-a)\, \len{\bm{y}}
       \end{align*}
@@ -173,7 +178,7 @@
        show that  the expected loss over inputs and parameters can be
        written as the expected loss of the mean machine plus a second
        loss.  Use Jensen's inequality ($\av{\log(X)}\leq\logg{\av{X}}$) to
-       show the second term is positive.}{\lines{15}}
+       show the second term is non-negative.}{\lines{15}}
      \begin{answer}
        \begin{align*}
          \bar{L} &= \av[(\bm{x},y)]{\av[\bm{\theta}]{  -\sum_{c \in \mathcal{C}}
@@ -183,7 +188,7 @@
            - \av[(\bm{x},y)]{\av[\bm{\theta}]{  \sum_{c \in \mathcal{C}}
                        \pred{y=c} \logg{\frac{\ml}{\mm}}}}
        \end{align*}
-       The first terms acts like a bias.  The second  (variance-like) term is
+       The first term acts like a bias.  The second  (variance-like) term is
        \begin{align*}
          - \av[(\bm{x},y)]{ \sum_{c \in \mathcal{C}}
          \pred{y=c} \av[\bm{\theta}]{ \logg{\ml}}}
@@ -191,10 +196,185 @@
        \end{align*}
        But using Jensen's inequality $\av[\bm{\theta}]{ \logg{\ml}}
      \leq \logg{\av[\bm{\theta}]{\ml}} = \logg{\mm}$. Thus this second
-     term is positive.
+     term is non-negative.
      \end{answer}
   \end{qparts}
 \end{question}
+\clearpage
+
+% ***************************** question 3 **************************
+
+
+\begin{question}{10}
+  In the lectures the maximum-margin SVM finds $\bm{w}$ and $b$ that
+  minimise $\tfrac12\len{\bm{w}}^2$ subject to
+  $y_k\,(\bm{w}^\tr\bm{x}_k - b)\geq 1$ for every data point.  The dual
+  problem is to maximise
+  \begin{align*}
+    \mathcal{L}(\bm{\alpha}) = \sum_k \alpha_k - \frac12 \sum_{k,l}
+    \alpha_k\,\alpha_l\,y_k\,y_l\,\bm{x}_k^\tr\bm{x}_l
+  \end{align*}
+  subject to $\sum_k \alpha_k\,y_k = 0$ and $\alpha_k\geq0$, after which
+  $\bm{w} = \sum_k \alpha_k\,y_k\,\bm{x}_k$.  In this question we solve
+  a tiny problem by hand.
+  \begin{qparts}
+    \qpart[2]{Take two points, $\bm{x}_1 = (1,1)^\tr$ with $y_1=+1$ and
+      $\bm{x}_2 = (-1,-1)^\tr$ with $y_2 = -1$.  By symmetry the
+      solution has $b=0$ and $\bm{w} = (u,u)^\tr$.  Find $u$ and the
+      margin $1/\len{\bm{w}}$.  Check that the margin is half the
+      distance between the two points.
+      \begin{answer}
+        Both constraints read $2u\geq1$, and we want $u$ as small as
+        possible, so $u=\tfrac12$ and $\bm{w} = (\tfrac12,\tfrac12)^\tr$.
+        The margin is $1/\len{\bm{w}} = 1/(1/\sqrt2) = \sqrt2$.  The
+        points are $\len{\bm{x}_1-\bm{x}_2} = \len{(2,2)^\tr} = 2\sqrt2$
+        apart, and half of that is $\sqrt2$.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Now solve the dual problem for the same two points.
+      Show that the constraint forces $\alpha_1=\alpha_2=\alpha$, write
+      $\mathcal{L}$ as a function of $\alpha$ and maximise it.  Recover
+      $\bm{w}$ and check that it agrees with part~(a).  Find $b$ from
+      the fact that $\bm{x}_1$ lies on the margin,
+      $y_1\,(\bm{w}^\tr\bm{x}_1 - b) = 1$.
+      \begin{answer}
+        $\alpha_1 y_1 + \alpha_2 y_2 = \alpha_1 - \alpha_2 = 0$, so
+        $\alpha_1=\alpha_2=\alpha$.  The inner products are
+        $\bm{x}_1^\tr\bm{x}_1 = \bm{x}_2^\tr\bm{x}_2 = 2$ and
+        $\bm{x}_1^\tr\bm{x}_2 = -2$, so the double sum is
+        \begin{align*}
+          \alpha^2\left(2 + 2 + 2\times(+1)(-1)(-2)\right) = 8\,\alpha^2,
+          \qquad
+          \mathcal{L}(\alpha) = 2\alpha - 4\alpha^2 .
+        \end{align*}
+        $\mathcal{L}'(\alpha) = 2 - 8\alpha = 0$ gives $\alpha = \tfrac14$.
+        Then
+        $\bm{w} = \tfrac14(1,1)^\tr - \tfrac14(-1,-1)^\tr = (\tfrac12,\tfrac12)^\tr$,
+        as in part~(a).  Finally $\bm{w}^\tr\bm{x}_1 - b = 1 - b = 1$, so
+        $b=0$.
+      \end{answer}}{\lines{9}}
+
+    \qpart[2]{Add a third point, $\bm{x}_3 = (3,0)^\tr$ with
+      $y_3 = +1$.  Without solving the problem again, explain why the
+      solution does not change, and why $\alpha_3 = 0$.
+      \begin{answer}
+        With the old solution, $y_3\,(\bm{w}^\tr\bm{x}_3 - b) = 1.5 > 1$,
+        so the new constraint is already satisfied.  Adding a constraint
+        that the old optimum satisfies cannot give a better optimum, so
+        the solution is unchanged.  Complementary slackness,
+        $\alpha_3\left(y_3(\bm{w}^\tr\bm{x}_3 - b) - 1\right) = 0$ with
+        the bracket equal to $0.5$, forces $\alpha_3=0$.  Only the
+        support vectors (points on the margin) have $\alpha_k>0$.
+      \end{answer}}{\lines{6}}
+
+    \qpart[1]{Classify the new point $\bm{x} = (-2,1)^\tr$ using the dual
+      form $\mathrm{sgn}\bigl(\sum_k \alpha_k\,y_k\,\bm{x}_k^\tr\bm{x} - b\bigr)$.
+      \begin{answer}
+        The $\alpha_3$ term vanishes, so the argument is
+        $\tfrac14\,(1,1)\,(-2,1)^\tr - \tfrac14\,(-1,-1)\,(-2,1)^\tr
+        = -\tfrac14 - \tfrac14 = -\tfrac12$: class $-1$.
+      \end{answer}}{\lines{3}}
+
+    \qpart[2]{Return to the two points of part~(a), but use a soft margin
+      with $C=0.1$, so that the dual constraint becomes
+      $0\leq\alpha_k\leq C$.  Find $\alpha$, $\bm{w}$ and the margin.
+      Taking $b=0$, find the slack $s_k = 1 - y_k\,(\bm{w}^\tr\bm{x}_k - b)$
+      of each point.
+      \begin{answer}
+        $\mathcal{L}(\alpha) = 2\alpha - 4\alpha^2$ increases up to
+        $\alpha=\tfrac14$, which is now not allowed, so $\alpha = C = 0.1$.
+        Then $\bm{w} = 0.1\,(1,1)^\tr + 0.1\,(1,1)^\tr = (0.2,0.2)^\tr$ and
+        the margin is $1/\len{\bm{w}} = 1/(0.2\sqrt2) \approx 3.54$, wider
+        than before.  Each point has $y_k\,\bm{w}^\tr\bm{x}_k = 0.4$, so
+        $s_k = 0.6$: both points sit inside the margin, though they are
+        still classified correctly.  A small $C$ makes slack cheap, so
+        the SVM buys a wider margin with it.
+
+        (For the curious: here $b$ is not fixed.  Any $|b|\leq0.6$ gives
+        $s_1+s_2 = 1.2$ and the same objective.  Symmetry picks $b=0$.)
+      \end{answer}}{\lines{8}}
+  \end{qparts}
+\end{question}
+\clearpage
+
+% ***************************** question 4 **************************
+
+
+\begin{question}{10}
+  A function $K(\bm{x},\bm{y})$ is a valid (positive semi-definite)
+  kernel if it can be written as
+  $K(\bm{x},\bm{y}) = \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{y})$ for some
+  real feature vector $\bm{\phi}(\bm{x})$.  Equivalently, for any points
+  $\bm{x}_1,\ldots,\bm{x}_n$ the Gram matrix with elements
+  $K_{ij} = K(\bm{x}_i,\bm{x}_j)$ is positive semi-definite.
+  \begin{qparts}
+    \qpart[2]{For $\bm{x},\bm{y}\in\mathbb{R}^2$, find a feature vector
+      $\bm{\phi}(\bm{x})$ with six components such that
+      $(1+\bm{x}^\tr\bm{y})^2 = \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{y})$.
+      \begin{answer}
+        Expanding,
+        \begin{align*}
+          (1 + x_1y_1 + x_2y_2)^2 = 1 + 2x_1y_1 + 2x_2y_2 + x_1^2y_1^2
+          + x_2^2y_2^2 + 2x_1x_2y_1y_2 ,
+        \end{align*}
+        so $\bm{\phi}(\bm{x}) = (1,\; \sqrt2\,x_1,\; \sqrt2\,x_2,\; x_1^2,\;
+        x_2^2,\; \sqrt2\,x_1x_2)^\tr$.  The features are all the
+        monomials of degree up to two.
+      \end{answer}}{\lines{6}}
+
+    \qpart[2]{Write down the Gram matrix of the linear kernel
+      $K(\bm{x},\bm{y}) = \bm{x}^\tr\bm{y}$ for the three points
+      $\bm{x}_1 = (1,0)^\tr$, $\bm{x}_2 = (0,1)^\tr$ and
+      $\bm{x}_3 = (1,1)^\tr$, and find its eigenvalues.  Why is one of
+      them zero?
+      \begin{answer}
+        \begin{align*}
+          \mat{K} = \begin{pmatrix} 1 & 0 & 1\\ 0 & 1 & 1\\ 1 & 1 & 2
+          \end{pmatrix}, \qquad
+          \det(\mat{K}-\lambda\mat{I}) = -\lambda(\lambda-1)(\lambda-3),
+        \end{align*}
+        so the eigenvalues are $0$, $1$ and $3$, all non-negative.  The
+        zero comes from $\bm{x}_3 = \bm{x}_1 + \bm{x}_2$: then
+        $\mat{K}\,(1,1,-1)^\tr = \bm{0}$.  Three points in a
+        2-dimensional feature space must be linearly dependent.
+      \end{answer}}{\lines{7}}
+
+    \qpart[2]{Show that every valid kernel has $K(\bm{x},\bm{x})\geq0$.
+      Hence show that $K(\bm{x},\bm{y}) = \bm{x}^\tr\bm{y} - 1$ is not a
+      valid kernel.
+      \begin{answer}
+        $K(\bm{x},\bm{x}) = \bm{\phi}(\bm{x})^\tr\bm{\phi}(\bm{x}) =
+        \len{\bm{\phi}(\bm{x})}^2\geq0$.  But
+        $\bm{0}^\tr\bm{0} - 1 = -1 < 0$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[2]{Show that $K(\bm{x},\bm{y}) = \len{\bm{x}-\bm{y}}^2$ is not a
+      valid kernel, even though $K(\bm{x},\bm{x})\geq0$.  (Hint: look at
+      the Gram matrix of two different points.)
+      \begin{answer}
+        For $\bm{x}\neq\bm{y}$ let $d = \len{\bm{x}-\bm{y}}^2 > 0$.  The
+        Gram matrix is
+        $\begin{pmatrix} 0 & d\\ d & 0\end{pmatrix}$, with eigenvalues
+        $\pm d$.  The eigenvalue $-d$ is negative, so the matrix is not
+        positive semi-definite.  (Equivalently, $\bm{v} = (1,-1)^\tr$
+        gives $\bm{v}^\tr\mat{K}\bm{v} = -2d < 0$.)
+      \end{answer}}{\lines{5}}
+
+    \qpart[2]{Using the rules from the lecture (sums, positive
+      multiples, products and exponentials of valid kernels are valid),
+      show that
+      $K(\bm{x},\bm{y}) = 3\,(\bm{x}^\tr\bm{y})^2 + \exp(\bm{x}^\tr\bm{y})$
+      is a valid kernel.
+      \begin{answer}
+        $\bm{x}^\tr\bm{y}$ is valid, with $\bm{\phi}(\bm{x}) = \bm{x}$.
+        Its product with itself, $(\bm{x}^\tr\bm{y})^2$, is valid, and so
+        is $3$ times it.  The exponential of a valid kernel,
+        $\exp(\bm{x}^\tr\bm{y})$, is valid, and the sum of the two valid
+        kernels is valid.
+      \end{answer}}{\lines{5}}
+  \end{qparts}
+\end{question}
+
 
 \end{document}
 

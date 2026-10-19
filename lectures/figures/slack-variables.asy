@@ -16,10 +16,10 @@ pair sv(real a, int class) {return a*(0,20)+(1-a)*(35,0)+class*5u;}
 datum(sv(0.7,1), true);
 datum(sv(0.25,1), true);
 datum(sv(0.4,-1), false);
-for(int i=0; i<6; ++i) {
-  pair p = (15+20.0*rand()/randMax,25-14.0*rand()/randMax);
+for(int i=0; i<8; ++i) {
+  pair p = (15+20.0*rand()/randMax,29-12.0*rand()/randMax);
   datum(p,true);
-  pair p = (20.0*rand()/randMax,11-10.0*rand()/randMax);
+  pair p = (20.0*rand()/randMax,6-10.0*rand()/randMax);
   datum(p,false);
 }
 
@@ -42,6 +42,6 @@ datum(d1, false);
 label("$\mathbf{x}_k$", d1, N);
 draw(d1--d2, dashed);
 draw(sv(0.7,-1)--d2, Arrows);
-draw("$\xi_k$", sv(0.7,-1)+1.5*unit((20,35)),NW);
+draw("$s_k$", sv(0.7,-1)+1.5*unit((20,35)),NW);
 
 clip(box((0,0),(35,23)));
