@@ -49,21 +49,21 @@ sheets:
   - week: 5
     name: convexity
     keywords: convexity, SVMs
-  - week: 6
+  - week: 7
     name: general
     keywords: duality
-  - week: 7
+  - week: 8
     name: probability
     keywords: Gaussian integrals
-  - week: 8
+  - week: 9
     name: gp
     keywords: Gaussian processes
-  - week: 9
+  - week: 10
     name: information
     keywords: entropy, information
-  - week: 10
+  - week: 11
     name: theory
     keywords: bias variance
-  - week: 11
+  - week: 12
     name: revision
     keywords: general

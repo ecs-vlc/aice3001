@@ -83,8 +83,12 @@ old_lectures:
 #         tutorial  fixed label, consumes nothing
 #         lab       fixed label; add `weeks: [2, 4, 6]` if it is not every week
 #
-# teaching_weeks is always 12. Break weeks (reading week, Easter) do not count
-# towards it -- they are inserted and the term runs on for longer.
+# teaching_weeks is always 12. Break weeks (e.g. Easter) do not count
+# towards it -- they are inserted and the term runs on for longer -- unless
+# the break has `numbered: true` (a reading week inside the term): then it
+# keeps its week number, counts towards the 12, and the term ends as usual.
+# `keep: {tutorial: "label"}` still runs that slot type in the break week,
+# showing the label and using no problem sheet (or lecture, for `lecture`).
 # ---------------------------------------------------------------------------
 timetable:
   year: "2026-27"
@@ -98,10 +102,11 @@ timetable:
     - {day: Thu, time: "12:00", location: "13/3021",          type: lecture}
     - {day: Fri, time: "14:00", location: "05/2017 (L/t J)",  type: tutorial}
 
-  # Whole weeks with no teaching. Uncomment to add a reading week.
-  breaks: []
-  # breaks:
-  #   - {start: 2026-11-02, end: 2026-11-06, name: "Reading week"}
+  # Whole weeks with no teaching.
+  breaks:
+    - {start: 2026-10-26, end: 2026-10-30, name: "Reading week", numbered: true,
+       keep: {tutorial: "Drop-in session (no problem sheet)"}}
+  # e.g.
   #   - {start: 2027-03-22, end: 2027-04-16, name: "Easter"}
 
   # Individual days lost (e.g. bank holidays); the slot is marked, not moved.

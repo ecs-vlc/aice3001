@@ -56,8 +56,10 @@ def build_weeks(term_start, teaching_weeks, breaks):
     """Weeks from term_start until `teaching_weeks` teaching weeks have run.
 
     Break weeks are included in the calendar but do not count towards the
-    total, so a reading week or Easter pushes the end of term later rather
-    than eating a week of teaching.
+    total, so Easter pushes the end of term later rather than eating a week
+    of teaching. A break marked `numbered: true` (a reading week inside the
+    term) instead keeps its week number and does count, so the term ends on
+    the same date and the weeks after it keep their calendar numbers.
     """
     weeks = []
     current = monday_of(term_start)
@@ -68,7 +70,10 @@ def build_weeks(term_start, teaching_weeks, breaks):
         if guard > 60:
             raise RuntimeError("more than 60 weeks generated -- check breaks")
         brk = week_is_break(current, breaks)
-        if brk:
+        if brk and brk.get("numbered"):
+            taught += 1
+            weeks.append({"start": current, "number": taught, "break": brk})
+        elif brk:
             weeks.append({"start": current, "number": None, "break": brk})
         else:
             taught += 1
@@ -112,7 +117,14 @@ def build_schedule(weeks, slots, lectures, bank_holidays, startweek=1,
             kind = slot.get("type", "lecture")
 
             if week["break"]:
-                cells.append({"kind": "break", "text": week["break"].get("name", "")})
+                # `keep: {tutorial: "Drop-in"}` runs that slot type with a
+                # fixed label; it consumes no lecture or problem sheet.
+                label = (week["break"].get("keep") or {}).get(kind)
+                if label:
+                    cells.append({"kind": "fixed", "text": label})
+                else:
+                    cells.append({"kind": "break",
+                                  "text": week["break"].get("name", "")})
             elif date in bank_holidays:
                 cells.append({"kind": "bank", "text": "Bank Holiday"})
             elif kind == "lecture":
