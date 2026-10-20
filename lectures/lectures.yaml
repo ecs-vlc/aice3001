@@ -40,7 +40,6 @@ lectures:
   - svm
   - kernelTrick
   - wasserstein
-  - template
   - probability
   - experimentalDesign
   - bayes
