@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 28: Information Theory
+#+SUBTITLE: Subsidiary Notes --- Lecture 27: Information Theory
 #+SETUPFILE: setup.org
 
 * Keywords

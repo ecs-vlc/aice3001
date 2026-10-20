@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 22: Integral Calculus
+#+SUBTITLE: Subsidiary Notes --- Lecture 21: Integral Calculus
 #+SETUPFILE: setup.org
 
 * Keywords

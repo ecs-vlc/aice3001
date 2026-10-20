@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 18: Probability
+#+SUBTITLE: Subsidiary Notes --- Lecture 17: Probability
 #+SETUPFILE: setup.org
 
 * Keywords

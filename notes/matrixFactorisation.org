@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 21: Matrix Factorisation
+#+SUBTITLE: Subsidiary Notes --- Lecture 20: Matrix Factorisation
 #+SETUPFILE: setup.org
 
 * Keywords

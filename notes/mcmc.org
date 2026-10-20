@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 26: MCMC
+#+SUBTITLE: Subsidiary Notes --- Lecture 25: MCMC
 #+SETUPFILE: setup.org
 
 * Keywords

@@ -1,57 +1,43 @@
-%% ELEC2013 2007
-
 %% ----------------------------------------------------------------
-%% exam.tex
+%% Gaussian integrals and Gaussian processes problem sheet
+%% (lectures: gaussianIntegrals, gaussianProcesses)
 %% ----------------------------------------------------------------
 \documentclass{sotonExamBoxes}    % use option [answers] to include them
-%\documentclass[answers]{uosexamb}
 %% ----------------------------------------------------------------
 \usepackage{graphicx}
-%\usepackage{pstricks}
 \usepackage{alltt}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsmath}
-%\usepackage{euler}
 \thinmuskip=1mu
-%\renewcommand{\ttdefault}{pcr}
 \input{macros}
 %% local: this sheet writes \det{X}, not the standard \det X
 \renewcommand{\det}[1]{\textrm{det}({#1})}
-
-
-%\DeclareMathAlphabet{\mat}{OT1}{cmss}{bx}{n}
-%\DeclareMathAlphabet{\mat}{U}{eur}{b}{n}
-
-\graphicspath{{figures/} {../2018-19/figures}}
 \graphicspath{{figures/}}
-
-% \usepackage{picture}
 \begin{document}
-\unitTitle{Gaussian Processes Problem Sheet}
+\unitTitle{Gaussian Integrals Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
-\unitcode{COMP6208}
+\unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
-
 \maketitle
 
-%\blankpage
+This sheet works through the Gaussian integrals behind Gaussian
+processes.  Question~1 builds up the integral of a multivariate normal
+one step at a time.  Question~2 is harder: it derives the marginal and
+conditional distributions of a multivariate normal by doing the
+integrals directly (the lecture took a shorter route).  Take it slowly;
+each part is a short calculation.
 
 
-%% ----------------------------------------------------------------
-%\section
-% -----------------------------------------------------------------------
-% *************************  Section A  *********************************
-% -----------------------------------------------------------------------
 
 % ***************************** question 1 **************************
 
-\begin{question}{10}
-  Performing integrals over normal distributes takes practice. 
+\begin{question}{20}
+  Performing integrals over normal distributions takes practice.
   \begin{qparts}
     \qpart[5]{Consider the integral
       \begin{align*}
@@ -71,10 +57,10 @@
       x\,\dd y = r\,\dd r\, \dd \theta$. Note that to integrate over
       all space we let $\theta$ vary from 0 to $2\pi$ and $r$ to vary
       from 0 to $\infty$.  Write down the integral in
-      polar coordinate, make a further the change of variables
-      $u=r^2/2$ to evaluate $I_1^2$ hence compute $I_1$
-    }{\lines{6}}
-    \begin{answer}
+      polar coordinates, make the further change of variables
+      $u=r^2/2$ to evaluate $I_1^2$, and hence compute $I_1$.
+    
+\begin{answer}
       \begin{align*}
         I_1^2 = \int_0^{2\,\pi} \dd \theta \int_{0}^\infty r\,e^{-r^2/2} \, \dd r
         = 2\,\pi \ \int_{0}^\infty r\,e^{-r^2/2} \, \dd r.
@@ -86,11 +72,12 @@
       \end{align*}
       so $I_1 = \sqrt{2\,\pi}$.
     \end{answer}
+}{\lines{6}}
     \qpart[5]{By making a change of variables compute
       \begin{align*}
         I_2 = \int_{-\infty}^{\infty} \e{-(x-\mu)^2/(2\sigma^2)} \dd x
-      \end{align*}}{\lines{4}}
-    \begin{answer}
+      \end{align*}
+\begin{answer}
       The trick is to let $z=(x-\mu)/\sigma$ so that $\dd z = \dd
       x/\sigma$ or $\dd x = \sigma \dd z$.  Then
       \begin{align*}
@@ -102,10 +89,11 @@
       \begin{align*}
         \mathcal{N}(x\mid \mu, \sigma^2) = \frac{1}{\sqrt{2\,\pi}\,\sigma} \e{-(x-\mu)^2/(2\sigma^2)} .
       \end{align*}
-      (Observe that $ \mathcal{N}(0\mid \mu, \sigma^2) =
-      1/(\sqrt{2\,\pi}\,\sigma)$ so when $\sigma<\sqrt{2\,\pi}$ then
-      $\mathcal{N}(0\mid \mu, \sigma^2) >1$, showing that PDFs are not probabilities.)
+      (Observe that at its peak $\mathcal{N}(\mu\mid \mu, \sigma^2) =
+      1/(\sqrt{2\,\pi}\,\sigma)$, so when $\sigma<1/\sqrt{2\,\pi}$ the
+      density exceeds 1, showing that PDFs are not probabilities.)
     \end{answer}
+}{\lines{4}}
     \newpage
     
     \qpart[3]{By using the identity $\e{a+b} = \e{a}\,\e{b}$, or more
@@ -118,8 +106,8 @@
         I_3 = \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
         \e{-\frac{1}{2}\|\bm{x}\|_2^2} \dd x_1 \cdots \dd x_n
       \end{align*}
-      where $\bm{x} = (x_1, x_2, \ldots, x_n)^\tr$.}{\lines{6}}
-      \begin{answer}
+      where $\bm{x} = (x_1, x_2, \ldots, x_n)^\tr$.
+\begin{answer}
         We note that $\|\bm{x}\|_2^2 = \sum\limits_{i=1}^n x_i^2$
         \begin{align*}
           I_3 &= \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
@@ -129,18 +117,19 @@
             \dd x_i =  \prod_{i=1}^n \sqrt{2\,\pi} = (2\,\pi)^{n/2}.
         \end{align*}
       \end{answer}
+}{\lines{6}}
 
-      \qpart[6]{By using the fact that for a positive semi-definite
-        matrix, $\mat{\Xi}$, we can use the eigenvector decomposition
-        $\mat{\Xi}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr$ where
+      \qpart[6]{By using the fact that for a positive definite
+        matrix, $\mat{\Sigma}$, we can use the eigenvector decomposition
+        $\mat{\Sigma}^{-1} = \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr$ where
         $\mat{V}$ is an orthogonal matrix with determinant
         $\det{\mat{V}}=\pm1$ and $\mat{\Lambda}^{-1}$ is a diagonal matrix with
         elements $\lambda_i^{-1}$ compute
       \begin{align*}
         I_4 =  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
-        \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)} \, \dd x_1 \cdots \dd x_n.
-      \end{align*}}{\lines{9}}
-      \begin{answer}
+        \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Sigma}^{-1} (\bm{x}-\bm{\mu})} \, \dd x_1 \cdots \dd x_n.
+      \end{align*}
+\begin{answer}
         This needs some confidence to push through to the end.
         \begin{align*}
           I_4 &=  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
@@ -163,7 +152,7 @@
         $\bm{x}(\bm{y}) = \mat{V}\,\bm{y} + \bm{\mu}$
         \begin{align*}
           J_{ij} = \frac{\partial x_i}{\partial y_j} = \frac{\partial
-          \ }{\partial y_j} \left(\sum_{k=1}^n V_{ik}y_k + \mu_i)\right = V_{ij}
+          \ }{\partial y_j} \left(\sum_{k=1}^n V_{ik}y_k + \mu_i\right) = V_{ij}
         \end{align*}
         so that $\mat{J} = \mat{V}$ and $|\det{\mat{J}}| =
         |\det{\mat{V}}| = 1$.  This makes sense as the matrix
@@ -179,21 +168,22 @@
                   \e{-y_i^2/(2\,\lambda_i)} \, \dd y_i = \prod_i
                  \sqrt{2\,\pi\,\lambda_i}
         \end{align*}
-        where we used $I_2$ with $\sigma = \sqrt{\lambda_i}$.  (Note
-        if $\mat{\Xi}$ was not positive semi-definite $\lambda_i$
-        would be negative and the integral would not converge.)
+        where we used $I_2$ with $\sigma = \sqrt{\lambda_i}$.  (If
+        $\mat{\Sigma}$ were not positive definite some $\lambda_i\leq0$
+        and the integral would not converge.)
       \end{answer}
+}{\lines{9}}
       \freshpage
       
-      \qpart[1]{Using the facts, that $\mat{\Xi} =
+      \qpart[1]{Using the facts, that $\mat{\Sigma} =
         \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$, for any two square
         matrices $\mat{A}$ and $\mat{B}$ the determinants satisfy
         $\det{\mat{A}\,\mat{B}} = \det{\mat{A}}\,\det{\mat{B}}$, and
-        $\det{\mat{V}}=\det{\mat{V}^\tr}=\pm{1}$ show that $\det{\mat{\Xi}}=\prod_i
-        \lambda_i$.}{\lines{6}}
-      \begin{answer}
+        $\det{\mat{V}}=\det{\mat{V}^\tr}=\pm{1}$ show that $\det{\mat{\Sigma}}=\prod_i
+        \lambda_i$.
+\begin{answer}
         \begin{align*}
-          \det{\mat{\Xi}} = \det{\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr} =
+          \det{\mat{\Sigma}} = \det{\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr} =
           \det{\mat{V}}\,\det{\mat{\Lambda}}\,\det{\mat{V}^\tr}
           = \det{\mat{\Lambda}} = \prod_{i=1}^n \lambda_i
         \end{align*}
@@ -202,7 +192,7 @@
         the determinant of a diagonal matrix is equal to the product
         of the diagonal elements.  We note that
         \begin{align*}
-          I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Xi}}}
+          I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Sigma}}}
         \end{align*}
         There is another trick to simplify the notation a bit more.
         For an $n\times n$ matrix $\mat{M}$ then
@@ -211,14 +201,15 @@
         $n$ elements.  Multiplying each element by $c$ means that the
         determinant increases by $c^n$.  Thus, we can write
         \begin{align*}
-            I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Xi}}}= \sqrt{\det{2\,\pi\,\mat{\Xi}}}
+            I_4 = (2\,\pi)^{n/2} \sqrt{\det{\mat{\Sigma}}}= \sqrt{\det{2\,\pi\,\mat{\Sigma}}}
         \end{align*}
         and the multivariate normal PDF is
         \begin{align*}
-          \mathcal{N}(\bm{x} \mid \bm{\mu}, \mat{\Xi}) =
-          \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}}  \, \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)}
+          \mathcal{N}(\bm{x} \mid \bm{\mu}, \mat{\Sigma}) =
+          \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Sigma}}}}  \, \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Sigma}^{-1} (\bm{x}-\bm{\mu})}
         \end{align*}
       \end{answer}
+}{\lines{6}}
     \end{qparts}
   \end{question}
   \clearpage
@@ -237,13 +228,13 @@
   where $\mat{A}$ and $\mat{C}$ are symmetric (positive definite)
   matrices.  The matrix
   \begin{align*}
-    \mat{\Xi} &= \begin{pmatrix} \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix}
+    \mat{\Sigma} &= \begin{pmatrix} \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix}
   \end{align*}
   is the covariance matrix.
 
   We want to compute the conditional probability density
   function $f_{\bm{X},\bm{Y}}(\bm{x}\mid \bm{y})$.  This is complicated because the
-  normal distribution involve the inverse of the covariance matrix.  Let
+  normal distribution involves the inverse of the covariance matrix.  Let
       \begin{align*}
         \mat{U} &= \begin{pmatrix} \Id & \mat{B}\,\mat{C}^{-1}\\
           \mat{0} & \Id \end{pmatrix},
@@ -253,8 +244,8 @@
       \end{align*}
       where $\Id$ is the identity matrix.
   \begin{qparts}
-    \qpart[3]{Compute $\mat{U}\,\mat{D}$}{\lines{5}}
-    \begin{answer}
+    \qpart[3]{Compute $\mat{U}\,\mat{D}$
+\begin{answer}
       \begin{align*}
         \mat{U}\,\mat{D}&=\begin{pmatrix} \Id &
           \mat{B}\,\mat{C}^{-1}\\ \mat{0} &
@@ -265,29 +256,32 @@
           & \mat{B}\\ \mat{0}^{\tr} & \mat{C} \end{pmatrix}
       \end{align*}
     \end{answer}
+}{\lines{5}}
     
     \qpart[3]{Using the previous result compute
       $(\mat{U}\,\mat{D})\,\mat{U}^\tr$.  Hence show
-      $\mat{\Xi} = \mat{U}\,\mat{D}\,\mat{U}^\tr$.}{\lines{5}}
-    \begin{answer}
+      $\mat{\Sigma} = \mat{U}\,\mat{D}\,\mat{U}^\tr$.
+\begin{answer}
       \begin{align*}
         (\mat{U}\,\mat{D})\,\mat{U}^{\tr}&=\begin{pmatrix} \mat{A}-
           \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr} & \mat{B}\\ \mat{0}^{\tr} &
           \mat{C} \end{pmatrix}\begin{pmatrix} \Id & \mat{0}\\
           \mat{C}^{-1}\mat{B}^{\tr} & \Id \end{pmatrix} =\begin{pmatrix}
-          \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix} = \mat{\Xi}
+          \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{pmatrix} = \mat{\Sigma}
       \end{align*}
     \end{answer}
+}{\lines{5}}
     \clearpage
     
-    \qpart[1]{Given that $\mat{\Xi} = \mat{U}\,\mat{D}\,\mat{U}^\tr$
-      write down $\mat{\Xi}^{-1}$ in terms of $\mat{U}$ and
-      $\mat{D}$}{\lines{1}}
-    \begin{answer}
+    \qpart[1]{Given that $\mat{\Sigma} = \mat{U}\,\mat{D}\,\mat{U}^\tr$
+      write down $\mat{\Sigma}^{-1}$ in terms of $\mat{U}$ and
+      $\mat{D}$
+\begin{answer}
       \begin{align*}
-        \mat{\Xi}^{-1} = (\mat{U}^{\tr})^{-1}\mat{D}^{-1} \mat{U}^{-1}
+        \mat{\Sigma}^{-1} = (\mat{U}^{\tr})^{-1}\mat{D}^{-1} \mat{U}^{-1}
       \end{align*}
     \end{answer}
+}{\lines{1}}
     
     \qpart[6]{Demonstrate by direct multiplication that
       \begin{align*}
@@ -306,8 +300,8 @@
       i.e. show $\mat{U}^{-1}\mat{U}=\Id$,
       $\mat{D}^{-1}\mat{D}=\Id$ and
       $(\mat{U}^\tr)^{-1}\mat{U}^\tr= \Id$.
-    }{\inumberedlines[3]{3}}
-    \begin{answer}
+    
+\begin{answer}
     \begin{enumerate}
       \item
         \begin{align*}
@@ -344,20 +338,21 @@
            \end{align*}
          \end{enumerate}
        \end{answer}
+}{\inumberedlines[3]{3}}
        \clearpage
        
        \qpart[4]{Letting $\bm{z} = \binom{\bm{x}}{\bm{y}}$ then we can
          write
          \begin{align*}
            f_{\bm{X},\bm{Y}}(\bm{x}, \bm{y}) = f_{\bm{Z}}(\bm{z}) = \mathcal{N}(\bm{z}\mid\bm{0},
-           \mat{\Xi}) = \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}} \,
-           \e{- \frac{1}{2}\, \bm{z}^{\tr}\mat{\Xi}^{-1} \mat{z}}.
+           \mat{\Sigma}) = \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Sigma}}}} \,
+           \e{- \frac{1}{2}\, \bm{z}^{\tr}\mat{\Sigma}^{-1} \bm{z}}.
          \end{align*}
-         where $\det{2\,\pi\,\mat{\Xi}}$ is the determinant of the matrix
-         $2\,\pi\,\mat{\Xi}$ and is introduced to ensures that
+         where $\det{2\,\pi\,\mat{\Sigma}}$ is the determinant of the matrix
+         $2\,\pi\,\mat{\Sigma}$ and is introduced to ensure that
          $f_{\bm{X},\bm{Y}}(\bm{x},\bm{y})$ is normalised.  From parts (c) and (d)
          \begin{align*}
-           \mat{\Xi}^{-1} = \begin{pmatrix} \Id & \mat{0} \\
+           \mat{\Sigma}^{-1} = \begin{pmatrix} \Id & \mat{0} \\
              -\mat{C}^{-1} \mat{B}^\tr&
              \Id \end{pmatrix} \begin{pmatrix} (\mat{A}-
              \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1} & \mat{0}\\
@@ -366,14 +361,14 @@
              -\mat{B}\,\mat{C}^{-1} \\ \mat{0} &
              \Id \end{pmatrix}. 
          \end{align*}
-         Expand out $\bm{z}^{\tr}\mat{\Xi}^{-1} \mat{z} =
-         (\bm{x}^\tr, \bm{y}^\tr)\mat{\Xi}^{-1}
+         Expand out $\bm{z}^{\tr}\mat{\Sigma}^{-1} \bm{z} =
+         (\bm{x}^\tr, \bm{y}^\tr)\mat{\Sigma}^{-1}
          \binom{\bm{x}}{\bm{y}}$ (start by multiplying the vectors
          $\bm{z}^\tr$ by $(\mat{U}^\tr)^{-1}$ and $\bm{z}$ by $\mat{U}^{-1}$)
-       }{\lines{10}}
-       \begin{answer}
+       
+\begin{answer}
          \begin{align*}
-           \bm{z}^{\tr}\mat{\Xi}^{-1}\bm{z} &=
+           \bm{z}^{\tr}\mat{\Sigma}^{-1}\bm{z} &=
                                               (\bm{x}^{\tr},\bm{y}^{\tr})\begin{pmatrix}
                                                 \Id & \mat{0} \\
                                                 -\mat{C}^{-1}
@@ -400,29 +395,26 @@
                                             &=
                                               (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
                                               \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr})^{-1}(\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y})
-                                              + y^{\tr} \mat{C}^{-1}
+                                              + \bm{y}^{\tr} \mat{C}^{-1}
                                               \bm{y}
          \end{align*}
        \end{answer}
+}{\lines{10}}
        \clearpage
        
-       In the next question we use the short-hand notation
-       \begin{align*}
-         \int f(\bm{z}) \, \dd \bm{z} = \int \cdots \int f(\bm{z}) \,
-         \dd z_1\, \dd z_2 \ldots \dd z_n
-       \end{align*}
-       \qpart[5]{To compute $f_{\bm{X}\mid\bm{Y}}(\bm{x}\mid\bm{y}) = f_{\bm{X},\bm{Y}}(\bm{x},
+       \qpart[5]{(We write $\int f(\bm{z})\,\dd\bm{z}$ for
+         $\int\cdots\int f(\bm{z})\,\dd z_1\cdots\dd z_n$.)  To compute $f_{\bm{X}\mid\bm{Y}}(\bm{x}\mid\bm{y}) = f_{\bm{X},\bm{Y}}(\bm{x},
          \bm{y})/f_{\bm{Y}}(\bm{y})$ we need to find
          \begin{align*}
            f_{\bm{Y}}(\bm{y})&= \int_{-\infty}^{\infty} f(\bm{x}, \bm{y}) \,\dd \bm{x}\\
                       &= \int_{-\infty}^{\infty}
-                        \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}} \,
+                        \frac{1}{\sqrt{\det{2\,\pi\,\mat{\Sigma}}}} \,
                         \e{- \frac{1}{2}\,
                         (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
                         \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}
                         -\mat{B}\,\mat{C}^{-1}\bm{y}) - \frac{1}{2}\,
-                        y^{\tr} \mat{C}^{-1} \bm{y}} \dd \bm{x} \\
-                      &=  \frac{\e{- \frac{1}{2}\,  y^{\tr} \mat{C}^{-1} \bm{y}}}{\sqrt{\det{2\,\pi\,\mat{\Xi}}}}
+                        \bm{y}^{\tr} \mat{C}^{-1} \bm{y}} \dd \bm{x} \\
+                      &=  \frac{\e{- \frac{1}{2}\,  \bm{y}^{\tr} \mat{C}^{-1} \bm{y}}}{\sqrt{\det{2\,\pi\,\mat{\Sigma}}}}
                         \int_{-\infty}^{\infty}
                         \e{- \frac{1}{2}\,
                         (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})(\mat{A}-
@@ -446,8 +438,8 @@
            \bm{u}} \dd \bm{u} = \sqrt{\det{2\,\pi\,\mat{M}}}  
          \end{align*}
          to evaluate $f_{\bm{Y}}(\bm{y})$.
-       }{\lines{10}}
-       \begin{answer}
+       
+\begin{answer}
          Making the change of variables $\bm{u} =
          \bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y}$
           \begin{align*}
@@ -459,20 +451,20 @@
          Thus
          \begin{align*}
             f_{\bm{Y}}(\bm{y})&=\sqrt{\frac{\det{2\,\pi\,(\mat{A}-
-                         \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)}}{\det{2\,\pi\,\mat{\Xi}}}}
-                         \, \e{- \frac{1}{2}\, y^{\tr} \mat{C}^{-1}
+                         \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)}}{\det{2\,\pi\,\mat{\Sigma}}}}
+                         \, \e{- \frac{1}{2}\, \bm{y}^{\tr} \mat{C}^{-1}
                          \bm{y}}.
          \end{align*}
-         where $\det{\mat{\Xi}}$ denotes the determinant of a matrix $\mat{\Xi}$.
-         In passing we recall that $\mat{\Xi}=\mat{U}^\tr\mat{D}\mat{U}$
-         so $\det{\mat{\Xi}}=\det{\mat{U}^\tr}\,\det{\mat{D}}\,\det{\mat{U}}$,  But it
+         where $\det{\mat{\Sigma}}$ denotes the determinant of a matrix $\mat{\Sigma}$.
+         In passing we recall that $\mat{\Sigma}=\mat{U}\mat{D}\mat{U}^\tr$
+         so $\det{\mat{\Sigma}}=\det{\mat{U}}\,\det{\mat{D}}\,\det{\mat{U}^\tr}$,  But it
          is easy to show $\det{\mat{U}^{\tr}} = \det{\mat{U}} =1$  and because
          $\mat{D}$ is block diagonal $\det{\mat{D}} = \det{\mat{A}-
-         \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}} \, \det{\mat{C}}$ so that  $\det{\mat{\Xi}} = \det{\mat{A}-
+         \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}} \, \det{\mat{C}}$ so that  $\det{\mat{\Sigma}} = \det{\mat{A}-
          \mat{B}\,\mat{C}^{-1}\mat{B}^{\tr}} \, \det{\mat{C}}$.  Thus
          \begin{align*}
            f_{\bm{Y}}(\bm{y}) = \frac{1}{\sqrt{\det{2\,\pi\,\mat{C}}}}\, \e{-
-           \frac{1}{2}\, y^{\tr} \mat{C}^{-1} \bm{y}} = \mathcal{N}(\bm{y}
+           \frac{1}{2}\, \bm{y}^{\tr} \mat{C}^{-1} \bm{y}} = \mathcal{N}(\bm{y}
            \mid \bm{0}, \mat{C}).
          \end{align*}
          Recall that
@@ -486,16 +478,17 @@
            so we see $\bm{y}$ is normally distributed with covariance
            $\mat{C}$ as might be expected.
          \end{answer}
+}{\lines{10}}
          \clearpage
          \qpart[3]{Using  $f_{\bm{X}\mid\bm{Y}}(\bm{x}\mid\bm{y}) = f_{\bm{X},\bm{Y}}(\bm{x},
          \bm{y})/f_{\bm{Y}}(\bm{y})$  write down
-         $f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y})$.}{\lines{10}}
-       \begin{answer}
+         $f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y})$.
+\begin{answer}
          \begin{align*}
-           f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y}) &= \frac{f_{\bm{X},\bm{Y}}(\bm{x}),
+           f_{\bm{X}|\bm{Y}}(\bm{x}\mid\bm{y}) &= \frac{f_{\bm{X},\bm{Y}}(\bm{x},
            \bm{y})}{f_{\bm{Y}}(\bm{y})}
            =
-           \frac{\det{2\,\pi\,\mat{C}}^{\frac{1}{2}}}{\det{2\,\pi\,\mat{\Xi}}^{\frac{1}{2}}}
+           \frac{\det{2\,\pi\,\mat{C}}^{\frac{1}{2}}}{\det{2\,\pi\,\mat{\Sigma}}^{\frac{1}{2}}}
            \,\e{- \frac{1}{2}\,
            (\bm{x}^{\tr}-\bm{y}^{\tr}\mat{C}^{-1}\mat{B}^{\tr})\,(\mat{A}-
            \mat{B}\,\mat{C}^{-1}\mat{B}^\tr)^{-1}(\bm{x}-\mat{B}\,\mat{C}^{-1}\bm{y})}\\ 
@@ -508,6 +501,7 @@
          This is the conditioning result we use in deriving the
          Bayesian update for a Gaussian Process.
        \end{answer}
+}{\lines{10}}
     \end{qparts}
 \end{question}
 

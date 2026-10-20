@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 20: Bayesian Inference
+#+SUBTITLE: Subsidiary Notes --- Lecture 19: Bayesian Inference
 #+SETUPFILE: setup.org
 
 * Keywords
