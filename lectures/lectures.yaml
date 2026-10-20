@@ -41,11 +41,12 @@ lectures:
   - kernelTrick
   - wasserstein
   - template
-  - template
   - probability
   - experimentalDesign
   - bayes
+  - matrixFactorisation
   - integration
+  - gaussianIntegrals
   - gaussianProcesses
   - ProbabilisticInference
   - mcmc

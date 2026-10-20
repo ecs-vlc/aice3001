@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 23: Gaussian Processes
+#+SUBTITLE: Subsidiary Notes --- Lecture 24: Gaussian Processes
 #+SETUPFILE: setup.org
 #+LATEX_HEADER: \renewcommand{\normal}[1]{\mathcal{N}\!\left( #1 \right)}
 #+LATEX_HEADER: \renewcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\alph{eqCounter})}}{#1}}
@@ -701,4 +701,4 @@ title ("2-d Gaussian Process");
      4. 
 	$$ \vb^\tr \vl + c\,m =  -\frac{\vl^\tr \mat{K}^{-1} \vl}{m-\vl^\tr \mat{K}^{-1}\vl} + \frac{m}{m-\vl^\tr \mat{K}^{-1}\vl} = 1 $$
 
-* COMMENT [[file:integration.org][Previous]]  [[file:ProbabilisticInference.org][Next]]
+* COMMENT [[file:gaussianIntegrals.org][Previous]]  [[file:ProbabilisticInference.org][Next]]

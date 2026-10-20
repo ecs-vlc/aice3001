@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 28: When Machine Learning Works
+#+SUBTITLE: Subsidiary Notes --- Lecture 29: When Machine Learning Works
 #+SETUPFILE: setup.org
 
 * Keywords

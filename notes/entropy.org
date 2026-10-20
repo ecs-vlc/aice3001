@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 26: Entropy
+#+SUBTITLE: Subsidiary Notes --- Lecture 27: Entropy
 #+SETUPFILE: setup.org
 
 * Keywords

@@ -1,0 +1,306 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 21: Matrix Factorisation
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Matrix completion, low-rank approximation, recommender systems,
+    alternating least squares, non-negative matrix factorisation
+
+* Main Points
+
+** Missing Data and Recommenders
+   * We are often given a matrix of data with missing entries (e.g.
+     forms that people have only partly filled in)
+     - most learning machines need complete data, so we either throw
+       away rows or columns with missing values or try to infer them
+   * We can only infer missing values if the matrix has structure.  The
+     structure we use is that /structured data typically lies close to
+     a low-dimensional subspace/ (the idea behind PCA and the SVD)
+   * The best-known application is /collaborative filtering/: predicting
+     the ratings users would give to items they haven't rated, from the
+     ratings of all users
+     - the classic method finds similar users and averages their
+       ratings, weighted by similarity
+       $$ \hat{R}_{ui} = \frac{\sum_{u'} \mathrm{sim}(u,u')\, R_{u'i}}
+          {\sum_{u'} \mathrm{sim}(u,u')} $$
+     - the simplest baseline uses means:
+       $R_{ui} \approx \bar{R}_u + \bar{R}_i - \bar{R}$
+       (user mean plus item mean minus overall mean)
+
+** Low-Rank Approximation
+   * The SVD of a complete $m\times n$ matrix is
+     $$ \mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr = \sum_k s_k\,\bm{u}_k\,\bm{v}_k^\tr,
+        \qquad s_1\geq s_2\geq\cdots\geq0 $$
+   * Keeping the $K$ largest singular values gives the rank-$K$ matrix
+     $\mat{X}_K = \sum_{k=1}^K s_k\,\bm{u}_k\,\bm{v}_k^\tr$
+   * /Eckart--Young theorem/: $\mat{X}_K$ is the best rank-$K$
+     approximation to $\mat{X}$
+     - in the Frobenius norm, with
+       $\|\mat{X}-\mat{X}_K\|_F^2 = \sum_{k>K} s_k^2$
+     - and in the spectral norm, with
+       $\|\mat{X}-\mat{X}_K\|_2 = s_{K+1}$
+     - if the data lies close to a \(K\)-dimensional subspace, the
+       discarded singular values are small
+   * *Completing a matrix with the SVD.*  The SVD needs a complete
+     matrix, so we iterate
+     1. fill the missing entries (e.g. with user means)
+     2. compute the best rank-$K$ approximation $\mat{L}(t)$ of the
+        filled-in matrix $\mat{X}(t)$
+     3. copy its values into the missing entries only
+        $$ \mat{X}(t+1) = \mat{W}\odot\mat{X} + \overline{\mat{W}}\odot\mat{L}(t) $$
+        where $W_{ij}=1$ if $X_{ij}$ is observed and $0$ otherwise,
+        $\overline{\mat{W}} = 1-\mat{W}$ and $\odot$ is the
+        element-by-element product
+     4. repeat from 2
+     - in the lecture's example (a rank-2 matrix with a quarter of
+       its entries hidden) the RMS error on the hidden entries falls
+       from 0.95 (user means) to 0.22 after four iterations
+   * More directly, write $\mat{X}\approx\mat{A}\,\mat{B}$ with
+     $\mat{A}$ an $m\times K$ and $\mat{B}$ a $K\times n$ matrix
+     - $\mat{A}\mat{B}$ has rank at most $K$, and has $(m+n)K$
+       parameters rather than $mn$
+     - $K$ controls the complexity; choose it by cross-validation,
+       hiding some of the observed entries
+     - fit by least squares on the observed entries $\mathcal{D}$
+       $$ \min_{\mat{A},\mat{B}} \sum_{(i,j)\in\mathcal{D}}
+          \Bigl( X_{ij} - \sum_{k=1}^K A_{ik}\,B_{kj}\Bigr)^2 $$
+     - $\mat{A}$ and $\mat{B}$ are never unique:
+       $\mat{A}\mat{B} = (\mat{A}\mat{G})(\mat{G}^{-1}\mat{B})$ for any
+       invertible $K\times K$ matrix $\mat{G}$
+
+** Probabilistic Approach
+   * *Bayes' rule and MAP.*  For parameters $\bm{\theta}$ and data
+     $\mathcal{D}$ the posterior is
+     $$ \Prob{\bm{\theta}|\mathcal{D}} =
+        \frac{\Prob{\mathcal{D}|\bm{\theta}}\,\Prob{\bm{\theta}}}{\Prob{\mathcal{D}}} $$
+     (likelihood times prior, divided by the evidence).  The /maximum a
+     posteriori/ (MAP) solution is the most probable $\bm{\theta}$,
+     $$ \bm{\theta}_{\mathrm{MAP}} = \mathop{\mathrm{argmax}}_{\bm{\theta}}
+        \Bigl(\log\Prob{\mathcal{D}|\bm{\theta}} + \log\Prob{\bm{\theta}}\Bigr) $$
+     since the evidence does not depend on $\bm{\theta}$.  With a flat
+     prior it is the maximum-likelihood solution
+     - MAP keeps a single point and throws away our uncertainty about
+       $\bm{\theta}$; a full Bayesian treatment would average
+       predictions over the posterior
+     - the peak of a probability density is not invariant: change
+       variables (e.g. from $\sigma$ to $\log\sigma$) and the peak
+       moves, although the probabilities do not
+     - in high dimensions most of the posterior probability can lie
+       far from the peak, so the MAP point can be untypical
+   * Treat the ratings as noisy: $X_{ij} \sim
+     \mathcal{N}\bigl(\sum_k A_{ik}B_{kj},\, \sigma^2\bigr)$, with
+     Gaussian priors $A_{ik}\sim\mathcal{N}(0,\sigma_A^2)$ and
+     $B_{kj}\sim\mathcal{N}(0,\sigma_B^2)$
+   * The full posterior is intractable, but the /maximum a posteriori/
+     (MAP) solution maximises
+     $$ \mathcal{E} = -\frac{1}{2\sigma^2} \sum_{(i,j)\in\mathcal{D}}
+        \Bigl( X_{ij} - \sum_{k=1}^K A_{ik}\,B_{kj}\Bigr)^2 -
+        \frac{1}{2\sigma_A^2}\sum_{i,k} A_{ik}^2 -
+        \frac{1}{2\sigma_B^2}\sum_{k,j} B_{kj}^2 + \text{const} $$
+   * *Each step is ridge regression.*  Fix $\mat{B}$ and write $\bm{a}_i$
+     for row $i$ of $\mat{A}$ and $\bm{b}_j$ for column $j$ of
+     $\mat{B}$.  Then $\bm{a}_i$ minimises
+     $$ \sum_{j|(i,j)\in\mathcal{D}} \bigl(X_{ij} - \bm{a}_i^\tr\bm{b}_j\bigr)^2 +
+        \eta\,\|\bm{a}_i\|^2, \qquad \eta = \frac{\sigma^2}{\sigma_A^2} $$
+     which is ridge regression with features $\bm{b}_j$ and targets
+     $X_{ij}$.  Its solution is
+     $$ \bm{a}_i = \Bigl(\eta\,\mat{I} + \sum_j \bm{b}_j\bm{b}_j^\tr\Bigr)^{-1}
+        \sum_j \bm{b}_j\,X_{ij} $$
+     (sums over the $j$ with $(i,j)\in\mathcal{D}$): one $K\times K$
+     linear solve per row
+   * Solving for $\mat{B}$ with $\mat{A}$ fixed is the same with the
+     roles swapped.  Alternating the two is /alternating least squares/
+     (ALS)
+     - each step is a convex problem and cannot decrease
+       $\mathcal{E}$, so ALS converges, usually quickly
+     - but the whole problem is not convex, so it converges to a local
+       optimum that can depend on the starting point
+   * *Embeddings.*  Row $i$ of $\mat{A}$ is a \(K\)-dimensional vector for
+     user $i$ and column $j$ of $\mat{B}$ a vector for item $j$; the
+     predicted rating is their inner product.  Modern recommenders
+     learn such embeddings with neural networks, mostly from /implicit
+     feedback/ (clicks, views, purchases), where a missing entry is weak
+     evidence of not liking rather than simply unknown
+   * Matrix factorisation was central to the winning entries of the
+     Netflix Prize (2006--09) and remains a strong baseline
+
+** Non-Negative Matrix Factorisation
+   * Factorisation is also a way of modelling data.  For a words
+     $\times$ books count matrix, the rank-3 SVD gives factors with
+     mixed signs, which are hard to interpret
+   * /Non-negative matrix factorisation/ (NMF) minimises
+     $\|\mat{X}-\mat{A}\mat{B}\|_F^2$ with every element of $\mat{A}$ and
+     $\mat{B}$ non-negative
+     - projected gradient descent: take a gradient step, then set
+       negative elements to zero
+     - or Lee and Seung's multiplicative updates ($\oslash$ is
+       element-by-element division)
+       $$ \mat{B} \leftarrow \mat{B}\odot\bigl(\mat{A}^\tr\mat{X}\bigr)
+          \oslash\bigl(\mat{A}^\tr\mat{A}\mat{B}\bigr), \qquad
+          \mat{A} \leftarrow \mat{A}\odot\bigl(\mat{X}\mat{B}^\tr\bigr)
+          \oslash\bigl(\mat{A}\mat{B}\mat{B}^\tr\bigr) $$
+       which never make an element negative
+     - in the lecture's example the three factors pick out
+       mathematics, physics and biology
+   * Caveats
+     - NMF cannot fit better than the truncated SVD, which is the best
+       rank-$K$ fit (Eckart--Young).  In the example the relative
+       errors are 0.164 (NMF) and 0.158 (SVD)
+     - the problem is not convex, so the result depends on the
+       starting point and on $K$
+     - the factors are not unique, and a "parts-based" interpretation
+       of them is not guaranteed
+     - so compare against simple baselines such as the SVD or PCA
+
+* Exercises
+
+** Counting parameters
+   * A recommender has $m=10^6$ users and $n=10^5$ items.  How many
+     numbers does a rank $K=50$ factorisation store, compared with the
+     full matrix?
+
+** Eckart--Young
+   * A matrix has singular values $5$, $3$ and $1$.  What are the
+     Frobenius-norm and spectral-norm errors of its best rank-1 and
+     rank-2 approximations?
+
+** The prior fixes the scale
+   * Show that replacing $\mat{A}\to c\,\mat{A}$ and
+     $\mat{B}\to\mat{B}/c$ (for $c>0$) leaves the likelihood unchanged.
+   * Show that the prior terms in $\mathcal{E}$ are then
+     $-\alpha\,c^2-\beta/c^2$ with
+     $\alpha = \sum_{i,k}A_{ik}^2/(2\sigma_A^2)$ and
+     $\beta = \sum_{k,j}B_{kj}^2/(2\sigma_B^2)$, and find the $c$ that
+     maximises them.  What does this say about the sizes of $\mat{A}$
+     and $\mat{B}$ at the MAP solution?
+
+** Ridge regression for one row
+   * Differentiate
+     $\sum_{j} (X_{ij} - \bm{a}_i^\tr\bm{b}_j)^2 + \eta\,\|\bm{a}_i\|^2$
+     with respect to $\bm{a}_i$ and derive the update for $\bm{a}_i$
+     given above.
+
+** Multiplicative updates and KKT
+   * Show that if every element of $\mat{A}$, $\mat{B}$ and $\mat{X}$
+     is positive, the multiplicative update for $\mat{B}$ keeps
+     $\mat{B}$ positive.
+   * At a fixed point of the update show that for every element
+     either $B_{kj}=0$ or $\bigl(\mat{A}^\tr\mat{A}\mat{B} -
+     \mat{A}^\tr\mat{X}\bigr)_{kj} = 0$.  Relate this to the
+     complementary slackness condition in the KKT conditions for
+     minimising $E$ subject to $B_{kj}\geq0$ (the gradient of $E$ with
+     respect to $\mat{B}$ is $2(\mat{A}^\tr\mat{A}\mat{B} -
+     \mat{A}^\tr\mat{X})$).
+
+* Experiments
+
+** Alternating least squares
+   * Make a noisy rank-3 matrix, observe 30% of its entries, hold some
+     of those back, and fit by ALS for several $K$ and $\eta$
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(1)
+m, n, K_true = 60, 40, 3
+X_true = rng.standard_normal((m, K_true)) @ rng.standard_normal((K_true, n))
+X = X_true + 0.3 * rng.standard_normal((m, n))     # noisy ratings
+observed = rng.random((m, n)) < 0.3                  # see 30% of entries
+train = observed & (rng.random((m, n)) < 0.8)        # hold some back
+test = observed & ~train
+
+
+def als(X, W, K, eta, iters=50):
+    """Alternating least squares: each step is ridge regression."""
+    A = 0.1 * rng.standard_normal((X.shape[0], K))
+    B = 0.1 * rng.standard_normal((K, X.shape[1]))
+    for _ in range(iters):
+        for i in range(X.shape[0]):           # row i of A, B fixed
+            Bi = B[:, W[i]]
+            A[i] = np.linalg.solve(eta * np.eye(K) + Bi @ Bi.T, Bi @ X[i, W[i]])
+        for j in range(X.shape[1]):           # column j of B, A fixed
+            Aj = A[W[:, j]]
+            B[:, j] = np.linalg.solve(eta * np.eye(K) + Aj.T @ Aj, Aj.T @ X[W[:, j], j])
+    return A, B
+
+
+def rmse(P, mask):
+    return np.sqrt(np.mean((P - X)[mask] ** 2))
+
+
+mean = X[train].mean()
+print(f"predict the mean:  test RMSE {rmse(np.full_like(X, mean), test):.3f}")
+for K in [1, 2, 3, 5, 10]:
+    for eta in [0.01, 1.0]:
+        A, B = als(X, train, K, eta)
+        print(f"K={K:2d} eta={eta:4}:  train {rmse(A @ B, train):.3f}  test {rmse(A @ B, test):.3f}")
+#+END_SRC
+   * What happens to the training and test errors as $K$ grows?  What
+     does the regulariser $\eta$ do?  (See the answers.)
+
+* Answers
+
+** Counting parameters
+   * $(m+n)K = 1.1\times10^6\times50 = 5.5\times10^7$ numbers, against
+     $mn = 10^{11}$ for the full matrix: about 1800 times fewer
+
+** Eckart--Young
+   * Rank 1: Frobenius error $\sqrt{3^2+1^2}=\sqrt{10}\approx3.16$,
+     spectral error $3$
+   * Rank 2: Frobenius error $1$, spectral error $1$
+
+** The prior fixes the scale
+   * $(c\mat{A})(\mat{B}/c)=\mat{A}\mat{B}$, so the likelihood term is
+     unchanged
+   * The prior terms become $-\alpha c^2 - \beta/c^2$.  Setting the
+     derivative $-2\alpha c + 2\beta/c^3$ to zero gives
+     $c^4 = \beta/\alpha$
+   * At the MAP solution $c=1$, so $\alpha=\beta$: the prior balances
+     the sizes, $\sum A_{ik}^2/\sigma_A^2 = \sum B_{kj}^2/\sigma_B^2$.
+     The prior removes the scaling freedom, but not rotations:
+     $\mat{A}\to\mat{A}\mat{Q}$, $\mat{B}\to\mat{Q}^\tr\mat{B}$ with
+     $\mat{Q}$ orthogonal changes neither $\mat{A}\mat{B}$ nor the
+     sums of squares
+
+** Ridge regression for one row
+   * The gradient is
+     $-2\sum_j \bm{b}_j(X_{ij}-\bm{b}_j^\tr\bm{a}_i) + 2\eta\,\bm{a}_i$.
+     Setting it to zero,
+     $\bigl(\eta\,\mat{I}+\sum_j\bm{b}_j\bm{b}_j^\tr\bigr)\bm{a}_i =
+     \sum_j\bm{b}_j X_{ij}$, which is $\mat{M}^i\bm{a}^i=\bm{c}^i$ in the
+     lecture
+
+** Multiplicative updates and KKT
+   * Every element of $\mat{A}^\tr\mat{X}$ and
+     $\mat{A}^\tr\mat{A}\mat{B}$ is a sum of products of positive
+     numbers, so positive.  The update multiplies each $B_{kj}$ by the
+     positive ratio of the two, so $B_{kj}$ stays positive
+   * At a fixed point
+     $B_{kj} = B_{kj}\,(\mat{A}^\tr\mat{X})_{kj}/(\mat{A}^\tr\mat{A}\mat{B})_{kj}$,
+     so $B_{kj}\bigl((\mat{A}^\tr\mat{A}\mat{B})_{kj} -
+     (\mat{A}^\tr\mat{X})_{kj}\bigr) = 0$
+   * This is $B_{kj}\,\partial E/\partial B_{kj} = 0$: either the
+     constraint is active ($B_{kj}=0$) or the gradient component
+     vanishes, as complementary slackness requires.  (A full KKT point
+     also needs $\partial E/\partial B_{kj}\geq0$ where $B_{kj}=0$,
+     which the fixed-point condition alone does not guarantee)
+
+** Alternating least squares
+   * Running the code gives (test RMSE; predicting the mean gives 1.67)
+
+     | $K$ | $\eta=0.01$ | $\eta=1$ |
+     |-----+-------------+----------|
+     |   1 |       1.163 |    1.185 |
+     |   2 |       1.116 |    1.075 |
+     |   3 |       4.324 |    0.695 |
+     |   5 |       2.286 |    0.898 |
+     |  10 |       1.884 |    0.947 |
+   * The training error falls steadily with $K$ (to 0.006 for $K=10$,
+     $\eta=0.01$), but the test error is best at the true rank, $K=3$,
+     with regularisation
+   * Without regularisation the larger models over-fit badly: there
+     are only about 10 training entries per row and 14 per column to
+     fit $K$ parameters each
+   * The test error cannot reach the noise level (0.3) because so few
+     entries are observed
+
+* COMMENT [[file:bayes.org][Previous]]  [[file:integration.org][Next]]

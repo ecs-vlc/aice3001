@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 24: Probabilistic Inference
+#+SUBTITLE: Subsidiary Notes --- Lecture 25: Probabilistic Inference
 #+SETUPFILE: setup.org
 
 * Keywords

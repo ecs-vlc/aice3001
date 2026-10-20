@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 30: Symmetry
+#+SUBTITLE: Subsidiary Notes --- Lecture 31: Symmetry
 #+SETUPFILE: setup.org
 
 * Keywords

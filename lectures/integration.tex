@@ -8,7 +8,7 @@
 \begin{center}
   \includegraphics[height=10cm]{riemann-2}
 \end{center}
-\keywords{Riemann Integration, integration by parts, gaussian integrals}
+\keywords{Riemann integration, integration by parts, substitution, change of variables}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -18,7 +18,7 @@
   \begin{enumerate}\squeeze
     \outlineitem{Defining Integrals}{integration}
     \outlineitem{Doing Integrals}{integration}
-    \outlineitem{Gaussian Integrals}{gaussian}
+    \outlineitem{Changing Variables}{changevar}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
@@ -83,7 +83,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Fundamental Law of Calculus}
+\section[-2]{Fundamental Theorem of Calculus}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -166,7 +166,6 @@
 \end{PauseHighLight}
 
 \end{slide}
-
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -306,117 +305,6 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Substitution}
-  
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We can make a transformation from $x$ to $u\pause=u(x)\pauseb$
-    \begin{align*}
-      \int_a^b f(x) \, \dd x &= \lim_{\delta x_i \rightarrow 0}
-      \sum_{i=0}^{n-1} f(x_i) (x_{i+1}-x_i) \pause\\
-      &= \lim_{\delta u_i \rightarrow 0}
-      \sum_{i=0}^{n-1} f(x(u_i)) \frac{x(u_{i+1})-x(u_i)}
-      {u_{i+1}- u_i}   (u_{i+1}- u_i)\pauseb\\
-      &= \int_{u(a)}^{u(b)} f(x(u)) \, \frac{\dd x(u)}{\dd u} \, \dd u\pauseb
-    \end{align*}
-    \begin{itemize}
-    \item  where $u_i$ is such that $x(u_i) = x_i$ or $u_i=u(x_i)$
-      where $u(x)$ is the inverse of $x(u)$\pauselevel{=4,
-        build, highlight}\pause
-    \item using $\lim\limits_{\delta u_i \rightarrow 0} \frac{x(u_{i+1})-x(u_i)}
-      {u_{i+1}- u_i} = \frac{\dd x(u_i)}{\dd u}$\pauseb
-    \end{itemize}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-2]{Example of Integration by Substitution}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We consider $I(n) = \int\limits_0^\infty x^n\, \e{-x^2/2} \, \dd x$\pause
-  \item Let $u(x) =x^2/2$ or $x(u) = \sqrt{2\,u}$ so that
-    \begin{align*}
-      \frac{\dd x(u)}{\dd u} &= \frac{1}{\sqrt{2\,u}} & u(0)&=0 & u(\infty)
-                                                            = \infty\pause
-    \end{align*}
-  \item Thus
-    \begin{align*}
-      I(n) &= \int_0^\infty \bra{\sqrt{2\,u}}^{n}\e{-u}\, \frac{1}{\sqrt{2\,u}} \, 
-      \dd u\pause\\
-      &= 2^{\frac{n-1}{2}} \int_0^\infty  u^{\frac{n-1}{2}} \, \e{-u}\,
-      \dd u \pauseb = 2^{\frac{n-1}{2}}\,\, \Pi\!\bra{\frac{n-1}{2}}\pauseb
-    \end{align*}
-  \item $I(1) = 1$\pauseb, $I(3)=2\times1!=2$\pauseb,
-    $I(5)=2^2\times2!=8$\pauseb, but $I(0)=
-    \Pi(-1/2)/\sqrt{2}$\pauseb, $I(2)= \sqrt{2}\,\Pi(1/2)=
-    \Pi(-1/2)/\sqrt{2}$\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-  \section[-2]{Changing Variables in Multidimensional Space}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item When changing variables in many dimensions $\bm{x} \rightarrow
-    \bm{u}$ the change of variables involves the Jacobian
-    {\small
-    \begin{align*}
-      \int f(\bm{x}) \dd \bm{x}
-      &= \int f(\bm{x}(\bm{u})) \, |\det(\mat{J})| \dd \bm{u},
-        & \bm{J} &=
-          \begin{pmatrix}
-            \pd{x_1}{u_1} & \pd{x_1}{u_2} & \cdots & \pd{x_1}{u_n} \\
-            \pd{x_1}{u_2} & \pd{x_2}{u_2} & \cdots & \pd{x_2}{u_n} \\
-            \vdots & \vdots & \ddots & \vdots  \\
-            \pd{x_n}{u_1} & \pd{x_n}{u_2} & \cdots & \pd{x_n}{u_n}
-          \end{pmatrix}\pause
-    \end{align*}}
-  \item E.g. transforming from Cartesian coordinates $(x,y)$ to polar
-    coordinates $(r,\theta)$ then $x=r\,\cos(\theta)$ and
-    $y=r\,\sin(\theta)$
-    {\small
-    \begin{align*}
-      |\det(\mat{J})| &= \left| \det\!\begin{pmatrix}
-            \pd{r\,\cos(\theta)}{r} &  \pd{r\,\cos(\theta)}{\theta}  \\
-            \pd{r\,\sin(\theta)}{r} &  \pd{r\,\sin(\theta)}{\theta}  \\
-          \end{pmatrix} \right| \pause
-    = \left| \det\!\begin{pmatrix}
-            \cos(\theta) &  -r\,\sin(\theta)  \\
-            \sin(\theta) &  r\,\cos(\theta)  \\
-                   \end{pmatrix} \right| \pauseb\\
-      &= r\,\bra{\cos^2(\theta) + \sin^2(\theta)}\pauseb = r \pauseb
-    \end{align*}}
-\item  That is, $\dd x\, \dd y = r\,\dd r\, \dd \theta$\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-  \section[-2]{Change of Variables in Pictures}
-
-  \pause \pb\pauselevel{=1}
-  \begin{center}
-    \multipdf[width=0.8\textwidth]{polarCoord}\pause
-  \end{center}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section[-1]{Differentiating Through the Integral}
 
 \begin{PauseHighLight}
@@ -426,7 +314,7 @@
     \begin{align*}
       M_n = \av{X^n} = \int_{-\infty}^\infty x^n \, f_X(x) \, \dd x\pause
     \end{align*}
-  \item We can define a momentum generating function
+  \item We can define a moment generating function
     \begin{align*}
       Z(\ell) =  \int_{-\infty}^\infty \e{\ell \, x} \, f_X(x) \, \dd x\pause
     \end{align*}
@@ -524,29 +412,60 @@
 
 \end{slide}
 
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % Gaussian Integrals
+\Outline % Changing Variables
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Gaussian Integrals}
+\section[-2]{Substitution}
+  
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can make a transformation from $x$ to $u\pause=u(x)\pauseb$
+    \begin{align*}
+      \int_a^b f(x) \, \dd x &= \lim_{\delta x_i \rightarrow 0}
+      \sum_{i=0}^{n-1} f(x_i) (x_{i+1}-x_i) \pause\\
+      &= \lim_{\delta u_i \rightarrow 0}
+      \sum_{i=0}^{n-1} f(x(u_i)) \frac{x(u_{i+1})-x(u_i)}
+      {u_{i+1}- u_i}   (u_{i+1}- u_i)\pauseb\\
+      &= \int_{u(a)}^{u(b)} f(x(u)) \, \frac{\dd x(u)}{\dd u} \, \dd u\pauseb
+    \end{align*}
+    \begin{itemize}
+    \item  where $u_i$ is such that $x(u_i) = x_i$ or $u_i=u(x_i)$
+      where $u(x)$ is the inverse of $x(u)$\pauselevel{=4,
+        build, highlight}\pause
+    \item using $\lim\limits_{\delta u_i \rightarrow 0} \frac{x(u_{i+1})-x(u_i)}
+      {u_{i+1}- u_i} = \frac{\dd x(u_i)}{\dd u}$\pauseb
+    \end{itemize}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Substitution in Practice}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Gaussian integrals  are integrals involving $\e{-x^2}$, e.g.
+  \item A recipe
+    \begin{enumerate}
+    \item Choose $u(x)$: often an ``inner'' function whose derivative
+      also appears in the integrand\pause
+    \item Write $\dd u = u'(x)\,\dd x$ and replace every $x$ by $u$\pause
+    \item Change the limits: $x=a$ becomes $u=u(a)$\pause
+    \item Integrate in $u$\pause
+    \end{enumerate}
+  \item Example: $\displaystyle\int_0^1 2x\,(1+x^2)^3\,\dd x$\pause
     \begin{align*}
-      \int_{-\infty}^\infty \e{-x^2} \, \dd x
-      &&
-         \int_{-\infty}^\infty x^4 \e{-a\,x^2 - b x}\, \dd x\pause
+      u = 1+x^2, \quad \dd u = 2x\,\dd x, \quad
+      x: 0\to1 \;\Rightarrow\; u: 1\to2\pause
     \end{align*}
-  \item They are important in computing integrals with respect to the
-    normal distribution
     \begin{align*}
-      \mathcal{N}(x|\mu, \sigma) = \frac{1}{\sqrt{2\, \pi} \, \sigma} \,\e{-(x-\mu)^2/(2\,\sigma^2)}\pause
+      \int_0^1 2x\,(1+x^2)^3\,\dd x = \int_1^2 u^3\,\dd u
+      = \left[\frac{u^4}{4}\right]_1^2 = \frac{16-1}{4} = \frac{15}{4}\pause
     \end{align*}
-  \item The great news is that these integrals are all doable\pauseb
-  \item The bad news is that they are quite tricky to do\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -555,146 +474,54 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{The Gaussian Integral}
-
-\begin{PauseHighLight}\small\squeeze
-  \begin{itemize}
-  \item The integral over a Gaussian is surprisingly difficult
-    \begin{align*}
-        I_1 = \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x\pause
-    \end{align*}
-  \item There is a nice trick which is to consider
-    \begin{align*}
-        I_1^2 &=  \int_{-\infty}^{\infty} \e{-x^2/2} \, \dd x
-                \int_{-\infty}^{\infty} \e{-y^2/2} \, \dd y
-                =   \int_{-\infty}^{\infty}  \int_{-\infty}^{\infty}
-                  \e{-(x^2+y^2)/2} \, \dd x \, \dd y\pause
-      \end{align*}
-    \item Making the change of variables $r
-      = \sqrt{x^2 + y^2}$ and $\theta = \arctan(y/x)$  (so that
-      $x=r\,\cos(\theta)$, $y=r\,\sin(\theta)$ and $x^2+y^2=r^2$)
-      \begin{align*}
-        I_1^2 = \int_0^{2\,\pi} \dd \theta \int_{0}^\infty r\,e^{-r^2/2} \, \dd r
-        = 2\,\pi \ \int_{0}^\infty r\,e^{-r^2/2} \, \dd r \pause
-      \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-1]{The Gaussian Integral Continued}
-
-\begin{PauseHighLight}\small\squeeze
-  \begin{itemize}
-    \item From before
-      \begin{align*}
-        I_1^2   = 2\,\pi \ \int_{0}^\infty r\,e^{-r^2/2} \, \dd r
-      \end{align*}
-    \item Finally let $u=r^2/2$ so that $\dd u/\dd r =
-      r$ or $\dd u= r\,\dd r$ we get 
-      \begin{align*}
-        I_1^2 = 2\,\pi\ \int_{0}^\infty e^{-u} \, \dd u = 2\,\pi\pause
-      \end{align*}
-    \item So that $I_1 = \sqrt{2\,\pi}$\pauseb
-    \item Incidentally, $I_1 = \sqrt{2}\, \Pi(-1/2)$ so $\Pi(-1/2) =
-    \Gamma(1/2) = \sqrt{\pi}$\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-2]{Normal Distribution}
+\section[-2]{More Substitutions}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We consider
+  \item The limits can swap over: for $\int_0^{\pi/2} \sin(x)\cos^2(x)\,\dd x$
+    take $u = \cos(x)$, $\dd u = -\sin(x)\,\dd x$, and $x: 0\to\pi/2$
+    gives $u: 1\to0$\pause
     \begin{align*}
-      I_2 = \int_{-\infty}^{\infty} \e{-(x-\mu)^2/(2\sigma^2)} \dd x\pause
+      \int_0^{\pi/2} \sin(x)\cos^2(x)\,\dd x = \int_1^0 -u^2\,\dd u
+      = \int_0^1 u^2\,\dd u = \frac13\pause
     \end{align*}
-  \item Making the change of variables $z=(x-\mu)/\sigma$ so that $\dd z = \dd
-      x/\sigma$ or $\dd x = \sigma \dd z$.  Then
-      \begin{align*}
-        I_2 = \sigma \int_{-\infty}^{\infty} \e{-z^2/2} \dd z =
-        \sigma\,I_1 = \sqrt{2\,\pi}\,\sigma\pause
-      \end{align*}
-    \item Note that the \textit{probability density function} (PDF) for a
-      normally distributed random variable is given by
-      \begin{align*}
-        \mathcal{N}(x\mid \mu, \sigma^2) = \frac{1}{\sqrt{2\,\pi}\,\sigma} \e{-(x-\mu)^2/(2\sigma^2)} \pause
-      \end{align*}
+  \item A linear change of variable stretches $\dd x$: with
+    $z = (x-\mu)/\sigma$, $\dd x = \sigma\,\dd z$\pause
+    \begin{align*}
+      \int_{-\infty}^\infty \e{-(x-\mu)^2/(2\sigma^2)}\,\dd x
+      = \sigma\int_{-\infty}^\infty \e{-z^2/2}\,\dd z\pause
+    \end{align*}
+  \item The factor $\sigma$ is the one-dimensional version of the
+    Jacobian determinant (next slides)\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Multi-dimensional Gaussians}
+\section[-2]{Example of Integration by Substitution}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Consider
+  \item We consider $I(n) = \int\limits_0^\infty x^n\, \e{-x^2/2} \, \dd x$\pause
+  \item Let $u(x) =x^2/2$ or $x(u) = \sqrt{2\,u}$ so that
     \begin{align*}
-      I_3 = \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
-      \e{-\frac{1}{2}\|\bm{x}\|_2^2} \dd x_1 \cdots \dd x_n
+      \frac{\dd x(u)}{\dd u} &= \frac{1}{\sqrt{2\,u}} & u(0)&=0 & u(\infty)
+                                                            = \infty\pause
     \end{align*}
-    where $\bm{x} = (x_1, x_2, \ldots, x_n)^\tr$\pause
-  \item Note that $\len{\bm{x}}_2^2 = x_1^2+x_2^2+\cdots+x_n^2$ and
-    using $\e{\sum_i a_i} = \prod\limits_i \e{a_i}$
-  \begin{align*}
-    I_3 &= \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
-          \e{-\frac{1}{2}  \sum\limits_{i=1}^n x_i^2} \dd x_1 \cdots \dd
-          x_n \pause\\
-        &= \prod_{i=1}^n \int_{-\infty}^\infty  \e{-x_i^2/2} \,
-          \dd x_i \pauseb =  \prod_{i=1}^n \sqrt{2\,\pi} = (2\,\pi)^{n/2} \pauseb
-  \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-2]{Full Multi-variate Normal}
-
-\begin{PauseHighLight}\small
-  \begin{itemize}
-  \item Consider
+  \item Thus
     \begin{align*}
-      I_4 =  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
-      \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)} \, \dd x_1 \cdots \dd x_n\pause
+      I(n) &= \int_0^\infty \bra{\sqrt{2\,u}}^{n}\e{-u}\, \frac{1}{\sqrt{2\,u}} \, 
+      \dd u\pause\\
+      &= 2^{\frac{n-1}{2}} \int_0^\infty  u^{\frac{n-1}{2}} \, \e{-u}\,
+      \dd u \pauseb = 2^{\frac{n-1}{2}}\,\, \Pi\!\bra{\frac{n-1}{2}}\pauseb
     \end{align*}
-  \item Let $\mat{\Xi}^{-1} =
-    \mat{V}\,\mat{\Lambda}^{-1}\,\mat{V}^\tr$  and make the change of
-    variables $\bm{y}= \mat{V}^\tr(\bm{x}-\bm{\mu})$\pause
-  \item The Jacobian $\mat{J}$ has elements (note that $\bm{x} =
-    \mat{V}\bm{y} + \bm{\mu}$)
-    \begin{align*}
-          J_{ij} = \frac{\partial x_i}{\partial y_j} = \frac{\partial
-          \ }{\partial y_j} \left(\sum_{k=1}^n V_{ik} y_k + \mu_i\right) = V_{ij}\pause
-    \end{align*}
-  \item So that $\mat{J} = \mat{V}$ and consequently $|\det(\mat{J})| =
-    |\det(\mat{V})| = 1$\pause{} then
-    \begin{align*}
-      I_4 &=  \int_{-\infty}^\infty \cdots \int_{-\infty}^\infty
-            \e{-\frac{1}{2}  \bm{y}^\tr \mat{\Lambda}^{-1} \bm{y}}
-            \, \dd y_1 \cdots \dd y_n.
-            = \prod_{i=1}^n  \int_{-\infty}^\infty
-            \e{-y_i^2/(2\,\lambda_i)} \, \dd y_i = \prod_i
-            \sqrt{2\,\pi\,\lambda_i}\pause
-    \end{align*}
+  \item $I(1) = 1$\pauseb, $I(3)=2\times1!=2$\pauseb,
+    $I(5)=2^2\times2!=8$\pauseb, but $I(0)=
+    \Pi(-1/2)/\sqrt{2}$\pauseb, $I(2)= \sqrt{2}\,\Pi(1/2)=
+    \Pi(-1/2)/\sqrt{2}$\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -703,34 +530,54 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Determinants}
+  \section[-2]{Changing Variables in Multidimensional Space}
 
-\begin{PauseHighLight}\small
+\begin{PauseHighLight}
   \begin{itemize}
-  \item Using the facts, that $\mat{\Xi} =
-    \mat{V}\,\mat{\Lambda}\,\mat{V}^\tr$ then
+  \item When changing variables in many dimensions $\bm{x} \rightarrow
+    \bm{u}$ the change of variables involves the Jacobian
+    {\small
     \begin{align*}
-          \det(\mat{\Xi}) = \det(\mat{V}\,\mat{\Lambda}\,\mat{V}^\tr) \pause =
-          \det(\mat{V})\,\det(\mat{\Lambda})\,\det(\mat{V}^\tr) \pauseb
-          = \det(\mat{\Lambda})\pauseb = \prod_{i=1}^n \lambda_i\pauseb
-    \end{align*}
-    using $\det(\mat{A}\,\mat{B}) =
-    \det(\mat{A})\,\det(\mat{B})$\pauselevel{=2}\pauseb{} and
-    $\det(\mat{V}) =1$\pauselevel{=3}\pauseb
-  \item Recall $I_4 = \prod_i \sqrt{2\,\pi\,\lambda_i}\pause = (2\,\pi)^{n/2} \sqrt{\det(\mat{\Xi})}$\pauseb
-  \item We note for an $n\times n$ matrix $\mat{M}$ then
-    $\det(c\,\mat{M})=c^n\,\det(\mat{M})$ so that
+      \int f(\bm{x}) \dd \bm{x}
+      &= \int f(\bm{x}(\bm{u})) \, |\det(\mat{J})| \dd \bm{u},
+        & \bm{J} &=
+          \begin{pmatrix}
+            \pd{x_1}{u_1} & \pd{x_1}{u_2} & \cdots & \pd{x_1}{u_n} \\
+            \pd{x_2}{u_1} & \pd{x_2}{u_2} & \cdots & \pd{x_2}{u_n} \\
+            \vdots & \vdots & \ddots & \vdots  \\
+            \pd{x_n}{u_1} & \pd{x_n}{u_2} & \cdots & \pd{x_n}{u_n}
+          \end{pmatrix}\pause
+    \end{align*}}
+  \item E.g. transforming from Cartesian coordinates $(x,y)$ to polar
+    coordinates $(r,\theta)$ then $x=r\,\cos(\theta)$ and
+    $y=r\,\sin(\theta)$
+    {\small
     \begin{align*}
-      I_4 = (2\,\pi)^{n/2} \sqrt{\det(\mat{\Xi})}= \sqrt{\det(2\,\pi\,\mat{\Xi})}\pause
-    \end{align*}
-  \item Finally, we get that for the PDF of a normal to integrate to 1
-    \begin{align*}
-      \mathcal{N}(\bm{x} \mid \bm{\mu}, \mat{\Xi}) =
-      \frac{1}{\sqrt{\det(2\,\pi\,\mat{\Xi})}}  \, \e{-\frac{1}{2}  (\bm{x}-\bm{\mu})^\tr \mat{\Xi}^{-1} (\bm{x}-\mu)}
-    \end{align*}\pause
+      |\det(\mat{J})| &= \left| \det\!\begin{pmatrix}
+            \pd{r\,\cos(\theta)}{r} &  \pd{r\,\cos(\theta)}{\theta}  \\
+            \pd{r\,\sin(\theta)}{r} &  \pd{r\,\sin(\theta)}{\theta}  \\
+          \end{pmatrix} \right| \pause
+    = \left| \det\!\begin{pmatrix}
+            \cos(\theta) &  -r\,\sin(\theta)  \\
+            \sin(\theta) &  r\,\cos(\theta)  \\
+                   \end{pmatrix} \right| \pauseb\\
+      &= r\,\bra{\cos^2(\theta) + \sin^2(\theta)}\pauseb = r \pauseb
+    \end{align*}}
+\item  That is, $\dd x\, \dd y = r\,\dd r\, \dd \theta$\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+  \section[-2]{Change of Variables in Pictures}
+
+  \pause \pb\pauselevel{=1}
+  \begin{center}
+    \multipdf[width=0.8\textwidth]{polarCoord}\pause
+  \end{center}
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -746,9 +593,11 @@
     continuous random variables\pause
   \item Integration is beautiful, but hard\pause---often
     impossible\pauseb
-  \item Normal distributions lucky almost always give raise to
-    integrals that can be computed in closed form\pause, although
-    often it requires quite a bit of work\pauseb
+  \item Changing variables turns many hard integrals into easy
+    ones\pause
+  \item Normal distributions, luckily, give integrals that can be done
+    in closed form, although it takes some work: that is the next
+    lecture\pauseb
   \item Making friends with integration will give you a
     super-power that not too many people share\pauseb
   \end{itemize}

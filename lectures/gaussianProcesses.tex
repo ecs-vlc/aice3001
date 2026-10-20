@@ -41,7 +41,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Due to the fact that we can analytically integrate over
-    multivariate Gaussians they are heavily used of machine
+    multivariate Gaussians they are heavily used in machine
     learning\pause
   \item Examples include multivariate modelling, Kalman filters and
     Gaussian Processes\pause
@@ -62,193 +62,40 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-1.5]{Completing the Square}
+\section[-2]{Recap: the Gaussian Toolkit}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item One of the key tools for performing Gaussian integrals
-    is ``completing the square''
+  \item From the last lecture, for jointly Gaussian
     \begin{align*}
-      -\frac{1}{2 }\bm{x}^\tr \mat{C}^{-1}\,\bm{x} + \bm{a}^\tr \bm{x}
-      &= -\frac{1}{2} \bm{x}^\tr \mat{C}^{-1}\,\bm{x} + \frac{1}{2}
-        \bm{a}^\tr \bm{x} + \frac{1}{2} \bm{x}^\tr \bm{a} \pause \\ 
-      &= -\frac{1}{2} \bm{x}^\tr \mat{C}^{-1}\,\bm{x} + \frac{1}{2} \bm{a}^\tr
-        \mat{C} \mat{C}^{-1} \bm{x} +\frac{1}{2} \bm{x}^\tr
-        \mat{C}^{-1} \mat{C} \bm{a} \pauseb \\
-      &= -\frac{1}{2} (\bm{x}^\tr - \bm{a}^\tr\mat{C}) \mat{C}^{-1}
-        (\bm{x}-\mat{C} \bm{a}) + \frac{1}{2} \bm{a}^\tr \mat{C}\,\bm{a}\pauseb
+      \begin{pmatrix}\bm{z}_1\\ \bm{z}_2\end{pmatrix} \sim
+      \mathcal{N}\!\left(
+      \begin{pmatrix}\bm{\mu}_1\\ \bm{\mu}_2\end{pmatrix},
+      \begin{pmatrix}\mat{\Sigma}_{11} & \mat{\Sigma}_{12}\\
+        \mat{\Sigma}_{21} & \mat{\Sigma}_{22}\end{pmatrix}\right)\pause
     \end{align*}
-  \item This gives us the Hubbard–Stratonovich transformation
+  \item Marginal: strike out rows and columns,
+    $\bm{z}_1\sim\mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})$\pause
+  \item Conditional:
     \begin{align*}
-      \int_{-\infty}^{\infty} 
-      \tfrac{\e{-\frac{1}{2 }\bm{x}^\tr \mat{C}^{-1}\,\bm{x} + \mat{a}^\tr
-      \mat{x}}}{\sqrt{|\det(2\,\pi\,\mat{C})|}} \, {\scriptstyle \dd \bm{x}}
-      &= \int_{-\infty}^{\infty}
-      \tfrac{\e{-\frac{1}{2} (\bm{x}^\tr - \bm{a}^\tr\mat{C}) \mat{C}^{-1}
-        (\bm{x}-\mat{C} \bm{a}) + \frac{1}{2} \bm{a}^\tr
-        \mat{C}\,\bm{a}}}{\sqrt{|\det(2\,\pi\,\mat{C})|}} \, {\scriptstyle \dd \bm{x}}\pauseb \\
-      &= \int_{-\infty}^{\infty} \mathcal{N}\left(\bm{x}\mid
-        \mat{C}\,\bm{a}, \mat{C}\right) \,
-        \e{\frac{1}{2} \bm{a}^\tr \mat{C}\,\bm{a}} \dd \bm{x}\pauseb
-        = \e{\frac{1}{2} \bm{a}^\tr \mat{C}\,\bm{a}} \pauseb
+      \bm{z}_1\mid\bm{z}_2 \sim \mathcal{N}\!\left(
+      \bm{\mu}_1 + \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}(\bm{z}_2-\bm{\mu}_2),\;
+      \mat{\Sigma}_{11} - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}
+      \right)\pause
     \end{align*}
+  \item Gaussian processes are built entirely on these two
+    results\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Moment Generating Function}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item Again through completing the square we can show
-    \begin{align*}
-      M(\bm{a}) = \int_{-\infty}^{\infty} \e{\bm{a}^\tr \bm{x}} \,
-      \mathcal{N}(\bm{x}\mid \bm{\mu}, \mat{C}) \, \dd \bm{x}
-      = \e{\bm{a}^\tr \bm{\mu} + \frac{1}{2} \bm{a}^\tr \mat{C} \bm{a}}\pause
-    \end{align*}
-  \item The first moment is given by
-    \begin{align*}
-      \av{\bm{x}} = \left. \grad_{\bm{a}} M(\bm{a}) \right|_{\bm{a}=0}
-      \pause = \left. (\bm{\mu} + \mat{C}
-      \bm{a})\e{\bm{a}^\tr \bm{\mu} + \frac{1}{2} \bm{a}^\tr \mat{C}
-      \bm{a}} \right|_{\bm{a}=0} \pause =
-      \bm{\mu}\pause
-    \end{align*}
-  \item The second moment is
-    \begin{align*}
-      \av{x_i\,x_j} = \left. \frac{\partial^2 M(\bm{a})}{\partial
-      x_i\,\partial x_j}  \right|_{\bm{a}=0} \pause= \mu_i \mu_j + C_{ij}\pause
-    \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-2]{Covariance}
-  
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item The covariance is given by
-    \begin{align*}
-      \av{(x_i-\mu_i)\,(x_j-\mu_j)} = C_{ij}\pause
-    \end{align*}
-    or $\av{(\bm{x}-\bm{\mu})(\bm{x}-\bm{\mu})^\tr} = \mat{C}$\pauseb
-  \item The cumulant generating function is given by
-    \begin{align*}
-      C(\bm{a}) = \log(M(\bm{a}))
-      = \bm{a}^\tr \bm{\mu} + \frac{1}{2} \bm{a}^\tr \mat{C} \bm{a}\pause
-    \end{align*}
-  \item The mean is equal to $\grad C(\bm{a}) |_{\bm{a}=0} =
-    \bm{\mu}$\pause
-  \item The covariance is given by $\left. \frac{\partial^2
-        C(\bm{a})}{\partial a_i \,\partial a_j} \right|_{\bm{a}=0} =
-    C_{ij}$\pause
-  \item Normal distributions have no high cumulants (skewness, curtosis)\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Multivariate Normals}
-
-\pause\pb\pauselevel{=1}
-\begin{center}
-  \multipdf[width=\linewidth]{marginaliseNormals}\pause
-\end{center}
-\begin{align*}
-  \mathcal{N} \!\left( \begin{psmallmatrix}\bm{x}\\ \bm{y}\end{psmallmatrix} \,\middle|\, \begin{psmallmatrix} \bm{\mu}^{x} \\ \bm{\mu}^y \end{psmallmatrix}, \begin{psmallmatrix} \mat{A} & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{psmallmatrix} \right)
-  = \frac{\e{-\frac{1}{2}
-  (\bm{x}^\tr-\bm{\mu}^{x\tr},  \bm{y}^\tr-\bm{\mu}^{y\tr})
-  \begin{psmallmatrix} \mat{A} & \mat{B}\\
-    \mat{B}^{\tr} & \mat{C} \end{psmallmatrix}^{-1}
-  \begin{psmallmatrix}\bm{x}-\bm{\mu}^x\\ \bm{y}-\bm{\mu}^y\end{psmallmatrix}}}
-  {\sqrt{\det\left(2\,\pi \begin{psmallmatrix} \mat{A} & \mat{B}\\
-    \mat{B}^{\tr} & \mat{C} \end{psmallmatrix}\right)}} \pauseh
-\end{align*}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Marinalising Multivariate Normals}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item I can define a moment generating function,
-    \begin{align*}
-      M(\bm{a},\bm{b}) &= \int \e{(\bm{a}^\tr, \bm{b}^\tr)
-      \begin{psmallmatrix}
-        \bm{x}-\bm{\mu}^x\\ \bm{y}-\bm{\mu}^y
-      \end{psmallmatrix}}
-       \, \mathcal{N} \!\left( \begin{psmallmatrix}\bm{x}\\
-        \bm{y}\end{psmallmatrix} \,\middle|\, \begin{psmallmatrix} \bm{\mu}^{x}
-          \\ \bm{\mu}^y \end{psmallmatrix}, \begin{psmallmatrix} \mat{A}
-            & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{psmallmatrix} \right)
-                         \dd \bm{x} \, \dd \bm{y} \pause\\
-        &= \e{\frac{1}{2} (\bm{a}^\tr, \bm{b}^\tr) \begin{psmallmatrix} \mat{A}
-            & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{psmallmatrix} \begin{psmallmatrix}
-        \bm{a}\\ \bm{b}
-            \end{psmallmatrix}}\pause
-          = \e{\frac{1}{2}\left(\bm{a}^\tr \mat{A}\bm{a} + \bm{b}^\tr
-          \mat{C}\bm{b} +2\bm{a}^\tr \mat{B}\bm{b} 
-          \right)}\pause
-    \end{align*}
-\item If I set $\bm{b}=\bm{0}$ this is equivalent to marginalising out
-  $\bm{y}$\pause
-\item But then we just get $M(\bm{a},\bm{0}) =
-  \e{\frac{1}{2}\bm{a}^\tr \mat{A}\bm{a}}$\pause
-\item This is the same as the moment generating function for
-  $\mathcal{N}(\bm{x} \mid \bm{\mu}^x, \mat{A})$\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Marinalising Multivariate Normals Continued}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item An important and non-trivial result is
-    \begin{align*}
-      \int \mathcal{N} \!\left( \begin{psmallmatrix}\bm{x}\\
-        \bm{y}\end{psmallmatrix} \,\middle|\, \begin{psmallmatrix} \bm{\mu}^{x}
-          \\ \bm{\mu}^y \end{psmallmatrix}, \begin{psmallmatrix} \mat{A}
-            & \mat{B}\\ \mat{B}^{\tr} & \mat{C} \end{psmallmatrix} \right)
-      \dd \bm{y}
-      =  \mathcal{N}(\bm{x} \mid \bm{\mu}^x, \mat{A})\pause
-    \end{align*}
-  \item You would think this is easy to prove by straightforward
-    integration\pause, but it ain't\pauseb
-  \item It can be done, but it is a page of work\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-
-\end{slide}
-
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \Outline % Introduction to GP
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Gaussian Proccesses}
+\section{Gaussian Processes}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -455,7 +302,7 @@
       p(\mathcal{D}| f) = \prod_{i=1}^m
       \mathcal{N}\left(y_i\big\vert f(\bm{x}_i), \sigma^2\right)\pause
     \end{align*}\vspace*{-1.3cm}
-  \item Using a Gausssian Process prior we can compute a posterior
+  \item Using a Gaussian Process prior we can compute a posterior
     using Bayes's rule\pause
   \item The posterior is a Gaussian Process with a shifted mean and
     variance depending on the data-points\pause
@@ -513,12 +360,11 @@
       p(f_*|\bm{y}) = \frac{p(f_*,\bm{y})}{p(\bm{y})}\pause
     \end{align*}
   \item where $p(\bm{y}) = \int p(f_*,\bm{y}) \, \dd f_*$\pause
-  \item Because all integrals are Gaussian we can compute the integral
-    to obtain
+  \item The conditional formula from the last lecture gives
     \begin{align*}
       p(f_*|\bm{y}) = \mathcal{N}\left( f_* \bigg\vert
       \bm{k}_*^\tr(\mat{K} + \sigma^2 \mat{I})^{-1} \bm{y}, 
-      k - \bm{k}_*^\tr(\mat{K} + \sigma^2 \mat{I})^{-1} \bm{k}_* \right)\pause
+      k_* - \bm{k}_*^\tr(\mat{K} + \sigma^2 \mat{I})^{-1} \bm{k}_* \right)\pause
     \end{align*}
   \item Looks complicated, but numerically easy to evaluate\pause
   \end{itemize}

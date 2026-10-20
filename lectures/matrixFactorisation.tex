@@ -1,0 +1,693 @@
+%% Standalone lecture -- build with:  pdflatex -shell-escape matrixFactorisation
+\input{preamble}
+
+\begin{document}
+
+\lesson{Matrix Factorisation}
+\vspace{-1cm}
+\begin{center}
+    \begin{tabular}{|l||c|c|c|c|c|}\hline
+      Name & Titanic & Dr No & The Matrix & Spartacus & Ten \\ \hline
+      Alice & 2 & \O & 4  & 5 & 2  \\ \hline
+      Bob   & 5 & 3  & \O & 3 & \O \\ \hline
+      Chas  & \O & 2 & 3 & 5 & 3 \\ \hline
+    \end{tabular}
+\end{center}
+\keywords{Matrix completion, low-rank approximation, recommender systems, alternating least squares, non-negative matrix factorisation}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\Outline}{%
+\begin{slide}
+\section[1]{Outline}
+
+\begin{minipage}{12cm}\raggedright
+  \begin{enumerate}
+    \outlineitem{Missing Data and Recommenders}{recommenders}
+    \outlineitem{Low-Rank Approximation}{lowrank}
+    \outlineitem{Probabilistic Approach}{prob}
+    \outlineitem{Non-Negative Matrix Factorisation}{nnmf}
+  \end{enumerate}
+\end{minipage}\hfill
+\begin{minipage}{10cm}
+  \includegraphics[width=10cm]{lowrank-3}
+\end{minipage}
+\end{slide}
+\addtocounter{outlineitem}{1}
+}
+
+\setcounter{outlineitem}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Missing Data and Recommenders
+\toptarget{firstoutline}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Matrix Completion}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item It is extremely common to be given a matrix of data with
+    missing entries\pause{} (particularly when the data comes from
+    humans filling in forms)\pause
+  \item Most learning machines need a complete set of data, so we
+    either throw away examples or features with missing values
+    (sometimes leaving nothing) or do our best to infer them\pause
+  \item Inferring them only works if there is structure in the matrix
+    that we can exploit\pause
+  \item The structure we use in this lecture: \emph{structured data
+      typically lies close to a low-dimensional subspace}\pause{}
+    (the idea behind PCA and the SVD)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Recommender Systems}
+
+\begin{PauseHighLight}
+\begin{itemize}\squeeze
+\item The best-known example: recommending items to users, which can
+  be financially important
+  \begin{itemize}
+  \item Recommendations are reported to drive a large share of
+    Amazon's sales\pause
+  \item Netflix (then a DVD rental company, now a streaming service)
+    ran a \$1 million competition (2006--09) to improve the quality of
+    its recommendations\pause
+  \end{itemize}
+\item \emph{Content-based filtering} uses (often text) features to
+  find similar items; \emph{collaborative filtering} uses ratings
+  supplied (implicitly or explicitly) by users\pause
+\item We concentrate on collaborative filtering\pause
+\end{itemize}
+\end{PauseHighLight}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Recommending Movies}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The classic example is to recommend a movie given some ratings
+    from users
+    \begin{center}
+    \begin{tabular}{|l||c|c|c|c|c|}\hline
+      Name & Titanic & Dr No & The Matrix & Spartacus & Ten \\ \hline
+      Alice & 2 & \O & 4  & 5 & 2  \\ \hline
+      Bob   & 5 & 3  & \O & 3 & \O \\ \hline
+      Chas  & \O & 2 & 3 & 5 & 3 \\ \hline
+    \end{tabular}\pause
+    \end{center}
+  \item \O\ means there are no ratings\pause
+  \item The task is to predict the unknown ratings and make a
+    recommendation\pause
+  \item Typically data sets are huge and very sparse\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Classic Collaborative Filtering}
+
+\begin{PauseHighLight}
+  \begin{minipage}{0.58\linewidth}
+    \begin{itemize}
+    \item The classic collaborative filtering technique is to find similar
+      users (those giving similar ratings)\pause
+    \item Use the recommendation of similar users weighted by
+      their similarity\pause
+    \item Can also recommend items that are similar (i.e. items
+      that have received similar ratings) to those that a user rates
+      highly\pause
+    \end{itemize}
+  \end{minipage}\hfil
+\begin{minipage}{0.40\linewidth}
+  \begin{center}
+    \includegraphics[width=\linewidth]{cosineSim}
+  \end{center}
+  \pauselevel{=2}
+  \begin{align*}
+    \hat{R}_{ui} = \frac{\sum\limits_{u'} \mathrm{sim}(u,u')\,
+    R_{u'i}}{\sum\limits_{u'} \mathrm{sim}(u,u')}\pause
+  \end{align*}
+\end{minipage}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Low Rank
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Matrix Completion}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A different (often better) method is to think of recommendation
+    as a matrix completion task
+    \begin{center}
+    \begin{tabular}{|l||c|c|c|c|c|}\hline
+      Name & Titanic & Dr No & The Matrix & Spartacus & Ten \\ \hline
+      Alice & 2 & \O & 4  & 5 & 2  \\ \hline
+      Bob   & 5 & 3  & \O & 3 & \O \\ \hline
+      Chas  & \O & 2 & 3 & 5 & 3 \\ \hline
+    \end{tabular}\pause
+    \end{center}
+  \item Complete the matrix
+    \begin{align*} \mat{R} =
+      \begin{pmatrix}
+        2& & 4 & 5 & 2  \\
+        5 & 3  &   & 3 &   \\
+          & 2 & 3 & 5 & 3
+      \end{pmatrix}
+    \end{align*}\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Replace by Means}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item The simplest guess uses the means, column-wise and row-wise
+    \begin{align*}
+      R_{ui} \approx \bar{R}_u + \bar{R}_i - \bar{R}
+    \end{align*}
+    where
+    \begin{itemize}
+    \item $\bar{R}_u$ is the mean rating of user $u$
+    \item $\bar{R}_i$ is the mean rating for item $i$
+    \item $\bar{R}$ is the mean overall rating\pause
+    \end{itemize}
+  \item Gets the means right and gives a reasonable rating\pause
+  \item (For general missing data: replace by the feature's mean)\pause
+  \item But this ignores structure: similar users give similar
+    ratings\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Best Low-Rank Approximation}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Recall the SVD of a complete matrix, with
+    $s_1\geq s_2\geq\cdots\geq0$
+    \begin{align*}
+      \mat{X} = \mat{U}\,\mat{S}\,\mat{V}^\tr = \sum_k s_k\,
+      \bm{u}_k\,\bm{v}_k^\tr\pause
+    \end{align*}
+  \item Keeping the $K$ largest singular values gives a rank-$K$
+    matrix $\mat{X}_K = \sum_{k=1}^K s_k\, \bm{u}_k\,\bm{v}_k^\tr$\pause
+  \item \emph{Eckart--Young theorem}: $\mat{X}_K$ is the best rank-$K$
+    approximation to $\mat{X}$, with error
+    $\|\mat{X}-\mat{X}_K\|_F^2 = \sum_{k>K} s_k^2$\pause{} (also best in
+    the spectral norm, with error $s_{K+1}$)\pause
+  \item Data close to a $K$-dimensional subspace has small discarded
+    $s_k$\pause{} (this is effectively PCA)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Subspace Projection}
+\pause
+\pb
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{lowrank-0}\mypl{1}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-1}}\mypl{2}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-2}}\mypl{3}
+  \llap{\includegraphics[width=0.9\linewidth]{lowrank-3}}\mypl{4}
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Completing a Matrix with the SVD}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The SVD needs a complete matrix, so we iterate\pause
+    \begin{enumerate}
+    \item Fill in the missing entries (e.g. with the user means)\pause
+    \item Compute the best rank-$K$ approximation $\mat{L}$ of the
+      filled-in matrix\pause
+    \item Replace the missing entries (only) by the values in
+      $\mat{L}$\pause
+    \item Repeat from 2\pause
+    \end{enumerate}
+  \item With a mask $\mat{W}$ ($W_{ij}=1$ where $X_{ij}$ is observed,
+    $0$ otherwise) and $\odot$ the element-by-element product
+    \begin{align*}
+      \mat{X}(t+1) = \mat{W}\odot\mat{X} + \overline{\mat{W}}\odot
+      \mat{L}(t)
+    \end{align*}
+    where $\overline{\mat{W}} = 1 - \mat{W}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{SVD in Operation}
+\pause
+\pb
+\pauselevel{=1}
+\begin{center}
+  \multipdf[width=0.95\linewidth]{svdComplete}\pause
+\end{center}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Low-Rank Approximation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item More directly, approximate an $m\times n$ matrix $\mat{X}$ by
+    \begin{align*}
+      \mat{X} \approx \mat{A}\; \mat{B}
+    \end{align*}
+    where $\mat{A}$ is $m \times K$ and $\mat{B}$ is
+    $K\times n$\pause
+  \item $\mat{A} \mat{B}$ has \textit{rank} at most $K$\pause
+  \item We replace $m\times n$ elements by $(m+n)\times K$ free
+    parameters\pause
+  \item $K$ controls the complexity of the model: large $K$ fits the
+    data better but may over-fit\pause
+  \item Choose $K$ by cross-validation (hide some of the observed
+    entries and see how well we predict them)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Least-Squares}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Assume we have elements of $\mat{X}$ only at the locations
+    $\mathcal{D}$\pause
+  \item We can seek a least-squares solution for $\mat{A}$ and $\mat{B}$
+    \begin{align*}
+      (\mat{A},\mat{B}) = \mathop{\mathrm{argmin}}\limits_{(\mat{A},\mat{B})}
+      \sum_{(i,j)\in\mathcal{D}} \left( X_{ij} -
+        \sum_{k=1}^K A_{ik} \, B_{kj} \right)^2\pause
+    \end{align*}
+  \item OK, but it can over-fit\pause
+  \item $\mat{A}$ and $\mat{B}$ are never unique:
+    $\mat{A}\mat{B} = (\mat{A}\mat{G})(\mat{G}^{-1}\mat{B})$ for any
+    invertible $K\times K$ matrix $\mat{G}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Probabilistic Approach
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Bayes' Rule and MAP}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item For parameters $\bm{\theta}$ and data $\data$, Bayes' rule
+    gives the \emph{posterior} (likelihood $\times$ prior $/$ evidence)
+    \begin{align*}
+      \Prob{\bm{\theta}|\data} =
+      \frac{\Prob{\data|\bm{\theta}}\,\Prob{\bm{\theta}}}{\Prob{\data}}\pause
+    \end{align*}
+  \item The \emph{maximum a posteriori} (MAP) solution is the most
+    probable $\bm{\theta}$ ($\Prob{\data}$ does not depend on it)
+    \begin{align*}
+      \bm{\theta}_{\mathrm{MAP}} = \mathop{\mathrm{argmax}}_{\bm{\theta}}
+      \Bigl(\logg{\Prob{\data|\bm{\theta}}} + \logg{\Prob{\bm{\theta}}}\Bigr)\pause
+    \end{align*}
+  \item With a flat prior it is the maximum-likelihood solution\pause
+  \item Limitations: MAP gives a single point, throwing away our
+    uncertainty about $\bm{\theta}$;\pause{} and the peak of a density
+    depends on how we parametrise $\bm{\theta}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Bayesian Approach}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can use a Bayesian approach to infer $\mat{A}$ and $\mat{B}$\pause
+  \item The likelihood is
+    \begin{align*}
+      \Prob{X_{ij}|\mat{A},\mat{B}} &=
+      \mathcal{N}\left(X_{ij}\bigg|\sum_{k=1}^K
+        A_{ik} \, B_{kj}, \sigma^2\right) \\
+      \mathcal{N}(x|\mu,\sigma^2) &= \frac{1}{\sqrt{2\,\pi\,}\;\sigma}
+      \e{-(x-\mu)^2/(2\,\sigma^2)}
+    \end{align*}
+  \item $\sigma$ measures the natural error in the ratings\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Priors}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We also need priors
+    \begin{align*}
+      \Prob{\mat{A}} &= \prod_{i,k} \mathcal{N}(A_{ik}|0,\sigma_A^2), &
+      \Prob{\mat{B}} &= \prod_{k,j} \mathcal{N}(B_{kj}|0,\sigma_B^2) \pause
+    \end{align*}
+  \item $\sigma_A^2$ and $\sigma_B^2$ explain the variation in the
+    original matrix $\mat{X}$\pause
+  \item Note that
+    \begin{align*}
+      \av{\sum_{k=1}^K A_{ik} \, B_{kj}} &= 0, &
+      \Var{\sum_{k=1}^K A_{ik} \, B_{kj}} &= K\,\sigma_A^2\,\sigma_B^2
+    \end{align*}
+    which should be equal to the variance in $X_{ij}$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{MAP Solution}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Calculating the posterior probability for $\mat{A}$ and
+    $\mat{B}$ is intractable\pause
+  \item We can, however, compute the \textit{maximum a posteriori} solution
+    \begin{align*}
+      \mathcal{E} &=
+      \sum_{(i,j)\in\mathcal{D}} \logg{\Prob{X_{ij}|\mat{A},\mat{B}}}
+      + \logg{\Prob{\mat{A}}} + \logg{\Prob{\mat{B}}} + C \pause \\
+      &= -\frac{1}{2\sigma^2} \sum_{(i,j)\in\mathcal{D}} \left( X_{ij} -
+        \sum_{k=1}^K A_{ik} \, B_{kj} \right)^2
+      - \frac{1}{2\sigma^2_A} \sum_{i,k} A_{ik}^2 \\
+      & \hspace{2em}  - \frac{1}{2\sigma^2_B} \sum_{k,j} B_{kj}^2
+      + C' \pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Iterative Learning}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We can maximise the log-posterior by first maximising the
+    log-posterior with respect to $\mat{A}$ keeping $\mat{B}$ fixed
+    \begin{align*}
+      \pd{\mathcal{E}}{A_{ik}} = \frac{1}{\sigma^2}
+      \sum_{j| (i,j)\in\mathcal{D}} \left( X_{ij} -
+        \sum_{l=1}^K A_{il} \, B_{lj} \right)  B_{kj} -
+      \frac{1}{\sigma^2_A} A_{ik} = 0\pause
+    \end{align*}
+  \item This is equivalent to
+    \begin{align*}
+      \sum_{l=1}^K \left( \frac{\sigma^2}{\sigma^2_A} \delta_{k,l}
+        + \!\!\!\!\sum_{j| (i,j)\in\mathcal{D}}\!\!\!\! B_{lj}  B_{kj} \right) A_{il}
+      = \!\!\!\!\sum_{j| (i,j)\in\mathcal{D}}\!\!\!\! B_{kj} X_{ij}\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Solving for $\mat{A}$}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item We got
+    \begin{align*}
+      \sum_{l=1}^K \left( \frac{\sigma^2}{\sigma^2_A} \delta_{k,l}
+        + \sum_{j| (i,j)\in\mathcal{D}}B_{lj}  B_{kj} \right) A_{il}
+      = \sum_{j| (i,j)\in\mathcal{D}} B_{kj} X_{ij}\pause
+    \end{align*}
+  \item Which has the form $\mat{M}^i \bm{a}^i = \bm{c}^i$
+    {\small
+    \begin{align*}
+      M^i_{kl} &= \frac{\sigma^2}{\sigma^2_A} \delta_{k,l}
+        + \!\!\!\!\sum_{j| (i,j)\in\mathcal{D}}\!\!\!\! B_{lj}  B_{kj}, &
+      a^i_l &= A_{il}, & c^i_k &= \!\!\!\!\sum_{j| (i,j)\in\mathcal{D}}\!\!\!\! B_{kj} X_{ij}\pause
+    \end{align*}}
+  \item Solution is $\bm{a}^i = (\mat{M}^i)^{-1} \bm{c}^i$ (one
+    $K\times K$ solve for each row $i$)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Each Step is Ridge Regression}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Write $\bm{b}_j$ for column $j$ of $\mat{B}$ and $\bm{a}_i$ for
+    row $i$ of $\mat{A}$ (as a column vector)\pause
+  \item With $\mat{B}$ fixed, row $i$ of $\mat{A}$ minimises
+    \begin{align*}
+      \sum_{j|(i,j)\in\mathcal{D}} \left(X_{ij} -
+      \bm{a}_i^\tr\bm{b}_j\right)^2 + \eta\,\|\bm{a}_i\|^2, \qquad
+      \eta = \frac{\sigma^2}{\sigma_A^2}\pause
+    \end{align*}
+  \item This is ridge regression: features $\bm{b}_j$, targets
+    $X_{ij}$, regularisation strength $\eta$\pause
+  \item Its solution $\bm{a}_i = \bigl(\eta\,\mat{I} + \sum_j
+    \bm{b}_j\bm{b}_j^\tr\bigr)^{-1}\sum_j \bm{b}_j X_{ij}$ is exactly
+    $(\mat{M}^i)^{-1}\bm{c}^i$\pause
+  \item Alternating between $\mat{A}$ and $\mat{B}$ is called
+    \emph{alternating least squares} (ALS)\pause{}: each step is
+    convex, even though the whole problem is not\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Converging to a Solution}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Then solve for $\mat{B}$ (almost identical to solving for
+    $\mat{A}$)\pause
+  \item Iterate between $\mat{A}$ and $\mat{B}$ until they
+    converge\pause
+  \item No step can decrease the log-posterior, so it converges,
+    usually rapidly\pause{} (to a local optimum: the full problem is
+    not convex)\pause
+  \item Used to predict an $X_{ij}$ where $(i,j)\not\in\mathcal{D}$\pause
+  \item Matrix factorisation was at the heart of the Netflix Prize
+    winners and is still a strong baseline for recommenders\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Embeddings}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Row $i$ of $\mat{A}$ is a $K$-dimensional vector describing
+    user $i$; column $j$ of $\mat{B}$ describes item $j$\pause
+  \item The predicted rating is their inner product,
+    $\bm{a}_i^\tr\bm{b}_j$\pause
+  \item Items with similar vectors are rated alike: we have learnt an
+    \emph{embedding} of users and items\pause
+  \item Modern recommenders learn embeddings with neural networks,
+    mostly from \emph{implicit feedback} (clicks, views,
+    purchases)\pause{}: a missing entry is then weak evidence of not
+    liking, not simply unknown\pause
+  \item Matrix completion is also used to fill in missing survey,
+    sensor and medical data\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Non-Negative Matrix Factorisation
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Matrix Factorisation}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Although we have treated matrix factorisation as a matrix
+    completion task we can also think of it as a data modelling
+    task\pause
+  \item Consider a set of books in mathematics, physics and biology\pause
+  \item We can build a matrix of books (columns) versus words (rows),
+    with elements being the word count\pause
+  \item Can use the SVD, taking $\mat{A}$ as the first three columns of
+    $\mat{U} \mat{S}$ and $\mat{B}$ as the first three rows of
+    $\mat{V}^\tr$\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{SVD}
+
+\begin{center}
+  \includegraphics[width=\linewidth]{books}
+\end{center}
+\begin{itemize}
+\item Best rank-3 approximation, but the factors mix signs: hard to
+  interpret
+\end{itemize}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Non-Negative Matrix Factorisation}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item When $\mat{X}$ is non-negative we can get a sparse model by
+    minimising $E(\mat{A},\mat{B}) = \| \mat{X} - \mat{A}\,\mat{B}
+    \|_F^2$ with all elements of $\mat{A}$ and $\mat{B}$ non-negative\pause
+  \item Projected gradient descent: take a gradient step, then set
+    negative elements to zero\pause
+  \item Or Lee and Seung's \emph{multiplicative updates}
+    ($\oslash$ is element-by-element division)
+    \begin{align*}
+      \mat{B} &\leftarrow \mat{B}\odot\bigl(\mat{A}^\tr\mat{X}\bigr)
+                \oslash\bigl(\mat{A}^\tr\mat{A}\mat{B}\bigr), &
+      \mat{A} &\leftarrow \mat{A}\odot\bigl(\mat{X}\mat{B}^\tr\bigr)
+                \oslash\bigl(\mat{A}\mat{B}\mat{B}^\tr\bigr)
+    \end{align*}
+    which never make an element negative\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Non-Negative Matrix Factorisation}
+\begin{center}
+  \includegraphics[width=\linewidth]{booksNN}\pause
+\end{center}
+\begin{itemize}
+\item The three factors pick out mathematics, physics and
+  biology\pauseb
+\end{itemize}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Non-Negative Matrix Factorisation: Caveats}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item NMF is very popular because its factors are often easier to
+    interpret than those of the SVD\pause
+  \item But
+    \begin{itemize}
+    \item It cannot fit better than the SVD: by Eckart--Young the
+      truncated SVD is the best rank-$K$ fit\pause{} (here
+      relative errors 0.164 against 0.158)\pause
+    \item The problem is not convex: the answer depends on the
+      starting point and on $K$\pause
+    \item The factors are not unique, and a ``parts-based'' reading of
+      them is not guaranteed\pause
+    \end{itemize}
+  \item Always compare against simple baselines (e.g. the SVD or
+    PCA)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Conclusion}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Structured data typically lies close to a low-dimensional
+    subspace, and we can exploit this\pause
+  \item Matrix factorisation has many applications including recommender
+    systems, data completion, and data modelling\pause
+  \item The truncated SVD gives the best low-rank approximation;
+    iterating it fills in missing entries\pause
+  \item A Bayesian (MAP) approach helps with over-fitting, and each step
+    of the resulting ALS is ridge regression\pause
+  \item Non-negative matrix factorisation gives more interpretable,
+    though not necessarily better, factors\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+\end{document}
+
+%% Imported 2026-10-20 from comp6208/old_lectures/matrix-completion.tex
+%% and updated: low-rank theme, Eckart--Young, iterative SVD, ALS as ridge
+%% regression, embeddings, NMF caveats.  Figures svdComplete and books are
+%% generated by svdComplete.py and books.py (real numbers).

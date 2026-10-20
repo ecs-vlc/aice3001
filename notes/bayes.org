@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 21: Bayesian Inference
+#+SUBTITLE: Subsidiary Notes --- Lecture 20: Bayesian Inference
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -248,4 +248,4 @@
       \left(\frac{5}{4}\right)^7} = 0.29549 \\
     \end{align*}
 
-* COMMENT [[file:experimentalDesign.org][Previous]]  [[file:integration.org][Next]]
+* COMMENT [[file:experimentalDesign.org][Previous]]  [[file:matrixFactorisation.org][Next]]

@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 20: On Becoming a Scientist
+#+SUBTITLE: Subsidiary Notes --- Lecture 19: On Becoming a Scientist
 #+SETUPFILE: setup.org
 
 * Keywords

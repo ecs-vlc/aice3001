@@ -1,0 +1,307 @@
+#+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
+#+SUBTITLE: Subsidiary Notes --- Lecture 23: Gaussian Integrals
+#+SETUPFILE: setup.org
+
+* Keywords
+  * Gaussian integrals, completing the square, moment generating
+    functions, marginals, conditionals, Kalman filter
+
+* Main Points
+
+** Why Gaussians?
+   * Gaussians are used throughout machine learning (Gaussian
+     processes, Kalman filters, linear regression, the noise in
+     diffusion models) because all their integrals can be done exactly
+   * Marginalising, conditioning, adding or linearly transforming
+     Gaussians gives another Gaussian, so inference reduces to linear
+     algebra on means and covariances
+   * The algebra is long-winded but uses only three tricks: the basic
+     Gaussian integral, completing the square, and diagonalising a
+     matrix.  Learn the results; read the derivations once so you
+     trust them
+
+** One Dimension
+   * The basic integral, by squaring it and changing to polar
+     coordinates,
+     $$ \int_{-\infty}^{\infty} \e{-x^2/2}\,\dd x = \sqrt{2\pi} $$
+     and, changing variables to $z=(x-\mu)/\sigma$, the normal density
+     $$ \mathcal{N}(x\mid\mu,\sigma^2) = \frac{1}{\sqrt{2\pi}\,\sigma}\,
+        \e{-(x-\mu)^2/(2\sigma^2)} $$
+     integrates to one
+   * *Completing the square* (for $a>0$):
+     $-\frac{a}{2}x^2 + bx = -\frac{a}{2}(x-b/a)^2 + b^2/(2a)$, so
+     $$ \int_{-\infty}^{\infty} \e{-\frac{a}{2}x^2 + b\,x}\,\dd x =
+        \sqrt{\frac{2\pi}{a}}\;\e{\frac{b^2}{2a}} $$
+   * *Moment generating function* (MGF) $M(t) = \av{\e{tX}}$.  For
+     $X\sim\mathcal{N}(\mu,\sigma^2)$
+     $$ M(t) = \e{\mu t + \frac12\sigma^2t^2} $$
+     - $M^{(n)}(0) = \av{X^n}$, so $M'(0)=\mu$ and $M''(0)=\mu^2+\sigma^2$
+     - the cumulant generating function $\log M(t)$ stops at $t^2$: a
+       Gaussian has no cumulants beyond the mean and variance
+   * An MGF determines its distribution, and for independent $X$, $Y$
+     the MGF of $X+Y$ is the product of their MGFs.  So the sum of
+     independent Gaussians is Gaussian, with the means added and the
+     variances added
+
+** Many Dimensions
+   * For a positive definite covariance
+     $\mat{\Sigma} = \mat{V}\mat{\Lambda}\mat{V}^\tr$, rotating to
+     $\bm{y} = \mat{V}^\tr(\bm{x}-\bm{\mu})$ (Jacobian $\mat{V}$, with
+     $|\det\mat{V}|=1$) turns the integral into a product of
+     one-dimensional ones:
+     $$ \int \e{-\frac12(\bm{x}-\bm{\mu})^\tr\mat{\Sigma}^{-1}(\bm{x}-\bm{\mu})}
+        \,\dd\bm{x} = \prod_i\sqrt{2\pi\lambda_i} = \sqrt{\det(2\pi\mat{\Sigma})} $$
+     so
+     $$ \mathcal{N}(\bm{x}\mid\bm{\mu},\mat{\Sigma}) =
+        \frac{1}{\sqrt{\det(2\pi\mat{\Sigma})}}\,
+        \e{-\frac12(\bm{x}-\bm{\mu})^\tr\mat{\Sigma}^{-1}(\bm{x}-\bm{\mu})} $$
+   * *The central result.*  Completing the square,
+     $-\frac12\bm{x}^\tr\mat{A}\bm{x} + \bm{b}^\tr\bm{x} =
+     -\frac12(\bm{x}-\mat{A}^{-1}\bm{b})^\tr\mat{A}(\bm{x}-\mat{A}^{-1}\bm{b}) +
+     \frac12\bm{b}^\tr\mat{A}^{-1}\bm{b}$, gives
+     $$ \int \e{-\frac12\bm{x}^\tr\mat{A}\bm{x} + \bm{b}^\tr\bm{x}}\,\dd\bm{x}
+        = \sqrt{\frac{(2\pi)^n}{\det\mat{A}}}\;\e{\frac12\bm{b}^\tr\mat{A}^{-1}\bm{b}} $$
+     (sometimes called the Hubbard--Stratonovich transformation)
+   * The MGF of $\bm{x}\sim\mathcal{N}(\bm{\mu},\mat{\Sigma})$ is
+     $$ \av{\e{\bm{t}^\tr\bm{x}}} =
+        \e{\bm{t}^\tr\bm{\mu} + \frac12\bm{t}^\tr\mat{\Sigma}\,\bm{t}} $$
+     from which $\av{\bm{x}}=\bm{\mu}$ and the covariance is
+     $\mat{\Sigma}$
+   * *Linear transformations.*  If $\bm{z} = \mat{W}\bm{x}+\bm{c}$ then
+     $\av{\e{\bm{t}^\tr\bm{z}}} = \e{\bm{t}^\tr\bm{c}}\,M(\mat{W}^\tr\bm{t})$,
+     so
+     $$ \bm{z}\sim\mathcal{N}\!\left(\mat{W}\bm{\mu}+\bm{c},\;
+        \mat{W}\mat{\Sigma}\mat{W}^\tr\right) $$
+     ($\mat{W}$ need not be square)
+
+** Marginals and Conditionals
+   * Partition a Gaussian vector into $\bm{z}_1$ and $\bm{z}_2$, with
+     means $\bm{\mu}_1$, $\bm{\mu}_2$ and covariance blocks
+     $\mat{\Sigma}_{11}$, $\mat{\Sigma}_{12}$,
+     $\mat{\Sigma}_{21}=\mat{\Sigma}_{12}^\tr$, $\mat{\Sigma}_{22}$
+   * *Marginal.*  Setting $\bm{t}=(\bm{t}_1,\bm{0})$ in the MGF gives
+     the MGF of $\mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})$: to
+     marginalise, strike out the rows and columns of the variables
+     integrated away
+   * *Conditional.*  Let
+     $\bm{w} = \bm{z}_1 - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\bm{z}_2$.
+     Then $\mathrm{Cov}(\bm{w},\bm{z}_2) = \mat{\Sigma}_{12} -
+     \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{22} = \mat{0}$.
+     Jointly Gaussian variables that are uncorrelated are independent
+     (their joint MGF factorises), so $\bm{w}$ is independent of
+     $\bm{z}_2$, and
+     $$ \bm{z}_1\mid\bm{z}_2 \sim \mathcal{N}\!\left(
+        \bm{\mu}_1 + \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}(\bm{z}_2-\bm{\mu}_2),\;
+        \mat{\Sigma}_{11} - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}
+        \right) $$
+     - the mean moves linearly with the observation; the covariance
+       shrinks by an amount that does not depend on the value observed
+     - $\mat{\Sigma}_{11} - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}$
+       is called the /Schur complement/ of $\mat{\Sigma}_{22}$
+   * *The long way round.*  The same results can be obtained by doing
+     the integrals directly; see the derivation below
+
+** Inference with Gaussians
+   * *A noisy measurement.*  Prior $x\sim\mathcal{N}(\mu_0,s_0^2)$,
+     measurement $y = x+\epsilon$ with $\epsilon\sim\mathcal{N}(0,\sigma^2)$.
+     Then $(x,y)$ is jointly Gaussian with covariance
+     $\begin{pmatrix} s_0^2 & s_0^2\\ s_0^2 & s_0^2+\sigma^2\end{pmatrix}$
+     and
+     $$ \av{x\mid y} = \mu_0 + \frac{s_0^2}{s_0^2+\sigma^2}(y-\mu_0), \qquad
+        \frac{1}{\mathrm{Var}(x\mid y)} = \frac{1}{s_0^2}+\frac{1}{\sigma^2} $$
+     precisions (inverse variances) add
+   * *Combining sensors.*  Two measurements with noise variances
+     $\sigma_1^2$, $\sigma_2^2$ and a flat prior give the
+     precision-weighted average
+     $(y_1/\sigma_1^2 + y_2/\sigma_2^2)/(1/\sigma_1^2+1/\sigma_2^2)$, with
+     precision $1/\sigma_1^2+1/\sigma_2^2$
+   * *Predicting one variable from another.*  For two variables with
+     correlation $\rho$,
+     $\av{x_2\mid x_1} = \mu_2 + \rho\,(\sigma_2/\sigma_1)(x_1-\mu_1)$ and
+     $\mathrm{Var}(x_2\mid x_1) = \sigma_2^2(1-\rho^2)$: linear regression, and
+     regression to the mean
+   * *Kalman filter.*  For a drifting position
+     $x_{t+1}=x_t+\eta_t$, $\eta_t\sim\mathcal{N}(0,q)$, observed as
+     $y_t = x_t+\epsilon_t$, the belief $\mathcal{N}(m_t,v_t)$ is updated
+     by a /predict/ step (a sum of Gaussians: the variance becomes
+     $v_t+q$) and an /update/ step (a noisy measurement):
+     $$ k = \frac{v_t+q}{v_t+q+\sigma^2}, \qquad
+        m_{t+1} = m_t + k\,(y_{t+1}-m_t), \qquad
+        v_{t+1} = (1-k)(v_t+q) $$
+   * *Gaussian processes.*  With the unknown value $f_*$ as $\bm{z}_1$
+     and noisy observations $\bm{y}$ as $\bm{z}_2$, the conditional
+     formula gives the GP prediction
+     $$ f_*\mid\bm{y} \sim \mathcal{N}\!\left(
+        \bm{k}_*^\tr(\mat{K}+\sigma^2\mat{I})^{-1}\bm{y},\;
+        k_* - \bm{k}_*^\tr(\mat{K}+\sigma^2\mat{I})^{-1}\bm{k}_*\right) $$
+
+** Derivation: Marginalising and Conditioning by Integration
+   * This is the long way round.  Take zero means (shift the variables
+     otherwise) and write the covariance in blocks
+     $$ \mat{\Sigma} = \begin{pmatrix} \mat{A} & \mat{B}\\ \mat{B}^\tr &
+        \mat{C}\end{pmatrix} $$
+     for the variables $\bm{x}$ (first block) and $\bm{y}$ (second)
+   * *Block factorisation.*  With $\mat{S} = \mat{A} -
+     \mat{B}\mat{C}^{-1}\mat{B}^\tr$ (multiply out to check),
+     \begin{align*}
+       \mat{\Sigma} = \mat{U}\mat{D}\mat{U}^\tr, \qquad
+       \mat{U} = \begin{pmatrix}\mat{I} & \mat{B}\mat{C}^{-1}\\ \mat{0} & \mat{I}\end{pmatrix},
+       \qquad
+       \mat{D} = \begin{pmatrix}\mat{S} & \mat{0}\\ \mat{0} & \mat{C}\end{pmatrix}
+     \end{align*}
+     The inverse of $\mat{U}$ just flips the sign of the off-diagonal
+     block, so
+     \begin{align*}
+       \mat{\Sigma}^{-1} = (\mat{U}^\tr)^{-1}\mat{D}^{-1}\mat{U}^{-1}
+       = \begin{pmatrix}\mat{I} & \mat{0}\\ -\mat{C}^{-1}\mat{B}^\tr & \mat{I}\end{pmatrix}
+         \begin{pmatrix}\mat{S}^{-1} & \mat{0}\\ \mat{0} & \mat{C}^{-1}\end{pmatrix}
+         \begin{pmatrix}\mat{I} & -\mat{B}\mat{C}^{-1}\\ \mat{0} & \mat{I}\end{pmatrix}
+     \end{align*}
+     and, as $\det\mat{U}=1$, $\det\mat{\Sigma} = \det\mat{S}\,\det\mat{C}$
+   * *The exponent splits.*  With $\bm{u} = \bm{x} - \mat{B}\mat{C}^{-1}\bm{y}$,
+     $$ (\bm{x}^\tr,\bm{y}^\tr)\,\mat{\Sigma}^{-1}\begin{pmatrix}\bm{x}\\ \bm{y}\end{pmatrix}
+        = \bm{u}^\tr\mat{S}^{-1}\bm{u} + \bm{y}^\tr\mat{C}^{-1}\bm{y} $$
+   * *Marginal.*  Integrating over $\bm{x}$ is the same as integrating
+     over $\bm{u}$ (a shift), which gives $\sqrt{\det(2\pi\mat{S})}$, so
+     $$ p(\bm{y}) = \frac{\sqrt{\det(2\pi\mat{S})}}{\sqrt{\det(2\pi\mat{\Sigma})}}\,
+        \e{-\frac12\bm{y}^\tr\mat{C}^{-1}\bm{y}}
+        = \frac{1}{\sqrt{\det(2\pi\mat{C})}}\,\e{-\frac12\bm{y}^\tr\mat{C}^{-1}\bm{y}}
+        = \mathcal{N}(\bm{y}\mid\bm{0},\mat{C}) $$
+     using $\det(2\pi\mat{\Sigma}) = \det(2\pi\mat{S})\,\det(2\pi\mat{C})$
+   * *Conditional.*  Dividing the joint density by $p(\bm{y})$ leaves
+     $$ p(\bm{x}\mid\bm{y}) = \frac{1}{\sqrt{\det(2\pi\mat{S})}}\,
+        \e{-\frac12(\bm{x}-\mat{B}\mat{C}^{-1}\bm{y})^\tr\mat{S}^{-1}
+        (\bm{x}-\mat{B}\mat{C}^{-1}\bm{y})}
+        = \mathcal{N}\!\left(\bm{x}\mid\mat{B}\mat{C}^{-1}\bm{y},\;
+        \mat{A}-\mat{B}\mat{C}^{-1}\mat{B}^\tr\right) $$
+     the same result as the light derivation in the lecture
+
+* Exercises
+
+** Fourth moment
+   * Use the MGF of $\mathcal{N}(0,\sigma^2)$ to show
+     $\av{X^4} = 3\sigma^4$.  (Expand $\e{\sigma^2t^2/2}$ as a power
+     series and compare with $\sum_n \av{X^n}t^n/n!$.)
+
+** Combining sensors
+   * Two sensors read $y_1 = 10.0$ (noise standard deviation 1) and
+     $y_2 = 12.0$ (standard deviation 2).  With a flat prior, what are
+     the mean and variance of the combined estimate?
+
+** Prediction
+   * Two standardised variables ($\mu_1=\mu_2=0$, $\sigma_1=\sigma_2=1$)
+     have correlation $\rho=0.8$.  Given $x_1=2$, find the mean and
+     variance of $x_2$.
+
+** Conditional covariance
+   * Using the linear-transformation rule, show that
+     $\bm{w} = \bm{z}_1 - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\bm{z}_2$
+     has covariance
+     $\mat{\Sigma}_{11} - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}$.
+
+** Steady-state Kalman filter
+   * After many steps the Kalman variance settles to a fixed value
+     $v$.  Write $p = v+q$ and show that $p^2 - q\,p - q\,\sigma^2 = 0$.
+     Find $v$ for $q = 0.1$ and $\sigma^2 = 1$.
+
+** The normal moment generating function
+   * Show that for $X\sim\mathcal{N}(\mu,\sigma^2)$ the moment generating
+     function is $Z(\ell) = \e{\mu\ell + \sigma^2\ell^2/2}$, by completing
+     the square in the exponent.  What does this say about the cumulants
+     of a normal distribution?
+
+* Experiments
+
+** Checking the formulae
+   * The first part checks the conditional formula by keeping samples
+     whose $\bm{z}_2$ is close to an observed value; the second runs a
+     one-dimensional Kalman filter
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+
+# 1. Check the conditional formula by sampling: keep samples whose z2 is
+#    close to an observed value and compare with the formula
+mu = np.array([1.0, -1.0, 0.5])
+L = rng.standard_normal((3, 3))
+Sigma = L @ L.T + 0.5 * np.eye(3)                 # a random covariance
+z = rng.multivariate_normal(mu, Sigma, size=2_000_000)
+z2_obs = np.array([0.0, 1.0])                     # observe the last two
+near = np.all(np.abs(z[:, 1:] - z2_obs) < 0.05, axis=1)
+S11, S12, S22 = Sigma[:1, :1], Sigma[:1, 1:], Sigma[1:, 1:]
+mean = mu[:1] + S12 @ np.linalg.solve(S22, z2_obs - mu[1:])
+var = S11 - S12 @ np.linalg.solve(S22, S12.T)
+print(f"{near.sum()} samples near z2 = {z2_obs}")
+print(f"conditional mean: formula {mean[0]:.3f}, samples {z[near, 0].mean():.3f}")
+print(f"conditional var:  formula {var[0, 0]:.3f}, samples {z[near, 0].var():.3f}")
+
+# 2. A one-dimensional Kalman filter tracking a drifting position
+T, q, sigma2 = 50, 0.1, 1.0
+x = np.cumsum(rng.normal(0, np.sqrt(q), T))       # true positions
+y = x + rng.normal(0, np.sqrt(sigma2), T)         # noisy observations
+m, v = 0.0, 10.0                                  # vague initial belief
+est = []
+for t in range(T):
+    v = v + q                                     # predict
+    k = v / (v + sigma2)                          # update
+    m, v = m + k * (y[t] - m), (1 - k) * v
+    est.append(m)
+est = np.array(est)
+print(f"RMS error: raw observations {np.sqrt(np.mean((y - x)**2)):.3f}, "
+      f"Kalman estimate {np.sqrt(np.mean((est - x)**2)):.3f}, final variance {v:.3f}")
+#+END_SRC
+   * Running it: the sampled conditional mean and variance (1.30,
+     0.85 from about 900 samples) agree with the formula (1.27, 0.82)
+     to within sampling error; the Kalman filter reduces the RMS error
+     from 0.96 (raw observations) to 0.57, and its variance settles at
+     0.270, the value found in the exercise
+
+* Answers
+
+** Fourth moment
+   * $\e{\sigma^2t^2/2} = 1 + \frac{\sigma^2t^2}{2} + \frac{\sigma^4t^4}{8} +
+     \cdots$.  The coefficient of $t^4$ is $\av{X^4}/4!$, so
+     $\av{X^4} = 24\,\sigma^4/8 = 3\sigma^4$
+
+** Combining sensors
+   * Precisions $1$ and $1/4$, so the mean is
+     $(10 + 12/4)/(1+1/4) = 13/1.25 = 10.4$ and the variance is
+     $1/1.25 = 0.8$: closer to, and better than, the better sensor
+
+** Prediction
+   * $\av{x_2\mid x_1} = 0.8\times2 = 1.6$ and
+     $\mathrm{Var}(x_2\mid x_1) = 1 - 0.64 = 0.36$
+
+** Conditional covariance
+   * $\bm{w} = \mat{W}\bm{z}$ with
+     $\mat{W} = (\mat{I},\; -\mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1})$, so
+     its covariance is
+     \begin{align*}
+       \mat{W}\mat{\Sigma}\mat{W}^\tr
+       &= \mat{\Sigma}_{11} - 2\,\mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}
+          + \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{22}
+            \mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21} \\
+       &= \mat{\Sigma}_{11} - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}
+     \end{align*}
+
+** Steady-state Kalman filter
+   * At the fixed point $v = (1-k)p = p\,\sigma^2/(p+\sigma^2)$ with
+     $v = p-q$.  So $(p-q)(p+\sigma^2) = p\,\sigma^2$, i.e.
+     $p^2 - q\,p - q\,\sigma^2 = 0$
+   * With $q=0.1$, $\sigma^2=1$: $p = (0.1+\sqrt{0.01+0.4})/2 = 0.370$,
+     so $v = 0.270$ (as in the experiment)
+
+** The normal moment generating function
+   * $$ Z(\ell) = \frac{1}{\sqrt{2\pi}\,\sigma}\int \e{\ell x - (x-\mu)^2/(2\sigma^2)}\,\dd x $$
+   * Completing the square,
+     $$ \ell\,x - \frac{(x-\mu)^2}{2\sigma^2} = -\frac{\bra{x - \mu - \sigma^2\ell}^2}{2\sigma^2} + \mu\,\ell + \frac{\sigma^2\ell^2}{2} $$
+   * The remaining integral is a normal density with mean
+     $\mu + \sigma^2\ell$, which integrates to 1, so
+     $Z(\ell) = \e{\mu\ell + \sigma^2\ell^2/2}$
+   * Hence $G(\ell) = \log Z(\ell) = \mu\,\ell + \frac{1}{2}\sigma^2\ell^2$
+     exactly: $\kappa_1 = \mu$, $\kappa_2 = \sigma^2$, and every higher
+     cumulant is zero.  The normal is the distribution whose cumulants stop
+     after the second
+
+* COMMENT [[file:integration.org][Previous]]  [[file:gaussianProcesses.org][Next]]
