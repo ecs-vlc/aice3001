@@ -1,5 +1,13 @@
 %% Standalone lecture -- build with:  pdflatex -shell-escape gaussianIntegrals
 \input{preamble}
+% Text that should appear in the animated slides but not in the printable
+% (flattened) PDF: near-white there, mapped back to the text colours by ppower4
+\definecolor{HandoutHidden}{rgb}{0.999,0.999,0.998}
+\pausecolors{HandoutHidden}{TextColor}{HighLight}
+% a \pause without the handout marker, for chunks hidden from the handout
+\makeatletter
+\newcommand{\pausenomark}{\begingroup\pause@nomarkerstrue\pause\endgroup}
+\makeatother
 
 \begin{document}
 
@@ -335,20 +343,33 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Joint Gaussians}
+\section[-2]{Joint Gaussians}
 
 \pause\pb\pauselevel{=1}
 \begin{center}
-  \multipdf[width=0.85\linewidth]{marginaliseNormals}\pause
+  \multipdf[width=\linewidth]{marginaliseNormals}\pause
 \end{center}
-\begin{align*}
-  \begin{pmatrix}\bm{z}_1\\ \bm{z}_2\end{pmatrix} \sim
-  \mathcal{N}\!\left(
-  \begin{pmatrix}\bm{\mu}_1\\ \bm{\mu}_2\end{pmatrix},
-  \begin{pmatrix}\mat{\Sigma}_{11} & \mat{\Sigma}_{12}\\
-    \mat{\Sigma}_{21} & \mat{\Sigma}_{22}\end{pmatrix}\right),
-  \qquad \mat{\Sigma}_{21} = \mat{\Sigma}_{12}^\tr\pauseh
-\end{align*}
+% the figure's notation (x, y, A, B, C) while its five frames (levels 1-5)
+% are shown, then overwritten in place by the notation used afterwards.
+% HandoutHidden keeps the first version out of the printable PDF
+\begin{center}
+  \pauselevel{=1 :5}\makebox[0pt]{\color{HandoutHidden}$\displaystyle
+    \begin{pmatrix}\bm{x}\\ \bm{y}\end{pmatrix} \sim
+    \mathcal{N}\!\left(
+    \begin{pmatrix}\bm{\mu}^x\\ \bm{\mu}^y\end{pmatrix},
+    \begin{pmatrix}\mat{A} & \mat{B}\\
+      \mat{B}^\tr & \mat{C}\end{pmatrix}\right)$}\pausenomark
+  \pauselevel{=6}\makebox[0pt]{$\displaystyle
+    \begin{pmatrix}\bm{z}_1\\ \bm{z}_2\end{pmatrix} \sim
+    \mathcal{N}\!\left(
+    \begin{pmatrix}\bm{\mu}_1\\ \bm{\mu}_2\end{pmatrix},
+    \begin{pmatrix}\mat{\Sigma}_{11} & \mat{\Sigma}_{12}\\
+      \mat{\Sigma}_{21} & \mat{\Sigma}_{22}\end{pmatrix}\right),
+    \quad \mat{\Sigma}_{21} = \mat{\Sigma}_{12}^\tr$\pause}
+\end{center}
+\pauselevel{=6}From now on we write $\bm{z}_1$ for $\bm{x}$ and
+$\bm{z}_2$ for $\bm{y}$, and $\mat{\Sigma}_{11}$, $\mat{\Sigma}_{12}$
+and $\mat{\Sigma}_{22}$ for $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
 
 \end{slide}
 

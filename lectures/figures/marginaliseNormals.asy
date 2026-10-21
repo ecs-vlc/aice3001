@@ -1,5 +1,5 @@
 import myutil;
-size(600,0);
+size(550,0);
 
 srand(1);
 
@@ -72,8 +72,8 @@ void showCovariance(int i, int j, bool group1, bool group2) {
       col = blue;
     }
   } else {
-    if (group1) {
-      Cov = "B";
+    if (group2) {
+      Cov = "B^{\mathsf{T}}";
       col = blue;
     } else {
       Cov = "C";
