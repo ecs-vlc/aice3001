@@ -56,8 +56,8 @@ sheets:
     name: probability
     keywords: Gaussian integrals
   - week: 9
-    name: gp
-    keywords: Gaussian processes
+    name: gaussianProcess
+    keywords: Gaussian integrals, Gaussian processes
   - week: 10
     name: information
     keywords: entropy, information

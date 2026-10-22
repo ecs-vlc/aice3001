@@ -16,7 +16,7 @@
 \renewcommand{\det}[1]{\textrm{det}({#1})}
 \graphicspath{{figures/}}
 \begin{document}
-\unitTitle{Gaussian Integrals Problem Sheet}
+\unitTitle{Gaussian Integrals and Gaussian Processes Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
@@ -25,19 +25,192 @@
 
 \maketitle
 
-This sheet works through the Gaussian integrals behind Gaussian
-processes.  Question~1 builds up the integral of a multivariate normal
-one step at a time.  Question~2 is harder: it derives the marginal and
-conditional distributions of a multivariate normal by doing the
-integrals directly (the lecture took a shorter route).  Take it slowly;
-each part is a short calculation.
+This sheet goes with the lectures on Gaussian integrals and Gaussian
+processes.  Questions~1 and~2 only ask you to \emph{use} the results
+below; Questions~3 and~4 derive them, and are longer and harder.  Do
+Questions~1 and~2 first.
 
-
+\medskip
+\noindent\fbox{\begin{minipage}{0.96\textwidth}
+\textbf{The Gaussian toolkit}
+\begin{itemize}
+\item \textbf{Integrals:} $\displaystyle\int_{-\infty}^{\infty}\e{-\frac{a}{2}x^2+b\,x}\,\dd x
+  = \sqrt{\frac{2\pi}{a}}\;\e{\frac{b^2}{2a}}$ for $a>0$, and in $n$
+  dimensions, for positive definite $\mat{A}$,
+  $\displaystyle\int\e{-\frac12\bm{x}^\tr\mat{A}\bm{x}+\bm{b}^\tr\bm{x}}\,\dd\bm{x}
+  = \sqrt{\frac{(2\pi)^n}{\det{\mat{A}}}}\;\e{\frac12\bm{b}^\tr\mat{A}^{-1}\bm{b}}$.
+\item \textbf{Moment generating function:} if $\bm{x}\sim\mathcal{N}(\bm{\mu},\mat{\Sigma})$
+  then $\av{\e{\bm{t}^\tr\bm{x}}} = \e{\bm{t}^\tr\bm{\mu}+\frac12\bm{t}^\tr\mat{\Sigma}\bm{t}}$
+  (in one dimension $\av{\e{tX}} = \e{\mu t+\frac12\sigma^2t^2}$).
+\item \textbf{Sums:} if $X\sim\mathcal{N}(\mu_1,\sigma_1^2)$ and
+  $Y\sim\mathcal{N}(\mu_2,\sigma_2^2)$ are independent then
+  $X+Y\sim\mathcal{N}(\mu_1+\mu_2,\sigma_1^2+\sigma_2^2)$.
+\item \textbf{Linear maps:} $\mat{W}\bm{x}+\bm{c}\sim
+  \mathcal{N}(\mat{W}\bm{\mu}+\bm{c},\;\mat{W}\mat{\Sigma}\mat{W}^\tr)$.
+\item \textbf{Marginals and conditionals:} for $\begin{pmatrix}\bm{z}_1\\ \bm{z}_2\end{pmatrix}\sim
+  \mathcal{N}\!\left(\begin{pmatrix}\bm{\mu}_1\\ \bm{\mu}_2\end{pmatrix},
+  \begin{pmatrix}\mat{\Sigma}_{11}&\mat{\Sigma}_{12}\\
+    \mat{\Sigma}_{21}&\mat{\Sigma}_{22}\end{pmatrix}\right)$:
+  \begin{itemize}
+  \item marginal: $\bm{z}_1\sim\mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})$
+    (strike out the rows and columns of $\bm{z}_2$);
+  \item conditional: $\bm{z}_1\mid\bm{z}_2\sim\mathcal{N}\!\left(
+    \bm{\mu}_1+\mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}(\bm{z}_2-\bm{\mu}_2),\;
+    \mat{\Sigma}_{11}-\mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}\right)$.
+  \end{itemize}
+\end{itemize}
+\end{minipage}}
 
 % ***************************** question 1 **************************
 
 \begin{question}{20}
-  Performing integrals over normal distributions takes practice.
+  Each part needs only one or two of the results in the box.
+  \begin{qparts}
+    \qpart[2]{Evaluate $\displaystyle\int_{-\infty}^{\infty}\e{-x^2/2+3x}\,\dd x$.
+      \begin{answer}
+        Result 1 with $a=1$, $b=3$:
+        $\sqrt{2\pi}\;\e{9/2}\approx 225.6$.
+      \end{answer}}{\lines{3}}
+
+    \qpart[3]{$X\sim\mathcal{N}(1,4)$.  Use the moment generating
+      function to find $\av{\e{X}}$, and $\av{X^2}$.
+      \begin{answer}
+        $\av{\e{tX}} = \e{t+2t^2}$, so at $t=1$, $\av{\e{X}} = \e{3}$.
+        Differentiating twice at $t=0$, or using
+        $\av{X^2} = \mu^2+\sigma^2$, gives $\av{X^2} = 1+4 = 5$.
+        (Note $\av{\e{X}}\neq\e{\av{X}}=\e{1}$.)
+      \end{answer}}{\lines{4}}
+
+    \qpart[3]{$X\sim\mathcal{N}(1,1)$ and $Y\sim\mathcal{N}(2,3)$ are
+      independent.  What are the distributions of $X+Y$ and of $2X-Y$?
+      \begin{answer}
+        $X+Y\sim\mathcal{N}(3,4)$.  For $2X-Y$, the mean is
+        $2\times1-2 = 0$ and the variance is $2^2\times1+(-1)^2\times3 = 7$,
+        so $2X-Y\sim\mathcal{N}(0,7)$.  (Variances add even when we
+        subtract.)
+      \end{answer}}{\lines{4}}
+
+    \qpart[3]{$\bm{x}\sim\mathcal{N}(\bm{0},\mat{I})$ in two dimensions
+      and $\bm{z} = \mat{W}\bm{x}$ with
+      $\mat{W} = \begin{pmatrix}1&1\\1&-1\end{pmatrix}$.  What is the
+      distribution of $\bm{z}$?  Are $z_1 = x_1+x_2$ and $z_2 = x_1-x_2$
+      independent?
+      \begin{answer}
+        $\bm{z}\sim\mathcal{N}(\bm{0},\mat{W}\mat{W}^\tr)$ with
+        $\mat{W}\mat{W}^\tr = \begin{pmatrix}2&0\\0&2\end{pmatrix}$.  The
+        covariance is diagonal, and for jointly Gaussian variables
+        uncorrelated means independent, so yes.
+      \end{answer}}{\lines{4}}
+
+    \qpart[2]{$\bm{z}\sim\mathcal{N}(\bm{\mu},\mat{\Sigma})$ with
+      $\bm{\mu} = (1,2,3)^\tr$ and
+      $\mat{\Sigma} = \begin{pmatrix}4&1&0\\1&3&1\\0&1&2\end{pmatrix}$.
+      What is the marginal distribution of $(z_1,z_3)$?
+      \begin{answer}
+        Strike out the second row and column:
+        $(z_1,z_3)\sim\mathcal{N}\!\left((1,3)^\tr,
+        \begin{pmatrix}4&0\\0&2\end{pmatrix}\right)$, so $z_1$ and $z_3$
+        are independent, even though both are correlated with $z_2$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[3]{$(z_1,z_2)$ is Gaussian with mean $\bm{0}$ and covariance
+      $\begin{pmatrix}2&1\\1&1\end{pmatrix}$.  We observe $z_2 = 2$.
+      What is the distribution of $z_1$ now?  Compare it with the
+      distribution of $z_1$ before the observation.
+      \begin{answer}
+        Mean $0 + 1\times1^{-1}\times(2-0) = 2$; variance
+        $2 - 1\times1^{-1}\times1 = 1$.  So $z_1\mid z_2=2\sim\mathcal{N}(2,1)$:
+        the observation moved the mean from 0 to 2 and halved the
+        variance (from 2).
+      \end{answer}}{\lines{5}}
+
+    \qpart[4]{Our prior belief about a quantity is $x\sim\mathcal{N}(0,4)$.
+      We measure $y = x+\epsilon$ with noise $\epsilon\sim\mathcal{N}(0,1)$
+      and get $y=3$.  Write down the joint distribution of $(x,y)$ and
+      hence find the distribution of $x$ given $y=3$.
+      \begin{answer}
+        $y$ has mean 0 and variance $4+1=5$, and
+        $\mathrm{Cov}(x,y) = \mathrm{Var}(x) = 4$, so
+        $(x,y)\sim\mathcal{N}\!\left(\bm{0},
+        \begin{pmatrix}4&4\\4&5\end{pmatrix}\right)$.  Conditioning,
+        $\av{x\mid y} = \frac45\times3 = 2.4$ and
+        $\mathrm{Var}(x\mid y) = 4-\frac{16}{5} = 0.8$.  The estimate is
+        pulled most of the way to the measurement, and
+        $1/0.8 = 1/4+1/1$: precisions add.
+      \end{answer}}{\lines{6}}
+  \end{qparts}
+\end{question}
+\clearpage
+
+% ***************************** question 2 **************************
+
+\begin{question}{15}
+  A Gaussian process with covariance function
+  $K(x,x') = \e{-(x-x')^2/2}$ has, for observations $\bm{y}$ at inputs
+  $x_1,\ldots,x_m$ with noise variance $\sigma^2$, the predictive
+  distribution at a new input $x_*$
+  \begin{align*}
+    f_*\mid\bm{y}\sim\mathcal{N}\!\left(\bm{k}_*^\tr(\mat{K}+\sigma^2\mat{I})^{-1}\bm{y},\;
+    k_* - \bm{k}_*^\tr(\mat{K}+\sigma^2\mat{I})^{-1}\bm{k}_*\right)
+  \end{align*}
+  where $K_{ij} = K(x_i,x_j)$, $(\bm{k}_*)_i = K(x_i,x_*)$ and
+  $k_* = K(x_*,x_*)$.
+  \begin{qparts}
+    \qpart[3]{Explain why this is the conditional result in the box,
+      with $\bm{z}_1 = f_*$ and $\bm{z}_2 = \bm{y}$.  What are
+      $\mat{\Sigma}_{11}$, $\mat{\Sigma}_{12}$ and $\mat{\Sigma}_{22}$?
+      \begin{answer}
+        $f_*$ and the observations are jointly Gaussian with mean zero.
+        $\mat{\Sigma}_{11} = k_*$ (the prior variance of $f_*$),
+        $\mat{\Sigma}_{12} = \bm{k}_*^\tr$ (the covariance of $f_*$ with each
+        observation) and $\mat{\Sigma}_{22} = \mat{K}+\sigma^2\mat{I}$ (the
+        observations' covariance, with the noise variance added on the
+        diagonal).  Substituting into the conditional formula gives the
+        result.
+      \end{answer}}{\lines{5}}
+
+    \qpart[4]{Take a single noise-free observation ($\sigma^2=0$),
+      $y_1 = 1$ at $x_1 = 0$.  Find the predictive mean and variance at
+      $x_*$.  What are they at $x_*=0$, and as $x_*\to\infty$?
+      \begin{answer}
+        $\mat{K} = 1$ and $k_* = 1$, and $\bm{k}_* = \e{-x_*^2/2}$.  So the mean
+        is $\e{-x_*^2/2}$ and the variance is $1-\e{-x_*^2}$.  At $x_*=0$
+        the mean is 1 and the variance 0: the prediction passes through
+        the data point exactly.  As $x_*\to\infty$ the mean tends to 0
+        and the variance to 1, the prior: far from the data we know
+        nothing more than before.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{Repeat with noise $\sigma^2 = 1$.  What changes at $x_* = 0$?
+      \begin{answer}
+        Now the mean is $\e{-x_*^2/2}/2$ and the variance
+        $1-\e{-x_*^2}/2$.  At $x_*=0$ the mean is $\frac12$ and the
+        variance $\frac12$: a noisy observation is only partly
+        trusted (this is the noisy-measurement result of Question~1(g)).
+      \end{answer}}{\lines{5}}
+
+    \qpart[5]{Now take two noise-free observations, $y=1$ at $x=-1$ and
+      $y=1$ at $x=1$.  Find the predictive mean and variance at $x_*=0$.
+      (Hint: $\bm{y}=(1,1)^\tr$ is an eigenvector of $\mat{K}$.)
+      \begin{answer}
+        $\mat{K} = \begin{pmatrix}1&\e{-2}\\ \e{-2}&1\end{pmatrix}$ and
+        $\bm{k}_* = \e{-1/2}(1,1)^\tr$.  Since
+        $\mat{K}(1,1)^\tr = (1+\e{-2})(1,1)^\tr$,
+        $\mat{K}^{-1}(1,1)^\tr = (1,1)^\tr/(1+\e{-2})$.  So the mean is
+        $2\e{-1/2}/(1+\e{-2}) \approx 1.068$ and the variance is
+        $1 - 2\e{-1}/(1+\e{-2})\approx 0.352$.  Between two points the mean
+        overshoots 1 slightly, and the uncertainty is smaller than with one
+        point but not zero.
+      \end{answer}}{\lines{6}}
+  \end{qparts}
+\end{question}
+\clearpage
+
+% ***************************** question 3 **************************
+
+\begin{question}{20}
+  This question derives the normalisation of the multivariate normal
+  step by step.
   \begin{qparts}
     \qpart[5]{Consider the integral
       \begin{align*}
@@ -213,10 +386,15 @@ each part is a short calculation.
     \end{qparts}
   \end{question}
   \clearpage
-% ***************************** question 2 **************************
+% ***************************** question 4 **************************
 
 
 \begin{question}{25}
+  This question is harder: it derives the marginal and conditional
+  results in the box by doing the integrals directly (the lecture
+  used a shorter route).  Take it slowly; each part is a short
+  calculation.
+
   Consider a multivariate normal distribution
   \begin{align*}
     f_{\bm{X},\bm{Y}}(\bm{x}, \bm{y}) = \mathcal{N}
