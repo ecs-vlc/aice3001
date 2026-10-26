@@ -64,6 +64,18 @@
      - fit by least squares on the observed entries $\mathcal{D}$
        $$ \min_{\mat{A},\mat{B}} \sum_{(i,j)\in\mathcal{D}}
           \Bigl( X_{ij} - \sum_{k=1}^K A_{ik}\,B_{kj}\Bigr)^2 $$
+     - *LoRA.*  The same parameter count makes fine-tuning large
+       neural networks cheap.  Low-rank adaptation (LoRA; Hu et al.,
+       2021) freezes a pretrained weight matrix $\mat{W}_0$ ($m\times n$)
+       and learns only a low-rank change
+       $\Delta\mat{W} = \mat{A}\mat{B}$ with $K\ll m,n$, one factor
+       starting at zero so that training starts from $\mat{W}_0$.  For
+       $m=n=4096$ and $K=8$ that is about $6.6\times10^4$ trainable
+       parameters instead of $1.7\times10^7$.  The assumption is that
+       the change a new task needs is close to low rank.  Each task then
+       stores only its own small $\mat{A}$ and $\mat{B}$, and after
+       training $\mat{A}\mat{B}$ can be added into $\mat{W}_0$, so the
+       adapted network is no slower to run
      - $\mat{A}$ and $\mat{B}$ are never unique:
        $\mat{A}\mat{B} = (\mat{A}\mat{G})(\mat{G}^{-1}\mat{B})$ for any
        invertible $K\times K$ matrix $\mat{G}$

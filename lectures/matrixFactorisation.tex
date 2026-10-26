@@ -231,20 +231,6 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Subspace Projection}
-\pause
-\pb
-\begin{center}
-  \includegraphics[width=0.9\linewidth]{lowrank-0}\mypl{1}
-  \llap{\includegraphics[width=0.9\linewidth]{lowrank-1}}\mypl{2}
-  \llap{\includegraphics[width=0.9\linewidth]{lowrank-2}}\mypl{3}
-  \llap{\includegraphics[width=0.9\linewidth]{lowrank-3}}\mypl{4}
-\end{center}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section[-1]{Completing a Matrix with the SVD}
 
 \begin{PauseHighLight}
@@ -302,6 +288,33 @@
     data better but may over-fit\pause
   \item Choose $K$ by cross-validation (hide some of the observed
     entries and see how well we predict them)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Low-Rank Updates: LoRA}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item \emph{LoRA} (low-rank adaptation, Hu et al.\ 2021) uses the same
+    idea to fine-tune a large network: a pretrained weight matrix
+    $\mat{W}_0$ ($m\times n$) becomes $\mat{W}_0 + \Delta\mat{W}$\pause
+  \item LoRA freezes $\mat{W}_0$ and learns only a low-rank change
+    \begin{align*}
+      \Delta\mat{W} = \mat{A}\,\mat{B}, \qquad \mat{A}\ (m\times K),\
+      \mat{B}\ (K\times n),\ K\ll m,n\pause
+    \end{align*}
+    with one factor starting at zero (so training starts from
+    $\mat{W}_0$)\pause
+  \item For $m=n=4096$ and $K=8$: $(m+n)K \approx 6.6\times10^4$
+    parameters to train instead of $mn\approx1.7\times10^7$ (0.4\%)\pause
+  \item The bet: the change a new task needs is close to low rank;\pause{}
+    each task stores only its own $\mat{A}$, $\mat{B}$, and $\mat{A}\mat{B}$
+    can be added into $\mat{W}_0$ afterwards\pause
   \end{itemize}
 \end{PauseHighLight}
 

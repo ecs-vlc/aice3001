@@ -3,13 +3,13 @@
 
 \begin{document}
 
-\lesson{Wasserstein GANs}
+\lesson{Optimal Transport and the Wasserstein Distance}
 \vspace{-1cm}
 \begin{center}
-  \includegraphics[width=0.9\linewidth]{gan-0}
+  \includegraphics[width=0.38\linewidth]{transportationCost-5}
 \end{center}
 
-\keywords{GANs, Wasserstein distance, Duality, WGANs}
+\keywords{Wasserstein distance, optimal transport, duality, Lipschitz functions, WGANs, Sinkhorn, FID}
 
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -17,15 +17,16 @@
 \begin{slide}
 \section{Outline}
 
-\begin{minipage}{8cm}\raggedright
+\begin{minipage}{9cm}\raggedright
   \begin{enumerate}
-    \outlineitem{GANs}{gans}
-    \outlineitem{Wasserstein Distance}{wasserstein}
-    \outlineitem{Wasserstein GANs}{wgans}
+    \outlineitem{Comparing Distributions}{compare}
+    \outlineitem{Optimal Transport}{wasserstein}
+    \outlineitem{Duality}{duality}
+    \outlineitem{Applications}{applications}
   \end{enumerate}
 \end{minipage}\hfill
-\begin{minipage}{15cm}
-  \includegraphics[width=15cm]{transportationCost-5}
+\begin{minipage}{14cm}
+  \includegraphics[width=14cm]{transportationCost-5}
 \end{minipage}
 \end{slide}
 \addtocounter{outlineitem}{1}
@@ -33,81 +34,9 @@
 
 \setcounter{outlineitem}{1}
 
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % GANs
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Generative Adversarial Networks}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item One of the applications of Deep Learning that has most excited
-    the public are \emph{Generative Adversarial Networks} or GANs\pause
-  \item Their aim is to generate new random samples from the same
-    distribution as some training set, $\mathcal{D}$\pause
-  \item Their number of real world applications are\pause{}
-    questionable\pauseb
-  \item But nobody cares because they are cool!\pauseb 
-  \item \textit{Out of date warning:} someone invented diffusion
-    models\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-
-\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{How GANs Work}
-
-\pb\pause\pauselevel{=1}
-\begin{center}
-  \multipdf[width=\linewidth]{gan}\pause
-\end{center}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Training GANs}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item The loss of the generator depends on its ability to trick the
-    discriminator\pause
-  \item The loss of the discriminator depends on its ability not to be
-    tricked\pause
-  \item We try to train the two networks simultaneously\pause
-  \item We hope that over time the generator produces better and
-    better fakes\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Problems of GANs}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item GANs are notoriously difficult to train\pause
-  \item The generator and discriminator training can decouple\pause
-  \item Often the discriminator becomes too good at correctly
-    identifying the generated images\pause
-  \item Then there can be little gradient information to help the
-    generator as every small change in parameters doesn't significantly
-    change the discriminator decision\pause
-  \item To try to solve this problem we first make a seemly
-    unconnected diversion\pause
-  \end{itemize}
-\end{PauseHighLight}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % Wasserstein Distance
+\Outline % Comparing Distributions
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -116,13 +45,14 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item In many machine learning tasks we want to minimise the
-    distance between two probability distributions\pause
+    distance between two probability distributions (e.g.\ make a
+    generative model's samples look like the data)\pause
   \item This requires that we can measure distances between
     probability distributions\pause
   \item One prominent measure is the Kullback-Leibler or KL divergence
     \begin{align*}
       \mathrm{KL}(p\|q) = \int p(\bm{x}) \,
-      \logg{\frac{p(\bm{x})}{q(\bm{y})}} \, \dd \bm{x}\pause
+      \logg{\frac{p(\bm{x})}{q(\bm{x})}} \, \dd \bm{x}\pause
     \end{align*}
   \item This is very commonly used in ML (e.g. VAEs, Variational
     Approximation)\pause
@@ -146,9 +76,9 @@
     \begin{rightImage}{divergentKL}
       We don't really care about this, but what we do care about is
     that if $q(\bm{x})=0$ when $p(\bm{x})\neq 0$ then
-    $\logg{\frac{p(\bm{x})}{q(\bm{y})}}$ diverges\pause
+    $\logg{\frac{p(\bm{x})}{q(\bm{x})}}$ diverges\pause
     \end{rightImage}
-  \item We can therefore have distributes that seem very similar but
+  \item We can therefore have distributions that seem very similar but
     their KL-divergence is huge (or infinite)\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -163,23 +93,23 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item A more benign measure of the differences between two
-    probability functions is the \emph{Wasserstein} or \emph{Earth
-      Moving} distance\pause
+    probability distributions is the \emph{Wasserstein} or \emph{Earth
+      Mover's} distance\pause
   \item
     \begin{rightImage}{divergentKL}
     This is a true distance, but more importantly, it
     measures distance in a very natural way so that distributions that
-    are close has a small Wasserstein distance\pause
+    are close have a small Wasserstein distance\pause
     \end{rightImage}
-  \item Although this seems contrived if our probability distribution
-    represents the probability of a $128\times128$ matrix of real
-    valued triples represents an image of dog, then it is easy to
-    imagine that the Wasserstein distance may be more benign than the
-    KL-divergence\pause
+  \item This may seem contrived, but images (e.g.\ $128\times128\times3$
+    arrays of pixel values) lie close to a thin manifold, so two
+    distributions of images can be close without overlapping: then the
+    KL-divergence is useless but the Wasserstein distance is not\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
+
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -191,9 +121,11 @@
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Optimal Transport
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Transportion Policy}
+\section{Transportation Policy}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -231,8 +163,8 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We want to choose the transportation policy that minimises the
-    amount of probability mass we need to move\pause
+  \item We want the transportation policy that minimises the total work:
+    the probability mass moved times the distance it is moved\pause
   \item Let $d(\bm{x},\bm{y})=\|\bm{x}-\bm{y}\|$ be a distance measure
     then the cost of a transportation policy is
     \begin{align*}
@@ -260,7 +192,6 @@
 \end{center}
 \end{slide}
 
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -280,11 +211,40 @@
       \int \gamma(\bm{x},\bm{y}) \, \dd \bm{y} &= p(\bm{x}) &
       \int \gamma(\bm{x},\bm{y}) \, \dd \bm{x} &= q(\bm{y})\pause
     \end{align*}
+  \item With cost $d^k$ we get $W_k(p,q) = \bigl(\min_\gamma
+    \av[\gamma]{d(\bm{x},\bm{y})^k}\bigr)^{1/k}$; here we use $W = W_1$\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{One Dimension}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item In one dimension the Wasserstein distance has a closed form in
+    terms of the cumulative distribution functions $F_p$ and $F_q$
+    \begin{align*}
+      W(p,q) = \int_{-\infty}^{\infty} \bigl|F_p(x) - F_q(x)\bigr|\,\dd x\pause
+    \end{align*}
+    the area between the two curves\pause
+  \item For two samples of the same size: sort both and match them in
+    order
+    \begin{align*}
+      W = \frac{1}{n}\sum_{i=1}^n \bigl|x_{(i)} - y_{(i)}\bigr|\pause
+    \end{align*}
+  \item In higher dimensions there is no such shortcut: we have to
+    solve the optimisation\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Duality
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -294,9 +254,9 @@
   \begin{itemize}
   \item To compute the Wasserstein distance we have to solve a
     minimisation task!\pause
-  \item This looks nasty, but it is a (continuous) linear programmming
-    problem\pause
-  \item Suppose $p$ and $q$ were discrete distribution (i.e. $\bm{x}$
+  \item This looks nasty, but it is a (continuous) linear programme,
+    like those in the constrained-optimisation lecture\pause
+  \item Suppose $p$ and $q$ were discrete distributions (i.e. $\bm{x}$
     and $\bm{y}$ only take discrete points)\pause
   \item Then we could treat each value of $\gamma(\bm{x},\bm{y})$ as
     an element of a vector $\bm{\gamma}$ and each value of
@@ -329,127 +289,33 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Lagrange Formulation}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item For discrete distributions
-    \begin{align*}
-      \min_{\bm{\gamma}} \bm{D}^\tr \mat{\gamma} \hspace{5cm} \\
-      \text{subject to} \quad
-      \mat{A}\,\bm{\gamma} = \bm{P}, \quad \bm{\gamma} \geq 0\pause
-    \end{align*}
-  \item Writing the Lagrangian 
-    \begin{align*}
-      \mathcal{L}(\bm{\gamma},\bm{\alpha})
-      = \bm{D}^\tr \bm{\gamma} - \bm{\alpha}^\tr \left(
-      \mat{A}^\tr \bm{\gamma} - \bm{P}\right)
-    \end{align*}
-    where $\bm{\alpha}$ is a vector of Lagrange multipliers\pause
-  \item The solution to the discrete optimisation problem is given by
-    \begin{align*}
-      \min_{\bm{\gamma}} \, \, \max_{\bm{\alpha}} \,
-      \mathcal{L}(\bm{\gamma},\bm{\alpha}) \pause
-    \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Dual Form}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We can rearrange
-    \begin{align*}
-      \mathcal{L}(\bm{\gamma},\bm{\alpha})
-      &= \bm{D}^\tr \bm{\gamma} - \bm{\alpha}^\tr \left(
-        \mat{A} \bm{\gamma} - \bm{P}\right)\pause \\
-      &= \bm{P}^\tr \bm{\alpha} - \bm{\gamma}^\tr \left(
-        \mat{A}^\tr \bm{\alpha} - \bm{D}\right)\pause
-    \end{align*}
-  \item We note that $\bm{\gamma}\geq 0$ so the dual problem is to
-    find a vector $\bm{\alpha}$ that maximises $\bm{P}^\tr
-    \bm{\alpha}$ subject to the constraints $\mat{A}^\tr \bm{\alpha}
-    \leq \bm{D}$\pause
-  \item Although the vector form allows us to make connections with
-    our earlier discussion of linear programming, it is a little
-    difficult to interpret\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-  \section{Explicit Form}
+  \section[-1]{The Dual Problem}
 
 
 \begin{PauseHighLight}
   \begin{itemize}\footnotesize
-  \item We can write a Lagrangian for the original problem
+  \item With Lagrange multipliers $\alpha(\bm{x}_i)$ and $\beta(\bm{y}_j)$ for
+    the two sets of constraints
     \begin{align*}
-      \mathcal{L} = \sum_{i,j} d(\bm{x}_i,\bm{y}_i)
+      \mathcal{L} = \sum_{i,j} d(\bm{x}_i,\bm{y}_j)
       \gamma(\bm{x}_i,\bm{y}_j)
       &- \sum_i \alpha(\bm{x}_i) \left( \sum_j \gamma(\bm{x}_i,\bm{y}_j) -p(\bm{x}_i)\right)\\
       &- \sum_j \beta(\bm{y}_j) \left( \sum_i \gamma(\bm{x}_i,\bm{y}_j) -q(\bm{y}_j)\right)
     \end{align*}
-    subject to $\gamma(\bm{x}_i,\bm{y}_j)\geq 0$\pause{} where $\alpha(\bm{x}_i)$ and $\beta(\bm{y}_j)$
-    are Lagrange multipliers (they are components of $\bm{\alpha}$)\pauseb
+    subject to $\gamma(\bm{x}_i,\bm{y}_j)\geq 0$\pauseb
   \item Rearranging
     \begin{align*}
       \mathcal{L} = \sum_i \alpha(\bm{x}_i)\,p(\bm{x}_i) + \sum_j \beta(\bm{y}_j)\,q(\bm{y}_j)
       -\sum_{i,j} \gamma(\bm{x}_i,\bm{y}_j)\left( \alpha(\bm{x}_i) + \beta(\bm{y}_j) -
-      d(\bm{x}_i,\bm{y_i})\right)\pause
+      d(\bm{x}_i,\bm{y}_j)\right)\pause
     \end{align*}
-  \item This is eqivalent to maximising $\sum_i \alpha(\bm{x}_i)\,p(\bm{x}_i) +
+  \item This is equivalent to maximising $\sum_i \alpha(\bm{x}_i)\,p(\bm{x}_i) +
     \sum_j \beta(\bm{y}_j)\,q(\bm{y}_j)$, subject to
     \begin{align*}
-      \forall i,j \quad \alpha(\bm{x}_i) + \beta(\bm{y}_j) \leq d(\bm{x}_i,\bm{y_j})\pause
+      \forall i,j \quad \alpha(\bm{x}_i) + \beta(\bm{y}_j) \leq d(\bm{x}_i,\bm{y}_j)\pause
     \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-  \section{Continuous Form}
-
-
-\begin{PauseHighLight}
-  \begin{itemize}\footnotesize
-  \item We can write a Lagrangian for the continuous problem
-    \begin{align*}
-      \mathcal{L} = \iint d(\bm{x},\bm{y})\, \gamma(\bm{x},\bm{y})
-      \, \dd \bm{x}\,\dd \bm{y}
-      &- \int \alpha(\bm{x}) \left( \int \gamma(\bm{x},\bm{y})\,\dd \bm{y}
-        - p(\bm{x})\right) \, \dd \bm{x}\\
-      &- \int \beta(\bm{y}) \left( \int \gamma(\bm{x},\bm{y}) \, \dd
-        \bm{x} -q(\bm{y})\right) \, \dd \bm{y}
-    \end{align*}
-    subject to $\gamma(\bm{x},\bm{y})\geq 0$\pause{} where
-    $\alpha(\bm{x})$ and $\beta(\bm{y})$ are Lagrange multiplier
-    functions\pauseb
-  \item Rearranging
-    \begin{align*}
-      \mathcal{L} = \int \alpha(\bm{x})\,p(\bm{x})\, \dd \bm{x}
-      + \int \beta(\bm{y})\,q(\bm{y})\,\dd \bm{y}
-      -\iint \gamma(\bm{x},\bm{y})\left( \alpha(\bm{x}) + \beta(\bm{y}) -
-      d(\bm{x},\bm{y})\right)\, \dd \bm{x}\,\dd \bm{y}\pause
-    \end{align*}
-  \item This is eqivalent to maximising
-    $\int \alpha(\bm{x})\,p(\bm{x})\, \dd \bm{x} + \int
-    \beta(\bm{y})\,q(\bm{y})\,\dd \bm{y}$, subject to
-    \begin{align*}
-      \alpha(\bm{x}) + \beta(\bm{y}) \leq d(\bm{x},\bm{y})\pause
-    \end{align*}
+  \item For continuous distributions sums become integrals and
+    $\alpha(\bm{x})$, $\beta(\bm{y})$ become functions\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -458,50 +324,50 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Dual Form Constraint}
+\section[-1]{Dual Form Constraint}
+
+\begin{PauseHighLight}\squeeze
+  \begin{itemize}
+  \item We need $\alpha(\bm{x}) + \beta(\bm{y}) \leq d(\bm{x},\bm{y})$
+    for all $\bm{x}$, $\bm{y}$, and want $\beta$ as large as
+    possible\pause
+  \item Taking $\bm{x}=\bm{y}$ (where $d(\bm{y},\bm{y})=0$) gives
+    $\beta(\bm{y}) \leq -\alpha(\bm{y})$;\pause{} so $-\alpha$ is the
+    largest $\beta$ could possibly be\pause
+  \item Try that largest value, $\beta = -\alpha$: the constraint becomes
+    \begin{align*}
+      \alpha(\bm{x}) - \alpha(\bm{y}) \leq d(\bm{x},\bm{y})
+      \quad\text{for all } \bm{x},\bm{y}\pause
+    \end{align*}
+  \item For any $\alpha$ that satisfies this, $\beta=-\alpha$ is allowed
+    and cannot be beaten\pause
+  \item Restricting to such $\alpha$ loses nothing (the
+    \emph{Kantorovich--Rubinstein} theorem; see the notes)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Kantorovich--Rubinstein Duality}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We note that $\alpha(\bm{x}) + \beta(\bm{y}) \leq d(\bm{x},\bm{y})$ for
-    all $\bm{x}$ and $\bm{y}$\pause
-  \item This has to be true when $\bm{x}=\bm{y}$ so that
+  \item Putting this together
     \begin{align*}
-      \alpha(\bm{x}) + \beta(\bm{x}) \leq d(\bm{x},\bm{x}) = 0\pause
+      W(p,q) &= \max_{\alpha} \int \alpha(\bm{x})\,\bigl(p(\bm{x})-q(\bm{x})\bigr)\,\dd\bm{x}\\
+      &= \max_{\alpha}\Bigl(\av[p]{\alpha(\bm{X})} - \av[q]{\alpha(\bm{X})}\Bigr)\pause
     \end{align*}
-  \item So $\beta(\bm{x}) = -\alpha(\bm{x}) - \epsilon(\bm{x})$ where
-    $\epsilon(\bm{x})\geq0$\pause
-  \item But want to maximise {\small
+  \item where the maximum is over functions with
     \begin{align*}
-      \int \alpha(\bm{x})\,p(\bm{x})\, \dd \bm{x} + \int
-      \beta(\bm{y})\,q(\bm{y})\,\dd \bm{y}
-      = \int \alpha(\bm{x})\,\left(p(\bm{x}) - q(\bm{x})\right) \, \dd
-      \bm{x} - \int q(\bm{x}) \, \epsilon(\bm{x}) \,\dd\bm{x} \pause
-    \end{align*}}
-  \item This is maximised when $\epsilon(\bm{x})=0$\pause{}
-    i.e. $\beta(\bm{x}) = - \alpha(\bm{x})$\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Dual Form}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item Thus the dual problem is to find a function $\alpha(\bm{x})$---or a
-    vector of functions $(\alpha(\bm{x}_i)|i)$---that maximises
-    \begin{align*}
-      \int \alpha(\bm{x})\,\left(p(\bm{x}) - q(\bm{x})\right) \, \dd \bm{x}
+      \alpha(\bm{x}) - \alpha(\bm{y}) \leq d(\bm{x},\bm{y}) = \|\bm{x}-\bm{y}\|\pause
     \end{align*}
-  \item Subject to the constraint
-    \begin{align*}
-      \alpha(\bm{x}) - \alpha(\bm{y}) \leq d(\bm{x},\bm{y}) = \| \bm{x}-\bm{y} \|\pause
-    \end{align*}
-  \item This is a continuity constraint on the Lagrange multiplier
-    function $\alpha(\bm{x})$ known as Lipschitz-1\pause
+    that is, $\alpha$ is \emph{1-Lipschitz} (Lipschitz-1)\pause
+  \item Instead of the huge object $\gamma(\bm{x},\bm{y})$ we now need one
+    function $\alpha(\bm{x})$\pause, and the expectations can be estimated
+    from samples\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -521,8 +387,8 @@
       \pause
       \leq  \frac{\epsilon\len{\bm{u}}}{\epsilon} \pauseb = \frac{\epsilon}{\epsilon} = 1 \pauseb
     \end{align*}
-  \item That is, at every point the gradient in all directions must be
-    less than 1\pause{} (since the gradient defines the direction of greatest
+  \item That is, at every point the gradient in every direction is at
+    most 1\pause{} (since the gradient defines the direction of greatest
     increase it is both necessary and sufficient for $\|\grad
     \alpha(\bm{x})\|\leq1$ everywhere)\pauseb
   \end{itemize}
@@ -534,60 +400,40 @@
 
 \end{slide}
 
-
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Applications
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Calculating the Wasserstein Distance}
+\section{How GANs Work}
 
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item To recall the big picture we want to compute the Wasserstein
-    distance
-    \begin{align*}
-       W(p,q) = \min_{\gamma \in \Lambda(p,q)}
-      \av[\gamma]{d(\bm{x},\bm{y})}\pause
-    \end{align*}
-  \item For high dimensional objects $\gamma(\bm{x},\bm{y})$ would be
-    a huge object to approximate\pause
-  \item Instead we can compute the Wasserstein distance in the dual
-    formulation
-    \begin{align*}
-      \hspace*{-1em}W(p,q) = \max_{\alpha(\bm{x})} \int \alpha(\bm{x})\,\left(p(\bm{x}) -
-      q(\bm{x})\right) \, \dd \bm{x} \pause
-      = \max_{\alpha} \av[p]{\alpha(\bm{X})} - \av[q]{\alpha(\bm{X})}\pauseb
-    \end{align*}
-    subject to the constraint that $\alpha(\bm{x})$ is a Lipschitz-1
-    function\pause
-  \end{itemize}
-\end{PauseHighLight}
-
+\pb\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=\linewidth]{gan}\pause
+\end{center}
 \end{slide}
 
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % WGANs
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Back to GANs}
+\section[-1]{Wasserstein GANs}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item What has this got do with GANs?\pause
-  \item Suppose we want to minimise the distance between the
-    distribution $p(\bm{x})$ of real images (of which $\mathcal{D}$
-    are samples) and the distribution $q(\bm{x})$ of images drawn from
-    a generator\pause
-  \item We can use a normal GAN generator, $G(\bm{z}, \bm{w}_G)$, that
-    generates an image when given a random variable
-    $\bm{z}\sim\mathcal{N}(\bm{0},\mat{I})$\pause 
-  \item To do this we choose the weights, $\bm{w}_G$ of the generator
-    to minimise
+  \begin{itemize}\squeeze
+  \item A GAN has a \emph{generator} $G(\bm{z},\bm{w}_G)$ that turns
+    noise $\bm{z}\sim\mathcal{N}(\bm{0},\mat{I})$ into images, and a
+    \emph{discriminator} trained to tell them from real images\pause
+  \item GANs are hard to train: a discriminator that is too good gives
+    the generator no useful gradient\pause
+  \item A Wasserstein GAN instead trains the generator to minimise $W$
+    between the data distribution $p$ and the generator's distribution $q$
     \begin{align*}
-      W(p,q) = \max_{\alpha(\bm{x})} \left( \av[\bm{x}\sim p]{\alpha(\bm{x})} -
-      \av[\bm{x}\sim q]{\alpha(\bm{x})} \right)\pause 
+      \min_{\bm{w}_G}\,\max_{\alpha}\Bigl(\av[p]{\alpha(\bm{x})} -
+      \av[\bm{z}]{\alpha(G(\bm{z},\bm{w}_G))}\Bigr)\pause
     \end{align*}
+  \item The \emph{critic} $\alpha$ is a second network in place of the
+    discriminator; it still gives a gradient when the distributions do
+    not overlap\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -596,58 +442,26 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Estimating Expectations}
+\section[-1]{The Critic}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Although we can't compute $\av[p]{\alpha(\bm{x})}$ and
-    $\av[q]{\alpha(\bm{x})}$ exactly, we can estimate them from
-    samples
-    \begin{align*}
-     \av[p]{\alpha(\bm{x})}
-      &\approx \frac{1}{|\mathcal{B}|}
-        \sum_{\bm{x}\in\mathcal{B}} \alpha(\bm{x}),
-      &
-        \av[q]{\alpha(\bm{x})}
-      &\approx \frac{1}{n} \sum_{i=1}^n
-        \alpha(G(\bm{z}_i,\bm{w}_G))\pause
-    \end{align*}
-  \item where $\mathcal{B}\subset\mathcal{D}$ is a minibatch of true
-    images and $\bm{z}_i\sim\mathcal{N}(\bm{0},\mat{I})$\pause
-  \item From this we can choose $\bm{w}_G$ to minimise
-    \begin{align*}
-      C = \frac{1}{|\mathcal{B}|}
-      \sum_{\bm{x}\in\mathcal{B}} \alpha(\bm{x}) -
-      \frac{1}{n} \sum_{i=1}^n \alpha(G(\bm{z}_i,\bm{w}_G))\pause
-    \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{The Critic}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item For this quantity to approximate the Wasserstein distance we
-    need to find a function $\alpha(\bm{x},\bm{w}_\alpha)$ that
-    maximises $C$\pause
-  \item To do this we learn a second network, the critic or
-    discriminator whose job it is to maximise
+  \item Estimate the expectations from a minibatch $\mathcal{B}$ of real
+    images and $n$ generated ones
     \begin{align*}
       C = \frac{1}{|\mathcal{B}|} \sum_{\bm{x}\in\mathcal{B}} \alpha(\bm{x},\bm{w}_\alpha) -
       \frac{1}{n} \sum_{i=1}^n \alpha(G(\bm{z}_i,\bm{w}_G),\bm{w}_\alpha)\pause
     \end{align*}
-  \item The network $\alpha(\bm{x},\bm{w}_\alpha)$ should be
-    Lipschitz-1 (which we usually botched by, for example, by setting
-    the spectral norm of the convolutional weight matrix to 1)\pause
+  \item The critic's weights $\bm{w}_\alpha$ are trained to maximise $C$;
+    the generator's weights $\bm{w}_G$ to minimise it\pause
+  \item The critic should be 1-Lipschitz, which in practice is only
+    roughly enforced: by clipping the weights (the original WGAN),
+    penalising $\|\grad\alpha\|$ away from 1, or scaling each weight
+    matrix to spectral norm 1\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
-
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -660,33 +474,102 @@
 \end{center}
 \end{slide}
 
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Lesson}
+\section[-2]{Entropic Regularisation}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Wasserstein GANs are, at least for me, one of the most elegant
-    pieces of theory in recent years\pause
-  \item By trying to minimise the Wasserstein distance between the
-    distribution of a generator and a true distribution we arrive at
-    optimising two adversarial networks just like a GAN\pause
-  \item This uses a rather beautiful dual formulation\pause
-  \item It is claimed that W-GANs solve many of the problems of
-    traditional GANs\pause
+  \item Solving the linear programme for $n$ points costs roughly
+    $O(n^3)$: too slow for large problems\pause
+  \item Cuturi (2013) added an entropy term, with $\epsilon>0$
+    \begin{align*}
+      \min_{\gamma}\; \sum_{i,j} d_{ij}\,\gamma_{ij} + \epsilon\sum_{i,j}
+      \gamma_{ij}\log\gamma_{ij}
+    \end{align*}
+    with the same constraints\pause
+  \item Setting the derivative of the Lagrangian to zero gives
+    \begin{align*}
+      \gamma_{ij} = u_i\,K_{ij}\,v_j, \qquad K_{ij} = \e{-d_{ij}/\epsilon}\pause
+    \end{align*}
+    where $u_i$ and $v_j$ come from the Lagrange multipliers\pause
+  \item The optimal plan is $\mat{K}$ with its rows and columns rescaled\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{slide}
+\section[-1]{The Sinkhorn Algorithm}
 
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Choose $\bm{u}$ and $\bm{v}$ so the row and column sums are $\bm{p}$
+    and $\bm{q}$: alternately rescale ($\oslash$ is element-by-element
+    division)
+    \begin{align*}
+      \bm{v} \leftarrow \bm{q}\oslash(\mat{K}^\tr\bm{u}), \qquad
+      \bm{u} \leftarrow \bm{p}\oslash(\mat{K}\bm{v})\pause
+    \end{align*}
+  \item This is Sinkhorn's matrix-scaling algorithm: each step is
+    two matrix--vector products\pause
+  \item Fast on GPUs and differentiable, so it can sit inside a loss\pause
+  \item As $\epsilon\to0$ we recover the exact transport cost; larger
+    $\epsilon$ is faster but blurs the plan\pause
+  \item This is how optimal transport is mostly computed in ML today\pause
+  \end{itemize}
+\end{PauseHighLight}
 
+\end{slide}
 
-%%% Local Variables:
-%%% TeX-master: "lectures"
-%%% End:
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Evaluating Generative Models: FID}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item For Gaussians, $W_2$ has a closed form
+    \begin{align*}
+      W_2^2 = \|\bm{\mu}_1-\bm{\mu}_2\|^2 + \mathrm{Tr}\!\left(\mat{\Sigma}_1 +
+      \mat{\Sigma}_2 - 2\bigl(\mat{\Sigma}_1\mat{\Sigma}_2\bigr)^{1/2}\right)\pause
+    \end{align*}
+    (in one dimension $(\mu_1-\mu_2)^2 + (\sigma_1-\sigma_2)^2$)\pause
+  \item The \emph{Fr\'echet Inception Distance} (Heusel et al., 2017) fits
+    Gaussians to a pretrained network's features of real and of
+    generated images, and reports this distance\pause
+  \item It is the standard score for image generators, GANs and
+    diffusion models alike (lower is better)\pause
+  \item Caveat: it only compares means and covariances of the
+    features\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Lessons}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The Wasserstein distance compares distributions by how far
+    probability mass must move, so it behaves well when they do not
+    overlap\pause
+  \item Computing it is a linear programme, whose dual is a maximum
+    over 1-Lipschitz functions\pause
+  \item That dual turned GANs into Wasserstein GANs: an elegant piece of
+    theory\pause
+  \item In practice optimal transport is computed with Sinkhorn, and the
+    $W_2$ distance between Gaussians is the FID used to evaluate
+    generative models\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 \end{document}

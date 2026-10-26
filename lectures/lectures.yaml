@@ -39,17 +39,17 @@ lectures:
   - convexity
   - svm
   - kernelTrick
-  - wasserstein
   - probability
   - experimentalDesign
   - bayes
-  - matrixFactorisation
   - integration
   - gaussianIntegrals
   - gaussianProcesses
   - ProbabilisticInference
+  - matrixFactorisation
   - mcmc
   - entropy
+  - wasserstein
   - information
   - biasVariance
   - overfitting
