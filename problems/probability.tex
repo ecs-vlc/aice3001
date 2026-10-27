@@ -1,95 +1,387 @@
-%% ELEC2013 2007
-
 %% ----------------------------------------------------------------
-%% exam.tex
+%% Probability problem sheet (lectures: probability, experimentalDesign, bayes)
 %% ----------------------------------------------------------------
 \documentclass{sotonExamBoxes}    % use option [answers] to include them
-%\documentclass[answers]{uosexamb}
 %% ----------------------------------------------------------------
 \usepackage{graphicx}
-%\usepackage{pstricks}
 \usepackage{alltt}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \thinmuskip=1mu
-%\renewcommand{\ttdefault}{pcr}
 \input{macros}
-\graphicspath{{figures/} {../2018-19/figures}}
 \graphicspath{{figures/}}
 \usepackage{parskip}
 \AddToHook{env/samepage/begin}{%
 \AddToHook{para/before}{\nopagebreak}%
 \AddToHook{para/after}{\nopagebreak}%
 }
-% \usepackage{picture}
 \begin{document}
-\unitTitle{ Problem Sheet}
+\unitTitle{Probability Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
-
 \maketitle
 
+This sheet covers the lectures on probability, on interpreting
+experimental results, and on Bayesian inference.  Question~1 practises
+the rules of probability, Question~2 error bars and significance tests,
+and Question~3 Bayesian updating.  Each ends with a short Python part
+(\texttt{import numpy as np} is assumed).  Question~4 is harder and
+optional: it does Bayesian updating for normal distributions and for
+linear regression.
 
 % ***************************** question 1 **************************
 
-
 \begin{question}{20}
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[4]{Events $A$ and $B$ have $\Prob{A}=0.3$, $\Prob{B}=0.5$
+      and $\Prob{A\cap B}=0.1$.  Find $\Prob{A\cup B}$,
+      $\Prob{\neg A}$ and $\Prob{A\mid B}$.  Are $A$ and $B$
+      independent?
       \begin{answer}
+        Adding $\Prob{A}$ and $\Prob{B}$ counts $A\cap B$ twice, so
+        $\Prob{A\cup B} = 0.3+0.5-0.1 = 0.7$.  $\Prob{\neg A} = 1-0.3 =
+        0.7$.  $\Prob{A\mid B} = \Prob{A\cap B}/\Prob{B} = 0.1/0.5 =
+        0.2$.  They are not independent: $\Prob{A}\,\Prob{B} = 0.15 \neq
+        0.1$ (equivalently $\Prob{A\mid B} = 0.2 \neq \Prob{A}$).
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[5]{The joint distribution of the weather $W$ and whether
+      I carry an umbrella $U$ is
+      \begin{center}
+        \begin{tabular}{l|cc}
+          & $U=$ yes & $U=$ no \\ \hline
+          $W=$ sun & 0.05 & 0.55 \\
+          $W=$ rain & 0.25 & 0.15
+        \end{tabular}
+      \end{center}
+      Find $\Prob{U=\text{yes}}$, $\Prob{W=\text{rain}\mid
+      U=\text{yes}}$ and $\Prob{U=\text{yes}\mid W=\text{rain}}$.
+      Comment on the last two.
       \begin{answer}
+        Marginalising, $\Prob{U=\text{yes}} = 0.05+0.25 = 0.30$ and
+        $\Prob{W=\text{rain}} = 0.25+0.15 = 0.40$.  Then
+        $\Prob{\text{rain}\mid\text{yes}} = 0.25/0.30 \approx 0.83$ and
+        $\Prob{\text{yes}\mid\text{rain}} = 0.25/0.40 = 0.625$.  The two
+        conditional probabilities are different: conditioning is not
+        symmetric, and the umbrella does not cause the rain.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{$X$ is the score on a fair dice.  Find $\av{X}$,
+      $\av{X^2}$ and $\mathrm{Var}(X)$.  Use linearity of expectation
+      to find $\av{2X+3}$, and find $\mathrm{Var}(2X+3)$.
+      \begin{answer}
+        $\av{X} = \frac16(1+\cdots+6) = 3.5$ and
+        $\av{X^2} = \frac16(1+4+\cdots+36) = \frac{91}{6}$, so
+        $\mathrm{Var}(X) = \frac{91}{6}-3.5^2 = \frac{35}{12}$.  Then
+        $\av{2X+3} = 2\times3.5+3 = 10$, and since adding a constant does
+        not change the spread, $\mathrm{Var}(2X+3) = 4\,\mathrm{Var}(X) =
+        \frac{35}{3}$.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[4]{$X$ is uniform on $(0,1)$ and $Y = -\log(X)/\lambda$ with
+      $\lambda>0$.  Use the change of variables formula
+      $f_Y(y) = f_X(x)\,|\dd x/\dd y|$ to find the density of $Y$.
       \begin{answer}
+        $f_X(x) = 1$ on $(0,1)$, and $x = \e{-\lambda y}$ so
+        $|\dd x/\dd y| = \lambda\,\e{-\lambda y}$.  Hence $f_Y(y) =
+        \lambda\,\e{-\lambda y}$ for $y>0$: the exponential distribution.
+        This is how computers turn uniform random numbers into
+        exponential ones.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[3]{In Python, draw $100\,000$ samples of $Y$ from part (d)
+      with $\lambda=2$.  Check that their mean is close to $1/\lambda$,
+      and estimate $\Prob{Y\leq 0.5}$ as the average of the indicator
+      $[\![Y\leq0.5]\!]$.  Compare with the exact value
+      $1-\e{-\lambda/2}$.
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+lam = 2.0\\
+y = -np.log(rng.uniform(size=100000)) / lam\\
+print(y.mean(), 1/lam)\\
+print(np.mean(y <= 0.5), 1 - np.exp(-lam*0.5))
+\end{alltt}
+        The mean is $0.500$ and the estimate $0.633$, against $0.632$:
+        a probability is the expectation of an indicator.
+      \end{answer}}{\lines{5}}
+
   \end{qparts}
 \end{question}
-\freshpage
 
 % ***************************** question 2 **************************
 
-
 \begin{question}{20}
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[3]{A classifier gets 1700 of 2000 test examples right.
+      Estimate its accuracy and standard error, and write the result
+      down sensibly.
       \begin{answer}
+        $\hat{p} = 0.85$ and $\Delta = \sqrt{0.85\times0.15/2000}
+        \approx 0.008$, so the accuracy is $0.850\pm0.008$ (or
+        $(85.0\pm0.8)\%$).
+      \end{answer}}{\lines{4}}
+
+    \qpart[4]{A second classifier gets $0.866\pm0.008$ on a
+      \emph{different} test set of 2000 examples.  Is it significantly
+      better at the 5\% level?
+      \begin{answer}
+        The gap is $0.016$.  The two estimates are independent, so the
+        standard error of the difference is $\sqrt{2}\times0.008 \approx
+        0.0113$, not $0.008$.  Then $t\approx1.42$ and, with so many
+        examples, $p\approx0.16$: not significant.  The error bars are
+        about two standard errors apart, which is not enough.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[5]{Now both classifiers are run on the \emph{same} 2000
+      examples.  The first is right and the second wrong on 20 examples;
+      the second is right and the first wrong on 52; they agree on the
+      rest.  Let $D_i$ be $+1$, $-1$ or $0$ as the second classifier does
+      better, worse or the same on example $i$.  Use a paired t-test on
+      the $D_i$.  Why does the answer differ from part (b)?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $\bar{D} = (52-20)/2000 = 0.016$, the same gap as before.  The
+        sample variance of the $D_i$ is about $72/2000 - 0.016^2 \approx
+        0.0357$, so the standard error is $\sqrt{0.0357/2000} \approx
+        0.0042$ and $t\approx3.8$, giving $p\approx0.0002$: highly
+        significant.  On the same examples most of the variation (easy
+        and hard examples) is shared and cancels in the differences; only
+        the 72 examples where they disagree carry information.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{You try 20 hyperparameter settings, none of which is
+      really any better than the baseline, and test each at the 5\%
+      level.  What is the probability that at least one looks
+      significant?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $1-0.95^{20}\approx0.64$.  Running many tests and reporting the
+        best is cheating, even if it is done without meaning to.
+      \end{answer}}{\lines{3}}
+
+    \qpart[5]{Check part (b) in Python by simulating the null hypothesis:
+      two classifiers that are both right with probability $0.85$, each
+      tested on its own 2000 examples.  Repeat $100\,000$ times and find
+      the fraction of trials in which the accuracies differ by at least
+      $0.016$.
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+a = rng.binomial(2000, 0.85, size=100000) / 2000\\
+b = rng.binomial(2000, 0.85, size=100000) / 2000\\
+print(np.mean(np.abs(a - b) >= 0.016))
+\end{alltt}
+        This gives about $0.16$, agreeing with part (b) (the small
+        excess over $0.157$ is because the accuracies can only take
+        multiples of $1/2000$).  Simulating the null hypothesis works
+        even when no formula is available.
+      \end{answer}}{\lines{6}}
+
   \end{qparts}
 \end{question}
 
-% ***************************** End of exam *****************************
+% ***************************** question 3 **************************
+
+\begin{question}{20}
+  \begin{qparts}
+
+    \qpart[4]{A disease affects 1\% of people.  A test detects it in
+      95\% of people who have it, but is also positive for 5\% of people
+      who do not.  Someone tests positive.  What is the probability that
+      they have the disease?
+      \begin{answer}
+        By Bayes' rule
+        \begin{align*}
+          \Prob{D\mid +} = \frac{0.95\times0.01}{0.95\times0.01 +
+          0.05\times0.99} = \frac{0.0095}{0.0590} \approx 0.16.
+        \end{align*}
+        Most positives are false positives, because the disease is rare:
+        the prior matters.
+      \end{answer}}{\lines{5}}
+
+    \qpart[4]{A coin with unknown probability $p$ of a head is tossed 10
+      times, giving 7 heads.  Starting from the uniform prior
+      $\mathrm{Beta}(p\mid1,1)$, what is the posterior?  Find its mean
+      and its most probable value, and compare with the frequency
+      $7/10$.
+      \begin{answer}
+        The posterior is $\mathrm{Beta}(p\mid1+7,1+3) =
+        \mathrm{Beta}(p\mid8,4)$.  Its mean is $8/12\approx0.67$ and its
+        mode $(8-1)/(8+4-2) = 0.7$, the frequency.  The mean is pulled
+        slightly towards $\frac12$ by the prior.
+      \end{answer}}{\lines{5}}
+
+    \qpart[3]{Show that updating after each toss, using each posterior
+      as the prior for the next toss, gives the same posterior as part
+      (b), whatever the order of the heads and tails.
+      \begin{answer}
+        Each head adds 1 to the first parameter of the beta
+        distribution and each tail adds 1 to the second.  After all ten
+        tosses we have added 7 and 3 in some order, giving
+        $\mathrm{Beta}(p\mid8,4)$ whatever the order.
+      \end{answer}}{\lines{4}}
+
+    \qpart[4]{The number of cars passing in an hour is Poisson with rate
+      $\mu$, and the prior is $\mathrm{Gamma}(\mu\mid2,1)$.  On three
+      days we count 3, 5 and 4 cars.  Using the update $a\to a+N$,
+      $b\to b+1$ for each count, find the posterior and its mean and
+      standard deviation ($a/b$ and $\sqrt{a}/b$).
+      \begin{answer}
+        $a = 2+3+5+4 = 14$ and $b = 1+3 = 4$, so the posterior is
+        $\mathrm{Gamma}(\mu\mid14,4)$ with mean $3.5$ and standard
+        deviation $\sqrt{14}/4\approx0.94$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[5]{In Python, simulate 100 tosses of a coin with $p=0.7$ and
+      update a $\mathrm{Beta}(1,1)$ prior after each toss.  Print the
+      posterior mean and standard deviation,
+      $\sqrt{ab/((a+b)^2(a+b+1))}$, after 10, 30 and 100 tosses.
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(1)\\
+a, b = 1, 1\\
+for n, head in enumerate(rng.random(100) < 0.7, start=1):\\
+\hspace*{2em}a += head; b += 1 - head\\
+\hspace*{2em}if n in (10, 30, 100):\\
+\hspace*{4em}print(n, a/(a+b), np.sqrt(a*b/((a+b)**2*(a+b+1))))
+\end{alltt}
+        With this seed the means are about $0.67$, $0.66$ and $0.67$ and
+        the standard deviations $0.13$, $0.08$ and $0.05$: the
+        uncertainty shrinks roughly as $1/\sqrt{n}$.
+      \end{answer}}{\lines{6}}
+
+  \end{qparts}
+\end{question}
+
+% ***************************** question 4 **************************
+
+\begin{question}{25}
+  This question is harder and optional.  When both the likelihood and
+  the prior are normal, so is the posterior, and we only need to keep
+  track of a mean and a variance (or a covariance matrix).  A helpful
+  way to read the prior is as \emph{pseudo-data}: observations we
+  pretend we have already seen.
+  \begin{qparts}
+
+    \qpart[5]{We measure an unknown quantity $\mu$ $n$ times, with
+      independent errors: $X_i\sim\mathcal{N}(\mu,\sigma^2)$ with
+      $\sigma$ known.  Our prior is $\mu\sim\mathcal{N}(\mu_0,s_0^2)$.
+      Write down the log of the posterior, up to a constant, and show
+      that it is quadratic in $\mu$.  Hence show the posterior is
+      $\mathcal{N}(\mu_n, s_n^2)$ with
+      \begin{align*}
+        \frac{1}{s_n^2} = \frac{1}{s_0^2} + \frac{n}{\sigma^2},
+        \qquad
+        \mu_n = s_n^2\left(\frac{\mu_0}{s_0^2} +
+        \frac{1}{\sigma^2}\sum_{i=1}^n X_i\right).
+      \end{align*}
+      (Hint: the log of $\mathcal{N}(\mu\mid m,s^2)$ is
+      $-\mu^2/(2s^2) + \mu\,m/s^2 + $ a constant; match the
+      coefficients of $\mu^2$ and $\mu$.)
+      \begin{answer}
+        \begin{align*}
+          \log f(\mu\mid\mathcal{D}) &= -\frac{(\mu-\mu_0)^2}{2s_0^2}
+          - \sum_{i=1}^n \frac{(X_i-\mu)^2}{2\sigma^2} + \text{const}\\
+          &= -\frac{\mu^2}{2}\left(\frac{1}{s_0^2}+\frac{n}{\sigma^2}\right)
+          + \mu\left(\frac{\mu_0}{s_0^2} + \frac{\sum_i X_i}{\sigma^2}\right)
+          + \text{const}.
+        \end{align*}
+        Matching the coefficient of $\mu^2$ with $-1/(2s_n^2)$ and the
+        coefficient of $\mu$ with $\mu_n/s_n^2$ gives the result.
+        Inverse variances (\emph{precisions}) add.
+      \end{answer}}{\lines{10}}
+
+    \qpart[4]{Let $n_0 = \sigma^2/s_0^2$ and $\bar{X} = \frac1n\sum_i
+      X_i$.  Show that
+      $\mu_n = (n_0\,\mu_0 + n\,\bar{X})/(n_0+n)$ and
+      $s_n^2 = \sigma^2/(n_0+n)$.  Interpret $n_0$.  What happens when
+      $s_0\to\infty$, and when $n\to\infty$?
+      \begin{answer}
+        Multiplying top and bottom by $\sigma^2$,
+        $1/s_n^2 = (n_0+n)/\sigma^2$ and
+        $\mu_n = (n_0\mu_0 + n\bar{X})/(n_0+n)$.  The prior acts like
+        $n_0$ extra measurements, all equal to $\mu_0$: a confident prior
+        (small $s_0$) is worth many measurements.  As $s_0\to\infty$,
+        $n_0\to0$, so $\mu_n = \bar{X}$ and $s_n = \sigma/\sqrt{n}$, the
+        standard error from the lecture on experimental results.  As
+        $n\to\infty$ the data swamp the prior.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{Take $\mu_0=0$, $s_0=2$, $\sigma=1$ and measurements
+      $1.2$, $0.8$, $1.5$, $0.9$.  Find $n_0$, $\mu_n$ and $s_n$.
+      \begin{answer}
+        $n_0 = 1/4$, $n=4$ and $\sum_i X_i = 4.4$, so
+        $\mu_n = 4.4/4.25\approx1.04$ and $s_n = 1/\sqrt{4.25}\approx0.49$.
+        The prior pulls the mean $\bar{X}=1.1$ slightly towards 0.
+      \end{answer}}{\lines{4}}
+
+    \qpart[6]{Now consider linear regression, $y_k = \bm{w}^\tr\bm{\phi}_k
+      + \epsilon_k$ with $\epsilon_k\sim\mathcal{N}(0,\sigma^2)$, where
+      the feature vectors $\bm{\phi}_k$ are the rows of a matrix
+      $\mat{\Phi}$.  Take the prior $\bm{w}\sim\mathcal{N}(\bm{0},
+      (\sigma^2/\eta)\,\mat{I})$: the weights are probably small.  Using
+      the multivariate version of the hint,
+      $\e{-\frac12\bm{w}^\tr\mat{A}\bm{w} + \bm{b}^\tr\bm{w}} \propto
+      \mathcal{N}(\bm{w}\mid\mat{A}^{-1}\bm{b}, \mat{A}^{-1})$ (we show
+      this in the lecture on Gaussian integrals), show that the posterior
+      has precision $\mat{A} = (\mat{\Phi}^\tr\mat{\Phi}+\eta\,\mat{I})/\sigma^2$
+      and mean $(\mat{\Phi}^\tr\mat{\Phi}+\eta\,\mat{I})^{-1}\mat{\Phi}^\tr\bm{y}$.
+      What do you recognise?
+      \begin{answer}
+        \begin{align*}
+          \log f(\bm{w}\mid\mathcal{D}) &= -\frac{\eta}{2\sigma^2}\len{\bm{w}}^2
+          - \frac{1}{2\sigma^2}\len{\bm{y}-\mat{\Phi}\bm{w}}^2 + \text{const}\\
+          &= -\frac12\bm{w}^\tr\frac{\mat{\Phi}^\tr\mat{\Phi}+\eta\mat{I}}{\sigma^2}\bm{w}
+          + \bm{w}^\tr\frac{\mat{\Phi}^\tr\bm{y}}{\sigma^2} + \text{const},
+        \end{align*}
+        so $\mat{A} = (\mat{\Phi}^\tr\mat{\Phi}+\eta\mat{I})/\sigma^2$,
+        $\bm{b} = \mat{\Phi}^\tr\bm{y}/\sigma^2$ and the mean is
+        $\mat{A}^{-1}\bm{b} = (\mat{\Phi}^\tr\mat{\Phi}+\eta\mat{I})^{-1}\mat{\Phi}^\tr\bm{y}$:
+        ridge regression.  The regulariser is the prior, and as in part
+        (a) precisions add: each data point adds
+        $\bm{\phi}_k\bm{\phi}_k^\tr/\sigma^2$.  The posterior also gives
+        error bars on the weights, which ridge regression alone does not.
+      \end{answer}}{\lines{10}}
+
+    \qpart[7]{Fit a line $y = w_1 + w_2 x$ ($\bm{\phi}_k = (1,x_k)^\tr$)
+      to the points $(0,1.1)$, $(1,2.9)$, $(2,5.2)$, $(3,6.8)$ with
+      $\sigma=1$ and $\eta=0.5$.  In Python, update the posterior one
+      point at a time, by adding to the precision and to
+      $\bm{b}$, and print the posterior mean and the standard deviations
+      of $w_1$ and $w_2$ after each point.  Check the final mean against
+      ridge regression.
+      \begin{answer}
+\begin{alltt}
+x = np.array([0.0, 1.0, 2.0, 3.0]); y = np.array([1.1, 2.9, 5.2, 6.8])\\
+sig2, eta = 1.0, 0.5\\
+A = (eta/sig2) * np.eye(2)\hspace*{2em}\# prior precision\\
+b = np.zeros(2)\\
+for xk, yk in zip(x, y):\\
+\hspace*{2em}phi = np.array([1.0, xk])\\
+\hspace*{2em}A = A + np.outer(phi, phi)/sig2\\
+\hspace*{2em}b = b + phi*yk/sig2\\
+\hspace*{2em}m = np.linalg.solve(A, b)\hspace*{2em}\# posterior mean\\
+\hspace*{2em}sd = np.sqrt(np.diag(np.linalg.inv(A)))\\
+\hspace*{2em}print(xk, m, sd)\\
+Phi = np.column\_stack([np.ones(4), x])\\
+print(np.linalg.solve(Phi.T @ Phi + eta*np.eye(2), Phi.T @ y))
+\end{alltt}
+        After the four points the posterior mean is $(1.02, 1.90)$,
+        exactly the ridge solution, with standard deviations $0.70$ and
+        $0.39$.  After one point (at $x=0$) the slope is still $0$ with
+        its prior standard deviation $\sqrt2\approx1.41$: a single point
+        says nothing about the slope.  Each new point shrinks the
+        uncertainty.
+      \end{answer}}{\lines{10}}
+
+  \end{qparts}
+\end{question}
+
 \end{document}
-
-
-
-
