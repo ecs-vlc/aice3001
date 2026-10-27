@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 24: Probabilistic Inference
+#+SUBTITLE: Subsidiary Notes --- Lecture 22: Probabilistic Inference
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -447,4 +447,4 @@ endfor
       objects, $A$ and $B$.  We make multiple noisy measurements of the distance
       from the two objects.
 
-* COMMENT [[file:gaussianProcesses.org][Previous]]  [[file:mcmc.org][Next]]
+* COMMENT [[file:gaussianProcesses.org][Previous]]  [[file:matrixFactorisation.org][Next]]

@@ -489,16 +489,53 @@
       \gamma_{ij}\log\gamma_{ij}
     \end{align*}
     with the same constraints\pause
-  \item Setting the derivative of the Lagrangian to zero gives
+  \item The optimisation is given by: $\displaystyle
+    \max_{\bm{\alpha},\bm{\beta}} \; \min_{\gamma}\;
+    \mathcal{L}(\gamma, \bm{\alpha}, \bm{\beta})$
+    {\small
     \begin{align*}
-      \gamma_{ij} = u_i\,K_{ij}\,v_j, \qquad K_{ij} = \e{-d_{ij}/\epsilon}\pause
-    \end{align*}
-    where $u_i$ and $v_j$ come from the Lagrange multipliers\pause
-  \item The optimal plan is $\mat{K}$ with its rows and columns rescaled\pause
+      \mathcal{L} = \sum_{i,j} d_{ij}\,\gamma_{ij} + \epsilon\sum_{i,j}
+      \gamma_{ij}\log\gamma_{ij} - \sum_i \alpha_i \bra{\sum_j
+      \gamma_{ij} - p_i}  - \sum_j \beta_j \bra{\sum_i
+      \gamma_{ij} - q_j}\pause
+    \end{align*}}
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Solving the Primal Problem}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Using
+    {\small
+    \begin{align*}
+      \mathcal{L} = \sum_{i,j} d_{ij}\,\gamma_{ij} + \epsilon\sum_{i,j}
+      \gamma_{ij}\log\gamma_{ij} - \sum_i \alpha_i \bra{\sum_j
+      \gamma_{ij} - p_i}  - \sum_j \beta_j \bra{\sum_i
+      \gamma_{ij} - q_j}\pause
+    \end{align*}}
+  \item Setting the derivative of the Lagrangian to zero gives
+    \begin{align*}
+      \gamma_{ij} = \e{(\alpha_i - d_{ij} + \beta_j)/\epsilon - 1}
+       = u_i\,K_{ij}\,v_j
+    \end{align*}
+    where $u_i=  \e{\alpha_i/\epsilon-1}$, $v_j=\e{\beta_j/\epsilon}$
+    and $K_{ij} = \e{-d_{ij}/\epsilon}$\pause
+  \item We have to choose $u_i$ and $v_j$ (equivalently the Lagrange
+    multipliers) so that
+    \begin{align*}
+      \sum_j u_i\,K_{ij}\,v_j &= p_i & \sum_i u_i\,K_{ij}\,v_j &= q_j\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -523,6 +560,18 @@
   \end{itemize}
 \end{PauseHighLight}
 
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Sinkhorn in Action}
+
+\pb
+\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=0.55\linewidth]{sinkhorn}\pause
+\end{center}
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%

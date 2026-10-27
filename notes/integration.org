@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 21: Integral Calculus
+#+SUBTITLE: Subsidiary Notes --- Lecture 19: Integral Calculus
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -164,4 +164,4 @@
    * By symmetry
      $$ \av{|Z|} = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\,\e{-z^2/2}\,\dd z = \frac{2\,I(1)}{\sqrt{2\pi}} = \sqrt{\frac{2}{\pi}} \approx 0.798 $$
 
-* COMMENT [[file:matrixFactorisation.org][Previous]]  [[file:gaussianIntegrals.org][Next]]
+* COMMENT [[file:bayes.org][Previous]]  [[file:gaussianIntegrals.org][Next]]

@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 19: Bayesian Inference
+#+SUBTITLE: Subsidiary Notes --- Lecture 18: Bayesian Inference
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -10,14 +10,14 @@
  ** Bayesian Statistics
     * Background
       - Bayesian statistics is an approach to making statistical inference
-      - It was first proposed by the Rev. Thomas Bayes but published after his death in 1761
+      - It was first proposed by the Rev. Thomas Bayes, who died in 1761; his essay was published in 1763
       - It was championed by the great French polymath Pierre-Simon Laplace
       - It fell out of favour at the beginning of the $20^{th}$ Century due to philosophical prejudice
 	+ It was deemed to be unscientific because it requires specifying
-          a prior probability which seemed objective
+          a prior probability which seemed subjective
       - It was championed from the 1950's by Ed Jaynes who eventually
         convinced most people that Bayesian inference is consistent
-      - Perhaps more importantly with the raise of computers it was
+      - Perhaps more importantly with the rise of computers it was
         possible to demonstrate that Bayesian methods work
     * Bayes' Rule
       - Bayes rule follows from a simple identity
@@ -28,8 +28,8 @@
 	+ $\Prob{\mathcal{D}|h_i}$ is the /likelihood/ of the data
           given the hypothesis $h_i$
 	+ $\Prob{h_i}$ is our /prior/ probability (our belief in
-          hypothesis $h_i$ before seeing the data
-	+ $\Prob{\mathcal{D}}$ is a normalisation terms I will call the
+          hypothesis $h_i$ before seeing the data)
+	+ $\Prob{\mathcal{D}}$ is a normalisation term I will call the
           /evidence/ and is just equal to
 	  $$ \Prob{\mathcal{D}} = \sum_{i=1}^n\Prob{h_i,\mathcal{D}}
           = \sum_{i=1}^n \Prob{\mathcal{D}|h_i} \,\Prob{h_i} $$
@@ -37,8 +37,7 @@
       inference requires specifying a prior belief
       - I argued from the first lecture that for machine learning to
         work we need to make assumptions about the data
-      - In Bayesian approach these assumptions our built into our
-        likelihood and prior
+      - In Bayesian approach these assumptions are built into our likelihood and prior
     * A nice property of Bayesian inference is that it turns the
       problem from an inverse problem (computing the posterior
       $\Prob{h_i|\mathcal{D}}$) into a forward problem of computing
@@ -68,22 +67,20 @@
        $\mathrm{Conj}(\bm{\theta}|\bm{\phi})$ parameterised by
        $\bm{\phi}$, that describe the parameters of the likelihood
        $\bm{\theta}$ and satisfy
-       $$ \mathrm{Conj}(\bm{\theta}|\bm{\phi}') \propto
-       p(\bm{X}|\bm{\theta})\, \mathrm{Conj}(\bm{\theta}|\bm{\phi}') $$
+       $$ \mathrm{Conj}(\bm{\theta}|\bm{\phi}') \propto p(\bm{X}|\bm{\theta})\, \mathrm{Conj}(\bm{\theta}|\bm{\phi}) $$
+       for some new parameters $\bm{\phi}'$ that depend on $\bm{\phi}$ and $\bm{X}$
      - Thus if we start with a prior
        $\mathrm{Conj}(\bm{\theta}|\bm{\phi}_0)$ then after observing
        data $\bm{X}_1$ we would end up with a posterior
        $\mathrm{Conj}(\bm{\theta}|\bm{\phi}_1)$ where $\bm{\phi}_1$
        depends on observation $\bm{X}_1$ and $\bm{\phi}_0$
      - We can repeat this
-       + When we make a second observation $\bm{X}2$ our posterior now
+       + When we make a second observation $\bm{X}_2$ our posterior now
          becomes our prior (we have updated our beliefs) so now we
          obtain a new posterior
 	 $$  \mathrm{Conj}(\bm{\theta}|\bm{\phi}_2) \propto
          p(\bm{X}_2|\bm{\theta})\, \mathrm{Conj}(\bm{\theta}|\bm{\phi}_1) $$
-   * As an example let us consider a number of Bernoulli trials (we
-     assume independent observations $X_i\in\{0,1\}$ occurring with
-     probability $p$
+   * As an example let us consider a number of Bernoulli trials (we assume observations $X_i\in\{0,1\}$, independent given $p$, with probability $p$ of a 1)
      - But we don't know $p$
      - We assume our prior distribution is a beta distribution
        $\mathrm{Beta}(p|a_0,b_0) \propto p^{a_0-1}\,(1-p)^{b_0-1}$
@@ -121,15 +118,14 @@
      |---------------------+--------------|
      | Binomial/Bernoulli  | Beta         |
      | Poisson             | Gamma        |
-     | Multinomial         | Dirchlet     |
-     | Univariate Normal   | Gamma-Normal |
-     | Multivariate Normal | Wishart      |
+     | Multinomial         | Dirichlet    |
+     | Normal (unknown mean and variance) | Normal-gamma |
+     | Multivariate normal (unknown mean and covariance) | Normal-Wishart |
      |---------------------+--------------|
 
 ** Uninformative Priors
    * What should we do if we have no prior information
-   * This disturbed statisticians who felt that there might not be a
-     subjective answer to this
+   * This disturbed statisticians who felt that there might not be an objective answer to this
    * However, Ed Jaynes argued that there is a unique answer that we
      get by requiring invariance
    * Scale parameters
@@ -138,20 +134,15 @@
        standard deviation in a normal distribution
      - They are non-negative numbers that determine the scale
        (i.e. what units we should measure in)
-     - For most problems we have some idea about this (otherwise if
-       would be difficult to do the measurement)
-     - But we may still not no the order of magnitude of what we are
-       measure in
+     - For most problems we have some idea about this (otherwise it would be difficult to do the measurement)
+     - But we may still not know the order of magnitude of what we are measuring
      - What should we use as a prior?
-     - The answer to this was given by Harold Jeffreys and is known as
-       the /Jeffreys' prior/
+     - The answer to this was given by Harold Jeffreys: for a scale parameter it is $p(x)\propto1/x$, often called /Jeffreys' prior/ (his general rule, based on the Fisher information, gives $\mu^{-1/2}$ for a Poisson rate; the $1/\mu$ used in the lecture is the scale-invariant choice)
      - Let's see the argument
-     - If we have not idea about what scale an observable $x$ takes
+     - If we have no idea about what scale an observable $x$ takes
        then we should expect there to be equal probability to be in
        the intervals $[A,B]$ or the interval $[A/c,B/c]$
-     - This may seem strange as these two intervals are different
-       lengths (but non-overlapping if $c\neq1$) but if this wasn't
-       the case we would know something about which scale to use
+     - This may seem strange as these two intervals have different lengths, but if this wasn't the case we would know something about which scale to use
      - If our prior for $x$ is $p(x)$ then we require
        $$ \int_A^B p(x)\,\dd x = \int_{A/c}^{B/c} p(x)\,\dd x $$
      - Now we can make a change of variables
@@ -164,12 +155,11 @@
      - We note that if $p(x)=1/x$ then
        $$ p\!\left(\frac{x}{c}\right)  = \frac{c}{x} = c \, p(x) $$
        as required
-     - The strange thing about this distribution is it in improper in
-       that 
-       $$ \int_0^\infty \frac{1}{x} = \infty $$
+     - The strange thing about this distribution is that it is improper: 
+       $$ \int_0^\infty \frac{1}{x}\,\dd x = \infty $$
      - Strangely a lot of uninformative priors turn out to be improper
      - However, this doesn't seem to matter in Bayesian inference:
-       after making some observations we end up with a proper prior
+       after making some observations we end up with a proper posterior
    * *Benford's Law*
      - There is a strange consequence of Jeffreys prior which was
        first speculated upon in 1881 when Simon Newcomb noticed that
@@ -183,8 +173,7 @@
        then the probability that real number between 1 and 10 actually
        took values between $n$ and $n+1$ is given by
        $$ \frac{\int_n^{n+1} \frac{1}{x} \dd x}{\int_1^{10} \frac{1}{x}
-       \dd x} = \frac{\log(n+1) - \log(n)}{\log(10)} =
-       \logg{\frac{n+1}{n}} $$
+       \dd x} = \frac{\log(n+1) - \log(n)}{\log(10)} = \log_{10}\!\left(\frac{n+1}{n}\right) $$
      - Note that we would get the same result if the number was
        between 10 and 100 and we asked the probability that it was in
        the range $10\,n$ to $10\,(n+1)$
@@ -233,10 +222,10 @@
    * The probability of 3 out of 10 rolls being a 6 is given by
      \begin{align*}
      P(\text{data}|\text{dishonest}) &=
-     \mathrm{Binom}(3|10,\tfrac{1}{3}) = \binom{3}{10}
+     \mathrm{Binom}(3|10,\tfrac{1}{3}) = \binom{10}{3}
      \left(\frac{1}{3}\right)^3  \left(\frac{2}{3}\right)^7\\ \\
      P(\text{data}|\text{honest}) &=
-     \mathrm{Binom}(3|10,\tfrac{1}{6}) =  \binom{3}{10}
+     \mathrm{Binom}(3|10,\tfrac{1}{6}) =  \binom{10}{3}
      \left(\frac{1}{6}\right)^3  \left(\frac{5}{6}\right)^7
      \end{align*}
    * Thus
@@ -245,7 +234,7 @@
       \frac{P(\text{data}|\text{honest})\,P(\text{honest})}
       {P(\text{data}|\text{dishonest})\,P(\text{dishonest})}} \\ \\
     &= \frac{1}{1 + 2 \left(\frac{1}{2}\right)^3
-      \left(\frac{5}{4}\right)^7} = 0.29549 \\
+      \left(\frac{5}{4}\right)^7} \approx 0.456 \\
     \end{align*}
 
-* COMMENT [[file:experimentalDesign.org][Previous]]  [[file:matrixFactorisation.org][Next]]
+* COMMENT [[file:experimentalDesign.org][Previous]]  [[file:integration.org][Next]]

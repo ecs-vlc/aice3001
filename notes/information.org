@@ -237,4 +237,4 @@
    * Hence
      $$ \mathrm{KL}\bra{p\,\|\,q} = \log\!\bra{\frac{\sigma_2}{\sigma_1}} - \frac{1}{2} + \frac{\sigma_1^2 + (\mu_1-\mu_2)^2}{2\,\sigma_2^2} $$
 
-* COMMENT [[file:entropy.org][Previous]]  [[file:biasVariance.org][Next]]
+* COMMENT [[file:wasserstein.org][Previous]]  [[file:biasVariance.org][Next]]

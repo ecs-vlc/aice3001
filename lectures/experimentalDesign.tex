@@ -8,7 +8,7 @@
 \begin{center}
 \noindent\includegraphics[height=100mm]{errorbarsT}
 \end{center}
-\keywords{interpeting data, standard errors, confidence tests}
+\keywords{interpreting data, standard errors, confidence tests}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -16,7 +16,7 @@
 
 \begin{minipage}{12cm}\raggedright
   \begin{enumerate}\squeeze
-    \outlineitem{Outline}{outline}
+    \outlineitem{Reporting Experiments}{outline}
     \outlineitem{Experimental Error}{errors}
     \outlineitem{Confidence Estimates}{confidence}
   \end{enumerate}
@@ -196,7 +196,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}\small
-    \item Consider the  mean squared error (MSE) of the estimator $\hat{\mu}_n$
+    \item Consider the  mean squared error (MSE) of the estimator $\hat{\mu}_n$ (independent $X_i$)
       \begin{align*}
         \av{ (\hat{\mu}_n-\mu)^2 } &= \av{ \bra{\bra{\frac{1}{n}\sum_{i=1}^n
         X_i} - \mu}^2}\pause
@@ -254,7 +254,7 @@
   \item If we make $n$ trials then probability of $k$ successes is
     given by the binomial distribution
     \begin{align*}
-      \Prob{K=k} = \binom{k}{n} p^k\,(1-p)^{n-k}\pause
+      \Prob{K=k} = \binom{n}{k} p^k\,(1-p)^{n-k}\pause
     \end{align*}
   \item The mean and variance of $K$ are
     \begin{align*}
@@ -323,9 +323,9 @@
   \item There are different conventions on errorbars\pause
   \item Traditionally errorbars show the estimated error in the mean
     (standard error, $\Delta = \hat{\sigma}_n/\sqrt{n}$)\pause
-  \item This means that about 30\% of the time the true mean would be
-    outside the errorbar\pause
-  \item Some people use 95\% confident intervals as errorbars, saying
+  \item For roughly normal data the true mean is outside the errorbar
+    about 32\% of the time\pause
+  \item Some people use 95\% confidence intervals as errorbars, saying
     95\% of the time the true mean lies within the
     errorbars\pause---this corresponds to errorbars showing twice the
     standard error\pauseb
@@ -342,8 +342,10 @@
 \begin{slide}
 \section[-2]{Box Plots}
 
+\pb
+\pause\pauselevel{=1}
 \begin{center}
-  \includegraphics[width=0.8\linewidth]{boxPlot}
+  \multipdf[width=\linewidth]{boxPlotNormal}\pause
 \end{center}
 
 \end{slide}
@@ -398,11 +400,11 @@ The more data we have the less likely we will make a mistake\pauseb
   \item The original t-test was invented by William Gosset who worked
     for the Guinness brewery in Dublin, but published under the
     pseudonym \textit{Student}\pause
-  \item He worked with the null hypothesis that the distributions for A
-    and B are normal with the same means and standard deviations\pause
-  \item The slightly more common test is Welch's t-test where the null
-    hypothesis is that the two datasets are normally distributed with
-    the same means but different standard deviations\pause
+  \item He assumed A and B are normally distributed with the same
+    standard deviation; the null hypothesis is that their means are
+    equal\pause
+  \item The more common test now is Welch's t-test, which drops the
+    assumption that the standard deviations are equal\pause
   \item The gap is equal to the $t$ value
     \begin{align*}
       t = \frac{\hat{\mu}_A - \hat{\mu}_B}{\hat{\sigma}_{A,B}}\pause
@@ -426,10 +428,10 @@ The more data we have the less likely we will make a mistake\pauseb
       \hat{\sigma}_{A,B} &= \sqrt{\frac{\hat{\sigma}_A^2}{n} +
         \frac{\hat{\sigma}_B^2}{m} }\pause 
     \end{align*}
-  \item Where $p$ depends on $t$ and the \textit{number of degrees of
+  \item The $p$-value depends on $t$ and the \textit{number of degrees of
       freedom}
     \begin{align*}
-      \nu = \frac{ \hat{\sigma}_{A,B}^2}{(\hat{\sigma}_A^2/n)^2/(n-1)
+      \nu = \frac{ \hat{\sigma}_{A,B}^4}{(\hat{\sigma}_A^2/n)^2/(n-1)
         + (\hat{\sigma}_B^2/m)^2/(m-1)}\pause
     \end{align*}
   \item The beauty of the $t$-test is that from $t$ and $\nu$ we can
@@ -448,13 +450,14 @@ The more data we have the less likely we will make a mistake\pauseb
 \begin{PauseHighLight}
   \begin{itemize}
   \item It is common to say that $A$ is \textit{statistically significantly}
-    better than $B$ if the probability of the observed $t$ value
-    occurring given the null hypothesis is less than $0.05$\pause
+    better than $B$ if, under the null hypothesis, the probability of a
+    $t$ at least as extreme as the one observed (the $p$-value) is less
+    than $0.05$\pause
   \item Statistically significant difference in performance does not
     mean that the difference is anything to care about\pause{} (that is
     a judgement call)\pauseb
   \item We are assuming the data is normally distributed\pause. We can
-    check\pauseb, but no one does\pauseb. Usually its not a bad approximation
+    check\pauseb, but no one does\pauseb. Usually it's not a bad approximation
     if the data is not normal\pauseb, but there are exceptions\ldots\pauseb
   \end{itemize}
 \end{PauseHighLight}
@@ -480,13 +483,13 @@ The more data we have the less likely we will make a mistake\pauseb
 \section{Error Bars and Significance}
 
 \begin{center}
-  \includegraphics[width=\linewidth]{errorbarsT}\pause
+  \includegraphics[width=0.85\linewidth]{errorbarsT}\pause
 \end{center}
 \begin{PauseHighLight}
   \begin{itemize}
-  \item If you have enough data points then when the errorbars (1
-    standard error) are separate then the two distributions are
-    significantly different\pause
+  \item Separate errorbars (1 standard error) are \emph{not} enough: if
+    they just touch, $p\approx0.16$\pause
+  \item For $p<0.05$ the gap must be about $2.8$ standard errors\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -505,11 +508,12 @@ The more data we have the less likely we will make a mistake\pauseb
   \item For example model A might always be better than model B, but
     the performance fluctuates depending on the example\pause
   \item A normal t-test might not show any significant
-    different\pause
-  \item Using a paired t-test we instead use
+    difference\pause
+  \item A paired t-test uses the per-example differences $X_i-Y_i$,
+    whose standard error is
     \begin{align*}
-      \hat{\sigma}^2_{X+Y} &=
-      \frac{\hat{\sigma}_X^2+\hat{\sigma}_Y^2-\hat{c}_{X,Y}}{n}
+      \hat{\sigma}^2_{X-Y} &=
+      \frac{\hat{\sigma}_X^2+\hat{\sigma}_Y^2-2\,\hat{c}_{X,Y}}{n}
 \\
       \hat{c}_{X,Y} &= \frac{1}{n-1} \sum_{i=1}^n
       (X_i-\hat{\mu}_X)\,(Y_i-\hat{\mu}_Y)\pause
@@ -525,7 +529,7 @@ The more data we have the less likely we will make a mistake\pauseb
 \section[-2]{Paired T-Test Example}
 
 \begin{center}
-  $X \sim Z + X_1$ \hfil $Y \sim Z + Y_1$\\
+  $X = Z + X_1$ \hfil $Y = Z + Y_1$\\
   $Z \sim \mathcal{N}(0, 0.8)$ \hfil $X_1 \sim \mathcal{N}(0.4, 0.2)$ \hfil $Y_1 \sim \mathcal{N}(0.6, 0.2)$\\
   \includegraphics[width=0.8\linewidth]{pairedTtest}\\
   \includegraphics[width=0.8\linewidth]{pairedTtesteb}
@@ -536,7 +540,7 @@ The more data we have the less likely we will make a mistake\pauseb
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Cheating Significant Tests}
+\section{Cheating Significance Tests}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -549,8 +553,8 @@ The more data we have the less likely we will make a mistake\pauseb
     trials (i.e.{} $p=0.1$)\pauseb
   \item If you run $t$-tests until you find a $p$ value of 0.05 you
     are cheating\pause
-  \item If you want to compare many different models then you should
-    use ANOVA instead\pause
+  \item If you want to compare many different models then use a method
+    designed for it (e.g.\ ANOVA) or correct for the number of tests\pause
   \end{itemize}
 \end{PauseHighLight}
 

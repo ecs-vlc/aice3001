@@ -7,7 +7,7 @@ real[][] ls=new real[n][n];
 
 pen[] Palette=Grayscale();
 
-path bb = box((-1.3,-1.2),(12,4.25));
+path bb = box((-1.3,-1.24),(12,4.28));
 draw(bb, white);
 
 string s = "\Huge $\displaystyle \max_{\bm{w}_{\alpha}}\,\min_{\bm{w}_G} \,";

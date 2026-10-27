@@ -380,4 +380,4 @@ print("eigenvalues:", np.round(np.linalg.eigvalsh(K), 4))  # all >= 0
      - this is more commonly used as it incorporates the lower
        degree polynomial kernels
 
-* COMMENT [[file:svm.org][Previous]]  [[file:wasserstein.org][Next]]
+* COMMENT [[file:svm.org][Previous]]  [[file:probability.org][Next]]

@@ -44,11 +44,10 @@
     \item To model a world with uncertainty we consider some set of
       \emph{elementary events} or \emph{outcomes} $\Omega$\pauseh
     \item For the outcome of rolling a dice $\Omega=\{1,2,3,4,5,6\}$\pauseh
-    \item The elementary events $\omega_i$ are \emph{mutually exclusive}
-      $\omega_i\cap\omega_j=\emptyset$ and \emph{exhaustive} $\bigcup_i \omega_i=
-      \Omega$ \pauseh
-    \item We consider \emph{events} $\mathcal{E}=
-      \bigcup\limits_{i\in\mathcal{I}}\omega_i$\pauseh
+    \item Outcomes are \emph{mutually exclusive} (exactly one happens) and
+      \emph{exhaustive} (together they make up $\Omega$)\pauseh
+    \item An \emph{event} is a set of outcomes,
+      $\mathcal{E}\subseteq\Omega$\pauseh
     \item E.g. For a dice throw $\mathcal{E} = \{2,4,6\}$\pauseh
     \end{itemize}
   \end{minipage}\hfill
@@ -70,8 +69,10 @@
     $\mathcal{E}$, with the requirements\\
     \begin{minipage}{0.6\linewidth}
       \begin{itemize}
-      \item $0\leq \Prob{\mathcal{E}} \leq 1$\pause
-      \item $\Prob{\mathcal{E}} + \Prob{\neg\mathcal{E}} = 1$ where
+      \item $0\leq \Prob{\mathcal{E}} \leq 1$, $\Prob{\Omega} = 1$\pause
+      \item $\Prob{\mathcal{A}\cup\mathcal{B}} = \Prob{\mathcal{A}} +
+        \Prob{\mathcal{B}}$ if $\mathcal{A}\cap\mathcal{B}=\emptyset$
+      \item Hence $\Prob{\mathcal{E}} + \Prob{\neg\mathcal{E}} = 1$ where
         $\neg\mathcal{E} = \Omega \setminus \mathcal{E}$
         \pauselevel{highlight =2 :3}\pause
       \end{itemize}
@@ -81,12 +82,35 @@
     \end{minipage}
   \item In some cases we can interpret $\Prob{\mathcal{E}}$ as the
     expected frequency of occurrence of a repetitive trial\pauseh
-  \item But $\Prob{\text{Pass COMP6208 exam}}$ is something you do
+  \item But $\Prob{\text{Pass AICE3001 exam}}$ is something you do
     once\pauseh
-  \item Can think of probability as an informed belief that something
-    might happen\pauseh
-  \item When our knowledge changes the probability changes\pauseh
+  \item Think of probability as an informed belief, which changes when
+    our knowledge changes\pauseh
   \end{itemize}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Probability Is Not Counting}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item At school probability is often taught as counting: if all
+    outcomes are equally likely then
+    $\Prob{\mathcal{E}} = |\mathcal{E}|/|\Omega|$\pause
+  \item But ``equally likely'' is an assumption about the world (a fair
+    dice, a well-shuffled pack), not part of probability\pause
+  \item Most problems have no equally likely outcomes: tomorrow's
+    weather, whether a network misclassifies an image\pause
+  \item Probability is about the \emph{rules} for combining and updating
+    beliefs: adding probabilities of exclusive events, conditioning,
+    marginalising\pause
+  \item Combinatorics is just a tool for counting outcomes when symmetry
+    tells us they are equally likely\pause
+  \end{itemize}
+\end{PauseHighLight}
 
 \end{slide}
 
@@ -98,9 +122,9 @@
 \begin{PauseHighLight}
   \begin{rightImage}{randomVariables}
     \begin{itemize}
-    \item We can define a \emph{random variable}, $X$, by partition the
-      set of outcomes $\Omega$ and assign a numbers to each
-      partition\pause
+    \item A \emph{random variable}, $X$, assigns a number to each outcome
+      in $\Omega$: it partitions $\Omega$ and gives each part a
+      number\pause
     \item E.g. for a dice
       \begin{align*}
         X =
@@ -110,7 +134,7 @@
         \end{cases}\pause
       \end{align*}
     \item $\Prob{X=x_i} = \Prob{\mathcal{E}_i}$ where $\mathcal{E}_i$ is
-      the event that corresponding to the partition with value
+      the event corresponding to the part with value
       $x_i$\pause
     \end{itemize}
   \end{rightImage}
@@ -127,7 +151,7 @@
   \begin{itemize}
   \item We denote random variables with capital letters, $X$,
     $Y$, $Z$, etc.\pause
-  \item The symbol denote an object that can take one of a number of
+  \item The symbol denotes an object that can take one of a number of
     different values, but which one is still to be decided by
     chance\pause
   \item When we write $\Prob{X}$ we can view this as short-hand for
@@ -173,7 +197,7 @@
   \item But if we consider a region, $\mathcal{R}$, then we can assign
     a probability to landing in the region
     $\Prob{\bm{X}\in\mathcal{R}}$\pause
-  \item It is useful to work with \emph{probability densities
+  \item It is useful to work with the \emph{probability density
       function} (PDF)
     \begin{align*}
       f_{\bm{X}}(\bm{x}) = \lim_{\epsilon\rightarrow 0}
@@ -261,7 +285,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Probability densities are not probabilities\pause
-  \item They are positive, but don't need to be less than 1\pause
+  \item They are non-negative, but can be greater than 1\pause
   \item Note that
     \begin{align*}
       f_X(x) = \lim_{\delta x\rightarrow 0}
@@ -298,6 +322,35 @@
     \begin{align*}
       f_X(x) = \frac{\dd F_X(x)}{\dd x}\pause
     \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{The Language of Probability}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Mathematical texts use a standard vocabulary\pause
+    \begin{itemize}
+    \item \emph{sample space} $\Omega$, \emph{outcome} $\omega$,
+      \emph{event} $\mathcal{E}\subseteq\Omega$\pause
+    \item \emph{random variable} $X$: a function from outcomes to
+      numbers\pause
+    \item its \emph{distribution}: a \emph{probability mass function}
+      $\Prob{X=x}$ (discrete) or \emph{density} $f_X(x)$ (continuous),
+      or the CDF $F_X(x)$\pause
+    \item $X\sim\mathcal{N}(\mu,\sigma^2)$: ``$X$ is distributed as'' a
+      normal\pause
+    \item \emph{support}: the values with non-zero probability (or
+      density)\pause
+    \item \emph{i.i.d.}: independent and identically distributed (e.g.\
+      repeated, well conducted experiments)\pause
+    \item \emph{almost surely}: with probability one\pause
+    \end{itemize}
   \end{itemize}
 \end{PauseHighLight}
 
@@ -356,8 +409,8 @@
     \begin{align*}
       \av{a\,X + b\,Y} = a\,\av{X} + b\, \av{Y}\pause
     \end{align*}
-  \item Beware usually $\av{X\,Y}\neq \av{X}\,\av{Y}$ (unless $X$ and
-    $Y$ are independent)\pause
+  \item Beware: in general $\av{X\,Y}\neq \av{X}\,\av{Y}$ (equality holds
+    if $X$ and $Y$ are independent, or more generally uncorrelated)\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -446,8 +499,9 @@
   \item We can also define the probability of an event $X$ given that
     $Y=y$ has occurred
     \begin{align*}
-      \Prob{X\mid Y=y} = \frac{\Prob{X,Y=y}}{\Prob{Y=y}}\pause
+      \Prob{X\mid Y=y} = \frac{\Prob{X,Y=y}}{\Prob{Y=y}}
     \end{align*}
+    (for $\Prob{Y=y}>0$)\pause
   \item In constructing a model it is often much easier to specify
     conditional probabilities (because you know something) rather than
     joint probabilities\pause
@@ -522,7 +576,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}\squeeze
-  \item Conditional probabilities does not imply causality\pause
+  \item Conditional probabilities do not imply causality\pause
   \item We might have causal relationships
     \begin{align*}
       \Prob{\text{pass}\mid\text{study}} &= 0.9
@@ -554,7 +608,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Independence}
+\section[-2.5]{Independence}
 
 \begin{PauseHighLight}
   \begin{itemize}\squeeze
@@ -567,14 +621,15 @@
     \begin{align*}
       \Prob{X|Y} &= \Prob{X} & \Prob{Y|X} = \Prob{Y}\pause
     \end{align*}
-  \item Probabilistic independence implies a mathematical co-incident not
+  \item Probabilistic independence is a mathematical property, not
     necessarily causal independence\pause
-  \item However causal independence implies probabilistic
-    independence\pause
+  \item Variables with no causal link can be dependent through a shared
+    cause (ice-cream sales and drownings)\pause
   \item If $X\in\{0,1\}$ represents the outcome of tossing a coin and
     $Y\in\{1,2,3,4,5,6\}$ the outcome of rolling a dice then $X$ and $Y$
     are independent\pause
   \end{itemize}
+  \vspace*{-1cm}
 \end{PauseHighLight}
 \end{slide}
 
@@ -613,7 +668,7 @@
   \begin{itemize}
   \item Let $K(d)$ be a random variable measuring the amount you know
     about ML on day $d$ of your revision\pause
-  \item From you revision schedule you can write down your belief
+  \item From your revision schedule you can write down your belief
     \begin{align*}
       \Prob{K(d) \mid K(d-1), K(d-2), \ldots K(1)}\pause
     \end{align*}
@@ -623,7 +678,7 @@
     \end{align*}
     what you are going to know today will just depend on what you knew
     yesterday\pause
-  \item We say that $K(d)$ is \emph{conditionally independent }on $K(d-2)$,
+  \item We say that $K(d)$ is \emph{conditionally independent} of $K(d-2)$,
     $K(d-3)$, etc.{} given $K(d-1)$\pause
   \end{itemize}
 \end{PauseHighLight}

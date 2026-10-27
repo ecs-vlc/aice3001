@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 25: MCMC
+#+SUBTITLE: Subsidiary Notes --- Lecture 24: MCMC
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -377,4 +377,4 @@
      the virus
      - My data was generated with $p=0.1$ and $r_{0}=2.5$
 
-* COMMENT [[file:ProbabilisticInference.org][Previous]]  [[file:entropy.org][Next]]
+* COMMENT [[file:matrixFactorisation.org][Previous]]  [[file:entropy.org][Next]]

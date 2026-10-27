@@ -1,4 +1,3 @@
-settings.outformat="pdf";
 import myutil;
 import palette;
 size(27cm,0);
@@ -7,7 +6,7 @@ real[][] ls=new real[n][n];
 
 pen[] Palette=Grayscale();
 
-path bb = box((-1.3,-1.2),(12,4.25));
+path bb = box((-1.3,-1.24),(12,4.28));
 draw(bb, white);
 
 for(int i=0; i<n; ++i) {

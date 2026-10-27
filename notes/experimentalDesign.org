@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 18: On Becoming a Scientist
+#+SUBTITLE: Subsidiary Notes --- Lecture 17: On Becoming a Scientist
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -89,9 +89,12 @@
        confidence in the mean, so it should not be used as an error bar
        on a mean
    * Box plots summarise a distribution rather than the uncertainty in
-     its mean
-     #+ATTR_LATEX: :width 0.6\linewidth
-     [[file:figures/boxPlot.png]]
+     its median, so you cannot judge statistical significance from them.
+     For a normal distribution $Q_{1,3} = \mp0.6745\sigma$, the whiskers
+     reach $Q_1-1.5\,\mathrm{IQR}$ and $Q_3+1.5\,\mathrm{IQR}$, i.e.
+     $\pm2.698\sigma$, and $0.35\%$ of the data lies beyond each
+     #+ATTR_LATEX: :width 0.9\linewidth
+     [[file:figures/boxPlotNormal-5.pdf]]
 
 ** Comparing Models
    * How do we decide whether model B really is better than model A?

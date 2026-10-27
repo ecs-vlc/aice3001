@@ -50,20 +50,20 @@ sheets:
     name: convexity
     keywords: convexity, SVMs
   - week: 7
-    name: general
-    keywords: duality
-  - week: 8
     name: probability
-    keywords: Gaussian integrals
-  - week: 9
+    keywords: probability, error bars, significance tests, Bayesian inference
+  - week: 8
     name: gaussianProcess
-    keywords: Gaussian integrals, Gaussian processes
+    keywords: integration, Gaussian integrals, Gaussian processes
+  - week: 9
+    name: general
+    keywords: probabilistic inference, matrix factorisation, MCMC
   - week: 10
     name: information
-    keywords: entropy, information
+    keywords: entropy, optimal transport, information theory
   - week: 11
     name: theory
-    keywords: bias variance
+    keywords: bias-variance, over-fitting, symmetry
   - week: 12
     name: revision
     keywords: general

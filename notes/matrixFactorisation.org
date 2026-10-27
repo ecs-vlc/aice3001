@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 20: Matrix Factorisation
+#+SUBTITLE: Subsidiary Notes --- Lecture 23: Matrix Factorisation
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -315,4 +315,4 @@ for K in [1, 2, 3, 5, 10]:
    * The test error cannot reach the noise level (0.3) because so few
      entries are observed
 
-* COMMENT [[file:bayes.org][Previous]]  [[file:integration.org][Next]]
+* COMMENT [[file:ProbabilisticInference.org][Previous]]  [[file:mcmc.org][Next]]

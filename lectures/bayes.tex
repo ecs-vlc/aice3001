@@ -47,7 +47,7 @@
   \item However, this requires that we encode our prior knowledge of the
     problem and specify a likelihood\pause
   \item In consequence, probabilistic methods tend to be bespoke, rather
-    then general purpose black boxes\pause
+    than general purpose black boxes\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -326,7 +326,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Suppose we have no idea about $p$ what should we do?\pause
-  \item Laplace (one of the first Bayesian's) suggested giving equal
+  \item Laplace (one of the first Bayesians) suggested giving equal
     weighting to all values of $p$\pause
   \item This corresponds to a beta distribution with $a=b=1$\pause
   \item (Surprisingly other arguments suggest using $a=b=0$ which
@@ -411,8 +411,9 @@
     $f(p|\data) = \mathrm{Beta}(p| a_0+s, b_0+n-s)$\pause
   \item This is not always the case (often the posterior will be very
     complicated) but it happens for a few likelihoods and priors\pause
-  \item When the posterior is the same as the prior then the likelihood
-    and prior distributions are said to be \emph{conjugate}\pause
+  \item When the posterior is in the same family as the prior then the
+    likelihood and prior distributions are said to be
+    \emph{conjugate}\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -426,17 +427,17 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item For independent data we can update incrementally $\data = (X_1,
-    X_2, \ldots, X_n)$
+  \item The $X_i$ are independent \emph{given $p$}, so we can update
+    incrementally, $\data = (X_1, X_2, \ldots, X_n)$
     \begin{align*}
       f(p|X_1) &= \frac{\Prob{X_1|p} f(p)}{\Prob{X_1}} \pause
       \\
-      f(p|X_1,X_2) &= \frac{\Prob{X_2|p} f(p|X_1)}{\Prob{X_2}} \pause
+      f(p|X_1,X_2) &= \frac{\Prob{X_2|p} f(p|X_1)}{\Prob{X_2|X_1}} \pause
       \\ 
       \vdots \quad &= \quad \vdots
       \\
       f(p|X_1,X_2,\ldots, X_n) &= \frac{\Prob{X_n|p} 
-        f(p|X_1,\ldots,X_{n-1})}{\Prob{X_n}}\pause
+        f(p|X_1,\ldots,X_{n-1})}{\Prob{X_n|X_1,\ldots,X_{n-1}}}\pause
     \end{align*} 
   \item The posterior becomes the prior for the next piece of data\pause
   \item For our problem the posterior is always Beta distributed\pause
@@ -465,7 +466,8 @@
   \begin{itemize}
   \item A full Bayesian treatment gives a prediction of its own
     error\pause
-  \item Assuming $f(p|\data) = \mathrm{Beta}(p|a,b)$
+  \item Assuming $f(p|\data) = \mathrm{Beta}(p|a,b)$ (in the example
+    $a=23$, $b=9$ after 30 trials)
   \item The expected value of $p$ is given by $a/(a+b) = 23/32 = 0.72$\pause
   \item The standard deviation is
     \begin{align*}
@@ -506,7 +508,7 @@
   \item Let us assume a Gamma distributed prior
     \begin{align*}
       p(\mu) = \Gamma(\mu|a_0,b_0) =
-      \frac{b_0^{a_0}\, \mu^{a_0-1} \e{-b_0\,\mu}}{\Gamma(a)}\pause
+      \frac{b_0^{a_0}\, \mu^{a_0-1} \e{-b_0\,\mu}}{\Gamma(a_0)}\pause
     \end{align*}
   \item We will assume that we know nothing.  The uninformative prior is
     $a_0=b_0=0$\pause
@@ -570,7 +572,7 @@
     nothing\pause
   \item This led to Bayesian statistics being labelled as
     \textit{subjective}\pause
-  \item However Ed. Jaynes (the greatest proponent of Bayesian methods)
+  \item However E.~T.~Jaynes (the greatest proponent of Bayesian methods)
     argued that we could answer this using symmetry arguments\pause
   \end{itemize}
 \end{PauseHighLight}
@@ -613,8 +615,8 @@
   \item Numbers occurring in life (physical constants, amounts of money)
     should not depend on the units (scale) measuring them\pause
   \item They should then be distributed as $p(x) \propto 1/x$\pause
-  \item A curious consequence of this is that the significant figure has
-    a distribution
+  \item A curious consequence of this is that the first significant
+    digit has a distribution
     \begin{align*}
       \Prob{\mbox{most s.f. of $x=n$}} &= \frac{ \int_n^{n+1} \frac{1}{x} \,
         \dd \, x}{\int_1^{10} \frac{1}{x} \,
@@ -654,9 +656,9 @@
   \item In practice Bayesian methods are easy if the data is generated
     from a likelihood with a conjugate prior distribution---we have to
     be clever to choose the right prior\pause
-  \item We will see in the next lecture that much more frequently we
-    will have likelihoods with no conjugate prior and we have to work
-    much harder\pause
+  \item We will see later that much more frequently we will have
+    likelihoods with no conjugate prior and we have to work much
+    harder\pause
   \item When we have no knowledge there are consistent ways to express
     our ignorance\pause
   \end{itemize}

@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 23: Gaussian Processes
+#+SUBTITLE: Subsidiary Notes --- Lecture 21: Gaussian Processes
 #+SETUPFILE: setup.org
 #+LATEX_HEADER: \renewcommand{\normal}[1]{\mathcal{N}\!\left( #1 \right)}
 #+LATEX_HEADER: \renewcommand{\eq}[1][=]{\stepcounter{eqCounter}\stackrel{\text{\tiny(\alph{eqCounter})}}{#1}}

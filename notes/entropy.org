@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 26: Entropy
+#+SUBTITLE: Subsidiary Notes --- Lecture 25: Entropy
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -209,4 +209,4 @@
      satisfies all three constraints, and a quadratic exponent determines
      a normal distribution uniquely
 
-* COMMENT [[file:mcmc.org][Previous]]  [[file:information.org][Next]]
+* COMMENT [[file:mcmc.org][Previous]]  [[file:wasserstein.org][Next]]
