@@ -49,8 +49,8 @@ lectures:
   - matrixFactorisation
   - mcmc
   - entropy
-  - wasserstein
   - information
+  - wasserstein
   - biasVariance
   - overfitting
   - symmetry

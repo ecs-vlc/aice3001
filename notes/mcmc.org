@@ -3,7 +3,8 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Monte Carlo methods, MCMC, Variational Methods
+  * Monte Carlo methods, MCMC, Metropolis-Hastings, Gibbs sampling,
+    Hamiltonian Monte Carlo, Convergence diagnostics, Variational Methods
 
 * Main Points
 
@@ -17,9 +18,9 @@
      + Furthermore it is usually impossible to compute the marginal
        likelihood or evidence
        $$ \Prob{\mathcal{D}} = \sum_{\bm{\Theta}}
-       \Prob{\bm{\Theta}|\mathcal{D}} \, \Prob{\bm{\Theta}} $$
+       \Prob{\mathcal{D}|\bm{\Theta}} \, \Prob{\bm{\Theta}} $$
      + The sum or integral over variables $\bm{\Theta}$ is often too
-       large to make this the feasible
+       large to make this feasible
      + You could try to obtain a histogram for the posterior, but if
        $\bm{\Theta}$ has many components the curse of dimensionality
        makes this difficult
@@ -31,11 +32,17 @@
        * $\bm{\Theta}_{i}$ are random deviates drawn from
          the posterior $\Prob{\bm{\Theta}_{i}|\mathcal{D}}$
        * (random deviates or random variates are values drawn from a
-         probability distibution)
+         probability distribution)
        * When the posterior distribution is well behaved (doesn't have a
-	 thick tail) then the error in the approximation fall off as $1/\sqrt{n}$
+	 thick tail, so that $g(\bm{\Theta})$ has a finite variance)
+         then the error in the approximation falls off as $1/\sqrt{n}$
+       * For independent samples
+         $\mathrm{Var}\bigl(\frac1n\sum_i g(\bm{\Theta}_i)\bigr) =
+         \mathrm{Var}(g)/n$, whatever the dimension of $\bm{\Theta}$:
+         the dimension only enters through $\mathrm{Var}(g)$
    - The problem is you have to be able to sample random deviates
-     from $P(\mathcal{D}|\bm{\Theta})\,f(\bm{\Theta})$
+     from the posterior, which is proportional to
+     $f(\mathcal{D}|\bm{\Theta})\,f(\bm{\Theta})$
    - For simple distributions there are two classic solutions to
      generating random deviates
      1. /Transformation Methods/
@@ -43,15 +50,25 @@
           $$ F_{X}(x) = \int_{-\infty}^{x} f(t)\,\dd t $$
           and invert $F_{X}(x)$, then $X=F^{-1}_{X}(U)$ will be a
           random deviate with density $f$, where $U$
-          is a uniform standard deviate between 0 and 1
+          is a uniform deviate between 0 and 1
+	+ This works because
+          $\Prob{X\leq x} = \Prob{F_X^{-1}(U)\leq x} = \Prob{U\leq F_X(x)} = F_X(x)$
+	+ E.g. for the exponential distribution $F_X(x) = 1-\e{-\lambda x}$,
+          so $X = -\log(1-U)/\lambda$
 	+ This only works for a few classic distributions
      2. /Rejection Method/
-	+ In the rejection methods we find another distribution
+	+ In the rejection methods we find another density
           $g_{Y}(y)$ that we can sample from that satisfies
-	  $$ c\, g_{Y}(x) > f_{X}(x) $$
+	  $$ c\, g_{Y}(x) \geq f_{X}(x) \quad\text{for all } x $$
 	+ Then we generate a deviate $Y\sim g_{Y}$ and accept it with
-          a probability $f_{X}(Y)/(c\,g_{Y}(Y))$
-	+ The expected rejection rate is $c-1$
+          a probability $f_{X}(Y)/(c\,g_{Y}(Y))$ (draw $U$ uniformly
+          from $(0,1)$ and accept if $U\,c\,g_Y(Y)\leq f_X(Y)$)
+	+ The probability of accepting is
+          $\int g_Y(y)\, f_X(y)/(c\,g_Y(y))\,\dd y = 1/c$, so on
+          average we need $c$ tries, or $c-1$ rejections, for each deviate
+	+ The accepted deviates have density $f_X$: the density of
+          proposing $y$ and accepting it is $g_Y(y)\,f_X(y)/(c\,g_Y(y)) = f_X(y)/c$,
+          which is proportional to $f_X(y)$
 	+ This is a more general method, but is efficient only if we
           have a good approximating function $g_{Y}(y)$ (good in the
           sense that $c$ is not too large)
@@ -72,11 +89,11 @@
        posterior probability)
    - Let $M_{ij}$ be the transition probability from state $j$ to
      state $i$
-     + $\sum_{i} M_{ij} =1$ (if we start any state, $j$ say, we have
-       to end up in another state)
+     + $\sum_{i} M_{ij} =1$ (if we start in any state, $j$ say, we have
+       to end up in some state, possibly $j$ itself)
      + $M_{ij}\geq0$ (it is a probability)
-     + Matrices of non-negative elements whose rows sum to one are
-       known as *stochastic matrices*
+     + Matrices of non-negative elements whose columns sum to one (with
+       this convention) are known as *stochastic matrices*
    - If we choose $M_{ij}$ so that
      $$ M_{ij} \, \pi_{j} = M_{ji} \, \pi_{i} $$
      + then after some time the probability of being in state $i$ will
@@ -85,15 +102,15 @@
      + This condition is known as *detailed balance*
      + Note that if we sum the detailed balance equation then
        $$ \sum_{j\in\mathcal{S}} M_{ij} \, \pi_{j} =
-       \sum_{j\in\mathcal{S}} M_{ji} \, \pi_{i}  = \pi_{j}
-       \label{eq:stochastic} $$
+       \sum_{j\in\mathcal{S}} M_{ji} \, \pi_{i}  = \pi_{i}
+       $$
        * since $\sum_{j} M_{ji} = 1$
      + Writing this in matrix form
        $$ \mat{M} \bm{\pi} = \bm{\pi} $$
-       * That is, $\bm{\pi}$ is an eigenvalue of $\mat{M}$ with
+       * That is, $\bm{\pi}$ is an eigenvector of $\mat{M}$ with
          eigenvalue 1
-     + Because $\mat{M}$ is a stochastic matrix all eigenvalues will
-       be less than or equal to 1
+     + Because $\mat{M}$ is a stochastic matrix all eigenvalues have
+       $|\lambda|\leq 1$
        * To prove this let $\bm{v}$ be an eigenvector of $\mat{M}$
          with eigenvalue $\lambda$
 	 $$  \sum_{j\in\mathcal{S}} M_{ij} \, v_{j} = \lambda \, v_{i} $$
@@ -120,31 +137,37 @@
          \sum_{i\in\mathcal{S}} |v_{i}| 
          \end{align*}
          where we used $\sum_{i\in\mathcal{S}}M_{ij} = 1$
-       * It follows that $\lambda\leq 1$
+       * It follows that $|\lambda|\leq 1$
        * Let $\bm{p}(t)$ be a vector whose elements $p_{i}(t)$
          equal the probability of being in state $i$ at time $t$
-       * If the set of eigenvectors span the whole space, then any
+       * If the set of eigenvectors spans the whole space, then any
          starting vector $\bm{p}(0)$ can be written in terms of the
          eigenvectors 
 	 $$ \bm{p}(0) = \sum_{i} c_{i}\,\bm{v}_{i} $$
 	 (this is just a change of basis)
+	 - detailed balance guarantees this: with
+           $\mat{D}=\mathrm{diag}(\bm{\pi})$ (all $\pi_i>0$), the matrix
+           $\mat{D}^{-1/2}\mat{M}\mat{D}^{1/2}$ has elements
+           $M_{ij}\sqrt{\pi_j/\pi_i}$, which is symmetric by
+           detailed balance, so $\mat{M}$ has real eigenvalues and a
+           full set of eigenvectors
        * The probability vector after one step is given by
 	 $$ \bm{p}(1) = \mat{M} \, \bm{p}(0) = \mat{M} \sum_{i} c_{i}\,\bm{v}_{i} 
 	 =  \sum_{i} c_{i}\,\mat{M}\,\bm{v}_{i} 
          =  \sum_{i} c_{i}\,\lambda_{i}\,\bm{v}_{i} $$
        * After $t$ steps
-	 $$ \bm{p}(t) = \mat{M}^{t} \, \bm{x} = \sum_{i}
+	 $$ \bm{p}(t) = \mat{M}^{t} \, \bm{p}(0) = \sum_{i}
          c_{i}\,\lambda_{i}^{t}\,\bm{v}_{i} $$
-       * If $|\lambda|<1$ will then $\lambda_{i}^{t}$ will shrink
+       * If $|\lambda_{i}|<1$ then $\lambda_{i}^{t}$ will shrink
          exponentially fast so that
 	 $$ \lim_{t\rightarrow\infty} \bm{p}(t) =
-         \sum_{i:\lambda_{i}=0} c_{i} \bm{v}_{i} $$
+         \sum_{i:\lambda_{i}=1} c_{i} \bm{v}_{i} $$
        * That is we converge onto the set of eigenvectors with
          eigenvalue 1
        * But if detailed balance is conserved then $\bm{\pi}$
          satisfies this
-       * There are some conditioned to ensure that there is only one
-         such eigenvector with eigenvalue 1
+       * There are some conditions to ensure that there is only one
+         such eigenvector with eigenvalue 1 (and no eigenvalue $-1$)
 	 - We have to ensure that we can get from any state to any
            other through some series of transitions
 	 - We have to prevent periodic behaviour (e.g. if our set of
@@ -152,33 +175,37 @@
            $i$ to state $i-1$ or $i+1$ then if we started on an odd
            state we would always be on an odd state after an even
            number of moves)
-	 - It is very easy to insure both conditions
+	 - It is very easy to ensure both conditions
    - Now the problem is to choose the transition probabilities to
      satisfy detailed balance
    - This is easy and can be done in different ways
    - *Metropolis Algorithm*
      + A very easy way to achieve detailed balance is that starting
-       from state $i$ we choose a neighbouring state $j$
-       * We have to make sure the probability of choosing state $i$
-         when in state $j$ is the same as the probability of choosing
-         state $j$ when starting in state $i$
-     + We now move to state $j$ if
-       * $\pi_{j} \geq \pi_{i}$
-       * or we move anyway with a probability $\pi_{i}/\pi_{j}$
-     + It is a simple exercise to show that this satisfies detailed balance
+       from state $j$ we propose a neighbouring state $i$
+       * We have to make sure the probability, $q$, of proposing state $i$
+         when in state $j$ is the same as the probability of proposing
+         state $j$ when in state $i$ (e.g. every state has the same
+         number of neighbours, each chosen with equal probability)
+     + We now move to state $i$ if
+       * $\pi_{i} \geq \pi_{j}$
+       * or otherwise we move anyway with a probability $\pi_{i}/\pi_{j}$
+     + Detailed balance: if $\pi_i\geq\pi_j$ then $M_{ij}=q$ and
+       $M_{ji} = q\,\pi_j/\pi_i$, so $M_{ij}\,\pi_j = q\,\pi_j =
+       M_{ji}\,\pi_i$ (and the case $\pi_i<\pi_j$ is the same with
+       $i$ and $j$ swapped)
    - *Metropolis-Hastings Algorithm*
-     + Sometimes it is difficult to insure that choosing state $i$
-       form state $j$ is the same as choosing state $j$ from state $i$
+     + Sometimes it is difficult to ensure that choosing state $i$
+       from state $j$ is the same as choosing state $j$ from state $i$
        * As an example considering our states were non-negative
          integers, we move from state $i$ to state $i-1$ and $i+1$
          with probability $\tfrac{1}{2}$, but we have a problem at
          state 0 where we can't move to state $i-1$
      + We can modify the Metropolis algorithm.  Suppose $p(i|j)$ is
-       the probability of choosing state $i$ starting is state $j$
+       the probability of choosing state $i$ starting in state $j$
        then let $r = p(j|i) \, \pi_{i}/ (p(i|j)\,\pi_{j})$
        * we accept the move if $r>1$
        * or with a probability $r$
-       * in practice we can just just draw a random number $U$
+       * in practice we can just draw a random number $U$
          uniformly between 0 and 1 and accept the move if $U<r$
        * this is the same as the Metropolis algorithm if $p(j|i) = p(i|j)$
    - We can equally well apply this to (multi-dimensional) continuous
@@ -187,11 +214,14 @@
        new set of parameter $\bm{\theta}'$ with probability
        $p(\bm{\theta}'|\bm{\theta})$ and then accept this proposal if
        $r = (p(\bm{\theta}|\bm{\theta}') \, \pi(\bm{\theta}'))/
-       (p(\bm{\theta}'|\bm{\theta}) \, \pi(\bm{\theta})) \geq 0$ or
-       with a probability $r$
+       (p(\bm{\theta}'|\bm{\theta}) \, \pi(\bm{\theta})) \geq 1$ or
+       otherwise with a probability $r$
      + We now choose $p(\bm{\theta}'|\bm{\theta})$ so that with high
        probability $\bm{\theta}'$ is close to $\bm{\theta}$, this
-       ensures that there is a reasonable high acceptance rate
+       ensures that there is a reasonably high acceptance rate
+     + But the step size is a trade-off: tiny steps are almost always
+       accepted but the chain explores very slowly, while huge steps
+       are almost always rejected and the chain sits still
    - For Bayes calculations then $\pi(\bm{\theta})$ would be our
      posterior $f(\bm{\theta}|\mathcal{D})$
      + MCMC has the nice property that the update depends only on the
@@ -199,8 +229,8 @@
        $$ \frac{\pi(\bm{\theta}')}{ \pi(\bm{\theta})} =
        \frac{f(\bm{\theta}'|\mathcal{D})}{f(\bm{\theta}|\mathcal{D})} 
        =
-       \frac{f(\mathcal{D}|\bm{\theta}')\,f(\mathcal{D}|\bm{\theta}')}
-       {f(\mathcal{D}|\bm{\theta})\,f(\mathcal{D}|\bm{\theta})} $$
+       \frac{f(\mathcal{D}|\bm{\theta}')\,f(\bm{\theta}')}
+       {f(\mathcal{D}|\bm{\theta})\,f(\bm{\theta})} $$
      + That is, the normalising factor $f(\mathcal{D})$ that appears
        in Bayes' rule cancels
      + This is important because this is usually incomputable
@@ -210,10 +240,25 @@
        compute the ratio much more efficiently than the full
        likelihood and priors
      + When this happens then it pays to choose a single variable, $\theta_{i}$, at a
-       time, chose a neighbour $\theta'_{i}$ from a distribution
+       time, choose a neighbour $\theta'_{i}$ from a distribution
        $p(\theta'_{i}|\theta_{i})$ and decide whether to accept this update
-     + This one-variable-at-a-time procedure goes by the name of
-       /Gibbs' sampling/
+   - *Gibbs Sampling*
+     + A special case of updating one variable at a time is to draw the
+       new value $\theta'_k$ from its conditional distribution
+       $\pi(\theta'_k|\bm{\theta}_{-k})$, where $\bm{\theta}_{-k}$ are all
+       the other components, which are kept fixed
+     + This is /Gibbs sampling/
+     + It is Metropolis-Hastings with proposal
+       $p(\bm{\theta}'|\bm{\theta}) = \pi(\theta'_k|\bm{\theta}_{-k})$.  Writing
+       $\pi(\bm{\theta}) = \pi(\theta_k|\bm{\theta}_{-k})\,\pi(\bm{\theta}_{-k})$,
+       $$ r = \frac{\pi(\theta_k|\bm{\theta}_{-k})\,\pi(\theta'_k|\bm{\theta}_{-k})\,\pi(\bm{\theta}_{-k})}
+       {\pi(\theta'_k|\bm{\theta}_{-k})\,\pi(\theta_k|\bm{\theta}_{-k})\,\pi(\bm{\theta}_{-k})} = 1 $$
+       so every move is accepted
+     + It is useful when the conditional distributions are standard
+       distributions that we can sample from (often because of
+       conjugate priors), even though the joint posterior is not
+     + When the parameters are strongly correlated, moving one at a
+       time only allows small steps, and the chain mixes slowly
    - *Convergence*
      + A problem with MCMC is that your initial parameter, $\bm{p}(0)$,
        is different from $\bm{\pi}$ so you have to wait
@@ -223,14 +268,16 @@
        (we never explicit calculate $\mat{M}$ so we don't know what
        this eigenvalue is)
        * If it is very close to 1 then your convergence can be slow
-     + Furthermore if you posterior distribution is broad you need
-       lots of independent sample to accurately compute expectations
+     + Furthermore if your posterior distribution is broad you need
+       lots of independent samples to accurately compute expectations
      + To obtain an independent sample we have to run our MCMC a long time
      + In practice you have to throw away some samples in a /burn-in/ period
      + You can then average over all the remaining samples you have (including
        repetitions where you don't accept a move)
      + If you do this long enough then you should get samples that
        cover values of $\bm{\theta}$ with a high posterior probability
+     + Successive samples are correlated, so $n$ samples are worth
+       fewer than $n$ independent ones (the /effective sample size/)
      + MCMC is slow because of this
      + There are a lot of clever tricks to speed up convergence and
        decorrelation times
@@ -238,11 +285,103 @@
      + But don't be put off
      + You only need to use the tricks for extremely complicated problems
      + Usually a simple implementation works fine
-     + Modern computers are so fast that convergence isn't usually a problem
+     + Modern computers are so fast that, for problems with a modest
+       number of parameters, a simple random-walk Metropolis-Hastings
+       sampler gives accurate answers in seconds
        * Convergence can be a problem in pathological cases---these
          occur when using MCMC to model some physical systems---but
          for many Bayesian problems the Markov Chain is /rapidly
          mixing/ meaning the convergence time is not excessively long
+       * Random walks do get slow when there are many parameters or the
+         parameters are strongly correlated; that is what Hamiltonian
+         Monte Carlo (below) is for
+
+** Checking Convergence
+   - We never know for certain that a chain has converged, but there
+     are standard checks, and MCMC libraries carry them out for you
+   - Run several chains from widely different starting points and
+     discard the burn-in of each
+   - Plot the traces (the value of each parameter against time): after
+     burn-in the chains should overlap and look alike.  A chain stuck
+     in one region, or drifting, shows that something is wrong
+   - $\hat{R}$ (the Gelman--Rubin statistic) compares the variance
+     between the chains with the variance within them.  If the chains
+     are all sampling the same distribution these agree and
+     $\hat{R}\approx1$; a common rule is to require $\hat{R}<1.01$
+   - Successive samples are correlated.  If the correlation between
+     samples $k$ steps apart is $\rho_k$, the mean of $n$ samples has
+     the variance of the mean of about
+     $$ n_{\mathrm{eff}} = \frac{n}{1 + 2\sum_{k=1}^\infty \rho_k} $$
+     independent samples, the /effective sample size/.  Report it with
+     your estimates: the error in a posterior mean is roughly the
+     posterior standard deviation divided by $\sqrt{n_{\mathrm{eff}}}$
+
+** Hamiltonian Monte Carlo
+   - A random walk explores by diffusion: to cross a distance $D$ with
+     steps of size $s$ takes about $(D/s)^2$ steps.  When the posterior
+     is a long narrow ridge (strongly correlated parameters) the step
+     must be as small as the ridge is narrow, and progress along the
+     ridge is very slow.  The same happens in high dimensions
+   - Hamiltonian (or hybrid) Monte Carlo (HMC) uses the gradient of the
+     log posterior to make long moves that are still accepted
+   - Treat $U(\bm{\theta}) = -\log\pi(\bm{\theta})$ as a landscape.  As
+     before this only needs likelihood times prior, since the evidence
+     only adds a constant to $U$
+   - Introduce a fictitious momentum $\bm{p}$ of the same dimension and the
+     energy
+     $$ H(\bm{\theta},\bm{p}) = U(\bm{\theta}) + \tfrac12\|\bm{p}\|^2 $$
+     The joint density $\propto\e{-H} = \pi(\bm{\theta})\,\e{-\|\bm{p}\|^2/2}$,
+     so $\bm{\theta}$ and $\bm{p}$ are independent, $\bm{\theta}$ has
+     the distribution we want and $\bm{p}$ is standard normal
+   - Each HMC step
+     1. draws a fresh momentum $\bm{p}\sim\mathcal{N}(\bm{0},\mat{I})$
+     2. follows the frictionless motion of a ball in the landscape,
+        $\dot{\bm{\theta}} = \bm{p}$, $\dot{\bm{p}} = -\grad U(\bm{\theta})$,
+        for $L$ small time steps of size $\epsilon$ using the /leapfrog/
+        method (a half step in $\bm{p}$, alternate full steps in
+        $\bm{\theta}$ and $\bm{p}$, and a final half step in $\bm{p}$)
+     3. accepts the end point with probability
+        $\min\bigl(1, \e{H_{\text{start}}-H_{\text{end}}}\bigr)$
+   - The exact motion conserves $H$, so the acceptance probability would
+     be 1; the leapfrog method makes small errors, and step 3 is a
+     Metropolis--Hastings step that corrects for them, so the samples
+     come exactly from $\pi$.  (This relies on the leapfrog method being
+     reversible and preserving volume, which it does)
+   - Because $H$ is almost conserved, moves a long way across the
+     distribution are almost always accepted
+   - In practice
+     + HMC needs $\grad\log\pi(\bm{\theta})$; automatic differentiation
+       (as used to train neural networks in PyTorch or JAX) provides it
+     + it needs a step size $\epsilon$ and a number of steps $L$: too
+       short a path and HMC is a random walk, too long and the path
+       wastes time coming back.  The /No-U-Turn Sampler/ (NUTS; Hoffman
+       and Gelman, 2014) chooses these automatically, stopping the path
+       when it starts to turn back on itself
+     + NUTS is the default sampler in probabilistic programming
+       languages such as Stan, PyMC and NumPyro: you write down the
+       generative story and get posterior samples
+   - In the lecture's example (a Gaussian with correlation 0.95, starting
+     in the tail) 300 random-walk steps crawl along the ridge, while 15
+     HMC trajectories of 20 steps each, the same number of evaluations,
+     cross it every time (Figure \ref{fig:hmc})
+      #+ATTR_LATEX: :width 0.8\textwidth
+      #+CAPTION: Random-walk Metropolis (left) and HMC (right) started at the same point on a Gaussian with correlation 0.95, with the same number of evaluations.  Grey curves: HMC trajectories; blue: HMC samples\label{fig:hmc}
+	[[./figures/hmcVsRw-2.pdf]]
+
+** The Wider Landscape
+   - /Variational inference/ fits an approximate posterior by
+     optimisation (maximising the ELBO, see the notes on probabilistic
+     inference and below).  It is fast but only approximate
+   - /Stochastic-gradient MCMC/ (e.g. stochastic-gradient Langevin
+     dynamics) takes noisy gradient steps on minibatches of data, which
+     makes MCMC possible for very large data sets and for Bayesian
+     neural networks
+   - /Parallel tempering/ and /sequential Monte Carlo/ help when the
+     posterior has several well-separated peaks, which a single chain
+     rarely crosses between
+   - Diffusion models, which generate images in modern generative AI,
+     draw their samples using Langevin-type dynamics, a close relative
+     of MCMC
 
 ** Variational Techniques
    - This is a completely different approach to MCMC, but it tries to
@@ -254,7 +393,7 @@
    - But this sacrifices all the probabilistic information
    - In variational techniques we try to approximate the posterior
      with a simpler distribution
-   - That is, we approximate the prior $f(\bm{\theta}|\mathcal{D})$
+   - That is, we approximate the posterior $f(\bm{\theta}|\mathcal{D})$
      with a simpler distribution $q(\bm{\theta}|\bm{w})$ where we get
      choose $\bm{w}$ to make $q$ close to $f$
    - Usually we choose $q$ to be a factorisable distribution
@@ -280,12 +419,12 @@
         f(\bm{\theta}|\mathcal{D})\right)$ is the KL divergence that
         measures the "distance" between $q(\bm{\theta}|\bm{w})$ and
        $f(\bm{\theta}|\mathcal{D})$
-     + we have previously shown that the KL-divergence is
-       non-negative and equal to zero if the two distributions are
-       the same
+     + the KL-divergence is non-negative and equal to zero only if the
+       two distributions are the same (we showed this in the notes on
+       probabilistic inference, and meet it again in the lecture on entropy)
      + The term $\logg{f(\mathcal{D})}$ is the /marginal likelihood/
        or /evidence/ and does not depend on the parameters $\bm{w}$
-     + If we choose $\bm{\theta}$ to minimise $\Phi(\bm{w})$ then we
+     + If we choose $\bm{w}$ to minimise $\Phi(\bm{w})$ then we
        minimise the KL-divergence and force $q(\bm{\theta}|\bm{w})$
        to approximate the posterior $f(\bm{\theta}|\mathcal{D})$
      + The variational free energy can also be written as
@@ -300,12 +439,12 @@
        maximising $L_{q}(\bm{w}) + H_{q}(\bm{w})$
      + $L_{q}(\bm{w}) = \int q(\bm{\theta}|\bm{w}) \,
         \logg{f(\bm{\theta},\mathcal{D})}   \dd \bm{\theta}$
-	is the expected log-likelihood of the data, where we have
-       marginalised with respect to our approximate posterior
+	is the expected log of the joint probability of data and
+       parameters (likelihood times prior), averaged over our approximate posterior
        $q(\bm{\theta}|\bm{w})$
      + $H_{q}(\bm{w}) = - \int q(\bm{\theta}|\bm{w})
        \,\logg{q(\bm{\theta}|\bm{w})} \dd \bm{\theta}$ is the entropy
-       of our approximate posterior (this measure the uncertainty in
+       of our approximate posterior (this measures the uncertainty in
        $\bm{\theta}$)
      + We thus balance maximising the likelihood of the data with
        maximising the uncertainty in our approximate posterior
@@ -317,7 +456,24 @@
      + We are left with an optimisation problem for the parameters,
        $\bm{w}$, but this is usually quite quick to compute
 
-* Exercise
+* Exercises
+
+** Transformation method
+   - Find a transformation of a uniform deviate $U$ on $(0,1)$ that gives
+     a deviate with density $f(x) = 2x$ for $0\leq x\leq 1$.
+
+** Rejection method
+   - We draw normal deviates $\normal{x}{0,1}$ using Cauchy deviates
+     with density $g(x) = 1/(\pi(1+x^2))$ as proposals (as in the
+     lecture).  Find the smallest $c$ such that $c\,g(x)\geq\normal{x}{0,1}$
+     for all $x$, and the fraction of proposals that are accepted.
+
+** A two-state chain
+   - A chain has two states with $\bm{\pi} = (\tfrac14,\tfrac34)$.  Each
+     state's only neighbour is the other state.  Using the Metropolis
+     algorithm, write down the transition matrix $\mat{M}$, check that
+     $\mat{M}\bm{\pi}=\bm{\pi}$, and find the other eigenvalue.  How
+     does $\bm{p}(t)$ approach $\bm{\pi}$?
 
 ** Mysterious Disease
    - Recall in the lecture on probabilistic inference, we defined $Z(t)$
@@ -325,7 +481,7 @@
    - We assumed the growth rate is given by
      $$ \Prob{Z(t+1)} = \mathrm{Poi}\!\left(Z(t+1)\middle|
      \frac{r_0}{3}\, (Z(t)+Z(t-1)+Z(t-2)) \right) $$
-     + that is people of contagious for three days
+     + that is, people are infectious for three days
    - The observed number of new people with the disease, $X(t)$, on
      day $t$ is 
      $$ \Prob{X(t) = k} = \mathrm{Binom}(k|Z(t), p) = \binom{Z(t)}{k}
@@ -336,45 +492,189 @@
    - Estimate $p$ and $r_{0}$ from the data
    - (If you prefer simulate your own data and estimate your parameters)
 
+* Experiments
+
+** Random walk against HMC
+   + Sample a Gaussian with correlation 0.95 by random-walk Metropolis
+     and by HMC with the same number of evaluations, and compare their
+     effective sample sizes
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+rho, d = 0.95, 2
+P = np.linalg.inv(np.array([[1, rho], [rho, 1]]))   # precision matrix
+U = lambda x: 0.5 * x @ P @ x                       # -log pi + const
+gradU = lambda x: P @ x
+
+
+def ess(x):
+    """Effective sample size from the autocorrelations (summed to the first
+    negative one)."""
+    x = x - x.mean()
+    acf = np.correlate(x, x, "full")[len(x) - 1:] / (x @ x)
+    k = np.argmax(acf < 0)
+    return len(x) / (1 + 2 * acf[1:k].sum())
+
+
+budget = 30000                                      # evaluations for each
+x, rw = np.zeros(d), []
+for t in range(budget):                             # random-walk Metropolis
+    y = x + 0.3 * rng.standard_normal(d)
+    if np.log(rng.random()) < U(x) - U(y):
+        x = y
+    rw.append(x[0])
+
+L, eps = 20, 0.15
+x, hmc = np.zeros(d), []
+for t in range(budget // L):                        # HMC, L gradients each
+    p = rng.standard_normal(d)
+    q, H0 = x.copy(), U(x) + 0.5 * p @ p
+    p = p - 0.5 * eps * gradU(q)                    # leapfrog
+    for s in range(L):
+        q = q + eps * p
+        if s < L - 1:
+            p = p - eps * gradU(q)
+    p = p - 0.5 * eps * gradU(q)
+    if np.log(rng.random()) < H0 - (U(q) + 0.5 * p @ p):
+        x = q
+    hmc.append(x[0])
+
+for name, xs in [("random walk", np.array(rw)), ("HMC", np.array(hmc))]:
+    print(name, len(xs), "samples, mean", round(xs.mean(), 3),
+          "ESS", round(ess(xs)))
+#+END_SRC
+   + (See the answers.)
+
+** Metropolis for the traffic rate
+   + The lecture's traffic example with a random-walk proposal
+     $\mu' = \mu + s\,\epsilon$, $\epsilon\sim\normal{\epsilon}{0,1}$,
+     compared with the exact posterior $\mathrm{Gamma}(\mu|\sum_i N_i, n)$
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+N = rng.poisson(5.0, size=20)            # cars on 20 days, true rate 5
+n, S = len(N), N.sum()
+
+
+def log_post(mu):                        # log(likelihood x prior), prior 1/mu
+    return -n * mu + S * np.log(mu) - np.log(mu) if mu > 0 else -np.inf
+
+
+for step in [0.05, 0.5, 5.0]:
+    mu, samples, accepted = 1.0, [], 0
+    for t in range(60000):
+        mu_new = mu + step * rng.standard_normal()   # symmetric proposal
+        if np.log(rng.random()) < log_post(mu_new) - log_post(mu):
+            mu, accepted = mu_new, accepted + 1
+        if t >= 10000:                   # discard burn-in
+            samples.append(mu)           # count repeats when we don't move
+    samples = np.array(samples)
+    print(f"step {step:4}: accept {accepted/60000:.2f}  "
+          f"mean {samples.mean():.3f}  sd {samples.std():.3f}")
+print(f"exact Gamma({S},{n}): mean {S/n:.3f}  sd {np.sqrt(S)/n:.3f}")
+#+END_SRC
+   + Note that we work with the log of the posterior (products of many
+     probabilities underflow) and that a proposal $\mu'\leq0$ is simply
+     rejected (its posterior is 0).  Try changing the step size and the
+     length of the run.  (See the answers.)
+
 * Answers
+
+** Random walk against HMC
+   - Over three random seeds the 30000 random-walk samples have an
+     effective sample size of 150--190, while the 1500 HMC samples have
+     about 1500: essentially independent (the estimate is capped at
+     $n$ because successive HMC samples are slightly anti-correlated).
+     For the same work HMC gives about ten times as many effective
+     samples here, and the advantage grows with the dimension
+
+** Transformation method
+   - $F(x) = \int_0^x 2t\,\dd t = x^2$, so $X = F^{-1}(U) = \sqrt{U}$
+
+** Rejection method
+   - We need $c \geq \normal{x}{0,1}/g(x) = \sqrt{\pi/2}\,(1+x^2)\,\e{-x^2/2}$
+     for all $x$.  Differentiating, $2x - x(1+x^2) = x(1-x^2) = 0$, so
+     the maximum is at $x=\pm1$, giving $c = \sqrt{2\pi}\,\e{-1/2}
+     \approx 1.52$ (the lecture uses $1.53$)
+   - The acceptance probability is $1/c\approx0.66$: about a third of
+     the proposals are wasted
+
+** A two-state chain
+   - From state 1 we always propose state 2, and $\pi_2>\pi_1$ so we
+     always accept: $M_{21}=1$, $M_{11}=0$.  From state 2 we propose
+     state 1 and accept with probability $\pi_1/\pi_2=\tfrac13$:
+     $M_{12}=\tfrac13$, $M_{22}=\tfrac23$
+     $$ \mat{M} = \begin{pmatrix} 0 & \tfrac13 \\ 1 & \tfrac23 \end{pmatrix},
+     \qquad
+     \mat{M}\bm{\pi} = \begin{pmatrix} \tfrac13\cdot\tfrac34 \\
+     \tfrac14 + \tfrac23\cdot\tfrac34 \end{pmatrix} =
+     \begin{pmatrix} \tfrac14 \\ \tfrac34 \end{pmatrix} $$
+   - The eigenvalues sum to the trace, $\tfrac23$, so the other is
+     $-\tfrac13$.  $\bm{p}(t) - \bm{\pi}$ shrinks by a factor of $3$
+     each step and changes sign each step: the chain overshoots and
+     oscillates as it converges
+
+** Metropolis for the traffic rate
+   - Running the code gives (the exact posterior has mean 5.300 and
+     standard deviation 0.515)
+     | step $s$ | acceptance | mean  | sd    |
+     |----------+------------+-------+-------|
+     |     0.05 |       0.97 | 5.278 | 0.496 |
+     |      0.5 |       0.71 | 5.300 | 0.510 |
+     |        5 |       0.13 | 5.296 | 0.506 |
+   - All three agree with the exact answer to within a few hundredths,
+     but for different reasons: with $s=0.05$ nearly every move is
+     accepted but each moves only a little, so successive samples are
+     strongly correlated; with $s=5$ most proposals are rejected.  A
+     step comparable to the width of the posterior works best.  With
+     shorter runs the poor choices of $s$ give visibly worse estimates
 
 ** Mysterious Disease 
    - We need to decide on a prior
      + A reasonable prior for $p$ is a Beta distribution perhaps with
        $a=b=1$ (this is a uniform prior)
      + For $r_{0}$ we could use a Gamma prior with $a=2$ and $b=1$,
-       this has a mean of $r_{0} =2$ (it seems to be considerably
-       greater than 1)---we need to include $r_{0}^{19}\e{-20\,r_{0}}$ as our
+       which has a mean of $r_{0} =2$ (it seems to be considerably
+       greater than 1)---we need to include $r_{0}\,\e{-r_{0}}$ as our
        prior (the normalisation is irrelevant)
    - Now we have to choose proposal distributions for the new values
       of $p$ and $r_{0}$
      + You could use $p' = p + U(-0.01,0.01)$ and $r_{0}' = r_{0} +
        U(-0.1,0.1)$ where $U(a,b)$ is a uniform random deviate
        between $a$ and $b$
-     + This could have a problem in that $p$ and $r_{0}$ could take
-       illegal values (i.e. we should have $0\leq r \leq 1$ and
-       $r_{0} \geq0$), but for my data this is unlikely to happen
-     + We could choose $p' \sim \mathrm{Beta}(10\,p, 10-10\,p)$ and
+     + These proposals are symmetric; a proposal outside the allowed
+       range ($0\leq p \leq 1$ and $r_{0} \geq0$) has zero posterior
+       probability and is simply rejected
+     + We could instead choose $p' \sim \mathrm{Beta}(10\,p, 10-10\,p)$ and
        $r_{0}' \sim r_{0}\,\mathrm{Gamma}(5,5) =
-       \mathrm{Gamma}(5,5.r_{0})$, this ensures that in expectation
+       \mathrm{Gamma}(5,5/r_{0})$, which never leave the allowed range
+       and ensure that in expectation
        $p'$ equals $p$ and $r_{0}'$ equals $r_{0}$ with small
        variations
        * Beware that there are two common definitions of Gamma
          distributions
 	 \begin{align*}
-	 \mathrm{Gamma}(z|,a,b) &= \frac{b^{a}}{\Gamma(a)}\,
+	 \mathrm{Gamma}(z|a,b) &= \frac{b^{a}}{\Gamma(a)}\,
          z^{a-1}\,\e{-b\,z} \\
-	 \mathrm{Gamma}^{*}(z|,\alpha,\beta) &= 
+	 \mathrm{Gamma}^{*}(z|\alpha,\beta) &= 
          \frac{1}{\beta^{\alpha}\,\Gamma(\alpha)}
          z^{\alpha-1}\,\e{-z/\beta}
          \end{align*}
-       * You have to check which of these your libraries use
-       * In this case we would have Metropolis-Hastings to ensure we get
-	 unbiased samples
-   - The variables $Z(t)$ are latent variables (they will vary for
-     each iteration) we can ignore them, but we could also estimate
-     their mean as they tell us the actual number of cases of people with
+       * You have to check which of these your libraries use (numpy's
+         =rng.gamma(shape, scale)= uses the second)
+       * These proposals are not symmetric, so we would need
+         Metropolis-Hastings to ensure we get unbiased samples
+   - The variables $Z(t)$ are latent variables: we also have to sample
+     them (e.g. by proposing changes to one $Z(t)$ at a time), and their
+     samples estimate the actual number of cases of people with
      the virus
      - My data was generated with $p=0.1$ and $r_{0}=2.5$
+     - A check: with people infectious for three days the cases grow by
+       a factor $\lambda$ per day with $\lambda^3 = \tfrac{r_0}{3}(\lambda^2+\lambda+1)$.
+       The data grow by a factor of about 1.65 a day, and $\lambda=1.65$
+       gives $r_0\approx2.5$.  The growth rate fixes $r_0$, but $p$ is
+       only determined by the early days, when the numbers are small
 
 * COMMENT [[file:matrixFactorisation.org][Previous]]  [[file:entropy.org][Next]]

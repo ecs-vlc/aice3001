@@ -349,34 +349,6 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Bayes' Rule and MAP}
-
-\begin{PauseHighLight}
-  \begin{itemize}\squeeze
-  \item For parameters $\bm{\theta}$ and data $\data$, Bayes' rule
-    gives the \emph{posterior} (likelihood $\times$ prior $/$ evidence)
-    \begin{align*}
-      \Prob{\bm{\theta}|\data} =
-      \frac{\Prob{\data|\bm{\theta}}\,\Prob{\bm{\theta}}}{\Prob{\data}}\pause
-    \end{align*}
-  \item The \emph{maximum a posteriori} (MAP) solution is the most
-    probable $\bm{\theta}$ ($\Prob{\data}$ does not depend on it)
-    \begin{align*}
-      \bm{\theta}_{\mathrm{MAP}} = \mathop{\mathrm{argmax}}_{\bm{\theta}}
-      \Bigl(\logg{\Prob{\data|\bm{\theta}}} + \logg{\Prob{\bm{\theta}}}\Bigr)\pause
-    \end{align*}
-  \item With a flat prior it is the maximum-likelihood solution\pause
-  \item Limitations: MAP gives a single point, throwing away our
-    uncertainty about $\bm{\theta}$;\pause{} and the peak of a density
-    depends on how we parametrise $\bm{\theta}$\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section{Bayesian Approach}
 
 \begin{PauseHighLight}
@@ -430,7 +402,8 @@
   \begin{itemize}
   \item Calculating the posterior probability for $\mat{A}$ and
     $\mat{B}$ is intractable\pause
-  \item We can, however, compute the \textit{maximum a posteriori} solution
+  \item We can, however, compute the \textit{maximum a posteriori}
+    (MAP) solution, as in the last lecture
     \begin{align*}
       \mathcal{E} &=
       \sum_{(i,j)\in\mathcal{D}} \logg{\Prob{X_{ij}|\mat{A},\mat{B}}}

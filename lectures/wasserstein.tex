@@ -49,13 +49,13 @@
     generative model's samples look like the data)\pause
   \item This requires that we can measure distances between
     probability distributions\pause
-  \item One prominent measure is the Kullback-Leibler or KL divergence
+  \item One prominent measure is the KL divergence (last lecture)
     \begin{align*}
       \mathrm{KL}(p\|q) = \int p(\bm{x}) \,
       \logg{\frac{p(\bm{x})}{q(\bm{x})}} \, \dd \bm{x}\pause
     \end{align*}
-  \item This is very commonly used in ML (e.g. VAEs, Variational
-    Approximation)\pause
+  \item This is very commonly used in ML (e.g.\ cross-entropy loss,
+    VAEs, variational approximation)\pause
   \end{itemize}
 \end{PauseHighLight}
 

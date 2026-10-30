@@ -1,5 +1,5 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 26: Optimal Transport and the Wasserstein Distance
+#+SUBTITLE: Subsidiary Notes --- Lecture 27: Optimal Transport and the Wasserstein Distance
 #+SETUPFILE: setup.org
 
 * Keywords
@@ -237,4 +237,4 @@ for eps in [0.5, 0.1, 0.02]:
      entropy term keeps every $\gamma_{ij}>0$, so the constraint
      $\gamma\geq0$ never binds
 
-* COMMENT [[file:entropy.org][Previous]]  [[file:information.org][Next]]
+* COMMENT [[file:information.org][Previous]]  [[file:biasVariance.org][Next]]

@@ -1,95 +1,634 @@
-%% ELEC2013 2007
-
 %% ----------------------------------------------------------------
-%% exam.tex
+%% Week-9 problem sheet (lectures: ProbabilisticInference,
+%% matrixFactorisation, mcmc).  Every number in the answers was
+%% checked in numpy (2026-10-28).
 %% ----------------------------------------------------------------
 \documentclass{sotonExamBoxes}    % use option [answers] to include them
-%\documentclass[answers]{uosexamb}
 %% ----------------------------------------------------------------
 \usepackage{graphicx}
-%\usepackage{pstricks}
 \usepackage{alltt}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \thinmuskip=1mu
-%\renewcommand{\ttdefault}{pcr}
 \input{macros}
-\graphicspath{{figures/} {../2018-19/figures}}
 \graphicspath{{figures/}}
 \usepackage{parskip}
 \AddToHook{env/samepage/begin}{%
 \AddToHook{para/before}{\nopagebreak}%
 \AddToHook{para/after}{\nopagebreak}%
 }
-% \usepackage{picture}
 \begin{document}
-\unitTitle{ Problem Sheet}
+\unitTitle{Latent Variables, Matrix Factorisation and MCMC Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
-
 \maketitle
 
+This sheet covers the lectures on probabilistic inference, matrix
+factorisation and MCMC.  Question~1 practises generative and
+hierarchical models and the EM algorithm, Question~2 low-rank approximation and matrix
+completion, Question~3 drawing random samples, and Question~4 Markov
+chains and the Metropolis algorithm.  Each ends with a short Python
+part (\texttt{import numpy as np} is assumed).  Question~5 is harder
+and optional: it proves that EM and MCMC work, and runs alternating
+least squares.
 
 % ***************************** question 1 **************************
 
-
 \begin{question}{20}
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[3]{An email is spam with probability $0.4$.  The word
+      ``free'' appears in 30\% of spam emails and in 2\% of other
+      emails.  Write down the joint distribution of $S$ (spam or not)
+      and $F$ (contains ``free'' or not) as a $2\times2$ table.  Find
+      $\Prob{F=\text{yes}}$ and $\Prob{S=\text{spam}\mid F=\text{yes}}$.
       \begin{answer}
+        Using $\Prob{S,F} = \Prob{F\mid S}\,\Prob{S}$:
+        \begin{center}
+          \begin{tabular}{l|cc}
+            & $F=$ yes & $F=$ no \\ \hline
+            $S=$ spam & $0.4\times0.3 = 0.12$ & $0.4\times0.7=0.28$ \\
+            $S=$ not spam & $0.6\times0.02 = 0.012$ & $0.6\times0.98 = 0.588$
+          \end{tabular}
+        \end{center}
+        Marginalising over $S$, $\Prob{F=\text{yes}} = 0.12+0.012 =
+        0.132$, so $\Prob{S=\text{spam}\mid F=\text{yes}} = 0.12/0.132
+        \approx 0.91$.  We modelled how emails are generated (a
+        generative model) and used it to classify (discriminate).
+      \end{answer}}{\lines{7}}
+
+    \qpart[4]{In the hierarchical ratings model of the lecture,
+      $\theta_j\sim\mathrm{Beta}(a,b)$ and $k_j\sim\mathrm{Bin}(n_j,\theta_j)$,
+      the posterior mean of $\theta_j$ is $(a+k_j)/(a+b+n_j)$.  Take
+      $a=20$, $b=5$.  Product $C$ has 9 positive reviews out of 10, and
+      product $D$ has 85 out of 100.  Rank them by the fraction of
+      positive reviews and by the posterior mean.  How many of its 10
+      reviews would $C$ need to be positive to rank above $D$?
+      \begin{answer}
+        By fraction $C$ ($0.90$) beats $D$ ($0.85$).  By posterior mean
+        $C$ gets $29/35\approx0.829$ and $D$ gets $105/125 = 0.840$, so $D$
+        ranks higher.  $C$ needs $(20+k)/35 > 0.84$, i.e.\ $k > 9.4$: all
+        10 reviews positive (giving $30/35\approx0.857$).  The prior is
+        worth $a+b=25$ reviews at the typical rate $0.8$, which outweighs
+        $C$'s ten reviews but not $D$'s hundred.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{A latent variable $Z$ is $1$ or $0$ with probability
+      $\frac12$ each.  Given $Z=1$, $X\sim\mathcal{N}(0,1)$; given $Z=0$,
+      $X\sim\mathcal{N}(4,1)$.  Write down the density $f(x)$ of $X$.
+      Show that the \emph{responsibility} $\gamma(x) = \Prob{Z=1\mid X=x}$
+      is $1/(1+\e{4x-8})$, and evaluate it at $x=1$, $2$ and $3$.
+      \begin{answer}
+        Marginalising over $Z$, $f(x) = \frac12\mathcal{N}(x\mid0,1) +
+        \frac12\mathcal{N}(x\mid4,1)$.  By Bayes' rule (the $\frac12$s and
+        the normalisations $1/\sqrt{2\pi}$ cancel)
+        \begin{align*}
+          \gamma(x) = \frac{\e{-x^2/2}}{\e{-x^2/2} + \e{-(x-4)^2/2}}
+          = \frac{1}{1 + \e{(x^2 - (x-4)^2)/2}} = \frac{1}{1+\e{4x-8}} .
+        \end{align*}
+        $\gamma(1)\approx0.982$, $\gamma(2) = 0.5$ and $\gamma(3)\approx
+        0.018$.  This is the logistic sigmoid of a linear function of
+        $x$: a generative model with equal variances leads to logistic
+        regression.
+      \end{answer}}{\lines{8}}
+
+    \qpart[4]{Take the model of part (c) but treat $p=\Prob{Z=1}$,
+      $\mu_A$ and $\mu_B$ as unknown (the variances stay 1).  The data
+      are $X = (-1, 0, 1, 2, 4, 5)$.  Starting from $p=\frac12$,
+      $\mu_A=0$, $\mu_B=4$, carry out one step of EM: compute the
+      responsibilities $\gamma_i$ (use part (c)), then the new values
+      \begin{align*}
+        p = \frac1m\sum_{i=1}^m\gamma_i, \qquad
+        \mu_A = \frac{\sum_i \gamma_i X_i}{\sum_i\gamma_i}, \qquad
+        \mu_B = \frac{\sum_i (1-\gamma_i) X_i}{\sum_i(1-\gamma_i)} .
+      \end{align*}
+      \begin{answer}
+        From part (c), $\gamma \approx (1.000, 1.000, 0.982, 0.500,
+        0.000, 0.000)$ (more precisely $0.99966$ for $X=0$ and
+        $0.00034$ for $X=4$).  Then $\sum_i\gamma_i \approx 3.482$, so
+        $p\approx 3.482/6 \approx 0.58$, and
+        \begin{align*}
+          \mu_A &\approx \frac{-1 + 0 + 0.982 + 1.0 + 0.001}{3.482}
+          \approx 0.28, &
+          \mu_B &\approx \frac{0.018 + 1.0 + 4.0 + 5}{2.518} \approx 3.98 .
+        \end{align*}
+        The point $X=2$ sits midway, so half of it is given to each
+        cluster: EM makes \emph{soft} assignments.
+      \end{answer}}{\lines{8}}
+
+    \qpart[2]{In the M-step the terms of $Q$ that involve $p$ are
+      $\sum_{i=1}^m \bigl(\gamma_i\log(p) + (1-\gamma_i)\log(1-p)\bigr)$.
+      Show that they are maximised by $p = \frac1m\sum_i\gamma_i$.
+      \begin{answer}
+        Setting the derivative to zero,
+        $\frac1p\sum_i\gamma_i - \frac1{1-p}\sum_i(1-\gamma_i) = 0$, so
+        $(1-p)\sum_i\gamma_i = p\,(m - \sum_i\gamma_i)$, giving
+        $p = \frac1m\sum_i\gamma_i$: the average responsibility.  (The
+        second derivative is negative, so this is a maximum.)
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[4]{In Python, generate $m=200$ points from the model with
+      $p=0.3$, $\mu_A=0$, $\mu_B=4$, start EM from $p=0.5$, $\mu_A=-1$,
+      $\mu_B=1$, and print the log-likelihood
+      $\sum_i\log\bigl(p\,\mathcal{N}(X_i\mid\mu_A,1) +
+      (1-p)\,\mathcal{N}(X_i\mid\mu_B,1)\bigr)$ at each iteration.  Does
+      it ever decrease?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
-      \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
-      \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+m = 200\\
+Z = rng.random(m) < 0.3\\
+X = np.where(Z, rng.normal(0, 1, m), rng.normal(4, 1, m))\\
+def N(x, mu):\\
+\hspace*{2em}return np.exp(-(x - mu)**2 / 2) / np.sqrt(2*np.pi)\\
+p, muA, muB = 0.5, -1.0, 1.0\\
+for t in range(20):\\
+\hspace*{2em}a, b = p * N(X, muA), (1 - p) * N(X, muB)\\
+\hspace*{2em}print(t, np.sum(np.log(a + b)))\\
+\hspace*{2em}g = a / (a + b)\hspace*{2em}\# E-step: responsibilities\\
+\hspace*{2em}p = g.mean()\hspace*{2em}\# M-step\\
+\hspace*{2em}muA = g @ X / g.sum()\\
+\hspace*{2em}muB = (1 - g) @ X / (1 - g).sum()\\
+print(p, muA, muB)
+\end{alltt}
+        The log-likelihood goes $-1056.4$, $-407.9$, $-379.2$,
+        $-377.46$, $-377.37$, \ldots, and has settled at $-377.363$ by
+        iteration 9.  It never decreases (once converged it wobbles by
+        about $10^{-13}$, which is rounding error).  The estimates are
+        $p=0.274$, $\mu_A=0.010$ and $\mu_B=4.050$: close to the truth,
+        and closer still to this sample, in which 26.5\% of the points
+        are of type $A$.
+      \end{answer}}{\lines{8}}
+
   \end{qparts}
 \end{question}
-\freshpage
-
+\newpage
 % ***************************** question 2 **************************
 
+\begin{question}{20}
+  \begin{qparts}
+
+    \qpart[3]{A film site has $1000$ users and $500$ films.  How many
+      numbers does a rank $K=20$ factorisation $\mat{A}\mat{B}$ of the
+      ratings matrix have, compared with the full matrix?  LoRA adds a
+      rank $K=4$ update to a $1024\times1024$ weight matrix: what
+      fraction of the weights does it train?
+      \begin{answer}
+        $(1000+500)\times20 = 30\,000$ against $1000\times500 =
+        500\,000$, so 6\%.  For LoRA, $(1024+1024)\times4 = 8192$ against
+        $1024^2 = 1\,048\,576$: about $0.8\%$.
+      \end{answer}}{\lines{4}}
+
+    \qpart[4]{For the ratings in the lecture
+      \begin{center}
+        \begin{tabular}{|l||c|c|c|c|c|}\hline
+          Name & Titanic & Dr No & The Matrix & Spartacus & Ten \\ \hline
+          Alice & 2 & \O & 4  & 5 & 2  \\ \hline
+          Bob   & 5 & 3  & \O & 3 & \O \\ \hline
+          Chas  & \O & 2 & 3 & 5 & 3 \\ \hline
+        \end{tabular}
+      \end{center}
+      use $R_{ui}\approx\bar{R}_u + \bar{R}_i - \bar{R}$ to predict
+      Bob's rating of The Matrix and Chas's rating of Titanic.
+      \begin{answer}
+        The overall mean of the 11 ratings is $\bar{R} = 37/11 \approx
+        3.36$.  Bob: $\bar{R}_u = 11/3\approx3.67$ and The Matrix has
+        $\bar{R}_i = 3.5$, giving $3.67+3.5-3.36\approx3.80$.  Chas:
+        $\bar{R}_u = 13/4 = 3.25$ and Titanic has $\bar{R}_i = 3.5$,
+        giving $\approx3.39$.  (Bob rates generously, Chas less so.)
+      \end{answer}}{\lines{5}}
+
+    \qpart[4]{The matrix $\mat{X} = \begin{pmatrix} 3 & 1 \\ 1 & 3
+      \end{pmatrix}$ is symmetric with positive eigenvalues, so its SVD
+      is its eigen-decomposition.  Find it, write down the best rank-1
+      approximation $\mat{X}_1$, and check that
+      $\|\mat{X}-\mat{X}_1\|_F$ equals the discarded singular value, as
+      Eckart--Young says.
+      \begin{answer}
+        The eigenvectors are $\bm{u}_1 = (1,1)^\tr/\sqrt2$ with
+        eigenvalue $s_1=4$ and $\bm{u}_2 = (1,-1)^\tr/\sqrt2$ with
+        $s_2=2$.  Then
+        \begin{align*}
+          \mat{X}_1 = s_1\bm{u}_1\bm{u}_1^\tr = \begin{pmatrix} 2 & 2 \\
+            2 & 2 \end{pmatrix}, \qquad
+          \mat{X} - \mat{X}_1 = \begin{pmatrix} 1 & -1 \\ -1 & 1
+          \end{pmatrix},
+        \end{align*}
+        and $\|\mat{X}-\mat{X}_1\|_F = \sqrt{1+1+1+1} = 2 = s_2$.  (The
+        spectral norm of the error is also $2$.)
+      \end{answer}}{\lines{7}}
+
+    \qpart[4]{In alternating least squares with $K=1$ every factor is
+      a number.  A user has rated three films whose factors are
+      $b_j = 1$, $2$ and $0.5$, giving ratings $X_j = 2$, $4$ and $1$.
+      With the item factors fixed, the user's factor is the ridge
+      regression solution $a = \sum_j b_jX_j / \bigl(\eta + \sum_j
+      b_j^2\bigr)$.  Find $a$ and the predicted rating of a fourth film
+      with $b=1.5$ for $\eta = 0$, $0.5$ and $5$.  Comment.
+      \begin{answer}
+        $\sum_j b_jX_j = 2+8+0.5 = 10.5$ and $\sum_j b_j^2 = 5.25$.
+        \begin{center}
+          \begin{tabular}{c|ccc}
+            $\eta$ & 0 & 0.5 & 5 \\ \hline
+            $a$ & 2.000 & 1.826 & 1.024 \\
+            prediction $1.5a$ & 3.00 & 2.74 & 1.54
+          \end{tabular}
+        \end{center}
+        With $\eta=0$ the ratings are fitted exactly ($X_j = 2b_j$).  The
+        regulariser (the prior) shrinks $a$ towards 0, more strongly
+        when there are few ratings.  Shrinking towards a rating of 0 is
+        a poor default, which is why in practice we first subtract
+        means such as those of part (b) and factorise what is left.
+      \end{answer}}{\lines{7}}
+
+    \qpart[5]{In Python, make an $8\times6$ matrix of rank 2, hide about
+      a quarter of its entries, and fill them in with the iterative SVD
+      method of the lecture (start from the user means; keep the best
+      rank-2 approximation; copy its values into the missing entries
+      only).  Print the RMS error on the missing entries as you go.
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+F = rng.integers(1, 4, (8, 2))\\
+X = F @ rng.integers(0, 3, (2, 6))\hspace*{2em}\# rank 2\\
+W = rng.random(X.shape) > 0.25\hspace*{2em}\# True where observed\\
+miss = np.logical\_not(W)\\
+Xt = np.where(W, X, 0.0)\\
+mean = Xt.sum(1) / W.sum(1)\hspace*{2em}\# user means\\
+Xt = np.where(W, X, mean[:, None])\\
+for t in range(201):\\
+\hspace*{2em}if t in (0, 1, 5, 20, 50, 100, 200):\\
+\hspace*{4em}print(t, np.sqrt(np.mean((Xt - X)[miss]**2)))\\
+\hspace*{2em}U, s, Vt = np.linalg.svd(Xt)\\
+\hspace*{2em}L = (U[:, :2] * s[:2]) @ Vt[:2]\hspace*{2em}\# rank 2\\
+\hspace*{2em}Xt = np.where(W, X, L)
+\end{alltt}
+        Here 12 of the 48 entries are missing.  The RMS error is $2.79$
+        with the user means, then $2.04$, $1.26$, $0.67$, $0.14$,
+        $0.011$ and $8\times10^{-5}$ after 1, 5, 20, 50, 100 and 200
+        iterations.  Because the matrix really has rank 2 the missing
+        entries are recovered exactly, but convergence is slow.
+      \end{answer}}{\lines{8}}
+
+  \end{qparts}
+\end{question}
+\newpage
+% ***************************** question 3 **************************
 
 \begin{question}{20}
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[4]{We estimate $I = \int_0^1\e{x}\,\dd x = \av{\e{U}}$, with
+      $U$ uniform on $(0,1)$, by averaging $\e{U_i}$ over $n$
+      independent samples.  Find $\mathrm{Var}(\e{U})$, the standard
+      error for $n=10^4$, and the $n$ needed for a standard error of
+      $10^{-4}$.
       \begin{answer}
+        $I = \e{}-1\approx1.718$ and $\av{\e{2U}} = (\e{2}-1)/2 \approx
+        3.195$, so $\mathrm{Var}(\e{U}) = 3.195 - 1.718^2 \approx 0.242$.
+        The standard error is $\sqrt{0.242/n}$: $0.0049$ for $n=10^4$.
+        For $10^{-4}$ we need $n = 0.242/10^{-8}\approx2.4\times10^7$.
+        The error falls only as $1/\sqrt{n}$, so each extra decimal place
+        costs 100 times as many samples.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{The Cauchy density is $f(x) = 1/\bigl(\pi(1+x^2)\bigr)$.
+      Find its cumulative distribution function and hence a
+      transformation that turns a uniform deviate $U$ into a Cauchy
+      deviate.  Why would averaging Cauchy samples be a bad way to
+      estimate its mean?
+      \begin{answer}
+        $F(x) = \int_{-\infty}^x \frac{\dd t}{\pi(1+t^2)} = \frac12 +
+        \frac1\pi\arctan(x)$.  Solving $U = F(X)$ gives $X =
+        \tan\bigl(\pi(U-\frac12)\bigr)$.  The Cauchy distribution has
+        such thick tails that its mean and variance do not exist: the
+        sample average never settles down (it is itself Cauchy
+        distributed, however many samples we take).  The $1/\sqrt{n}$
+        rule needs a finite variance.
+      \end{answer}}{\lines{6}}
+
+    \qpart[5]{We want samples from $f(x) = 6x(1-x)$ on $[0,1]$ using
+      uniform proposals, $g(y) = 1$.  Find the smallest $c$ with
+      $c\,g(x)\geq f(x)$, describe the rejection method, and find the
+      fraction of proposals that are accepted.  Explain why the
+      accepted values have density $f$.
+      \begin{answer}
+        $f$ is largest at $x=\frac12$, where $f=\frac32$, so $c=1.5$.
+        Draw $Y$ and $U$ uniformly on $(0,1)$; accept $Y$ if $U\,c\,g(Y)
+        \leq f(Y)$, i.e.\ with probability $f(Y)/(c\,g(Y)) = 4Y(1-Y)$;
+        otherwise try again.  The density of proposing $y$ and then
+        accepting it is $g(y)\,f(y)/(c\,g(y)) = f(y)/c$, which is
+        proportional to $f$.  Integrating, a proposal is accepted with
+        probability $1/c = \frac23$.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{To draw samples from $\mathcal{N}(\bm{0},\mat{I})$ in $d$
+      dimensions we use proposals from the wider
+      $\mathcal{N}(\bm{0},s^2\mat{I})$ with $s>1$.  Show that the
+      smallest $c$ is $s^d$.  What fraction of proposals is accepted for
+      $s=1.2$ when $d=1$, $10$ and $100$?
+      \begin{answer}
+        The ratio of the densities is
+        \begin{align*}
+          \frac{f(\bm{x})}{g(\bm{x})} = s^d\,\e{-\frac12\len{\bm{x}}^2(1-1/s^2)} \leq s^d,
+        \end{align*}
+        with equality at $\bm{x}=\bm{0}$, so $c=s^d$ and the acceptance
+        rate is $s^{-d}$: $0.83$, $0.16$ and $1.2\times10^{-8}$.  Even a
+        slightly wrong proposal is hopeless in high dimensions, which is
+        why we need MCMC.
+      \end{answer}}{\lines{6}}
+
+    \qpart[4]{In Python, implement the rejection sampler of part (c)
+      with $10^5$ proposals.  Check the acceptance rate, and that the
+      accepted samples have mean $\frac12$ and variance $\frac1{20}$.
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+n = 100000\\
+Y = rng.random(n)\hspace*{2em}\# proposals from g = U(0,1)\\
+U = rng.random(n)\\
+x = Y[1.5 * U <= 6 * Y * (1 - Y)]\\
+print(len(x) / n, x.mean(), x.var())
+\end{alltt}
+        This gives an acceptance rate of $0.665$ (against $\frac23$),
+        mean $0.4998$ and variance $0.0496$.  Working on whole arrays at
+        once is much faster in numpy than a loop that tries again after
+        each rejection.
+      \end{answer}}{\lines{6}}
+
+  \end{qparts}
+\end{question}
+\newpage
+% ***************************** question 4 **************************
+
+\begin{question}{20}
+  \begin{qparts}
+
+    \qpart[4]{$M_{ij}$ is the probability that a Markov chain moves
+      from state $j$ to state $i$.  Explain why $\sum_i M_{ij}=1$.  Show
+      that if $\bm{\pi}$ satisfies detailed balance, $M_{ij}\pi_j =
+      M_{ji}\pi_i$, then $\mat{M}\bm{\pi}=\bm{\pi}$.  What does this
+      mean?
+      \begin{answer}
+        From state $j$ the chain must go somewhere (possibly staying at
+        $j$), so the probabilities of all destinations sum to 1.
+        Summing detailed balance over $j$,
+        \begin{align*}
+          (\mat{M}\bm{\pi})_i = \sum_j M_{ij}\pi_j = \sum_j M_{ji}\pi_i
+          = \pi_i \sum_j M_{ji} = \pi_i .
+        \end{align*}
+        If the chain's states are distributed according to $\bm{\pi}$,
+        they still are after another step: $\bm{\pi}$ is a stationary
+        distribution (an eigenvector of $\mat{M}$ with eigenvalue 1).
+      \end{answer}}{\lines{7}}
+
+    \qpart[6]{Four states sit on a ring, $1$--$2$--$3$--$4$--$1$, with
+      target probabilities $\bm{\pi} = (0.1, 0.2, 0.3, 0.4)$.  From each
+      state the Metropolis algorithm proposes one of its two neighbours,
+      each with probability $\frac12$, and accepts with probability
+      $\min(1, \pi_i/\pi_j)$.  Write down $\mat{M}$ and check that
+      $\mat{M}\bm{\pi}=\bm{\pi}$.
+      \begin{answer}
+        From 1: both neighbours (2 and 4) are more probable, so it moves
+        to each with probability $\frac12$.  From 2: to 3 with
+        $\frac12$, to 1 with $\frac12\times\frac{0.1}{0.2} = \frac14$,
+        stays with $\frac14$.  From 3: to 4 with $\frac12$, to 2 with
+        $\frac12\times\frac23 = \frac13$, stays with $\frac16$.  From 4:
+        to 3 with $\frac12\times\frac34 = \frac38$, to 1 with
+        $\frac12\times\frac14 = \frac18$, stays with $\frac12$.  Each
+        column is a ``from'' state:
+        \begin{align*}
+          \mat{M} = \begin{pmatrix}
+            0 & \frac14 & 0 & \frac18 \\[2pt]
+            \frac12 & \frac14 & \frac13 & 0 \\[2pt]
+            0 & \frac12 & \frac16 & \frac38 \\[2pt]
+            \frac12 & 0 & \frac12 & \frac12
+          \end{pmatrix},
+          \qquad
+          \mat{M}\bm{\pi} = \begin{pmatrix}
+            0.05 + 0.05 \\ 0.05 + 0.05 + 0.1 \\ 0.1 + 0.05 + 0.15 \\
+            0.05 + 0.15 + 0.2
+          \end{pmatrix} = \begin{pmatrix} 0.1 \\ 0.2 \\ 0.3 \\ 0.4
+          \end{pmatrix}.
+        \end{align*}
+      \end{answer}}{\lines{10}}
+
+    \qpart[3]{In Python, find the eigenvalues of $\mat{M}$, and starting
+      from state 1, $\bm{p}(0) = (1,0,0,0)^\tr$, print
+      $\bm{p}(t) = \mat{M}^t\bm{p}(0)$ for $t$ up to 10.  How quickly does
+      it approach $\bm{\pi}$?
+      \begin{answer}
+\begin{alltt}
+M = np.array([[0, 1/4, 0, 1/8], [1/2, 1/4, 1/3, 0],\\
+\hspace*{6em}[0, 1/2, 1/6, 3/8], [1/2, 0, 1/2, 1/2]])\\
+print(np.linalg.eigvals(M))\\
+p = np.array([1.0, 0, 0, 0])\\
+for t in range(11):\\
+\hspace*{2em}print(t, p)\\
+\hspace*{2em}p = M @ p
+\end{alltt}
+        The eigenvalues are $1$, $0.386$, $0.052$ and $-0.521$.  After
+        10 steps $\bm{p} = (0.100, 0.199, 0.301, 0.399)$.  The error is
+        dominated by the eigenvalue $-0.521$: it roughly halves each step
+        and changes sign, so $\bm{p}(t)$ overshoots back and forth as it
+        converges.
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{To sample from a posterior $\pi(\bm{\theta}) =
+      f(\data|\bm{\theta})\,f(\bm{\theta})/f(\data)$ the Metropolis
+      algorithm accepts a proposal $\bm{\theta}'$ with probability
+      $\min(1, \pi(\bm{\theta}')/\pi(\bm{\theta}))$.  Why don't we need
+      $f(\data)$?  Why do programs compute $\log\pi(\bm{\theta}') -
+      \log\pi(\bm{\theta})$ rather than the ratio itself?
+      \begin{answer}
+        $f(\data)$ appears in both $\pi(\bm{\theta}')$ and
+        $\pi(\bm{\theta})$ and cancels from the ratio, so we only need
+        likelihood times prior.  The likelihood is a product of many
+        probabilities and soon underflows to 0 in floating point; its
+        log is a sum and causes no trouble.  (Accept if $\log U <
+        \log\pi(\bm{\theta}') - \log\pi(\bm{\theta})$.)
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[4]{In Python, use Metropolis with proposals $x' = x +
+      s\,\epsilon$, $\epsilon\sim\mathcal{N}(0,1)$, to sample from
+      $\pi(x)\propto\e{-(x^2-4)^2/8}$, which has peaks at $x=\pm2$.  Start
+      at $x=2$ and run $10^5$ steps for $s = 0.1$, $1$ and $10$.  For each,
+      print the acceptance rate, the fraction of samples with $x>0$
+      (which should be $\frac12$), the number of times $x$ changes sign,
+      and the estimate of $\av{x^2}$ (whose exact value is $3.41$).
+      Comment.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+log\_pi = lambda x: -(x**2 - 4)**2 / 8\\
+for s in [0.1, 1.0, 10.0]:\\
+\hspace*{2em}x, xs, acc = 2.0, [], 0\\
+\hspace*{2em}for t in range(100000):\\
+\hspace*{4em}y = x + s * rng.standard\_normal()\\
+\hspace*{4em}if np.log(rng.random()) < log\_pi(y) - log\_pi(x):\\
+\hspace*{6em}x, acc = y, acc + 1\\
+\hspace*{4em}xs.append(x)\hspace*{2em}\# repeats count when we stay\\
+\hspace*{2em}xs = np.array(xs)\\
+\hspace*{2em}sg = np.sign(xs)\\
+\hspace*{2em}crossings = np.sum(sg[1:] != sg[:-1])\\
+\hspace*{2em}print(s, acc / len(xs), np.mean(xs > 0))\\
+\hspace*{2em}print(crossings, np.mean(xs**2))
+\end{alltt}
+        \begin{center}
+          \begin{tabular}{c|cccc}
+            $s$ & accepted & $x>0$ & sign changes & $\av{x^2}$ \\ \hline
+            0.1 & 0.95 & 0.61 & 221 & 3.47 \\
+            1 & 0.59 & 0.51 & 4533 & 3.41 \\
+            10 & 0.15 & 0.49 & 7257 & 3.42
+          \end{tabular}
+        \end{center}
+        With $s=0.1$ almost every move is accepted, but the chain creeps
+        and rarely crosses the dip at $x=0$, so it spends too long in the
+        peak where it started.  With $s=10$ most proposals are rejected,
+        but those accepted often jump straight between the peaks.  A step
+        size comparable with the width of $\pi$ works well.
+      \end{answer}}{\lines{8}}
+
+  \end{qparts}
+\end{question}
+\newpage
+
+% ***************************** question 5 **************************
+
+\begin{question}{25}
+  This question is harder and optional.  It shows why EM never
+  decreases the likelihood, why an MCMC chain with detailed balance
+  settles down, and runs alternating least squares on the lecture's
+  ratings.
+  \begin{qparts}
+
+    \qpart[7]{For data $\data$, latent variables $\bm{Z}$ and parameters
+      $\bm{\Theta}$, show that for every $\bm{Z}$
+      \begin{align*}
+        \log f(\data|\bm{\Theta}) = \log f(\data,\bm{Z}|\bm{\Theta}) -
+        \log\Prob{\bm{Z}|\data,\bm{\Theta}} .
+      \end{align*}
+      Average both sides over $P_t(\bm{Z}) =
+      \Prob{\bm{Z}|\data,\bm{\Theta}^{(t)}}$ to get $\log
+      f(\data|\bm{\Theta}) = Q(\bm{\Theta}|\bm{\Theta}^{(t)}) +
+      S(\bm{\Theta})$, where $Q$ is the function EM maximises and $S(\bm{\Theta}) =
+      -\sum_{\bm{Z}}P_t(\bm{Z})\log\Prob{\bm{Z}|\data,\bm{\Theta}}$.  Using
+      $\log(x)\leq x-1$, show that $S(\bm{\Theta})\geq S(\bm{\Theta}^{(t)})$
+      for every $\bm{\Theta}$, and hence that an EM step cannot decrease
+      the likelihood.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        The identity is $f(\data,\bm{Z}|\bm{\Theta}) =
+        \Prob{\bm{Z}|\data,\bm{\Theta}}\,f(\data|\bm{\Theta})$ (the
+        definition of conditional probability) after taking logs.  The
+        left-hand side does not depend on $\bm{Z}$ and
+        $\sum_{\bm{Z}}P_t(\bm{Z}) = 1$, so averaging gives
+        \begin{align*}
+          \log f(\data|\bm{\Theta}) = \underbrace{\sum_{\bm{Z}}P_t(\bm{Z})
+          \log f(\data,\bm{Z}|\bm{\Theta})}_{Q(\bm{\Theta}|\bm{\Theta}^{(t)})}
+          \underbrace{-\sum_{\bm{Z}}P_t(\bm{Z})\log
+          \Prob{\bm{Z}|\data,\bm{\Theta}}}_{S(\bm{\Theta})} .
+        \end{align*}
+        Writing $P(\bm{Z}) = \Prob{\bm{Z}|\data,\bm{\Theta}}$,
+        \begin{align*}
+          S(\bm{\Theta}^{(t)}) - S(\bm{\Theta}) = \sum_{\bm{Z}} P_t(\bm{Z})
+          \log\frac{P(\bm{Z})}{P_t(\bm{Z})} \leq \sum_{\bm{Z}} P_t(\bm{Z})
+          \left(\frac{P(\bm{Z})}{P_t(\bm{Z})} - 1\right) = 1 - 1 = 0 .
+        \end{align*}
+        (The difference $S(\bm{\Theta})-S(\bm{\Theta}^{(t)})$ is the KL
+        divergence between $P_t$ and $P$.)  The M-step chooses
+        $\bm{\Theta}^{(t+1)}$ to maximise $Q$, so
+        $Q(\bm{\Theta}^{(t+1)}|\bm{\Theta}^{(t)})\geq
+        Q(\bm{\Theta}^{(t)}|\bm{\Theta}^{(t)})$, and $S$ cannot go down
+        either, so $\log f(\data|\bm{\Theta}^{(t+1)}) \geq \log
+        f(\data|\bm{\Theta}^{(t)})$.
+      \end{answer}}{\lines{14}}
+
+    \qpart[6]{Let $\mat{D} = \diag(\bm{\pi})$ with all $\pi_i>0$.  Show
+      that if $\mat{M}$ satisfies detailed balance then
+      $\mat{A} = \mat{D}^{-1/2}\mat{M}\mat{D}^{1/2}$ is symmetric.
+      Deduce that the eigenvalues of $\mat{M}$ are real and that
+      $\mat{M}$ has a full set of eigenvectors (the assumption made in
+      the lecture when we expanded $\bm{p}(0)$ in eigenvectors).
+      Check that $A_{12} = A_{21}$ for the matrix of Question~4(b).
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        $A_{ij} = \pi_i^{-1/2}M_{ij}\pi_j^{1/2}$ and $A_{ji} =
+        \pi_j^{-1/2}M_{ji}\pi_i^{1/2}$.  Multiplying both by
+        $\sqrt{\pi_i\pi_j}$ gives $M_{ij}\pi_j$ and $M_{ji}\pi_i$, which
+        are equal by detailed balance, so $A_{ij} = A_{ji}$.  A real
+        symmetric matrix has real eigenvalues and an orthonormal set of
+        eigenvectors $\bm{w}_k$.  If $\mat{A}\bm{w} = \lambda\bm{w}$ then
+        $\mat{M}(\mat{D}^{1/2}\bm{w}) = \mat{D}^{1/2}\mat{A}\bm{w} =
+        \lambda\,\mat{D}^{1/2}\bm{w}$, so $\mat{M}$ has the same
+        eigenvalues, with independent eigenvectors $\mat{D}^{1/2}\bm{w}_k$.
+        For Question~4(b), $A_{12} = \frac14\sqrt{0.2/0.1} =
+        \frac{\sqrt2}{4}$ and $A_{21} = \frac12\sqrt{0.1/0.2} =
+        \frac{1}{2\sqrt2} = \frac{\sqrt2}{4}$.
+      \end{answer}}{\lines{10}}
+
+    \qpart[5]{In matrix factorisation with $\mat{B}$ fixed, row
+      $\bm{a}_i$ of $\mat{A}$ minimises $\sum_j (X_{ij} -
+      \bm{a}_i^\tr\bm{b}_j)^2 + \eta\len{\bm{a}_i}^2$, the sum running
+      over the films user $i$ has rated.  Differentiate to show that
+      $\bm{a}_i = \bigl(\eta\,\mat{I} + \sum_j\bm{b}_j\bm{b}_j^\tr
+      \bigr)^{-1}\sum_j\bm{b}_jX_{ij}$, and check that it reduces to the
+      formula of Question~2(d) when $K=1$.  Why is the matrix being
+      inverted always invertible when $\eta>0$?
+      \begin{answer}
+        The gradient is $-2\sum_j\bm{b}_j(X_{ij} - \bm{b}_j^\tr\bm{a}_i)
+        + 2\eta\,\bm{a}_i$ (using $\bm{a}_i^\tr\bm{b}_j =
+        \bm{b}_j^\tr\bm{a}_i$).  Setting it to zero gives
+        $\bigl(\eta\,\mat{I} + \sum_j\bm{b}_j\bm{b}_j^\tr\bigr)\bm{a}_i =
+        \sum_j\bm{b}_jX_{ij}$.  For $K=1$ this is $(\eta + \sum_jb_j^2)\,a
+        = \sum_jb_jX_j$.  For any $\bm{v}\neq\bm{0}$,
+        $\bm{v}^\tr\bigl(\eta\,\mat{I} + \sum_j\bm{b}_j\bm{b}_j^\tr\bigr)\bm{v}
+        = \eta\len{\bm{v}}^2 + \sum_j(\bm{b}_j^\tr\bm{v})^2 > 0$, so the
+        matrix is positive definite and hence invertible, even if the user
+        has rated fewer than $K$ films.
+      \end{answer}}{\lines{9}}
+
+    \qpart[7]{In Python, run alternating least squares with $K=1$ and
+      $\eta=0.1$ on the ratings of Question~2(b) (use \texttt{np.nan}
+      for the missing entries), starting from random factors.  Compare
+      the predictions for Bob's rating of The Matrix and Chas's rating
+      of Titanic with your answers to Question~2(b).
+      \begin{answer}
+\begin{alltt}
+R = np.array([[2, np.nan, 4, 5, 2],\\
+\hspace*{7em}[5, 3, np.nan, 3, np.nan],\\
+\hspace*{7em}[np.nan, 2, 3, 5, 3]])\\
+W = np.logical\_not(np.isnan(R))\\
+K, eta = 1, 0.1\\
+rng = np.random.default\_rng(0)\\
+A, B = rng.random((3, K)) + 1, rng.random((K, 5)) + 1\\
+for it in range(200):\\
+\hspace*{2em}for i in range(3):\hspace*{2em}\# ridge for row i of A\\
+\hspace*{4em}Bi, Ri = B[:, W[i]], R[i, W[i]]\\
+\hspace*{4em}G = eta * np.eye(K) + Bi @ Bi.T\\
+\hspace*{4em}A[i] = np.linalg.solve(G, Bi @ Ri)\\
+\hspace*{2em}for j in range(5):\hspace*{2em}\# ridge for column j of B\\
+\hspace*{4em}Aj, Rj = A[W[:, j]], R[W[:, j], j]\\
+\hspace*{4em}G = eta * np.eye(K) + Aj.T @ Aj\\
+\hspace*{4em}B[:, j] = np.linalg.solve(G, Aj.T @ Rj)\\
+print(np.round(A @ B, 2))
+\end{alltt}
+        This predicts $3.52$ for Bob and The Matrix and $3.66$ for Chas
+        and Titanic, against $3.80$ and $3.39$ from the means.  Other
+        random starts give the same answer.  With only 11 ratings and
+        $3+5=8$ parameters there is little to learn: without subtracting
+        the means, a rank-1 model mostly learns how highly each film is
+        rated overall (Spartacus highest, Dr No and Ten lowest), and the
+        training RMS error is still $0.88$ because Alice and Bob disagree
+        about Titanic.  Matrix factorisation pays off on large, sparse
+        data sets.
+      \end{answer}}{\lines{9}}
+
   \end{qparts}
 \end{question}
 
-% ***************************** End of exam *****************************
 \end{document}
-
-
-
-

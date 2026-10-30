@@ -81,24 +81,12 @@
        invertible $K\times K$ matrix $\mat{G}$
 
 ** Probabilistic Approach
-   * *Bayes' rule and MAP.*  For parameters $\bm{\theta}$ and data
-     $\mathcal{D}$ the posterior is
-     $$ \Prob{\bm{\theta}|\mathcal{D}} =
-        \frac{\Prob{\mathcal{D}|\bm{\theta}}\,\Prob{\bm{\theta}}}{\Prob{\mathcal{D}}} $$
-     (likelihood times prior, divided by the evidence).  The /maximum a
-     posteriori/ (MAP) solution is the most probable $\bm{\theta}$,
-     $$ \bm{\theta}_{\mathrm{MAP}} = \mathop{\mathrm{argmax}}_{\bm{\theta}}
-        \Bigl(\log\Prob{\mathcal{D}|\bm{\theta}} + \log\Prob{\bm{\theta}}\Bigr) $$
-     since the evidence does not depend on $\bm{\theta}$.  With a flat
-     prior it is the maximum-likelihood solution
-     - MAP keeps a single point and throws away our uncertainty about
-       $\bm{\theta}$; a full Bayesian treatment would average
-       predictions over the posterior
-     - the peak of a probability density is not invariant: change
-       variables (e.g. from $\sigma$ to $\log\sigma$) and the peak
-       moves, although the probabilities do not
-     - in high dimensions most of the posterior probability can lie
-       far from the peak, so the MAP point can be untypical
+   * We use the /maximum a posteriori/ (MAP) solution from the lecture
+     on probabilistic inference: the most probable parameters,
+     $\bm{\theta}_{\mathrm{MAP}} = \mathop{\mathrm{argmax}}_{\bm{\theta}}
+     \bigl(\log\Prob{\mathcal{D}|\bm{\theta}} + \log\Prob{\bm{\theta}}\bigr)$,
+     which does not need the evidence.  Its limitations (no error bars,
+     dependence on how we parametrise $\bm{\theta}$) are discussed there
    * Treat the ratings as noisy: $X_{ij} \sim
      \mathcal{N}\bigl(\sum_k A_{ik}B_{kj},\, \sigma^2\bigr)$, with
      Gaussian priors $A_{ik}\sim\mathcal{N}(0,\sigma_A^2)$ and

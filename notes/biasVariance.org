@@ -174,4 +174,4 @@
    - What is the effect of increasing the number of training points?
    - What is the effect of using a more complex function, E.g. $\e{-x} \sin(x)$?
 
-* COMMENT [[file:information.org][Previous]]  [[file:overfitting.org][Next]]
+* COMMENT [[file:wasserstein.org][Previous]]  [[file:overfitting.org][Next]]

@@ -8,7 +8,7 @@
 \begin{center}
   \includegraphics[width=\linewidth]{mog-1}
 \end{center}
-\keywords{Hierarchical Models, Mixture of Gaussians, Expectation Maximisation}
+\keywords{Generative Models, Hierarchical Models, MAP, Empirical Bayes, Mixture of Gaussians, Expectation Maximisation}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand{\Outline}{%
 \begin{slide}
@@ -17,8 +17,9 @@
 \begin{minipage}{10cm}\raggedright
   \begin{enumerate}\squeeze
     \outlineitem{Building Probabilistic Models}{probmodel}
-    \outlineitem{Mixture of Gaussians}{mixture}
-    \outlineitem{Expectation Maximisation}{em}
+    \outlineitem{Hierarchical Models}{hier}
+    \outlineitem{Solution Strategies}{strategies}
+    \outlineitem{Mixtures and EM}{em}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
@@ -29,27 +30,22 @@
 }
 
 \setcounter{outlineitem}{1}
-\Outline % Motivation
+\Outline % Building Probabilistic Models
 \toptarget{firstoutline}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-1]{Building Probabilistic Models}
+\section{Beyond Conjugate Priors}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item To describe a system with uncertainty we use random variables,
-    $X$, $Y$, $Z$, etc.\pause
-  \item We use the convention of writing random variables in capitals
-    (this is sometimes confusing as when you observe a random variables
-    it is no longer random)\pause
-  \item The variables are described by probability mass function
-    $\Prob{X,Y,Z}$ or if our variables are continuous, but probability
-    densities $f_{X,Y,Z}(x,y,z)$\pause
-  \item A major rule of probability is
-    \begin{align*}
-      \sum_X \Prob{X,Y,Z} &= \Prob{Y,Z}\pause
-    \end{align*}
+  \item In the Bayes lecture we chose priors so that the posterior had
+    the same form (conjugate priors)\pause
+  \item Real problems have many interacting random variables, some of
+    which we never observe, and the posterior has no closed form\pause
+  \item This lecture: how to set up a probabilistic model, and simple
+    strategies for using it (MAP, empirical Bayes, EM)\pause
+  \item The MCMC lecture shows how to compute the full posterior\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -58,64 +54,42 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-  \section{Conditional Probabilities}
-  
+\section{Two Rules}
+
 \begin{PauseHighLight}
   \begin{itemize}
-  \item When developing models it is often useful to consider
-    conditional probabilities e.g.{} $\Prob{X,Y|Z}$ or
-    $f_{X|Y,Z}(x|y,z)$\pause
-  \item A second major rule in probabilistic modelling is
+  \item Sum rule (marginalisation; see the probability lecture)
+    \begin{align*}
+      \Prob{X} = \sum_Y \Prob{X,Y} \qquad
+      f(x) = \int f(x,y)\,\dd y\pause
+    \end{align*}
+  \item Product rule (the definition of conditional probability)
     \begin{align*}
       \Prob{X,Y} = \Prob{X|Y}\,\Prob{Y} = \Prob{Y|X}\,\Prob{X}\pause
     \end{align*}
-  \item This is a mathematical identity that does not imply causality
-    (it defines conditional probability)\pause
-  \item It is the origins of Bayes' rule: $\Prob{X|Y} =
-    \frac{\displaystyle \Prob{Y|X}\,\Prob{X}}{\displaystyle\Prob{Y}}$\pause
+  \item Bayes' rule is the product rule rearranged:
+    $\Prob{X|Y} = \Prob{Y|X}\,\Prob{X}/\Prob{Y}$\pause
+  \item Everything else follows from these two rules\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Discriminative Models}
+\section[-1]{Discriminative and Generative Models}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We often think of our observations as given and the predictions
-    as random variables\pause
-  \item For example we might be given some features $\bm{x}$ and we wish
-    to predict a class $C\in\mathcal{C}$\pause
-  \item Our objective is then to find the probability $\Prob{C|\bm{x}}$\pause
-  \item This is known as a \emph{discriminative model}\pause
-  \item E.g.{} in \textit{foundations of machine learning} you learnt how to
-    find the Bayes' optimal discrimination surface\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Generative Models}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item Sometimes it is easy to think about the joint process of
-    generating the features and outputs together\pause
-  \item This leads to a joint distribution $\Prob{\bm{X},Y}$ where
-    $\bm{X}$ are your features and $Y$ is your output you are trying to
-    predict\pause
-  \item This is known as a \emph{generative model}\pause
+  \item A \emph{discriminative model} gives the prediction directly,
+    e.g.\ $\Prob{C|\bm{x}}$ for a class $C$ given features $\bm{x}$\pause{}
+    (as for the Bayes' optimal discrimination surface in
+    \textit{foundations of machine learning})\pauseb
+  \item A \emph{generative model} describes how the features and the
+    output are generated together: $\Prob{\bm{X},Y}$\pause
   \item Generative models are often more natural to think about\pause
-  \item We can use them to do discrimination using
+  \item And we can still use them to discriminate
     \begin{align*}
       \Prob{Y|\bm{X}} = \frac{\Prob{\bm{X},Y}}{\Prob{\bm{X}}}
       = \frac{\Prob{\bm{X},Y}}{\sum\limits_Y \Prob{\bm{X}, Y}}\pause
@@ -124,6 +98,7 @@
 \end{PauseHighLight}
 
 \end{slide}
+
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,6 +110,8 @@
   \item Sometimes we have models that involve random variables that we
     don't observe and we don't care about\pause
   \item These are called \emph{latent variables}\pause
+  \item They are not observed and not our final target, but they make
+    the model easy to write down\pause
   \item If we have a latent variable $Z$ and observed variable $\bm{X}$
     and we are predicting a variable $Y$ then we would
     \emph{marginalise} over the latent variable
@@ -149,21 +126,53 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Modelling Virus}
+\section[-2]{Generative Stories}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Build a model by writing down how the data could have been
+    generated (a simulator), each line drawing one variable given
+    earlier ones\pause
+\begin{python}
+theta = rng.beta(a, b, size=J)    # a rate for each product
+k = rng.binomial(n, theta)        # observed positive reviews
+\end{python}\pause
+  \item The joint distribution is the product of the lines (product
+    rule)
+    \begin{align*}
+      f(\bm{\theta},\bm{k}) = \prod_{j=1}^J
+      \mathrm{Beta}(\theta_j|a,b)\,\mathrm{Bin}(k_j|n_j,\theta_j)\pause
+    \end{align*}
+  \item \emph{Probabilistic programming languages} (e.g.\ Stan, PyMC)
+    take such a programme and do the inference for you\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Hierarchical Models
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Rating Products}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Suppose we want to estimate the number of hospitalisation from Corona
-    virus in the next month\pause
-  \item Our observable is the number of reported cases\pause
-  \item In our model we might want to estimate the number of actual
-    cases\pause
-  \item This would be a latent variable (it is not an observable or
-    our final target, but it is very useful intermediate in our
-    model)\pause
-  \item This will be a random variable (it is uncertain, but we can
-    build a probabilistic model giving a distribution of number of
-    actual cases)\pause
+  \item A shop lists products with the fraction of positive
+    reviews: which is better?\pause
+    \begin{center}
+      \begin{tabular}{l|cc}
+        & positive & fraction \\ \hline
+        Product $A$ & 3 of 3 & 100\% \\
+        Product $B$ & 1840 of 2000 & 92\%
+      \end{tabular}
+    \end{center}\pause
+  \item Ranking by the fraction puts every product with a handful of
+    good reviews at the top\pause
+  \item Intuitively we should trust $A$'s 100\% less\pause{}, and
+    something like ``most products are rated about 80\%'' should pull
+    it down\pauseb{}: a hierarchical model makes this precise\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -172,49 +181,142 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Hierarchical Models}
-  
+\section[-1]{A Model for Ratings}
+
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Of course, if I was really modelling the spread of a disease I
-    would care about the probability, $f(C|A, V)$, of catching the disease, $C$,
-    given the persons age $A$ and the variant of the disease
-    $V$\pause
-  \item I would want to know the distribution of ages $f(A)$ and try
-    to infer the probability of different variants $\Prob{V}$\pause
-  \item I would care about the probability, $f(R|A,V)$, of cases being
-    reported given age and variant\pause
-  \item And the probability, $f(H|A,V)$, of hospitalisation  given $A$
-    and $V$\pause
-  \item This would involve an elaborate (hierarchical) model with a
-    large number of latent variables\pause
+  \item Product $j$ has an unknown probability $\theta_j$ that a review
+    is positive; $k_j$ of its $n_j$ reviews are positive
+    \begin{align*}
+      k_j \sim \mathrm{Bin}(n_j, \theta_j)\pause
+    \end{align*}
+  \item The products are different but similar: their $\theta_j$ come
+    from a common population
+    \begin{align*}
+      \theta_j \sim \mathrm{Beta}(a, b)\pause
+    \end{align*}
+  \item The \emph{hyperparameters} $a$, $b$ describe the population:
+    $a/(a+b)$ is the typical rate and $a+b$ measures how alike the
+    products are\pause
+  \item The model has levels: population $\rightarrow$ product
+    $\rightarrow$ reviews\pause{} (a \emph{hierarchical model})\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Graphical Models}
+
+\begin{PauseHighLight}
+  \begin{center}
+    \includegraphics[width=0.5\linewidth]{gmModels-0}\pause
+  \end{center}
+  \begin{itemize}\squeeze
+  \item Nodes are variables (dark: fixed; shaded: observed; white:
+    latent); arrows point from the variables each one is drawn from\pause
+  \item A box (a \emph{plate}) means ``repeat for each $j$''\pause
+  \item The joint distribution is the product over nodes of each
+    node given its parents\pause
+  \item Diagrams like this are a good way to design and explain models\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Probabilistic Inference}
+\section[-1]{One Product at a Time}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We can use Bayes' rules to learn a set of parameter
-     $\bm{\Theta}$ that occur in our likelihood function
+  \item If we knew $a$ and $b$, each product is a beta-binomial problem
+    from the Bayes lecture
+    \begin{align*}
+      f(\theta_j|k_j) = \mathrm{Beta}(\theta_j|a+k_j, b+n_j-k_j)\pause
+    \end{align*}
+  \item The posterior mean is a weighted average: the prior counts as
+    $a+b$ extra reviews
+    \begin{align*}
+      \av{\theta_j|k_j} = \frac{a+k_j}{a+b+n_j}
+      = \frac{a+b}{a+b+n_j}\,\frac{a}{a+b} +
+      \frac{n_j}{a+b+n_j}\,\frac{k_j}{n_j}\pause
+    \end{align*}
+  \item With $a=20$, $b=5$ (typical rate 0.8, worth 25 reviews):
+    $A$ gets $23/28 = 0.82$\pause{} and $B$ gets $1860/2025 =
+    0.92$\pauseb{}: $B$ is better\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Shrinkage}
+
+\pb\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=0.8\linewidth]{ratingsShrink}\pause
+\end{center}
+Few reviews: pulled (\emph{shrunk}) to the typical rate; many: barely
+move.  Products \emph{borrow strength} from each other.\pauseh
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Partial Pooling}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Two extremes
+    \begin{itemize}
+    \item no pooling: estimate each product alone ($k_j/n_j$)\pause{}
+      ---noisy when $n_j$ is small\pauseb
+    \item complete pooling: assume all products are the same\pause{}
+      ---ignores real differences\pauseb
+    \end{itemize}
+  \item The hierarchical model sits in between, and the data decide
+    where (through $a+b$)\pause
+  \item The same idea appears everywhere: schools, hospitals, adverts,
+    players, users of a recommender\pause
+  \item But we don't know $a$ and $b$, and with them unknown the
+    posterior $f(a,b,\bm{\theta}|\bm{k})$ has no closed form\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Solution Strategies
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Full Bayesian Inference}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Bayes' rule gives the posterior over the parameters
     \begin{align*}
       \Prob{\bm{\Theta}|\mathcal{D}} =
       \frac{\Prob{\mathcal{D}|\bm{\Theta}}\, \Prob{\bm{\Theta}}}{
       \Prob{\mathcal{D}} }\pause
     \end{align*}
-  \item This provides us a full probabilistic description of the
-    parameters\pause
-  \item It doesn't overfit (we are not choosing the best)\pause
-  \item Bayesian inference provides a description of its own
-    uncertainty\pause
-  \item We need to specify a likelihood and prior, but this is usually
-    not difficult\pause
+  \item It describes its own uncertainty and is much less prone to
+    over-fitting (we average over parameters rather than choosing the
+    best)\pause
+  \item But the posterior is rarely a nice function, and its
+    normalisation, the \textit{evidence}
+    $\Prob{\mathcal{D}} = \sum_{\bm{\Theta}}
+    \Prob{\mathcal{D}|\bm{\Theta}}\, \Prob{\bm{\Theta}}$, is a sum over
+    far too many values\pause
+  \item Monte Carlo methods (the MCMC lecture) can sample from the
+    posterior without computing $\Prob{\mathcal{D}}$\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -223,36 +325,11 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Problem with Bayes}
+\section[-1]{Maximum A Posteriori (MAP) Solution}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Bayes is problematic because it is often hard\pause
-  \item The posterior is often not expressible as a nice probability
-    function\pause 
-  \item We need to compute the \textit{evidence} or \textit{margin likelihood}
-    we use
-    \begin{align*}
-      \Prob{\mathcal{D}} = \sum_{\bm{\Theta}}
-      \Prob{\mathcal{D}|\bm{\Theta}}\, \Prob{\bm{\Theta}}\pause
-    \end{align*}
-  \item But sometimes the number of values that $\bm{\Theta}$ can take
-    are so large that we cannot easily compute this\pause
-  \item Nevertheless we can usually do this using Monte Carlo techniques\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Maximum A Posteriori (MAP) Solution}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item One work around is to compute the mode of the posterior
+  \item Work around: the mode of the posterior (no need for $f(\mathcal{D})$)
     \begin{align*}
        \hspace{-1cm}\bm{\Theta}_{\text{\small MAP}} =
       \argmax_{\bm{\Theta}} \,
@@ -260,12 +337,13 @@
        \argmax_{\bm{\Theta}} \, \logg{f(\mathcal{D}|\bm{\Theta})} +
        \logg{f(\bm{\Theta})}\pause
     \end{align*}
-  \item We don't need to calculate $f(\mathcal{D})$ or explicitly
-    calculate the posterior distribution\pause
-  \item But it is not Bayesian\pause{} (despite what you are sometime
-    told)\pauseb---its not properly probabilistic\pauseb
-  \item You can overfit and you don't get an estimate of the error in
-    your inference\pause
+  \item $-\logg{f(\bm{\Theta})}$ acts as a regulariser: a Gaussian
+    prior on weights gives $\|\bm{w}\|^2$, i.e.\ ridge regression or
+    weight decay\pause{} (we use this in the next lecture)\pauseb
+  \item With a uniform prior MAP is \emph{maximum likelihood}\pause{}:
+    often sufficient for \textit{government work}\pauseb
+  \item Neither is Bayesian\pause{} (despite what you are sometimes
+    told)\pauseb: they can overfit and give no error estimate\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -274,30 +352,77 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Maximum Likelihood}
+\section[-2]{Empirical Bayes}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item When we assume a uniform prior then the MAP solution is just
-    maximising the likelihood\pause
-  \item Weirdly this hack was accepted as part of mainstream
-    statistics even when Bayesian statistics was considered
-    unscientific\pause
-  \item Maximum likelihood is often sufficient for \textit{government
-      work}, but it isn't the best you can do\pause
-  \item In high-dimensional problems using a non-uniform prior
-    can make a big difference\pause
-  \item And, of course, doing a full probabilistic calculation has real
-    advantages\pause{} (no overfitting, estimate of error, etc.)\pauseb
+  \begin{itemize}\squeeze
+  \item A half-way house: integrate out the many $\theta_j$, optimise
+    the few hyperparameters, then use the conjugate posteriors\pause
+  \item For the ratings model the integral is in closed form (the
+    \emph{beta-binomial})
+    \begin{align*}
+      \Prob{k_j|a,b} &= \int_0^1 \mathrm{Bin}(k_j|n_j,\theta)\,
+      \mathrm{Beta}(\theta|a,b)\,\dd\theta \\
+      &= \binom{n_j}{k_j}\frac{B(a+k_j,\,b+n_j-k_j)}{B(a,b)}\pause
+    \end{align*}
+  \item Choose $a$, $b$ to maximise the evidence
+    $\prod_j\Prob{k_j|a,b}$ (as for the GP hyperparameters)\pause{}:
+    for the data in the figure $a=19.9$, $b=5.3$\pauseb
+  \item Cheap and often good, but ignores uncertainty in $a$, $b$\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{slide}
+\section{A Ladder of Strategies}
+
+\begin{PauseHighLight}
+  \begin{center}
+    \begin{tabular}{l|l|l}
+      Strategy & What you get & Cost \\ \hline
+      ML & a point estimate & optimiser\pause \\
+      MAP & a regularised point & optimiser\pause \\
+      Empirical Bayes & posteriors given $a,b$ & an integral\pause \\
+      EM & ML/MAP with latents & iterate\pause \\
+      Full Bayes & all the uncertainty & MCMC\pause
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+  \item Choose the cheapest that answers your question\pause
+  \item The rest of this lecture: EM\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % Mixture of Gaussians
+\Outline % Mixtures and EM
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{You Already Know EM}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item $k$-means clustering
+    \begin{enumerate}
+    \item assign each point to its nearest centre\pause
+    \item move each centre to the mean of its points\pause
+    \item repeat\pause
+    \end{enumerate}
+  \item Step 1 guesses the hidden cluster labels; step 2 fits the
+    parameters as if those guesses were right\pause
+  \item The EM algorithm does the same with \emph{probabilities} of
+    belonging to each cluster\pause
+  \item It comes from a probabilistic model: a mixture\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
@@ -305,19 +430,38 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Suppose we were observing the decays from two types of
-    short-lived particle, $A$ or $B$\pause
-  \item We observe the half life, $X_i$, but not the particle type\pause
-  \item We assume $X_i$ is normally distributed with unknown means and
-    variances: $\bm{\Theta} = \{\mu_A$, $\sigma_A^2$, $\mu_B$,
-    $\sigma_B^2\}$\pause
-  \item Let $Z_i\in\{0,1\}$ be an indicator that particle $i$ is of
-    type $A$\pause
+  \item Suppose we detect two types of short-lived particle, $A$ or
+    $B$, and measure each particle's mass, $X_i$, with a noisy
+    detector, but not its type\pause
+  \item Let $Z_i\in\{0,1\}$ indicate that particle $i$ is of type $A$,
+    with $\Prob{Z_i=1}=p$\pause
+  \item $X_i$ is normal with unknown means and variances, so the
+    parameters are $\bm{\Theta} = (\mu_A, \sigma_A^2, \mu_B, \sigma_B^2, p)$\pause
   \item The probability of $X_i$ is given by
     \begin{align*}
       f(X_i|Z_i,\bm{\Theta}) = Z_i\,\normal{X_i\big|\mu_A,\sigma_A^2} +
       (1-Z_i)\,\normal{X_i\big|\mu_B,\sigma_B^2}\pause
     \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Mixture as a Graphical Model}
+
+\begin{PauseHighLight}
+  \begin{center}
+    \includegraphics[width=0.55\linewidth]{gmModels-1}\pause
+  \end{center}
+  \begin{itemize}
+  \item For each data point draw a type $Z_i$, then a mass $X_i$ from
+    that type's normal distribution\pause
+  \item $Z_i$ is latent: we must marginalise it out\pause
+  \item The parameters (dark) are shared by all data points, so they
+    sit outside the plate\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -333,7 +477,7 @@
   \item Note that{\small
     \begin{align*}
       f(X_i|\bm{\Theta})
-      &= \sum_{Z_i\in\{0,1\}} f(X_i,Z_i|\bm{\Theta})\pause 
+      &= \sum_{Z_i\in\{0,1\}} f(X_i,Z_i|\bm{\Theta})\pause
         = \sum_{Z_i\in\{0,1\}}
         f(X_i|Z_i,\bm{\Theta})\,\Prob{Z_i}\pause \\
       &= \av[Z_i]{f(X_i|Z_i,\bm{\Theta})}\pause
@@ -355,41 +499,18 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item To solve the model as a Bayesian we would have to assign priors
-    to our parameters $\bm{\Theta} = (\mu_A, \sigma_A, \mu_B,
-    \sigma_B, p)$\pause
-  \item This is doable, but complicated (we would also end up with a
-    distribution for our parameters)\pause
+  \item A full Bayesian treatment needs priors on $\bm{\Theta}$ and
+    would give a distribution over parameters\pause
   \item Often we only want a reasonable estimate for some of our
-    parameters (e.g. the half-lives $\mu_A$ and $\mu_B$)\pause
+    parameters (e.g. the masses $\mu_A$ and $\mu_B$)\pause
   \item A reasonable approach is to seek those parameters that maximise the
-    likelihood of our observed data
+    likelihood of our observed data (assumed independent)
     \begin{align*}
       f(\data|\bm{\Theta}) = \prod_{X\in\data} f(X|\bm{\Theta})\pause
     \end{align*}
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % EM
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Maximum Likelihood with Latent Variables}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item The maximum likelihood is a non-linear function of the
-    parameters so cannot be immediately maximised\pause
-  \item If we knew which type of particle a data-point belongs to
-    ($Z_i$) then it would be straightforward to maximise the
-    likelihood\pause
-  \item As we don't we need to estimate $\Prob{Z_i=1}$, but this
-    depends on $\mu_A$, $\sigma_A^2$, $\mu_B$, $\sigma_B^2$ and $p$\pause
-  \item We could use a standard optimiser, but this is slightly inelegant\pause
+  \item {\small Strictly, we seek a good \emph{local} maximum: putting
+      $\mu_A=X_1$ and letting $\sigma_A\to0$ makes the likelihood
+      infinite}\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -402,16 +523,22 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Instead we can use an \emph{expectation-maximisation
-      algorithm} usually known as an \emph{EM algorithm}\pause
-  \item We proceed iteratively by maximising the expected
-    log-likelihood with respect to the current set of parameters
+  \item If we knew each particle's type, $Z_i$, maximising the
+    likelihood would be easy\pause{}; but estimating $\Prob{Z_i=1|X_i}$
+    needs the parameters\pauseb
+  \item The \emph{expectation-maximisation} (EM) algorithm iterates:
+    maximise the log-likelihood of the data \emph{and} latent
+    variables, averaged over the latent variables using the current
+    parameters
     \begin{align*}
-      \Theta^{(t+1)} = \mathop{\mathrm{argmax}}_{\bm{\Theta}}
+      \bm{\Theta}^{(t+1)} = \mathop{\mathrm{argmax}}_{\bm{\Theta}}
       \sum_{\bm{Z}} \Prob{\bm{Z}\big|\data,\bm{\Theta}^{(t)}}\,
-      \logg{f(\data|\bm{Z}, \bm{\Theta})}\pause
+      \logg{f(\data,\bm{Z}| \bm{\Theta})}\pause
     \end{align*}
-  \item It isn't obvious why this works\pause
+  \item E-step: compute $\Prob{\bm{Z}|\data,\bm{\Theta}^{(t)}}$;
+    M-step: maximise\pause
+  \item No step decreases the likelihood\pause{} (the proof is in the
+    notes)\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -420,92 +547,59 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Why EM Algorithm Works}
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item The argument around why this works is quite involved\pause
-  \item Note that at each step we maximise
-    \begin{align*}
-      Q(\bm{\Theta}|\bm{\Theta}^{(t)})
-      =  \sum_{\bm{Z}\in\{0,1\}^m}
-      \Prob{\bm{Z}\big|\mathcal{D},\bm{\Theta}^{(t)}}\,
-        \logg{f(\mathcal{D}|\bm{Z}, \bm{\Theta})}\pause
-    \end{align*}
-  \item We can show that the maximum, $\bm{\Theta}^{(t+1)}$, is such
-    that{\small
-    \begin{align*}
-      \logg{f(\mathcal{D}|\bm{\Theta}^{(t+1)})} -
-      \logg{f(\mathcal{D}|\bm{\Theta}^{(t)})} \geq
-      Q(\bm{\Theta^{(t+1)}}|\bm{\Theta}^{(t)}) -
-      Q(\bm{\Theta^{(t)}}|\bm{\Theta}^{(t)})\pause \geq 0\pause
-    \end{align*}}
-  \item The details are given in the supplemental notes\pause
-  \end{itemize}
-\end{PauseHighLight}
-  
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-1]{Conditional Latent Variables}
+\section[-1]{E-Step: Responsibilities}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item We need to compute the distribution of latent variables
+  \item We need the distribution of the latent variables
     conditioned on the data and current estimated parameters\pause
   \item For our problem
     \begin{align*}
       \Prob{\bm{Z}\big|\data,\bm{\Theta}^{(t)}} =
       \prod_{i=1}^m \Prob{Z_i\big|X_i,\bm{\Theta}^{(t)}}\pause
     \end{align*}
-    where{\small
+    where, by Bayes' rule, the \emph{responsibility} of type $A$ for
+    point $i$ is {\small
     \begin{align*}
-      \Prob{Z_i=1\big|X_i,\bm{\Theta}^{(t)}} &= \frac{p^{(t)}\,
-      \normal{X_i\big|\mu_A^{(t)},\sigma_A^{2(t)}} } 
+      \gamma_i^{(t)} = \Prob{Z_i=1\big|X_i,\bm{\Theta}^{(t)}} &= \frac{p^{(t)}\,
+      \normal{X_i\big|\mu_A^{(t)},\sigma_A^{2(t)}} }
      { p^{(t)}\,\normal{X_i\big|\mu_A^{(t)},\sigma_A^{2(t)}} +
-     (1-p^{(t)})\, \normal{X_i\big|\mu_B^{(t)},\sigma_B^{2(t)}} } \\
-      \Prob{Z_i=0\big|X_i,\bm{\Theta}^{(t)}} &= 1 -
-      \Prob{Z_i=1\big|X_i,\bm{\Theta}^{(t)}}\pause
+     (1-p^{(t)})\, \normal{X_i\big|\mu_B^{(t)},\sigma_B^{2(t)}} }
     \end{align*}}
+    and $\Prob{Z_i=0\big|X_i,\bm{\Theta}^{(t)}} = 1 - \gamma_i^{(t)}$\pause
   \end{itemize}
 \end{PauseHighLight}
 
 
 \end{slide}
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{EM for Mixture of Gaussians}
+\section[-1]{M-Step}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Maximise with respect to parameters $\bm{\theta}$
+  \item The data points are independent, so
     {\small
       \begin{align*}
-       \hspace{-1.5cm} Q(\bm{\theta}|\bm{\theta}^{(t)})
-      &=\!\! \sum_{\bm{Z}} \Prob{\bm{Z}|\data,\bm{\Theta}^{(t)}}\,
-        \logg{f(\data|\bm{Z}, \bm{\Theta})} \pause
-        = \sum_{i=1}^m \sum_{Z_i }\Prob{Z_i|\data,\bm{\Theta}^{(t)}}\,
-        \logg{f(X_i|Z_i, \bm{\Theta})}\pause
-        \\
-      &=\!\!\sum_{i=1}^m \sum_{Z_i\in\{0,1\}} \Prob{Z_i|X_i,\bm{\theta}^{(t)}_i}\,
-        \bigl( Z_i \log(p) + (1-Z_i)\log(1-p) \\
-        & \hspace{9cm}  -
-        \frac{(X_i-\mu_{Z_i})^2}{2\,\sigma^2_{Z_i}} - \logg{\sqrt{2\,\pi}\,\sigma_{Z_i}} \bigr)\pause
+       Q(\bm{\Theta}|\bm{\Theta}^{(t)})
+      &= \sum_{i=1}^m \Bigl[ \gamma_i^{(t)} \Bigl( \log(p) -
+        \frac{(X_i-\mu_A)^2}{2\,\sigma^2_A} - \tfrac12\logg{2\,\pi\,\sigma^2_A}
+        \Bigr) \\
+      & \hspace{1.5cm} + (1-\gamma_i^{(t)}) \Bigl( \log(1-p) -
+        \frac{(X_i-\mu_B)^2}{2\,\sigma^2_B} - \tfrac12\logg{2\,\pi\,\sigma^2_B}
+        \Bigr)\Bigr]\pause
     \end{align*} }
-  \item Compute update equations
+  \item For example, only the first bracket involves $\mu_A$
     \begin{align*}
-      \pd{Q(\bm{\theta}|\bm{\theta}^{(t)})}{\mu_k}=0,
-      &&
-         \pd{Q(\bm{\theta}|\bm{\theta}^{(t)})}{\sigma_k}=0,
-      &&
-          \pd{Q(\bm{\theta}|\bm{\theta}^{(t)})}{p}=0\pause
+      \pd{Q}{\mu_A} = \sum_{i=1}^m \gamma_i^{(t)}\,
+      \frac{X_i-\mu_A}{\sigma_A^2} = 0
+      \quad\Rightarrow\quad
+      \mu_A^{(t+1)} = \frac{ \sum_{i=1}^m \gamma_i^{(t)}\, X_i}
+        {\sum_{i=1}^m \gamma_i^{(t)}}\pause
     \end{align*}
+  \item The other parameters work the same way (see the notes)\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -518,28 +612,31 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Means
+  \item Fraction of type $A$: the average responsibility
     \begin{align*}
-      \mu_{Z_i}^{(t+1)}
-      &= \frac{ \sum_{i=1}^n \Prob{Z_i|X_i,\bm{\theta}^{(t)}} X_i}
-        {\sum_{i=1}^n \Prob{Z_i|X_i,\bm{\theta}^{(t)}}},\pause
+      p^{(t+1)} = \frac{1}{m} \sum_{i=1}^m \gamma_i^{(t)}\pause
     \end{align*}
-\item Variances
+  \item Means: weighted averages of the data
+    \begin{align*}
+      \mu_A^{(t+1)}
+      &= \frac{ \sum_{i=1}^m \gamma_i^{(t)}\, X_i}
+        {\sum_{i=1}^m \gamma_i^{(t)}}, &
+      \mu_B^{(t+1)}
+      &= \frac{ \sum_{i=1}^m (1-\gamma_i^{(t)})\, X_i}
+        {\sum_{i=1}^m (1-\gamma_i^{(t)})}\pause
+    \end{align*}
+  \item Variances: weighted variances (if every $\gamma_i$ were 0 or 1,
+    these would all be the ordinary group statistics)
   \begin{align*}
-    (\sigma_{Z_i}^{(t+1)})^2
-      &= \frac{ \sum_{i=1}^n \Prob{Z_i|X_i,\bm{\theta}^{(t)}}
-        (X_i-\mu^{(t+1)}_{Z_i})^2}
-        {\sum_{i=1}^n \Prob{Z_i|X_i,\bm{\theta}^{(t)}}}\pause
+    \sigma_A^{2(t+1)}
+      = \frac{ \sum_{i=1}^m \gamma_i^{(t)}
+        (X_i-\mu^{(t+1)}_A)^2}
+        {\sum_{i=1}^m \gamma_i^{(t)}}\pause
   \end{align*}
-  \item Probability of being type 1
-    \begin{align*}
-      p^{(t+1)} = \frac{1}{n} \sum_{i=1}^n \Prob{Z_i=1 \mid X_i, \bm{\theta}^{(t)}_i}\pause
-    \end{align*}
   \end{itemize}
 \end{PauseHighLight}
-  
-\end{slide}
 
+\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -551,23 +648,46 @@
   \multipdf[width=\linewidth]{mixtureOfGaussians}\pause
 \end{center}
 \end{slide}
+
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{slide}
+\section{EM in Practice}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item With equal, fixed variances and $\sigma\to0$ the
+    responsibilities become 0 or 1: EM becomes $k$-means\pause
+  \item EM finds a local maximum: run it from several starts\pause
+  \item A component can collapse onto a single point ($\sigma\to0$,
+    likelihood $\to\infty$)\pause{}: a prior on $\sigma$ (i.e.\ MAP)
+    prevents this\pauseb
+  \item Convergence can be slow when the components overlap (the
+    latent variables are very uncertain)\pause
+  \item Simple updates, no step size, and it works for any model with
+    latent variables (missing data, hidden Markov models, \ldots)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
 \section{Summary}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Building probabilistic models is an intricate process\pause
-  \item Identifying random variables that describe the system is the
-    first step\pause
-  \item Often we need to introduce variables that we don't observe and
-    need to be marginalised out\pause
-  \item The EM algorithm provide one approach to maximising
-    likelihoods or MAP solutions when we have latent variables\pause
-  \item It often gives nice update equations, but convergence can be
-    slow\pause
+  \item Build a model by writing down how the data were generated: a
+    generative story or graphical model\pause
+  \item Hierarchical models let similar groups share strength
+    (shrinkage)\pause
+  \item Beyond conjugate priors there is a ladder of strategies:
+    ML, MAP, empirical Bayes, EM, full Bayes with MCMC\pause
+  \item The EM algorithm maximises likelihoods (or MAP) when there are
+    latent variables\pause
+  \item It gives nice update equations, but finds local optima and can
+    converge slowly\pause
   \end{itemize}
 \end{PauseHighLight}
 

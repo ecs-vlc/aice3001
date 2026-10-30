@@ -123,7 +123,26 @@ draw(graph(Gamma, 0.001, 10, operator--), blue);
 ship();
 picture bg = new picture;
 add(bg, currentpicture);
-picture samples = new picture;
+// The first NSTEP proposals are animated, two frames each: (a) the current
+// point (blue) and the proposal (red); (b) after accepting or rejecting,
+// a bar of height BAR is stacked on the bin where the chain now is --
+// even when it stays put.  The bins match the final histogram.
+int NSTEP = 10;
+real BAR = 1/30;
+real lo = 0, hi = 10;
+int nbins = 50;
+real w = (hi - lo)/nbins;
+int[] count = array(nbins, 0);
+picture bars = new picture;
+
+void barframe(real m, string msg="") {
+  add(bars);
+  label("\large $\bm{\times}$", (m, 0), blue);
+  if (msg != "") label(msg, (8.5, 1.1), fontsize(10pt));
+  ship();
+  erase();
+  add(bg);
+}
 
 int T = 40000;
 real aa[];
@@ -131,8 +150,8 @@ real mu = 4;
 int n = X.length;
 for(int t=0; t<2*T; ++t) {
   real mup = GammaDev(mu*mu, mu);
-  if (t<10) {
-    add(samples);
+  if (t<NSTEP) {
+    add(bars);
     draw((mu,0)::(0.5*(mu+mup), 0.2)::(mup,0), Arrow);
     label("\large $\bm{\times}$", (mu, 0), blue);
     label("\large $\bm{\times}$", (mup, 0), red);
@@ -145,15 +164,20 @@ for(int t=0; t<2*T; ++t) {
   for(int i=0; i<X.length; ++i)
     sum += X[i]*lr;
   real r = GammaDist(mu,mup*mup,mup)*exp(-n*(mup-mu)+sum)*mu/(mup*GammaDist(mup,mu*mu,mu));
-  if (r>1 || r>rand()/randMax) {
-    if (t<10) {
-      label(samples, "\small $\times$", (mu, 0), blue);
-    }
+  bool accept = (r>1 || r>rand()/randMax);
+  if (accept)
     mu = mup;
+  if (t<NSTEP) {
+    int k = floor((mu - lo)/w);
+    filldraw(bars, box((lo + k*w, count[k]*BAR), (lo + (k+1)*w, (count[k]+1)*BAR)),
+             lightred, black);
+    ++count[k];
+    barframe(mu, accept ? "accepted" : "rejected: stay");
   }
   if (t>T)
     aa.push(mu);
 }
-histogram(aa,0,max(aa),50, true, lightred);
+histogram(aa, lo, hi, nbins, true, lightred);
 draw(graph(Gamma, 0.001, 10, operator--), blue);
 ship();
+erase();

@@ -110,6 +110,21 @@
      consistent with any constraints are overwhelmingly concentrated on
      the proportions that maximise the entropy
 
+** Entropy Is Concave
+   * Each term $h(p) = -p\ln(p)$ has $h''(p) = -1/p < 0$, so the entropy
+     $H = \sum_i h(p_i)$ is a concave function of the probabilities, and
+     $-H$ is convex
+   * For $K$ outcomes, Jensen's inequality for the concave $\log$ gives
+     $$ H_X = \av{\log_2\!\bra{\frac{1}{\Prob{X}}}} \leq
+        \log_2\!\bra{\av{\frac{1}{\Prob{X}}}} = \log_2(K) $$
+     since $\av{1/\Prob{X}} = \sum_x \Prob{X=x}/\Prob{X=x} = K$.  The
+     uniform distribution has the most uncertainty
+   * Maximising a concave function subject to linear constraints (such
+     as fixed averages) is a convex problem with a single maximum, so the
+     maximum entropy method gives one answer
+   * Because $-H$ is convex and favours spread-out distributions, it is a
+     convenient regulariser; we use it for optimal transport
+
 ** The Maximum Entropy Method
    * To infer a distribution from limited information, maximise its
      entropy subject to constraints expressing what we know.  The entropy
@@ -142,6 +157,24 @@
      distributions over microscopic states from observations such as
      volume and pressure.  Temperature appears, rather strangely, as a
      Lagrange multiplier
+
+** Softmax Is Maximum Entropy
+   * A model gives scores $s_i$ to $K$ classes.  Among the probability
+     vectors with a given average score, $\sum_i p_i s_i = \bar{s}$, which
+     has maximum entropy?  As for the normal distribution, form
+     $$ \mathcal{L} = -\sum_i p_i\ln(p_i) + \lambda_0\bra{\sum_i p_i - 1} +
+        \beta\bra{\sum_i p_i s_i - \bar{s}} $$
+   * Setting $\partial\mathcal{L}/\partial p_i = -\ln(p_i) - 1 +
+     \lambda_0 + \beta s_i = 0$ gives $p_i \propto \e{\beta s_i}$, and
+     normalising gives the /softmax/
+     $$ p_i = \frac{\e{s_i/T}}{\sum_j \e{s_j/T}}, \qquad T = \frac{1}{\beta} $$
+   * The temperature $T$ is the inverse of a Lagrange multiplier, exactly
+     as in statistical physics.  It is the same "temperature" used when
+     sampling from a language model: as $T\to0$ the most likely class
+     takes all the probability, as $T\to\infty$ the distribution becomes
+     uniform
+   * With scores $s_i = \bm{w}_i^\tr\bm{x}$ this model is multinomial
+     logistic regression, also known as the /maximum entropy classifier/
 
 ** A Little History
    * Entropy was introduced in physics by Rudolf Clausius in 1865 (Macquorn
@@ -209,4 +242,4 @@
      satisfies all three constraints, and a quadratic exponent determines
      a normal distribution uniquely
 
-* COMMENT [[file:mcmc.org][Previous]]  [[file:wasserstein.org][Next]]
+* COMMENT [[file:mcmc.org][Previous]]  [[file:information.org][Next]]

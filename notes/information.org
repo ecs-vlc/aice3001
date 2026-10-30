@@ -1,9 +1,9 @@
 #+TITLE: AICE3001/AICE6002: Mathematics of Machine Learning
-#+SUBTITLE: Subsidiary Notes --- Lecture 27: Information Theory
+#+SUBTITLE: Subsidiary Notes --- Lecture 26: Information Theory
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Conditional entropy, joint entropy, mutual information, channel capacity, KL-divergence, variational inference, ELBO, minimum description length, variational auto-encoders
+  * Conditional entropy, joint entropy, mutual information, channel capacity, KL-divergence, variational inference, ELBO, cross-entropy, minimum description length, variational auto-encoders
 
 * Main Points
 
@@ -20,8 +20,8 @@
    * The /joint entropy/ is the entropy of the pair,
      $$ H_{X,Y} = -\sum_{x,y}\Prob{X=x,Y=y}\,\log\!\bra{\Prob{X=x,Y=y}} $$
    * If $X$ and $Y$ are independent then $H_{X,Y} = H_X + H_Y$ (see the
-     previous lecture); if they are correlated, in general
-     $H_{X,Y}\neq H_X + H_Y$
+     previous lecture); if they are dependent,
+     $H_{X,Y} < H_X + H_Y$
    * Taking logs of $\Prob{X,Y} = \Prob{Y\mid X}\,\Prob{X} = \Prob{X\mid Y}\,\Prob{Y}$
      and averaging gives the /chain rule/ for entropy
      $$ H_{X,Y} = H_X + H_{Y\mid X} = H_Y + H_{X\mid Y} $$
@@ -103,13 +103,26 @@
      zero only when $p = q$, and is not symmetric:
      $\mathrm{KL}\bra{p\,\|\,q}\neq\mathrm{KL}\bra{q\,\|\,p}$ in general
 
+** Cross-Entropy Loss
+   * A classifier gives probabilities $q(y\mid\bm{x})$ and is usually
+     trained by minimising the /cross-entropy/
+     $$ \mathcal{L} = -\frac{1}{m}\sum_{k=1}^m \log\!\bra{q(y_k\mid\bm{x}_k)} $$
+     which is the average code length for the labels using the model's
+     probabilities
+   * If, at a given $\bm{x}$, the labels really come from $p(y\mid\bm{x})$,
+     $$ \av[Y\sim p]{-\log\!\bra{q(Y\mid\bm{x})}} = H_p + \mathrm{KL}\bra{p\,\|\,q} $$
+     (add and subtract $\log p$).  The entropy $H_p$ does not depend on
+     the model, so minimising the cross-entropy minimises the
+     KL-divergence from the data to the model
+
 ** Variational Approximation
    * In Bayesian inference the posterior $f(\bm{\theta}\mid\mathcal{D})$ is
      often too complicated to write down, which is why we used MCMC
    * The /variational approximation/ instead fits a simpler distribution,
      typically factorised,
      $$ f(\bm{\theta}\mid\mathcal{D}) \approx g(\bm{\theta}\mid\bm{\phi}) = \prod_i g(\theta_i\mid\phi_i) $$
-     by maximising the /variational free energy/
+     by maximising the /evidence lower bound/ (ELBO; it is minus the
+     /variational free energy/ of physics)
      $$ \Phi(\bm{\phi}) = -\int g(\bm{\theta}\mid\bm{\phi})\,\log\!\bra{\frac{g(\bm{\theta}\mid\bm{\phi})}{f(\bm{\theta},\mathcal{D})}}\,\dd\bm{\theta} $$
 
 ** The Evidence Lower Bound (ELBO)
@@ -120,7 +133,7 @@
          &= \log\!\bra{f(\mathcal{D})} - \mathrm{KL}\bra{g(\bm{\theta}\mid\bm{\phi})\,\|\,f(\bm{\theta}\mid\mathcal{D})}
      \end{align*}
    * Because the KL-divergence is non-negative,
-     $\Phi(\bm{\phi})\leq\log\!\bra{f(\mathcal{D})}$: the free energy is a
+     $\Phi(\bm{\phi})\leq\log\!\bra{f(\mathcal{D})}$: $\Phi$ is a
      lower bound on the log evidence, hence the name ELBO
    * Maximising $\Phi$ minimises the KL-divergence, making $g$ close to the
      true posterior and $\Phi\approx\log\!\bra{f(\mathcal{D})}$
@@ -174,12 +187,17 @@
      $$ \mathcal{L} = \av[\bm{x}\sim\mathcal{D}]{\mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} - \log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))}} $$
      #+ATTR_LATEX: :width 0.8\linewidth
      [[file:figures/vae-5.pdf]]
-   * The original paper derived this as a variational approximation to a
-     posterior, which is hard to follow.  It has a much more natural reading
-     as a description length:
+   * The original paper derived this as a variational lower bound on the
+     likelihood of the data: the loss is minus an ELBO, with
+     $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ as the variational distribution.
+     That derivation is hard to follow.  The loss has a much more natural
+     reading as a description length:
      - Alice encodes each image into a latent code
        $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ and sends it, at a cost of
        $$ \mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} $$
+       (strictly, this is the cost with "bits-back" coding, Hinton and van
+       Camp 1993: the randomness in the sampled code can carry other
+       information, which is refunded)
      - she also sends the errors needed to repair Bob's reconstruction,
        at a cost of
        $$ -\log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))} $$
@@ -237,4 +255,4 @@
    * Hence
      $$ \mathrm{KL}\bra{p\,\|\,q} = \log\!\bra{\frac{\sigma_2}{\sigma_1}} - \frac{1}{2} + \frac{\sigma_1^2 + (\mu_1-\mu_2)^2}{2\,\sigma_2^2} $$
 
-* COMMENT [[file:wasserstein.org][Previous]]  [[file:biasVariance.org][Next]]
+* COMMENT [[file:entropy.org][Previous]]  [[file:wasserstein.org][Next]]

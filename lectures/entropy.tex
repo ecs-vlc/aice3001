@@ -39,13 +39,13 @@
   
 \begin{PauseHighLight}
   \begin{itemize}
-  \item What is more uncertain tossing a coin three times or throwing
-    a dice\pause
+  \item What is more uncertain: tossing a coin three times or throwing
+    a dice?\pause
   \item The answer depends on whether you care about the order of the
     coin tosses\pause
   \item But, how do we answer such a question?\pause
   \item Let $X$ be a random variable denoting the possible outcomes\pause
-  \item Interestingly, Shannon entropy give a precise answer
+  \item Interestingly, Shannon entropy gives a precise answer
     \begin{align*}
       H_X = -\sum_{x\in\mathcal{X}} \Prob{X=x}\, \logtwo{\Prob{X=x}}\pause
     \end{align*}
@@ -65,7 +65,7 @@
     so
     \begin{align*}
       H_D = - \sum_{i=1}^6 \frac{1}{6} \logtwo{ \frac{1}{6}} = - \logtwo{
-      \frac{1}{6}} = \log_2(6) \approx 2.584 \bits\pause
+      \frac{1}{6}} = \log_2(6) \approx 2.585 \bits\pause
     \end{align*}
   \item For an honest coin where we care about the order so $C \in
     \{000,001,\ldots, 111\}$ the $\Prob{C=i} = \frac{1}{8}$ and
@@ -88,8 +88,9 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item What if we don't care about the order of the out-come then
-    $\Prob{HHH}=\Prob{TTT}=1/8$, $\Prob{HHT}=\Prob{HTT}=3/8$ so
+  \item What if we don't care about the order of the outcome?  Then
+    $\Prob{HHH}=\Prob{TTT}=1/8$, while two heads (or two tails) in any
+    order have $\Prob{HHT}=\Prob{HTT}=3/8$ so
     \begin{align*}
       H_U = -\frac{1}{4} \logtwo{\frac{1}{8}} - \frac{3}{4}
       \logtwo{\frac{3}{8}}\approx 1.811 \bits\pause
@@ -109,8 +110,8 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item If $H_X$ and $H_Y$ is the uncertainty of two independent random
-    variable $X$ and $Y$, what  is the uncertainty of the combined
+  \item If $H_X$ and $H_Y$ are the uncertainties of two independent random
+    variables $X$ and $Y$, what is the uncertainty of the combined
     event $(X,Y)$?
     \begin{align*}
       H_{(X,Y)}
@@ -119,11 +120,11 @@
       &= -\sum_{X,Y} \Prob{X}\Prob{Y} \,\left(  \strut\logtwo{\Prob{X}}+
         \logtwo{\Prob{Y}} \right)\pause\\
       &= -\sum_X \Prob{X}\,\logtwo{\Prob{X}} - \sum_Y
-        \Prob{Y}\,\logtwo{Y}\pause
+        \Prob{Y}\,\logtwo{\Prob{Y}}\pause
         = H_X + H_Y\pause
     \end{align*}
-  \item Shannon's entropy is one of the few functions that satisfy
-    this condition\pause
+  \item With a few other natural requirements, Shannon's entropy is
+    the only function with this property\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -147,7 +148,8 @@
     but waste 3/8 of the message\pause
   \item However if we have a batch of 3 independent messages each with 5
     outcomes then there are 125 possible outcomes\pause.  We could communicate
-    this with 8 bits.  This would waste 3/128 of the message\pauseb
+    this with 7 bits ($2^7=128$), wasting only 3/128 of the
+    message\pauseb
   \item By batching together enough messages  with $N$ outcomes then
     we asymptotically  need just $\log_2(N)$ bits\pause
   \end{itemize}
@@ -167,7 +169,7 @@
     message of length $-\logtwo{\Prob{X_i}}\pause=\logtwo{N}$\pauseb
   \item With a shorter message we would not be able to distinguish all
     possible outcomes from the message\pauseh
-  \item What happens if some of outcomes occur with a different probability\pauseh \pauselevel{=1, =2, =3}
+  \item What happens if some of the outcomes occur with a different probability\pauseh \pauselevel{=1, =2, =3}
     \begin{center}
       \multipdf[width=0.9\linewidth]{diceEntropy}\pause
     \end{center}
@@ -187,8 +189,8 @@
     per message by transmitting a large number of messages\pause
   \item The length of the message measures the amount of
     \emph{surprise} on receiving the message\pause
-  \item Shannon's entropy is the expected length of the message to
-    communicate a random variable $X$
+  \item Shannon's entropy is the minimum expected length of the message
+    to communicate a random variable $X$
     \begin{align*}
       H_X = \av[X]{-\logtwo{\Prob{X}}}
       = - \sum_{x\in\mathcal{X}} \Prob{X=x}\, \logtwo{\Prob{X=x}}\pause
@@ -209,12 +211,13 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Those of you with some computer science background will
-    realise that we can't actually use different length strings in a
-    code without paying some price\pause
-  \item We won't know where a code word ends so we can't decode the
-    message\pause
-  \item An optimal solution is to use Huffman encoding where we
-    associate the leaf of a tree with each code word\pause
+    realise that with code words of different lengths we must know
+    where each code word ends\pause
+  \item A \emph{prefix code} (no code word is the start of another)
+    can always be decoded\pause
+  \item An optimal prefix code is Huffman encoding where we
+    associate the leaf of a tree with each code word\pause{} (its
+    expected length is between $H_X$ and $H_X+1$ bits)\pauseb
   \item Using the tree we can decode any message constructed using the
     tree\pause
   \item There is a greedy algorithm for constructing the optimal
@@ -279,14 +282,14 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Suppose I have $N$ balls I them put in $K$ boxes so that $n_i$
+  \item Suppose I have $N$ balls and put them in $K$ boxes so that $n_i$
     balls finish up in box $i$
     \begin{center}
       \includegraphics[width=0.6\linewidth]{maxent}
     \end{center}
   \item Counting the number of ways to do this
     \begin{align*}
-      \Prob{\bm{n}} &= \frac{N!}{n_1!\,n_2!\cdots n_K!}\pause
+      W(\bm{n}) &= \frac{N!}{n_1!\,n_2!\cdots n_K!}\pause
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -306,11 +309,11 @@
       approximation}
     \begin{align*}
       n! &\approx \sqrt{2\,\pi\,n}\, n^n\,\e{-n} \\
-      \log(n!) &= n \log(n) - n + \frac{1}{2}\log(2\,\pi\,n)\pause
+      \log(n!) &\approx n \log(n) - n + \frac{1}{2}\log(2\,\pi\,n)\pause
     \end{align*}
-  \item Using this in our formula for $\Prob{\bm{n}}$ we have
+  \item Using this in our formula for $W(\bm{n})$ we have
     \begin{align*}
-      \Prob{\bm{n}}&= \frac{N!}{n_1!\,n_2!\cdots n_K!} \pause
+      W(\bm{n})&= \frac{N!}{n_1!\,n_2!\cdots n_K!} \pause
                      = \e{\log(N!) - \sum\limits_i \log(n_i!)} \pauseb \\
                      &\approx C\, \e{N\,\log(N) - \sum\limits_i n_i
                        \log(n_i)} \pauseb
@@ -332,7 +335,7 @@
   \begin{itemize}
   \item Let $p(x_i) = n_i/N$ be the proportion of balls in bin $i$ then
     \begin{align*}
-      \Prob{\bm{n}} \approx C \e{N\,H_X}
+      W(\bm{n}) \approx C \e{N\,H_X}
     \end{align*}
     where
     \begin{align*}
@@ -340,9 +343,35 @@
     \end{align*}
   \item That is, the ``entropy'' can be seen as a measure of the
     logarithm of the number of configurations\pause
-  \item When the number of balls, $N\rightarrow\infty$ the
-    overwhelmingly likely configurations is the one that maximises the
-    entropy subject to the observed mean and variance\pause
+  \item As the number of balls, $N\rightarrow\infty$, the
+    overwhelmingly likely configuration is the one that maximises the
+    entropy subject to what we know (e.g.\ an observed mean)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Entropy Is Concave}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Each term $h(p) = -p\ln(p)$ has $h''(p) = -1/p < 0$, so the
+    entropy $H = \sum_i h(p_i)$ is a concave function of the
+    probabilities\pause{} ($-H$ is convex)\pauseb
+  \item Jensen's inequality (convexity lecture) with the concave
+    $\log$ gives, for $K$ outcomes,
+    \begin{align*}
+      H_X = \av{\logtwo{\frac{1}{\Prob{X}}}} \leq
+      \logtwo{\av{\frac{1}{\Prob{X}}}} = \log_2(K)\pause
+    \end{align*}
+    with equality for the uniform distribution\pause
+  \item With linear constraints (fixed averages) the maximum entropy
+    solution is unique\pause
+  \item $-H$ is a convex regulariser favouring spread-out
+    distributions (used in optimal transport)\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -363,8 +392,8 @@
     of configurations consistent with the observations\pause
   \item Alternatively we can see this as maximising our uncertainty
     given what we know\pause---being as unbiased as possible\pauseb
-  \item It only gives a good approximation if all possibilities are
-    equally likely\pause
+  \item It assumes that, before we impose the constraints, every
+    configuration is equally likely\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -435,11 +464,43 @@
        f_X(x) = \frac{1}{\sqrt{2\,\pi}\, \sigma} \e{-(x-\mu)^2/(2\sigma^2)}\pause
      \end{align*}
    \item That is, the normal distribution is the maximum entropy
-     distribution given we known the mean and variance\pause
+     distribution given we know the mean and variance\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Softmax Is Maximum Entropy}
+
+\begin{PauseHighLight}\small
+  \begin{itemize}
+  \item A model gives scores $s_i$ to $K$ classes; find the
+    probabilities $p_i$ with maximum entropy and a given average score
+    $\sum_i p_i\,s_i = \bar{s}$\pause
+  \item As for the normal distribution, use Lagrange multipliers
+    \begin{align*}
+      \mathcal{L} = -\sum_i p_i \ln(p_i) + \lambda_0\Bigl(\sum_i p_i -1\Bigr)
+      + \beta\Bigl(\sum_i p_i\, s_i - \bar{s}\Bigr)\pause
+    \end{align*}
+  \item Setting $\partial\mathcal{L}/\partial p_i = -\ln(p_i) - 1 +
+    \lambda_0 + \beta\,s_i = 0$ gives the \emph{softmax}
+    \begin{align*}
+      p_i = \frac{\e{s_i/T}}{\sum_j \e{s_j/T}}, \qquad T = 1/\beta\pause
+    \end{align*}
+  \item The temperature $T$ is (the inverse of) a Lagrange multiplier,
+    as in statistical physics\pause{}; it is the ``temperature'' used
+    when sampling from language models\pauseb
+  \item With scores $s_i = \bm{w}_i^\tr\bm{x}$ this is multinomial
+    logistic regression, also called the maximum entropy
+    classifier\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -475,7 +536,7 @@
     Ludwig Boltzmann\pause
   \item The person who got it all right was Josiah Willard Gibbs (and
     James Clerk Maxwell)\pause
-  \item Claude Shannon invented information theory base on entropy
+  \item Claude Shannon invented information theory based on entropy
     around 1948 (more on that in the next lecture)\pause
   \item Ed Jaynes was the first to understand that statistical physics
     can be seen as an inference problem\pause
@@ -496,7 +557,7 @@
   \item It forms the basis of information theory which we will look at
     in the next lecture\pause
   \item $-\log(\Prob{X=x})$ can be seen as the minimum length of a
-    message to communication $x$\pause
+    message to communicate $x$\pause
   \item This will be used as the basis of the minimum description
     length formalism also discussed in the next lecture\pause
   \item Entropy can be used as a prior, which we often maximise
