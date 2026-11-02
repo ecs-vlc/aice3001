@@ -6,7 +6,7 @@
 \lesson{When Machine Learning Works}
 \vspace{-1cm}
 \begin{center}
-\noindent\includegraphics[height=100mm]{approxEstim-17}
+\noindent\includegraphics[height=100mm]{approxEstim-21}
 \end{center}
 \keywords{When ML Works, Bias Variance}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
@@ -18,10 +18,12 @@
   \begin{enumerate}\squeeze
     \outlineitem{What Makes a Good Learning Machine?}{why}
     \outlineitem{Bias-Variance Dilemma}{dilemma}
+    \outlineitem{Shrinkage and Ridge Regression}{examples}
+    \outlineitem{Ensembles}{ensembles}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{10cm}
-  \includegraphics[width=10cm]{approxEstim-17}
+  \includegraphics[width=10cm]{approxEstim-21}
 \end{minipage}
 \end{slide}
 \addtocounter{outlineitem}{1}
@@ -41,8 +43,8 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item We want to understand why some machine learning techniques
-    work well and other don't\pause
-  \item To understand why these works we need to understand what makes a
+    work well and others don't\pause
+  \item To understand why they work we need to understand what makes a
     good learning machine\pause
   \item For this we have to get conceptual and think about
     \emph{generalisation} performance\pause
@@ -81,7 +83,7 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Least Squared Errors}
+\section{Least Squares}
 
 \begin{PauseHighLight}
   \begin{itemize}
@@ -115,15 +117,16 @@
     
     \begin{rightImage}{sampleSpace}
       \begin{align*}
-        L_G(\bm{\theta}_{\mathcal{D}}) = \sum_{(\bm{x},y)\in\mathcal{Z}} \mu(\bm{x},y)\,
+        L_G(\bm{\theta}_{\mathcal{D}}) &= \sum_{(\bm{x},y)\in\mathcal{Z}} \mu(\bm{x},y)\,
         \left(\hat{f}(\bm{x}\vert \bm{\theta}_\mathcal{D}) - y
-        \right)^2\pause 
+        \right)^2\pause \\
+        \mu(\bm{x}, y) &= p(y|\bm{x})\,p(\bm{x})\pauseb
       \end{align*}
-    \end{rightImage}
+    \end{rightImage}\pause
 
     (we can estimate this if we have some labelled examples
-    $(\bm{x}_i,y_i)$ which we have not trained on)\pause
-  \item We want to minimise $L_G(\bm{\theta}_{\mathcal{D}})$ but in practice we are
+    $(\bm{x}_i,y_i)$ which we have not trained on)\pauseb
+  \item We want to minimise $L_G(\bm{\theta}_{\mathcal{D}})$ but in practice we areb
     minimising $L_T(\mathcal{D})$\pause, \textit{what could possibly go wrong?}\pauseb
   \end{itemize}
 \end{PauseHighLight}
@@ -219,7 +222,7 @@
   \item We can define the \emph{bias} to be generalisation performance
     of the mean machine
     \begin{align*}
-      B = \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y) \left( \hat{f}_m(\bm{x})
+      B = \sum_{(\bm{x},y)} \mu(\bm{x},y) \left( \hat{f}_m(\bm{x})
       - y \right)^2\pause
     \end{align*}
   \end{itemize}
@@ -270,21 +273,21 @@
 Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
 \begin{align*}
   \bar{L}_G &= \av[\mathcal{D}]{ L_G(\bm{\theta}_{\mathcal{D}}) } \pause
-            = \av[\mathcal{D}]{  \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\,
+            = \av[\mathcal{D}]{  \sum_{(\bm{x},y)} \mu(\bm{x},y)\,
               \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) -
               y \right)^2}\pause
   \\
-  &=  \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\,
+  &=  \sum_{(\bm{x},y)} \mu(\bm{x},y)\,
   \av[\mathcal{D}]{ 
   \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) - y \right)^2}\pause
   \\
-      &= \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\, \av[\mathcal{D}]{
+      &= \sum_{(\bm{x},y)} \mu(\bm{x},y)\, \av[\mathcal{D}]{
         \left(\mypl{4}\left(\mypl{5}\hat{f}(\bm{x}\vert
         \bm{\theta}_{\mathcal{D}})
         -\hat{f}_m(\bm{x}) \mypl{4}\right)\mypl{5} + \mypl{4}\left(\mypl{5}
         \hat{f}_m(\bm{x}) - y \mypl{4}\right)\mypl{5} \right)^2
         }\mypl{4} \\
-            &=  \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y) \Biggl(
+            &=  \sum_{(\bm{x},y)} \mu(\bm{x},y) \Biggl(
               \av[\mathcal{D}]{ 
               \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) -
               \hat{f}_m(\bm{x}) \right)^2 + \left(
@@ -318,7 +321,7 @@ Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
   \end{align*}
   \item Thus
   \begin{align*}
-   \bar{L}_G &= \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)
+   \bar{L}_G &= \sum_{(\bm{x},y)} \mu(\bm{x},y)
               \av[\mathcal{D}]{ 
               \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) -
               \hat{f}_m(\bm{x}) \right)^2 + \left(
@@ -341,22 +344,45 @@ Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
   \item We can write the expected generalisation loss as
     \begin{align*}
       \av[\mathcal{D}]{ L_G(\bm{\theta}_{\mathcal{D}}) }
-      &= \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\, 
+      &= \sum_{(\bm{x},y)} \mu(\bm{x},y)\, 
       \av[\mathcal{D}]{ \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) -
       \hat{f}_m(\bm{x})\right)^2 } \\
         & \quad \quad +
-          \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y) \left( \hat{f}_m(\bm{x})
+          \sum_{(\bm{x},y)} \mu(\bm{x},y) \left( \hat{f}_m(\bm{x})
       - y \right)^2 \pause
         = V + B\pause
     \end{align*}
   \item Where $B$ is the bias and $V$ is the variance defined by
     \begin{align*}
-      V = \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\,
+      V = \sum_{(\bm{x},y)} \mu(\bm{x},y)\,
       \av[\mathcal{D}]{ \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}}) -
       \hat{f}_m(\bm{x})\right)^2 }\pause 
     \end{align*}
-  \item Warning some of you will see a similar, but subtly different
-    calculation elsewhere\pauseb---here $\bar{L}_G = B + V$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Where Is the Noise?}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Suppose $y = f^*(\bm{x}) + \epsilon$ where the noise $\epsilon$ has
+    mean 0 and variance $\sigma^2$\pause
+  \item Then (the cross term vanishes again, as $\av{\epsilon}=0$)
+    \begin{align*}
+      B = \sum_{(\bm{x},y)} \mu(\bm{x},y)\bigl(\hat{f}_m(\bm{x}) - y\bigr)^2
+      = \sigma^2 + \sum_{\bm{x}} \mu(\bm{x})\bigl(\hat{f}_m(\bm{x}) -
+      f^*(\bm{x})\bigr)^2\pause
+    \end{align*}
+  \item So $\bar{L}_G = \text{noise} + \text{bias}^2 + \text{variance}$,
+    the form you may have seen elsewhere\pause
+  \item The noise is the same for every machine: we can do nothing
+    about it\pause
+  \item Here we keep it inside $B$: $\bar{L}_G = B + V$\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -369,13 +395,13 @@ Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item The bias measure the generalisation performance of the
+  \item The bias measures the generalisation performance of the
     \textit{mean machine} and is large if the machine is too simple to
     capture the changes in the function we want to learn\pause
   \item The variance measures the variation in the prediction of the
     machines as we change the data set we train on
     \begin{align*}
-      V =  \sum_{\bm{x}\in\mathcal{X}} \mu(\bm{x},y)\,
+      V =  \sum_{(\bm{x},y)} \mu(\bm{x},y)\,
       \av[\mathcal{D}]{ \left(\hat{f}(\bm{x}\vert \bm{\theta}_{\mathcal{D}})
       - \hat{f}_m(\bm{x})\right)^2 }\pause
     \end{align*}
@@ -402,7 +428,159 @@ Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
   \item Some require us to preprocess the data to reduce the number of
     inputs\pause
   \item Some machines cleverly adjust their own complexity\pause
-  \item This course looks at machines that achieve this balance\pause
+  \item The rest of this lecture: two exact examples, and averaging\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Shrinkage and Ridge Regression
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Shrinking an Estimate}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The simplest learning problem: estimate the mean $\theta$ of a
+    distribution with variance $\sigma^2$ from $m$ samples\pause
+  \item The sample mean $\bar{x}$ is unbiased with variance
+    $\sigma^2/m$\pause
+  \item Try the deliberately biased $\hat{\theta} = c\,\bar{x}$ with
+    $0\leq c\leq1$
+    \begin{align*}
+      \av{\bigl(\hat{\theta}-\theta\bigr)^2} =
+      \underbrace{(1-c)^2\,\theta^2}_{\text{bias}^2} +
+      \underbrace{c^2\,\frac{\sigma^2}{m}}_{\text{variance}}\pause
+    \end{align*}
+  \item At $c=1$ the derivative is $2\sigma^2/m>0$: shrinking a
+    little \emph{always} reduces the error\pause
+  \item The best $c$ depends on the unknown $\theta$, so in practice we
+    choose it by validation\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Ridge Regression}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Data $\bm{y} = \mat{X}\bm{w}^* + \bm{\epsilon}$, with noise of
+    variance $\sigma^2$ on each target\pause
+  \item Ridge regression minimises $\|\mat{X}\bm{w} - \bm{y}\|^2 +
+    \eta\,\|\bm{w}\|^2$, giving
+    \begin{align*}
+      \hat{\bm{w}} = \bigl(\mat{X}^\tr\mat{X} + \eta\,\mat{I}\bigr)^{-1}
+      \mat{X}^\tr\bm{y}\pause
+    \end{align*}
+  \item $\eta = 0$ is least squares: unbiased, but how variable?\pause
+  \item Use the SVD $\mat{X} = \mat{U}\mat{S}\mat{V}^\tr$ and work in
+    the basis of the columns of $\mat{V}$, where everything
+    separates\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Ridge Through the SVD}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Write $w_k^* = \bm{v}_k^\tr\bm{w}^*$ for the component of
+    $\bm{w}^*$ along $\bm{v}_k$; since $\bm{u}_k^\tr\bm{y} = s_k w_k^* +
+    \bm{u}_k^\tr\bm{\epsilon}$, the same component of the estimate is
+    \begin{align*}
+      \hat{w}_k = \frac{s_k\,\bm{u}_k^\tr\bm{y}}{s_k^2+\eta}, \qquad
+      \av{\hat{w}_k} = \frac{s_k^2}{s_k^2+\eta}\,w_k^*, \qquad
+      \mathrm{Var}(\hat{w}_k) = \frac{\sigma^2 s_k^2}{(s_k^2+\eta)^2}\pause
+    \end{align*}
+  \item So the expected squared error of the weights is
+    \begin{align*}
+      \av{\|\hat{\bm{w}} - \bm{w}^*\|^2} = \sum_k
+      \underbrace{\Bigl(\frac{\eta}{s_k^2+\eta}\Bigr)^2 {w_k^*}^2}_{\text{bias}^2}
+      + \underbrace{\frac{\sigma^2 s_k^2}{(s_k^2+\eta)^2}}_{\text{variance}}\pause
+    \end{align*}
+  \item With $\eta=0$ the variance is $\sum_k\sigma^2/s_k^2$: small
+    singular values (ill-conditioning) make it huge\pause{}; $\eta$
+    shrinks exactly those directions, trading a little bias for a large
+    drop in variance\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Choosing $\eta$}
+
+\begin{center}
+  \includegraphics[width=0.85\linewidth]{ridgeBV-0}
+\end{center}
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Ten singular values from 3 down to 0.1, $\sigma=1$: least
+    squares has error 188, the best $\eta\approx1$ gives 6.5\pause
+  \item In practice choose $\eta$ by cross-validation\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % Ensembles
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Averaging Reduces Variance}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item An \emph{ensemble} averages $M$ predictors,
+    $\bar{f}_M(\bm{x}) = \frac{1}{M}\sum_{i=1}^M f_i(\bm{x})$, trained
+    with different randomness\pause
+  \item Averaging does not change the mean, so the bias is
+    unchanged\pause
+  \item If each $f_i(\bm{x})$ has variance $s^2$ and each pair has
+    correlation $\rho$
+    \begin{align*}
+      \mathrm{Var}\bigl(\bar{f}_M(\bm{x})\bigr) = \rho\,s^2 +
+      \frac{1-\rho}{M}\,s^2\pause
+    \end{align*}
+  \item More members remove the second term, but correlation sets a
+    floor $\rho\,s^2$\pause
+  \item So we want members that are good \emph{and} different\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Bagging, Forests and Deep Ensembles}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item \emph{Bagging}: train each member on a bootstrap resample of the
+    data (sampled with replacement)\pause
+  \item \emph{Random forests}: bagged decision trees that also choose
+    each split from a random subset of the features\pause{}---each tree
+    is worse, but the trees are less correlated\pauseb
+  \item \emph{Deep ensembles}: train several networks on the same data
+    from different random initialisations\pause
+  \item The spread of the members' predictions is a useful measure of
+    uncertainty\pause
+  \item Ensembles of high-variance, low-bias machines are among the
+    most reliable methods in practice\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -415,18 +593,18 @@ Consider the expected generalisation for data sets of size $|\mathcal{D}|=m$
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item This course is about understanding machine learning techniques that
-    work well\pause
-  \item Which one to use will depend on the data set\pause
+  \item The expected generalisation loss splits into bias plus
+    variance\pause
   \item One of the most useful intuitions about what works is the
     bias-variance framework\pause
+  \item A biased estimate can beat an unbiased one: shrinkage, ridge
+    regression\pause
   \item The bias is high for simple machines that can't capture the
     data\pause
   \item The variance is high for complex machines that are sensitive
     to the training set\pause
-  \item Good machines are powerful enough to capture complex data sets,
-    but they can control their own capacity (ability to (over-)fit the
-    data)\pause
+  \item Averaging (ensembles) reduces variance without adding
+    bias\pause
   \end{itemize}
 \end{PauseHighLight}
 

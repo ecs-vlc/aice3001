@@ -3,7 +3,8 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Overfitting, regularisation, feature selection
+  * Overfitting, regularisation, feature selection, early stopping,
+    margins, double descent
 
 * Main Points
 
@@ -13,25 +14,22 @@
     * If we use an infinitely flexible machine then we can't
       generalise at all
   * Controlling Complexity
-    * More training example improves generalisation by allowing us to
+    * More training examples improve generalisation by allowing us to
       eliminate spurious rules
     * To achieve good generalisation performance machine must match
       the underlying structure of the problem
     * By preprocessing or careful feature engineering you can sometimes
       make the learning task easier
-    * Deep learning works because
-      * It uses a lot of training data
-      * They use convolutions that
-	* have many fewer parameter to learn than fully connected layers
-	* respect translation invariance
-	* find local features (at different scales through the network)
+    * Deep learning works partly because it uses a lot of training data
+      and partly because architectures such as convolutional networks
+      match the structure of the data (see the next lecture)
     * We usually don't know the structure of the inputs (they are too
       high dimensional)
       * Try different machines to see what fits
       * Fine-tune the models (adjusting hyper-parameters)
-      * Feature Engineering very often help
+      * Feature engineering very often helps
 	* Feature selection
-	* Using PCA or clustering
+	* Projecting onto a few principal components (PCA)
 	* Normalise your input features
       * Need a validation set to do this
       * Beware you are very likely to over-estimate your generalisation error
@@ -41,10 +39,54 @@
   * Regularisation
     * Adding regularisation terms can help choose a simpler model
     * $L_2$ regularisers punish large weights making the fitting
-      function smoother
-    * $L_1$ regularisers can do automatic feature selection
-    * Can do subtle forms of regularisation such as choosing a maximum
-      margin solution
+      function smoother; $L_1$ regularisers (the lasso) can do automatic
+      feature selection
+    * *Regularisers are priors.*  The MAP solution maximises
+      $\log f(\mathcal{D}|\bm{w}) + \log f(\bm{w})$, so $-\log f(\bm{w})$ acts
+      as a regulariser.  Gaussian noise of variance $\sigma^2$ with a
+      Gaussian prior $w_i\sim\mathcal{N}(0,s^2)$ gives ridge regression with
+      $\eta = \sigma^2/s^2$; a Laplace prior $f(w_i)\propto\e{-|w_i|/b}$
+      gives the lasso penalty $\eta\sum_i|w_i|$
+    * *Early stopping is implicit ridge.*  Gradient descent on
+      $\frac12\|\mat{X}\bm{w}-\bm{y}\|^2$ with learning rate $r$ is
+      $\bm{w}\leftarrow\bm{w} - r\,\mat{X}^\tr(\mat{X}\bm{w}-\bm{y})$.  With
+      the SVD $\mat{X} = \mat{U}\mat{S}\mat{V}^\tr$, component $k$ of $\bm{w}$
+      along $\bm{v}_k$ obeys
+      $w_k \leftarrow (1 - r s_k^2)\,w_k + r\,s_k\,\bm{u}_k^\tr\bm{y}$.  Starting
+      from $\bm{w} = \bm{0}$, after $t$ steps
+      $$ w_k(t) = \Bigl(1 - (1 - r\,s_k^2)^t\Bigr)\,\frac{\bm{u}_k^\tr\bm{y}}{s_k} $$
+      where $\bm{u}_k^\tr\bm{y}/s_k$ is the least squares component (see
+      the exercises).  Ridge regression multiplies the same component by
+      $s_k^2/(s_k^2+\eta)$.  Both factors are near 1 for large $s_k$ and
+      near 0 for small $s_k$, where the variance lives, so stopping after
+      $t$ steps acts roughly like ridge with $\eta\approx1/(r\,t)$
+    * *Why SVMs generalise.*  For data in a ball of radius $R$ separated
+      with margin $\gamma$, the capacity of the separator depends on
+      $(R/\gamma)^2$ rather than on the dimension of the feature space
+      (Vapnik), which is why the kernel trick, with enormous or infinite
+      feature spaces, need not over-fit.  Also, removing a training point
+      that is not a support vector leaves the solution unchanged, so the
+      leave-one-out error is at most (number of support vectors)$/m$
+
+** Double Descent
+   * Least squares on $m = 40$ points using the first $p$ of 100
+     features: the test error shows the classical U-curve, a spike at
+     $p = m$, and then a second descent (Figure \ref{fig:dd})
+     #+ATTR_LATEX: :width 0.7\textwidth
+     #+CAPTION: Test error of least squares (minimum norm for $p>m$) and of ridge regression against the number of features\label{fig:dd}
+     [[file:figures/doubleDescent-0.pdf]]
+   * At $p = m$ there is exactly one fit through every noisy point.  The
+     smallest singular value of $\mat{X}$ is then close to 0, and the
+     variance $\sum_k\sigma^2/s_k^2$ (lecture on bias and variance)
+     explodes
+   * For $p > m$ there are infinitely many exact fits.  We take the one
+     with the smallest norm,
+     $\hat{\bm{w}} = \mat{X}^\tr(\mat{X}\mat{X}^\tr)^{-1}\bm{y}$
+   * Gradient descent from $\bm{w}=\bm{0}$ finds exactly this solution
+     (see the exercises): the optimiser itself regularises
+   * Modern neural networks have far more parameters than training
+     examples and still often generalise well; counting parameters is
+     not the same as measuring complexity (Belkin et al., 2019)
 
 * Exercises
 
@@ -61,6 +103,17 @@
      * Answer at the end
 
 
+** Early stopping
+   * Derive the formula for $w_k(t)$ above from the update
+     $w_k \leftarrow (1 - r s_k^2)\,w_k + r\,s_k\,\bm{u}_k^\tr\bm{y}$ with
+     $w_k(0) = 0$.  What happens as $t\to\infty$ if $0 < r\,s_k^2 < 2$?
+
+** Minimum norm
+   * Show that every gradient descent step on
+     $\frac12\|\mat{X}\bm{w}-\bm{y}\|^2$ adds a vector of the form
+     $\mat{X}^\tr\bm{a}$.  Hence, starting from $\bm{w} = \bm{0}$, explain why
+     the limit for $p > m$ is the minimum-norm exact fit.
+
 * Experiments
 
 ** Overfitting Game
@@ -70,6 +123,27 @@
    * Choose $i^*$ with the largest value of $Y_i$
    * Compute $\Delta = Z_{i^*}= Y_{i^*}-X_{i^*}$ 
    * Repeat many times and plot a histogram
+
+** Double descent
+   * Fit least squares (minimum norm when $p > m$) with $m = 40$ points
+     and $p$ of 100 features, and print the median test error over many
+     training sets.  (The mean is useless at $p = m$: the expected error
+     is infinite there.)
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+D, m, sigma, trials = 100, 40, 0.5, 200
+beta = rng.standard_normal(D) / np.sqrt(D)
+for p in [10, 30, 38, 40, 42, 60, 100]:
+    err = []
+    for _ in range(trials):
+        X = rng.standard_normal((m, D))
+        y = X @ beta + sigma * rng.standard_normal(m)
+        w = np.linalg.lstsq(X[:, :p], y, rcond=None)[0]   # min-norm if p > m
+        err.append(((w - beta[:p])**2).sum() + (beta[p:]**2).sum() + sigma**2)
+    print(p, round(np.median(err), 2))
+#+END_SRC
 
 ** Cross-validation
    * Try using cross validation
@@ -105,7 +179,7 @@ clf.score(X_test, y_test)
     * Be very wary of estimating your generalisation performance
       * You are measuring on a finite validation set so you will have errors
       * Once you've used your validation set for selecting models,
-        your likely to over-estimate your generalisation performance
+        you are likely to over-estimate your generalisation performance
         (under-estimate the generalisation error)
 
 
@@ -132,5 +206,33 @@ clf.score(X_test, y_test)
      an error of 4%.
    * Note that by choosing the best of 10 machines we might expect to 
      over-estimate the performance by around 5% in this case
+
+** Early stopping
+   * Let $c_k = s_k\,\bm{u}_k^\tr\bm{y}$ and $a = 1 - r s_k^2$.  Then
+     $w_k(t) = c_k\,r\,(1 + a + \cdots + a^{t-1}) = c_k\,r\,(1 - a^t)/(1 - a)
+     = (1 - a^t)\,c_k/s_k^2 = (1 - a^t)\,\bm{u}_k^\tr\bm{y}/s_k$
+   * If $0 < r s_k^2 < 2$ then $|a| < 1$, so $a^t\to0$ and $w_k$ converges
+     to the least squares component $\bm{u}_k^\tr\bm{y}/s_k$.  Small $s_k$
+     means $a$ close to 1 and slow convergence: these are the last
+     directions to be fitted
+
+** Minimum norm
+   * The step is $-r\,\mat{X}^\tr(\mat{X}\bm{w}-\bm{y})$, of the form
+     $\mat{X}^\tr\bm{a}$.  Starting from $\bm{0}$, $\bm{w}$ always stays in the
+     space spanned by the rows of $\mat{X}$
+   * For $p > m$ (and $\mat{X}\mat{X}^\tr$ invertible) the limit fits the
+     data exactly, so $\bm{w} = \mat{X}^\tr\bm{a}$ with
+     $\mat{X}\mat{X}^\tr\bm{a} = \bm{y}$, giving
+     $\bm{w} = \mat{X}^\tr(\mat{X}\mat{X}^\tr)^{-1}\bm{y}$
+   * Any other exact fit is $\bm{w} + \bm{z}$ with $\mat{X}\bm{z} = \bm{0}$.  Then
+     $\bm{z}$ is orthogonal to every row of $\mat{X}$, hence to $\bm{w}$, so
+     $\|\bm{w}+\bm{z}\|^2 = \|\bm{w}\|^2 + \|\bm{z}\|^2 \geq \|\bm{w}\|^2$:
+     gradient descent finds the minimum-norm fit
+
+** Double descent
+   * The median test errors are about 1.47 ($p=10$), 3.89 ($p=30$),
+     14.8 ($p=38$), 86 ($p=40$), 16.4 ($p=42$), 2.2 ($p=60$) and 0.98
+     ($p=100$): a peak at $p = m$ and a second descent that ends below
+     anything the small models achieve
 
 * COMMENT [[file:biasVariance.org][Previous]]  [[file:symmetry.org][Next]]

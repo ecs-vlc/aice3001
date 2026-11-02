@@ -19,6 +19,7 @@
     \outlineitem{Inductive Bias}{inductivebias}
     \outlineitem{Invariance}{invariance}
     \outlineitem{Group Theory}{grouptheory}
+    \outlineitem{Symmetry in Machine Learning}{symml}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
@@ -42,11 +43,11 @@
   \item Learning machines differ in how they split up the space of
     inputs\pause
   \item Perceptrons split the space using a hyperplane, RBFs split the space
-    depending on some set of centres, MLPs successive split the world
+    depending on some set of centres, MLPs successively split the world
     at different layers\pause
   \item These differences are known as the \emph{inductive bias} of
     the machine\pause
-  \item The different inductive bias lead to different
+  \item The different inductive biases lead to different
     performance\pause
   \item How can we exploit the inductive bias to get good performance?\pause
   \end{itemize}
@@ -89,7 +90,7 @@
     \item The kernel parameter $\gamma$ in SVMs (or $\ell$ in Gaussian
       Processes)
     \item $k$ in $k$-nearest neighbours
-    \item The size of the $L_2$ regulisation term in neural networks\pause
+    \item The size of the $L_2$ regularisation term in neural networks\pause
     \end{itemize}
   \item We often have to choose these using trial and error (using a
     validation set)\pause
@@ -149,8 +150,8 @@
     same way\pause
   \item They are not perfectly equivariant (they break at the pixel
     level and at the full image level---due to edges)\pause
-  \item But they are sufficient good that CNNs have dominated computer
-    vision for years\pause{} (ignoring visual transformers)\pauseb
+  \item But they are sufficiently good that CNNs have dominated computer
+    vision for years\pause{} (ignoring vision transformers)\pauseb
   \end{itemize}
 \end{PauseHighLight}
 
@@ -241,27 +242,6 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Other Symmetries Exist}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-    \item In NLP it is now common to translate sentences to a foreign
-      language and back to the original language to learn invariance
-      to minor changes in the words used\pause
-    \item There are cases where we care about sets of objects, but not
-      their ordering\pause
-    \item An example might be sets of objects in an image or vertices
-      in a graph\pause
-    \item Here constructing operators that are equivariant (the same
-      if we permute the inputs and outputs) can again reduce overfitting\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section{Normalisation}
 
 \begin{PauseHighLight}
@@ -310,20 +290,18 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Groups consists of a set (we can think of the elements as
-    transformations), $\mathcal{G} = \{a,b,\cdots\}$\pause
-  \item And an operator ``$\cdot$'' (which we can often think of as
-    composition)\pause
-  \item That is, $a\cdot b$ we can interpret as apply transformation
-    $b$ and then apply transformation $a$\pause
-  \item The set and transform form a group if they satisfy four axioms
+  \item A group consists of a set, $\mathcal{G} = \{a,b,\cdots\}$, whose
+    elements we can think of as transformations\pause
+  \item And an operator ``$\cdot$'', usually composition: $a\cdot b$
+    means apply transformation $b$ and then $a$\pause
+  \item The set and operation form a group if they satisfy four axioms
     \begin{itemize}
     \item closure: for all $a, b \in \mathcal{G}$ then $a\cdot b \in \mathcal{G}$
     \item associativity: $a\cdot (b\cdot c) = (a\cdot b) \cdot c$
-    \item existence of an identity $e$ such that $a\cdot e = a$ for
-      all $a$
+    \item existence of an identity $e$ such that $a\cdot e = e\cdot a
+      = a$ for all $a$
     \item Every element, $a$, has an inverse $a^{-1}$ such that
-      $a^{-1}\cdot a = e$\pause
+      $a^{-1}\cdot a = a\cdot a^{-1} = e$\pause
     \end{itemize}
   \end{itemize}
 \end{PauseHighLight}
@@ -403,32 +381,6 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section[-2]{Associativity}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We can think of the elements of a group as transformations
-    acting on some object (e.g. rotations of a book)\pause
-  \item We consider $\cdot$ to denote composition so $a \cdot b$
-    denotes apply action $b$ then action $a$\pause
-  \item When we say $c=a \cdot b$ we mean that action $c$ is
-    equivalent to apply action $b$ followed by action $a$\pause
-  \item Suppose $g = a \cdot b$ and $h = b \cdot c$ then
-    \begin{align*}
-      g \cdot c &= a \cdot h\pause \\
-      (a \cdot b) \cdot c &= a \cdot (b \cdot c)\pause
-    \end{align*}
-  \item These correspond to an equivalent set of actions\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-
-\end{slide}
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
   \section{Permutations}
 
 \begin{PauseHighLight}
@@ -451,58 +403,19 @@
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Infinite Groups}
+\section[-1]{Infinite and Continuous Groups}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item The set of integers under addition form a group\pause
-  \item Its closed, has an identity, 0, and each element $n$ has an
-    inverse $-n$\pause
-  \item The group describes the set of discrete shifts\pause
-  \item The set of rational number under addition also forms a
-    group\pause
-  \item Nothing new here, you've known about these since you were a toddler\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Continuous Groups}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item The set of reals under addition form a group and describes
-    translations in one dimension\pause
-  \item The set of reals excluding 0 form a group under multiplication
-    with an identity 1 and inverse of $x$ being $1/x$\pause
-  \item These describe scale transformation\pause
-  \item These are not terrifically interesting groups\pause{} (or at least
-    groups you are so familiar with that they are now boring)\pauseb
-  \item Things get more interesting in high dimensional space\pauseb
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Lie Groups}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item Continuous groups are known as Lie Groups\pause
-  \item They describe things like general translational invariance,
-    rotational invariance, relativistic invariance\pause
-  \item The transformations can be represented by a set of matrices\pause
-  \item To study these one looks at infintesimal transformations and
-    the algebra between these infintesimal transformations (Lie
-    algebras)\pause
-  \item This is much studied in physics and occasionally studied in
-    machine learning, although more on the sidelines\pause
+  \item The integers under addition form a group (identity 0, inverse
+    $-n$): the discrete shifts\pause
+  \item The reals under addition describe translations; the positive
+    reals under multiplication describe scalings\pause
+  \item Smooth continuous groups are called \emph{Lie groups}: rotations,
+    translations, the symmetries of relativity\pause
+  \item They can be represented by matrices, and are studied through
+    their infinitesimal transformations (Lie algebras)\pause
+  \item Much used in physics, and increasingly in machine learning\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -537,6 +450,121 @@
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
+\Outline % Symmetry in Machine Learning
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Invariance by Averaging}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Given any function $f$ and a finite group $G$ of
+    transformations, define
+    \begin{align*}
+      \bar{f}(\bm{x}) = \frac{1}{|G|}\sum_{g\in G} f(g\cdot\bm{x})\pause
+    \end{align*}
+  \item For any $h\in G$
+    \begin{align*}
+      \bar{f}(h\cdot\bm{x}) = \frac{1}{|G|}\sum_{g\in G} f(g\cdot h\cdot\bm{x})
+      = \frac{1}{|G|}\sum_{g'\in G} f(g'\cdot\bm{x}) = \bar{f}(\bm{x})\pause
+    \end{align*}
+    because $g\mapsto g\cdot h$ just reorders the group (closure and
+    inverses)\pause
+  \item So $\bar{f}$ is invariant\pause{}---here the group axioms earn
+    their keep\pauseb
+  \item Data augmentation approximates this in training;
+    \emph{test-time augmentation} does it exactly\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Equivariance and Convolution}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item A map is \emph{equivariant} if transforming the input transforms
+    the output in the same way: $f(g\cdot\bm{x}) = g\cdot f(\bm{x})$\pause
+  \item Convolution is shift-equivariant: shifting then convolving is
+    the same as convolving then shifting\pause
+  \item In fact the linear maps that commute with all (circular) shifts
+    are exactly the convolutions\pause
+  \item A $3\times3$ filter has 9 weights, against $n^4$ for a dense
+    layer on an $n\times n$ image\pause
+  \item Building in the symmetry removes parameters, and with them
+    variance (bias-variance lecture)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Permutation Symmetry}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Often the input is a \emph{set}: points in a cloud, objects in a
+    scene, atoms in a molecule\pause
+  \item Any function of the form
+    \begin{align*}
+      f(\{\bm{x}_1,\ldots,\bm{x}_n\}) = \rho\Bigl(\sum_{i=1}^n
+      \bm{\phi}(\bm{x}_i)\Bigr)
+    \end{align*}
+    is invariant to the order (\emph{Deep Sets})\pause
+  \item Graph neural networks update each node from a sum over its
+    neighbours: equivariant to relabelling the nodes\pause
+  \item The symmetric group $S_n$ is doing the work\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Transformers}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Self-attention: each token $i$ computes a query $\bm{q}_i$, key
+    $\bm{k}_i$ and value $\bm{v}_i$, and outputs
+    \begin{align*}
+      \bm{y}_i = \sum_j \mathrm{softmax}_j\Bigl(\frac{\bm{q}_i^\tr
+      \bm{k}_j}{\sqrt{d}}\Bigr)\,\bm{v}_j\pause
+    \end{align*}
+  \item Permuting the tokens just permutes the outputs: self-attention
+    is permutation-equivariant\pause
+  \item So on its own it cannot see word order\pause{}---transformers add
+    \emph{positional encodings} to break this symmetry\pauseb
+  \item Knowing the symmetry tells you what the model cannot know\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Rotations and Molecules}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item The energy of a molecule does not change if we rotate or move
+    it: it is invariant to $SO(3)$ and translations\pause
+  \item The forces on the atoms rotate with the molecule: they are
+    equivariant\pause
+  \item Equivariant networks build this in, and are now standard for
+    learning about molecules and materials\pause
+  \item AlphaFold~2's structure module is built to respect rotations and
+    translations of the protein\pause
+  \item This area is called \emph{geometric deep learning}\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{slide}
 \section[-2]{Summary}
 
@@ -552,10 +580,53 @@
     learned\pause
   \item There is a mathematical language around describing the
     structure of symmetries: \emph{group theory}\pause
-  \item You should know \textit{group theory} exists, it is occasionally used in machine
-    learning, but not that much\pause
+  \item Groups explain why averaging gives invariance, and underlie
+    CNNs, graph networks, transformers and equivariant networks\pause
   \item I'm not going to expect you to know any details about group
     theory\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{The Course in One Slide}
+
+\begin{center}
+  \begin{tabular}{l|l}
+    Represent & vectors, inner products, eigenvectors, SVD, PCA\pause \\
+    Fit & derivatives, gradient descent, Newton, SGD, Adam\pause \\
+    Constrain & Lagrange, convexity, duality, SVMs, kernels\pause \\
+    Be uncertain & probability, Bayes, Gaussians, GPs, MCMC\pause \\
+    Compress & entropy, information, KL, optimal transport\pause \\
+    Generalise & bias and variance, regularisation, symmetry\pause
+  \end{tabular}
+\end{center}
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item These ideas recur: the SVD in PCA, ridge and double descent;
+    Lagrange multipliers in SVMs, maximum entropy and optimal
+    transport\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section{Final Thoughts}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Machine learning works when the model's structure matches the
+    structure of the world\pause
+  \item Priors, regularisers and symmetries are three ways of saying
+    what that structure is\pause
+  \item Mathematics is the language for saying it precisely\pause
+  \item The methods will keep changing; the mathematics underneath them
+    changes far more slowly\pause
   \end{itemize}
 \end{PauseHighLight}
 

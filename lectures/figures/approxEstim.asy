@@ -1,4 +1,5 @@
 import myutil;
+import stats;
 
 size(400,0);
 
@@ -51,10 +52,17 @@ ship();
 
 pair[] data;
 
+pair d1 = unit(pb-pf);
+pair d2 = (d1.y, -d1.x);
+pair mm = pb + 0.5*d1;
+
+
 pair dataGen() {
-  real a = 2* pi*urand();
-  pair r = 0.4*(cos(a), sin(a)) + pb+(0.2, -0.5) + 0.05*(urand(), urand());
-  return (2*r.x+0.7, 0.3*r.y+0.2);
+  pair a = 0.05*d1*Gaussrand() + 0.2*d2*Gaussrand();
+  while (5*length(a)<urand()) {
+     a = 0.05*d1*Gaussrand() + 0.2*d2*Gaussrand();
+  }
+  return mm + a;
 }
 
 data.push(dataGen());
@@ -64,12 +72,12 @@ label("$\hat{f}(\bm{x}|\bm{\theta}_{\mathcal{D}})$", data[0], 1.2E, blue);
 ship();
 
 draw(pf--data[0], dashed+linewidth(0.5));
-label("generalisation error", 0.5*(pf+data[0]), E);
+label("generalisation error", 0.3pf+0.7data[0], W);
 
 ship();
 
 draw(pb--data[0], dashed+linewidth(0.5));
-label("estimation error", 0.5*(pb+data[0]), W);
+label("estimation error", 0.5*(pb+data[0]), E);
 
 ship();
 
@@ -80,48 +88,64 @@ draw(pf--data[0], dashed+linewidth(0.5));
 dot(data[0]);
 dot(pf, blue);
 label("$\hat{f}(\bm{x}|\bm{\theta}_{\mathcal{D}})$", data[0], 1.2E, blue);
-label("generalisation error", 0.5*(pf+data[0]), E);
+label("generalisation error", 0.3*pf+0.7*data[0], E);
 ship();
 
-int n= 8;
-pair bias = data[0]/n;
+int n= 10;
+pair bias = mm;
 for(int i=1; i<n; ++i) {
   data.push(dataGen());
-  bias += data[i]/n;
   erase();
   add(bg);
   draw(pf--data[i], dashed+linewidth(0.5));
   dot(data[i]);
   dot(pf, blue);
   label("$\hat{f}(\bm{x}|\bm{\theta}_{\mathcal{D}_{" + string(i) + "}})$", data[i], 1.2E, blue);
-  label("generalisation error", 0.5*(pf+data[i]), E);
+  label("generalisation error", 0.3pf+0.7data[i], E);
   ship();
 }
 
 erase();
 add(bg);
-for(int i=0; i<7; ++i) {
+for(int i=0; i<9; ++i) {
   dot(data[i]);
 }
 
 ship();
 
+for(int i=0; i<200; ++i) {
+  dot(dataGen(), linewidth(1)+gray);
+}
+
+ship();
+
+
+
 label("\large $\times$", bias, green);
+bg.erase();
+bg.add(currentpicture);
 label("mean machine", bias, NE, green);
 
 ship();
 
+
 draw(pf--bias, dashed+linewidth(0.5));
 
 dot(pf, blue);
-label("bias", 0.5*(pf+bias), E);
+label("bias=generalisation of mean machine", 0.3*pf+0.7bias, E);
 
 ship();
 
-label("mean machine", bias, NE, orange);
-for(int i=0; i<7; ++i) {
+erase();
+add(bg);
+dot(pf, blue);
+label("bias", 0.3*pf+0.7bias, E);
+draw(pf--bias, dashed+linewidth(0.5));
+
+
+for(int i=0; i<9; ++i) {
   draw(bias--data[i], purple, Arrows);
 }
 label("\large $\times$", bias, green);
-label("variance", bias+(0.3,0.1), E, purple);
+label("variance", bias+(0.2,-0.12), E, purple);
 ship();

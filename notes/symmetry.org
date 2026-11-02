@@ -3,7 +3,8 @@
 #+SETUPFILE: setup.org
 
 * Keywords
-  * Inductive Bias, Symmetry, Invariance, Group theory
+  * Inductive Bias, Symmetry, Invariance, Equivariance, Group theory,
+    Deep Sets, Transformers
 
 * Main Points
 
@@ -22,14 +23,14 @@
      invariant to its position in an image
    * Learning machines whose outputs are invariant to translations have a much smaller
      set of functions to learn and therefore are much less likely to overfit
-   * CNNs are equivariant in that if we translate the input the the output will be translated
+   * CNNs are equivariant in that if we translate the input the output will be translated
      in the same way
-   * Building classifies using layers of CNN builds in a lot of translational invariance
+   * Building classifiers using layers of CNN builds in a lot of translational invariance
    * Ideally we want a classifier system to also be scale and rotation invariant, although we
-     don't know how to this well
+     don't know how to do this well
    * Sometimes we use pyramid systems where we rescale the image and run the same
      operations on all scales
-   * However, in my datasets the foreground object is rescaled to fill most of the image
+   * However, in many datasets the foreground object is rescaled to fill most of the image
      with smaller object treated as the background so scale invariance is not necessarily
      required
    * Often we try to learn invariance by augmenting the training set by artificially
@@ -48,8 +49,9 @@
    * For the set, $\mathcal{G}$, and binary operation, "$\cdot$" to form a group they must satisfy four conditions
      1. Closure: if $a,b\in\mathcal{G}$ the $a\cdot b \in \mathcal{G}$
      2. Associativity: for all $a,b,c\in\mathcal{G}$, we have $(a\cdot b)\cdot c = a \cdot (b\cdot c)$
-     3. Existence of an identity element where $e\cdot a =a$
-     4. Every element, $a\in\mathcal{G}$ has an inverse such that $a^{-1} a = e$
+     3. Existence of an identity element where $e\cdot a = a\cdot e = a$
+     4. Every element, $a\in\mathcal{G}$ has an inverse such that
+        $a^{-1}\cdot a = a\cdot a^{-1} = e$
    * (Group theory doesn't really care if the elements of the group are transformations,
      just that the axioms are satisfied)
    * An example is the cyclic group $C_{2}$
@@ -57,16 +59,16 @@
        * flip the coin: $f$
        * leave the coin alone: $e$
      - These form a group as
-       1. Closure: $f\cdot e=f$, $f\cdot f = e$, $e,\cdot e=e$ and $e \cdot f =f$
+       1. Closure: $f\cdot e=f$, $f\cdot f = e$, $e\cdot e=e$ and $e \cdot f =f$
 	  (if you don't believe this get out a coin and try.  The first identity is don't do anything
           then flip the coin is the same as just flipping the coin)
-       2. Associatity; this follows automatically from the operation being a composition
+       2. Associativity: this follows automatically from the operation being a composition
 	 (we will see this in innerProduct lecture where we look at matrix multiplication).
 	 You can also check rather boringly, e,g, $(e\cdot f)\cdot f =f\cdot f = e$ while
 	 $e\cdot(f\cdot f) = e \cdot e = e$ thus $(e\cdot f)\cdot f =e\cdot(f\cdot f)$.  You can
 	 try this for all triples
        3. $e$ is clearly the identity
-       4. e^{-1}=e and $f^{-1}=f$
+       4. $e^{-1}=e$ and $f^{-1}=f$
      - The cyclic group $C_{3}$ corresponds to the rotations of an equilateral triangle maps
        the triangle to itself.  While $C_{n}$ are the rotations that keep an $n$ sided polygon
        with identical sides onto itself
@@ -92,7 +94,7 @@
        - There is an identity (doing nothing)
        - For every element there is an inverse permutation (which is a permutation)
        - For $n>2$ (where $S_{2}=C_{2}$) the group is non-Abelian meaning that there
-	 are permutations $p_{i}$ and $p_{j}$ where $p_{1}\neq p_{2}$
+	 are permutations $p_{i}$ and $p_{j}$ where $p_{i}\cdot p_{j}\neq p_{j}\cdot p_{i}$
        - Despite this composing permutations is associative
        - Permutations have a lot of structure and $S_{n}$ is very well studied
      - There exists groups with an infinite number of elements.  The set of integers with the
@@ -105,15 +107,15 @@
        and where the inverse of $x$ is $1/x$
        - These can be thought of as describing scale transformations
      - Groups can be interpreted in different ways with their elements having different names
-       (e.g. )one, two, three, \cdots or un, deux, trois, \cdots).  The permutation of two elements
+       (e.g. one, two, three, \cdots or un, deux, trois, \cdots).  The permutation of two elements
        has the same structure (is isomorphic to) flipping a coin.  What counts is the structure of
-       the multiplication time (up to re-ordering the elements)
+       the multiplication table (up to re-ordering the elements)
 *** Lie Groups
      - When we consider continuous transformation in high dimensional space then we find a
-       set of very interesting groups known as Lie groups
+       set of very interesting (smooth) groups known as Lie groups
      - These describe things like general translational invariance, rotational invariance,
        relativistic invariance
-     - The set on transformations can be represented as matrices, with the composition operator
+     - The set of transformations can be represented as matrices, with the composition operator
        being matrix multiplication
      - Different groups correspond to different sets of matrices.
      - A well known group is the set of $n\times n$ orthogonal matrices $O(n)$
@@ -125,15 +127,135 @@
        that $\det(\mat{M})^{2}=1$ or $\det(\mat{M}) = \pm 1$
      - If $\det(\mat{M}) = -1$ then the  transformation involves a reflection
      - The special orthogonal group, $SO(n)$, corresponds to a subgroup
-       of matrices in $O(2)$ with $\det(\mat{M})=1$.  These correspond
+       of matrices in $O(n)$ with $\det(\mat{M})=1$.  These correspond
        to rotations only
      - The group $SO(2)$ corresponds to 2-d rotations where the
        elements of the group are matrices
            \begin{align*}
       	   \begin{pmatrix}
               \cos(\theta) & \sin(\theta) \\
-             -\sin(\theta) & \cos(\theta)\pause
+             -\sin(\theta) & \cos(\theta)
            \end{pmatrix}
           \end{align*}
+
+** Symmetry in Machine Learning
+   * *Invariance by averaging.*  For any function $f$ and finite group
+     $G$ of transformations, $\bar{f}(\bm{x}) = \frac{1}{|G|}\sum_{g\in G} f(g\cdot\bm{x})$
+     is invariant: for $h\in G$,
+     $$ \bar{f}(h\cdot\bm{x}) = \frac{1}{|G|}\sum_{g\in G} f(g\cdot h\cdot\bm{x})
+        = \frac{1}{|G|}\sum_{g'\in G} f(g'\cdot\bm{x}) = \bar{f}(\bm{x}) $$
+     because $g\mapsto g' = g\cdot h$ is a one-to-one map of $G$ onto
+     itself (by closure, and because $g = g'\cdot h^{-1}$).  The group
+     axioms are exactly what is needed.  Data augmentation approximates
+     this average during training; /test-time augmentation/ computes it
+     at prediction time
+   * *Equivariance and convolution.*  A map is equivariant if
+     $f(g\cdot\bm{x}) = g\cdot f(\bm{x})$.  Convolution commutes with
+     shifts, and the linear maps that commute with all (circular) shifts
+     are exactly the convolutions.  A $3\times3$ filter has 9 weights
+     against $n^4$ for a dense layer on an $n\times n$ image: building in
+     the symmetry removes parameters and with them variance
+   * *Permutation symmetry.*  For a set of inputs, any function
+     $f(\{\bm{x}_1,\ldots,\bm{x}_n\}) = \rho\bigl(\sum_i\bm{\phi}(\bm{x}_i)\bigr)$
+     is invariant to their order (/Deep Sets/, Zaheer et al., 2017).
+     Graph neural networks update each node from a sum over its
+     neighbours, so they are equivariant to relabelling the nodes
+   * *Transformers.*  In self-attention each token computes
+     $\bm{q}_i$, $\bm{k}_i$, $\bm{v}_i$ from its own input and outputs
+     $$ \bm{y}_i = \sum_j \mathrm{softmax}_j\Bigl(\frac{\bm{q}_i^\tr\bm{k}_j}{\sqrt{d}}\Bigr)\bm{v}_j $$
+     If the tokens are permuted, each output is computed from the same
+     set of terms, so the outputs are permuted in the same way:
+     self-attention is permutation-equivariant.  It therefore cannot see
+     word order, which is why transformers add /positional encodings/
+   * *Rotations and molecules.*  The energy of a molecule is invariant to
+     rotations and translations, and the forces on its atoms are
+     equivariant.  Equivariant networks build this in and are now
+     standard for molecules and materials; this area is called
+     /geometric deep learning/
+
+** Looking Back
+   | Represent    | vectors, inner products, eigenvectors, SVD, PCA        |
+   | Fit          | derivatives, gradient descent, Newton, SGD, Adam       |
+   | Constrain    | Lagrange multipliers, convexity, duality, SVMs, kernels |
+   | Be uncertain | probability, Bayes, Gaussians, GPs, MCMC               |
+   | Compress     | entropy, information, KL, optimal transport            |
+   | Generalise   | bias and variance, regularisation, symmetry            |
+   * The same ideas recur: the SVD in PCA, ridge regression and double
+     descent; Lagrange multipliers in SVMs, maximum entropy and optimal
+     transport
+   * Machine learning works when the model's structure matches the
+     structure of the world.  Priors, regularisers and symmetries are
+     three ways of saying what that structure is, and mathematics is the
+     language for saying it precisely
+
+* Exercises
+
+** Averaging over flips
+   * Let $G = \{e, r\}$ where $r$ reflects an image left to right.  Show
+     that $G$ is a group, and that $\bar{f}(\bm{x}) = \frac12\bigl(f(\bm{x}) +
+     f(r\cdot\bm{x})\bigr)$ is invariant under $r$.
+
+** Self-attention is permutation-equivariant
+   * Write the inputs as the rows of a matrix $\mat{X}$ and a permutation
+     as a permutation matrix $\mat{P}$.  With $\mat{Q} = \mat{X}\mat{W}_q$,
+     $\mat{K} = \mat{X}\mat{W}_k$, $\mat{V} = \mat{X}\mat{W}_v$ and the
+     softmax taken along each row, show that permuting the inputs
+     permutes the outputs.
+
+* Experiments
+
+** Checking the symmetries
+   * Check numerically that self-attention is permutation-equivariant
+     and that averaging over the flip group gives invariance
+#+BEGIN_SRC python
+import numpy as np
+
+rng = np.random.default_rng(0)
+n, d = 5, 4                                   # 5 tokens, dimension 4
+X = rng.standard_normal((n, d))
+Wq, Wk, Wv = (rng.standard_normal((d, d)) for _ in range(3))
+
+
+def attention(X):
+    Q, K, V = X @ Wq, X @ Wk, X @ Wv
+    A = np.exp(Q @ K.T / np.sqrt(d))
+    A /= A.sum(1, keepdims=True)              # softmax over j
+    return A @ V
+
+
+perm = rng.permutation(n)
+print(np.allclose(attention(X[perm]), attention(X)[perm]))   # equivariant
+
+# invariance by averaging over the group {identity, left-right flip}
+img = rng.standard_normal((6, 6))
+f = lambda x: (x * np.arange(36).reshape(6, 6)).sum()      # not invariant
+fbar = lambda x: (f(x) + f(x[:, ::-1])) / 2
+print(f(img), f(img[:, ::-1]))
+print(fbar(img), fbar(img[:, ::-1]))
+#+END_SRC
+   * This prints =True=; $f$ gives different values for the image and
+     its mirror image ($-27.1$ and $-6.5$), while $\bar{f}$ gives the
+     same value ($-16.8$) for both
+
+* Answers
+
+** Averaging over flips
+   * $r\cdot r = e$, so the set is closed, $e$ is the identity, each
+     element is its own inverse, and composition is associative: it is
+     the group $C_2$
+   * $\bar{f}(r\cdot\bm{x}) = \frac12\bigl(f(r\cdot\bm{x}) + f(r\cdot r\cdot\bm{x})\bigr)
+     = \frac12\bigl(f(r\cdot\bm{x}) + f(\bm{x})\bigr) = \bar{f}(\bm{x})$
+
+** Self-attention is permutation-equivariant
+   * Permuting the inputs gives $\mat{P}\mat{X}$, so $\mat{Q}$, $\mat{K}$ and
+     $\mat{V}$ become $\mat{P}\mat{Q}$, $\mat{P}\mat{K}$, $\mat{P}\mat{V}$ and
+     the score matrix becomes
+     $\mat{P}\mat{Q}\mat{K}^\tr\mat{P}^\tr/\sqrt{d}$: its rows and columns
+     are permuted in the same way
+   * The softmax acts on each row separately and a permutation of a
+     row's entries just permutes its softmax, so the attention matrix
+     becomes $\mat{P}\mat{A}\mat{P}^\tr$
+   * The output is $\mat{P}\mat{A}\mat{P}^\tr\mat{P}\mat{V} = \mat{P}\mat{A}\mat{V}$,
+     using $\mat{P}^\tr\mat{P} = \mat{I}$: the outputs are permuted
 
 * COMMENT [[file:overfitting.org][Previous]]

@@ -21,6 +21,7 @@
     \outlineitem{Controlling Complexity}{complexity}
     \outlineitem{Hidden structure}{hidden}
     \outlineitem{Regularisation}{regularisers}
+    \outlineitem{Double Descent}{doubledescent}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{10cm}
@@ -42,7 +43,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Complex machine can \emph{over-fit}
+  \item Complex machines can \emph{over-fit}
     \begin{quote}
       \textit{\textbf{over-fitting}: fitting the training data well at
         the cost of getting poorer generalisation performance}\pause
@@ -112,7 +113,7 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item You ask a learning machine to solve a task based on data\pause
-  \item It will find a rule that does this, but not necessary the rule
+  \item It will find a rule that does this, but not necessarily the rule
     you had in mind\pause---machine learning can't read your
     mind\pauseb
   \item Infinitely flexible machines have an infinity of spurious
@@ -142,8 +143,9 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Yes\pauseb{} and No\pauseb
-  \item Yes: If you give me any function, I can find an MLP that
-    approximates that function to any desired accuracy\pauseb
+  \item Yes: If you give me any (continuous) function, I can find an MLP that
+    approximates that function to any desired accuracy\pauseb{} {\small (on
+    a bounded region)}\pauseb
   \item No: If you give me an MLP, I can find a function with an
     arbitrary high approximation error\pauseb
   \item Would an MLP that could approximate any function be
@@ -165,7 +167,7 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item Infinitely flexible machine don't generalise\pause{} (because
+  \item Infinitely flexible machines don't generalise\pause{} (because
     any unseen data could have any value)\pauseb
   \item \emph{Machine learning only works because there is
       some structure in the data}\pause
@@ -189,11 +191,11 @@
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item As we increase the number of training examples, we make it hard
+  \item As we increase the number of training examples, we make it harder
     to find a spurious rule\pause
   \item Bigger data sets allow us to use more complicated
     machines\pause
-  \item Part of the success of deep learning is because they use huge
+  \item Part of the success of deep learning is because it uses huge
     training sets\pause---but this is only a part of their success\pauseb
   \item (Labelled) data is often expensive to collect so we
     sometimes have no choice but to use a small training set\pause
@@ -204,25 +206,6 @@
 
 \end{slide}
 
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section{Identifying Structure}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item In some cases we know \textit{a priori} some of the structure
-    in the data\pause
-  \item In images we believe the identity of an object is invariant to
-    translation and scaling\pause
-  \item The success of \textit{convolutional neural networks} (CNNs)
-    in deep learning is in large part because the convolutions respect
-    translational invariance\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -248,33 +231,6 @@
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
-\section[-2]{Automatic Preprocessing}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item One view of deep learning is that each layer (particularly in
-    CNNs) acts as a preprocessor\pause
-  \item That is, it finds filters that captures features salient to
-    the problem being tackled\pause
-  \item For both images and texts we expect salient features to be
-    spatially localised\pause{} (CNN finds localised filter)\pauseb 
-  \item The deep structure allows ever more complicated features to be
-    captured---that is, we can find spatially localised features on
-    different scales\pause
-  \item Having very large datasets and simple filters (the number of
-    weights in the CNN layers tends to be small) stops
-    overfitting\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \Outline % Hidden structure
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -292,7 +248,7 @@
       all input data, but change with the problem)\pause
     \item We need to choose the hyper-parameters to fit the data in
       our problem\pause
-    \item Fine tuning hyper-parameter is important\pause{} and almost always
+    \item Fine tuning hyper-parameters is important\pause{} and almost always
       required (true in SVMs, MLP, deep learning)\pauseb
     \end{itemize}
   \end{PauseHighLight}
@@ -376,28 +332,6 @@ Can't spot low dimensional data by looking at numbers\pause
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Dimensionality Reduction}
-
-\begin{PauseHighLight}
-  \begin{itemize}
-  \item We can sometimes simplify our machines by using less features\pause
-  \item We can project our data onto a lower dimensional sub-space
-    (e.g. one with the maximum variation in the data: PCA)\pause
-  \item We can use clustering to find exemplars and recode our data in
-    terms of distances from the exemplars (radial basis
-    functions)\pause
-  \item Whether this helps depends on whether the information we discard
-    is pertinent to the task we are trying to perform\pause
-  \end{itemize}
-\end{PauseHighLight}
-
-\end{slide}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{slide}
 \section[-1]{Feature Selection}
 
 \begin{PauseHighLight}
@@ -407,8 +341,8 @@ Can't spot low dimensional data by looking at numbers\pause
   \item We can try different combinations of features to find the best
     set, although it rapidly becomes intractable to do this in all
     ways\pause
-  \item We can use various heuristics to decide which features to keep,
-    but no heuristic is fail-safe method to find the best set of features\pause
+  \item We can use heuristics to decide which features to keep (none
+    is fail-safe), or project onto a few principal components (PCA)\pause
   \item Feature selection however can be powerful, often we can get very
     good results by keeping only a few variables\pause
   \item As well as possibly improving generalisation we also get a more
@@ -434,7 +368,7 @@ Can't spot low dimensional data by looking at numbers\pause
     \begin{align*}
       x^\alpha_i &\leftarrow \frac{x^\alpha_i-\hat{\mu}_i}{\hat{\sigma}_i},
       &
-      \hat{\mu} &= \frac{1}{m} \sum_{\beta=1}^m x_i^\beta,
+      \hat{\mu}_i &= \frac{1}{m} \sum_{\beta=1}^m x_i^\beta,
       &
       \hat{\sigma}_i^2 &= \frac{1}{m-1} \sum_{\beta=1}^m
                        (x_i^\beta-\hat{\mu}_i)^2\pauseb 
@@ -456,11 +390,11 @@ Can't spot low dimensional data by looking at numbers\pause
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item As you've seen in the foundations of ML course, we can modify
-    our error function to choose smoother functions
+  \item As in ridge regression, we can modify our error function to
+    choose smoother functions
     \begin{align*}
       L = \sum_{k=1}^m \left( \bm{w}^\tr \, \bm{x}_k - y_k \right)^2\pause
-      + \nu \, \|\bm{w}\|^2\pauseb
+      + \eta \, \|\bm{w}\|^2\pauseb
     \end{align*}
     (Good to normalise features)\pauseb
   \item Second term is minimised when $w_i=0$\pause
@@ -478,6 +412,30 @@ Can't spot low dimensional data by looking at numbers\pause
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
+\section[-1]{Regularisers Are Priors}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Recall MAP: maximise $\log f(\data|\bm{w}) + \log f(\bm{w})$, so
+    $-\log f(\bm{w})$ is a regulariser\pause
+  \item Gaussian noise of variance $\sigma^2$ and a Gaussian prior
+    $w_i\sim\mathcal{N}(0,s^2)$ give ridge regression with
+    $\eta = \sigma^2/s^2$\pause
+  \item A Laplace prior $f(w_i)\propto\e{-|w_i|/b}$ gives the
+    \emph{lasso} penalty $\eta\sum_i|w_i|$\pause
+  \item The prior says what we believe before seeing data: small
+    weights, or few non-zero weights\pause
+  \item Regularisation is how we tell the machine about the structure
+    we expect\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
 \section[-2.5]{Lasso}
 
 \pb
@@ -485,7 +443,7 @@ Can't spot low dimensional data by looking at numbers\pause
 \item We can use other regularisers
   \begin{align*}
     L = \sum_{k=1}^m \left( \bm{w}^\tr \, \bm{x}_k - y_k \right)^2\pauseh
-    + \nu \, \sum_{i=1}^p |w_i| \pauseb
+    + \eta \, \sum_{i=1}^p |w_i| \pauseb
   \end{align*}
 \item Spurious features (e.g. colour of flag on energy consumption) will
   give us a small improvement in training error\pauseh
@@ -500,20 +458,29 @@ Can't spot low dimensional data by looking at numbers\pause
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Implicit Regularisation}
+\section[-2]{Early Stopping Is Implicit Ridge}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item In the last two examples we added an explicit regularisation
-    term that made the function we learnt simpler\pause
-  \item Some learning machines do this less explicitly\pause
-  \item Some deep learning architectures do subtle averaging\pause
-  \item Sometimes the architecture biases the machine to find a simple
-    solution\pause
+  \begin{itemize}\squeeze
+  \item Some machines regularise without an explicit penalty\pause
+  \item Gradient descent on $\frac12\|\mat{X}\bm{w}-\bm{y}\|^2$ from
+    $\bm{w}=\bm{0}$ with learning rate $r$: in the SVD basis, after $t$
+    steps component $k$ is
+    \begin{align*}
+      \Bigl(1 - (1 - r\,s_k^2)^t\Bigr) \times \text{(least squares
+      component)}\pause
+    \end{align*}
+  \item Ridge regression multiplies the same component by
+    $s_k^2/(s_k^2+\eta)$\pause
+  \item Both keep the directions with large $s_k$ and suppress those with
+    small $s_k$, where the variance lives\pause
+  \item So stopping early acts like ridge with $\eta\approx1/(r\,t)$:
+    training time is a regulariser\pause
   \end{itemize}
 \end{PauseHighLight}
 
 \end{slide}
+
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
@@ -532,18 +499,67 @@ Can't spot low dimensional data by looking at numbers\pause
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\section{Success of SVMs}
+\section[-1]{Why SVMs Generalise}
 
 \begin{PauseHighLight}
   \begin{itemize}
-  \item SVMs regularise themselves by choosing the machine with the
-    largest margin\pause
-  \item This ensures maximum stability to noise on the data\pause
-  \item It leads to very good generalisation on small
-    datasets\pause---usually beats everything else\pause
-  \item But you still need to normalise the features\pauseb
-  \item You also need to tune its hyper-parameters ($C$ and sometimes
-    $\gamma$)\pauseb
+  \item For data in a ball of radius $R$ separated with margin
+    $\gamma$, the capacity of the machine depends on $(R/\gamma)^2$,
+    not on the dimension of the feature space\pause
+  \item That is why the kernel trick, with enormous (even infinite)
+    feature spaces, need not over-fit\pause
+  \item Removing a training point that is not a support vector leaves
+    the solution unchanged, so the leave-one-out error is at most
+    (number of support vectors)$/m$\pause
+  \item Few support vectors and a large margin mean good
+    generalisation\pause
+  \item But you still need to normalise the features and tune $C$
+    (and the kernel parameters)\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\Outline % Double Descent
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Double Descent}
+
+\begin{center}
+  \includegraphics[width=0.85\linewidth]{doubleDescent-0}
+\end{center}
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Least squares on $m=40$ points using $p$ of 100 features\pause
+  \item The classical U-curve, a spike at $p=m$, then a second
+    descent\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Why Bigger Can Be Better}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item At $p=m$ there is exactly one fit through every (noisy) point;
+    the smallest singular value is near 0, so the variance
+    $\sum_k\sigma^2/s_k^2$ explodes\pause
+  \item For $p>m$ there are infinitely many exact fits; we take the one
+    with the smallest $\|\bm{w}\|$\pause
+  \item Gradient descent from $\bm{w}=\bm{0}$ finds exactly this
+    minimum-norm solution\pause{}: an implicit regulariser\pauseb
+  \item Modern networks have far more parameters than data, yet trained
+    with (S)GD they often generalise well\pause
+  \item Counting parameters is not the same as measuring
+    complexity\pause
   \end{itemize}
 \end{PauseHighLight}
 
@@ -560,11 +576,12 @@ Can't spot low dimensional data by looking at numbers\pause
   \item It works when the learning machine is well attuned to the
     problem\pause
   \item Sometimes you can help by preprocessing your data\pause
-  \item Sometimes there is a regularisation term that helps select a
-    simpler machine\pause
-  \item Most machines have hyper-parameter that you tune to match the
+  \item Regularisers (explicit, priors, or implicit like early
+    stopping and minimum norm) select simpler machines\pause
+  \item Most machines have hyper-parameters that you tune to match the
     machine to the data\pause
-  \item Really clever machines try to do this matching automatically\pause
+  \item Complexity is not just the number of parameters: margins and
+    norms matter\pause
   \end{itemize}
 \end{PauseHighLight}
 

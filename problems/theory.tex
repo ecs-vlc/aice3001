@@ -1,95 +1,382 @@
-%% ELEC2013 2007
-
 %% ----------------------------------------------------------------
-%% exam.tex
+%% Week-11 problem sheet (lectures: biasVariance, overfitting, symmetry).
+%% Every number in the answers was checked in numpy (2026-11-02).
 %% ----------------------------------------------------------------
 \documentclass{sotonExamBoxes}    % use option [answers] to include them
-%\documentclass[answers]{uosexamb}
 %% ----------------------------------------------------------------
 \usepackage{graphicx}
-%\usepackage{pstricks}
 \usepackage{alltt}
 \usepackage{bm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \thinmuskip=1mu
-%\renewcommand{\ttdefault}{pcr}
 \input{macros}
-\graphicspath{{figures/} {../2018-19/figures}}
 \graphicspath{{figures/}}
 \usepackage{parskip}
 \AddToHook{env/samepage/begin}{%
 \AddToHook{para/before}{\nopagebreak}%
 \AddToHook{para/after}{\nopagebreak}%
 }
-% \usepackage{picture}
 \begin{document}
-\unitTitle{ Problem Sheet}
+\unitTitle{Bias, Variance and Generalisation Problem Sheet}
 \authors{Adam Pr\"ugel-Bennett}
 \unitcode{AICE3001/AICE6002}
 \semester{2}
 \year{2022}
 \duration{45}{0}
 
-
 \maketitle
 
+This sheet covers the lectures on bias and variance, over-fitting and
+symmetry.  Question~1 practises the basic ideas, Question~2 works through
+shrinkage in detail and Question~3 ridge regression.  Each ends with a
+short Python part (\texttt{import numpy as np} is assumed).  Question~4
+is harder and optional: it shows that gradient descent regularises, and
+builds an invariant function by averaging over a group.
 
 % ***************************** question 1 **************************
 
-
 \begin{question}{20}
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[4]{The same machine is trained on four different data sets.  At
+      one input $\bm{x}$, where the true output is $y = 2.5$, the four
+      machines predict $2.0$, $2.4$, $1.6$ and $2.0$.  Find the mean
+      machine's prediction, the bias $(\hat{f}_m - y)^2$ and the variance
+      at this input, and check that they add up to the average squared
+      error.
       \begin{answer}
+        $\hat{f}_m = (2.0+2.4+1.6+2.0)/4 = 2.0$, so the bias is
+        $(2.0-2.5)^2 = 0.25$.  The variance is
+        $\frac14(0^2 + 0.4^2 + 0.4^2 + 0^2) = 0.08$.  The average squared
+        error is $\frac14(0.25 + 0.01 + 0.81 + 0.25) = 0.33 = 0.25 + 0.08$.
       \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+
+    \qpart[4]{For each pair, which machine would you expect to have the
+      higher bias, and which the higher variance: (i) a straight line and
+      a degree-15 polynomial fitted to 20 noisy points; (ii) $k$-nearest
+      neighbours with $k=1$ and with $k=50$?  Explain briefly.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        (i) The straight line has the higher bias (it cannot follow a
+        curved function); the degree-15 polynomial has the higher
+        variance (it can pass close to every noisy point, so it changes a
+        lot from data set to data set).  (ii) $k=1$ copies the label of
+        the single nearest point, so it has low bias and high variance;
+        $k=50$ averages over many points, so it has low variance but
+        higher bias (it smooths over real detail).
+      \end{answer}}{\lines{6}}
+
+    \qpart[3]{You have $1000$ labelled examples and use 5-fold cross
+      validation.  How many models do you train, how many examples does
+      each see, and how many examples is each validated on?  Why must you
+      not measure performance on the training data?
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        Five models, each trained on 800 examples and validated on the
+        remaining 200; every example is used for validation exactly once.
+        Training error is optimistic: a flexible machine can fit
+        spurious rules in the training data that do not hold on unseen
+        data.
+      \end{answer}}{\lines{4}}
+
+    \qpart[3]{An ensemble averages $M$ predictors, each with variance
+      $s^2 = 1$ at some input and pairwise correlation $\rho = 0.3$.  Using
+      $\mathrm{Var}(\bar{f}_M) = \rho s^2 + (1-\rho)s^2/M$, find the
+      variance for $M = 10$ and as $M\to\infty$.  Does averaging change the
+      bias?
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        For $M=10$: $0.3 + 0.7/10 = 0.37$.  As $M\to\infty$ it falls to the
+        floor $\rho s^2 = 0.3$.  Averaging does not change the mean, so the
+        bias is unchanged.
+      \end{answer}}{\lines{4}}
+
+    \qpart[6]{In Python, take 20 equally spaced inputs on $[0,1]$ and
+      targets $\sin(2\pi x) + 0.3\,\epsilon$ with $\epsilon\sim\mathcal{N}(0,1)$.
+      For polynomials of degree 1, 3 and 9, fit 1000 independent data sets
+      (\texttt{np.polyfit}) and estimate the bias (squared error of the
+      mean fit, averaged over 100 test points) and the variance.
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+x = np.linspace(0, 1, 20)\\
+xt = np.linspace(0, 1, 100)\\
+f = lambda x: np.sin(2 * np.pi * x)\\
+for d in [1, 3, 9]:\\
+\hspace*{2em}P = []\\
+\hspace*{2em}for \_ in range(1000):\\
+\hspace*{4em}y = f(x) + 0.3 * rng.standard\_normal(20)\\
+\hspace*{4em}P.append(np.polyval(np.polyfit(x, y, d), xt))\\
+\hspace*{2em}P = np.array(P)\\
+\hspace*{2em}bias2 = ((P.mean(0) - f(xt))**2).mean()\\
+\hspace*{2em}print(d, bias2, P.var(0).mean())
+\end{alltt}
+        Bias and variance are about $0.207$ and $0.009$ for degree 1,
+        $0.005$ and $0.017$ for degree 3, and $0.000$ and $0.043$ for
+        degree 9.  The bias falls and the variance rises with the degree;
+        degree 3 has the smallest total ($0.022$).
+      \end{answer}}{\lines{7}}
+
   \end{qparts}
 \end{question}
-\freshpage
-
+\newpage
 % ***************************** question 2 **************************
 
+\begin{question}{20}
+  We estimate the mean $\theta$ of a distribution with variance
+  $\sigma^2$ from $m$ independent samples, whose sample mean is
+  $\bar{x}$.  Instead of $\bar{x}$ we use the \emph{shrinkage} estimate
+  $\hat{\theta} = c\,\bar{x}$ with $0 \leq c \leq 1$.
+  \begin{qparts}
+
+    \qpart[4]{Find $\av{\hat{\theta}}$ and $\mathrm{Var}(\hat{\theta})$.
+      For which $c$ is $\hat{\theta}$ unbiased?
+      \begin{answer}
+        $\av{\bar{x}} = \theta$ and $\mathrm{Var}(\bar{x}) = \sigma^2/m$, so
+        $\av{\hat{\theta}} = c\,\theta$ and
+        $\mathrm{Var}(\hat{\theta}) = c^2\sigma^2/m$.  It is unbiased only
+        for $c = 1$ (or if $\theta = 0$).
+      \end{answer}}{\lines{4}}
+
+    \qpart[4]{Show that the mean squared error is
+      $\av{(\hat{\theta}-\theta)^2} = (1-c)^2\theta^2 + c^2\sigma^2/m$,
+      and identify the bias and variance terms.
+      \begin{answer}
+        Adding and subtracting $\av{\hat{\theta}} = c\,\theta$,
+        \begin{align*}
+          \av{(\hat{\theta}-\theta)^2} = \av{(\hat{\theta} - c\theta)^2}
+          + (c\theta - \theta)^2 = c^2\frac{\sigma^2}{m} + (1-c)^2\theta^2,
+        \end{align*}
+        since the cross term $2(c\theta-\theta)\av{\hat{\theta} - c\theta}$
+        is zero.  $(1-c)^2\theta^2$ is the bias and $c^2\sigma^2/m$ the
+        variance.
+      \end{answer}}{\lines{6}}
+
+    \qpart[5]{Find the $c^*$ that minimises the mean squared error and the
+      minimum error.  Show that it is smaller than $\sigma^2/m$, the error
+      of $\bar{x}$, whenever $\theta\neq0$.
+      \begin{answer}
+        Setting the derivative $-2(1-c)\theta^2 + 2c\sigma^2/m$ to zero,
+        \begin{align*}
+          c^* = \frac{\theta^2}{\theta^2 + \sigma^2/m}, \qquad
+          \text{error} = \frac{\sigma^2}{m}\,\frac{\theta^2}{\theta^2+\sigma^2/m}
+          < \frac{\sigma^2}{m}.
+        \end{align*}
+        (Substituting $c^*$, the bias is
+        $\theta^2(\sigma^2/m)^2/(\theta^2+\sigma^2/m)^2$ and the variance
+        $(\sigma^2/m)\theta^4/(\theta^2+\sigma^2/m)^2$; they add to the
+        expression above.)  The fraction is less than 1, so a biased
+        estimate beats the unbiased one.
+      \end{answer}}{\lines{7}}
+
+    \qpart[3]{Why can we not use $c^*$ directly?  What happens to $c^*$ as
+      $m\to\infty$, and why does that make sense?
+      \begin{answer}
+        $c^*$ depends on the unknown $\theta$ we are trying to estimate; in
+        practice the amount of shrinkage is chosen by validation (or from
+        a prior).  As $m\to\infty$, $\sigma^2/m\to0$ and $c^*\to1$: with
+        plenty of data the variance is already small, so there is nothing
+        to gain from adding bias.
+      \end{answer}}{\lines{4}}
+
+    \qpart[4]{Take $\theta = 2$, $\sigma = 4$, $m = 10$.  Compute $c^*$ and
+      the errors for $c = 1$ and $c = c^*$.  Check by simulation in
+      Python, drawing $100\,000$ samples of size $m$.
+      \begin{answer}
+        $\sigma^2/m = 1.6$, so $c^* = 4/5.6 \approx 0.714$, with error
+        $1.6\times4/5.6 \approx 1.143$ against $1.6$ for $c = 1$.
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+theta, sigma, m = 2.0, 4.0, 10\\
+xbar = rng.normal(theta, sigma, (100000, m)).mean(1)\\
+for c in [1.0, 0.714, 0.5]:\\
+\hspace*{2em}print(c, np.mean((c * xbar - theta)**2))
+\end{alltt}
+        This gives $1.596$, $1.137$ and $1.395$ (theory $1.6$, $1.143$ and
+        $1.4$): shrinking too far ($c=0.5$) helps less, but still beats
+        $c=1$.
+      \end{answer}}{\lines{6}}
+
+  \end{qparts}
+\end{question}
+\newpage
+% ***************************** question 3 **************************
 
 \begin{question}{20}
+  Data are generated as $\bm{y} = \mat{X}\bm{w}^* + \bm{\epsilon}$, where the
+  noise terms $\epsilon_k$ are independent with mean 0 and variance
+  $\sigma^2$.  Ridge regression minimises
+  $\len{\mat{X}\bm{w}-\bm{y}}^2 + \eta\len{\bm{w}}^2$.
   \begin{qparts}
-    
-      \qpart[5]{
+
+    \qpart[5]{In one dimension, $y_k = w^* x_k + \epsilon_k$ for
+      $k = 1,\ldots,m$.  With $S = \sum_k x_k^2$, show that
+      $\hat{w} = \sum_k x_k y_k/(S+\eta)$ and find its mean and variance.
+      For $x = (1, 2, 3)$, $w^* = 0.5$ and $\sigma = 1$, find the bias,
+      variance and mean squared error for $\eta = 0$ and $\eta = 4$.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        The derivative $2\sum_k x_k(w x_k - y_k) + 2\eta w$ is zero at
+        $\hat{w} = \sum_k x_k y_k/(S+\eta)$.  Since
+        $\sum_k x_k y_k = S w^* + \sum_k x_k\epsilon_k$,
+        \begin{align*}
+          \av{\hat{w}} = \frac{S}{S+\eta}\,w^*, \qquad
+          \mathrm{Var}(\hat{w}) = \frac{\sigma^2 S}{(S+\eta)^2}.
+        \end{align*}
+        Here $S = 14$.  For $\eta = 0$: no bias, variance $1/14 \approx
+        0.071$.  For $\eta = 4$: bias $(-4\times0.5/18)^2 \approx 0.012$,
+        variance $14/324 \approx 0.043$, total $0.056$, which is smaller.
+      \end{answer}}{\lines{8}}
+
+    \qpart[5]{In general write the SVD $\mat{X} = \mat{U}\mat{S}\mat{V}^\tr$,
+      with columns $\bm{u}_k$ and $\bm{v}_k$ and singular values $s_k$.
+      Show that $\mat{X}^\tr\mat{X} + \eta\mat{I} =
+      \mat{V}(\mat{S}^2 + \eta\mat{I})\mat{V}^\tr$, and hence that the
+      component of $\hat{\bm{w}}$ along $\bm{v}_k$ is
+      $\hat{w}_k = s_k\,\bm{u}_k^\tr\bm{y}/(s_k^2+\eta)$.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $\mat{X}^\tr\mat{X} = \mat{V}\mat{S}\mat{U}^\tr\mat{U}\mat{S}\mat{V}^\tr
+        = \mat{V}\mat{S}^2\mat{V}^\tr$ and $\mat{I} = \mat{V}\mat{V}^\tr$
+        ($\mat{V}$ is orthogonal), which gives the first result.  Its
+        inverse is $\mat{V}(\mat{S}^2+\eta\mat{I})^{-1}\mat{V}^\tr$, so
+        \begin{align*}
+          \hat{\bm{w}} = \mat{V}(\mat{S}^2+\eta\mat{I})^{-1}\mat{V}^\tr
+          \mat{V}\mat{S}\mat{U}^\tr\bm{y}
+          = \mat{V}(\mat{S}^2+\eta\mat{I})^{-1}\mat{S}\,\mat{U}^\tr\bm{y}.
+        \end{align*}
+        Multiplying by $\bm{v}_k^\tr$ picks out row $k$ of the diagonal
+        matrix: $\hat{w}_k = s_k\,\bm{u}_k^\tr\bm{y}/(s_k^2+\eta)$.
+      \end{answer}}{\lines{8}}
+
+    \qpart[4]{With $w_k^* = \bm{v}_k^\tr\bm{w}^*$, show that
+      $\bm{u}_k^\tr\bm{y} = s_k w_k^* + \bm{u}_k^\tr\bm{\epsilon}$, and hence
+      that $\av{\hat{w}_k} = s_k^2 w_k^*/(s_k^2+\eta)$ and
+      $\mathrm{Var}(\hat{w}_k) = \sigma^2 s_k^2/(s_k^2+\eta)^2$.
       \begin{answer}
-      \end{answer}}{\lines{5}}
-    
-      \qpart[5]{
+        $\bm{u}_k^\tr\mat{X}\bm{w}^* = \sum_j s_j(\bm{u}_k^\tr\bm{u}_j)
+        (\bm{v}_j^\tr\bm{w}^*) = s_k w_k^*$, because the $\bm{u}_j$ are
+        orthonormal.  The noise $\bm{u}_k^\tr\bm{\epsilon} = \sum_i
+        u_{ik}\epsilon_i$ has mean 0 and variance $\sigma^2\sum_i u_{ik}^2
+        = \sigma^2$.  Substituting into part (b) gives both results.
+      \end{answer}}{\lines{6}}
+
+    \qpart[6]{Take two components with $s = (2, 0.1)$, $w^* = (1, 1)$ (in
+      the $\bm{v}$ basis) and $\sigma = 1$, so that
+      $\av{\len{\hat{\bm{w}}-\bm{w}^*}^2} = \sum_k
+      \frac{\eta^2 {w_k^*}^2 + \sigma^2 s_k^2}{(s_k^2+\eta)^2}$.  Evaluate it
+      for $\eta = 0$ and $\eta = 1$.  Show that each term is smallest at
+      $\eta = \sigma^2/{w_k^*}^2$, and check your values by simulation in
+      Python.
       \begin{answer}
-      \end{answer}}{\lines{5}}        
-    
+        $\eta = 0$: $1/4 + 1/0.01 = 100.25$, almost all from the small
+        singular value.  $\eta = 1$: $\frac{1 + 4}{25} + \frac{1 +
+        0.01}{1.01^2} \approx 0.2 + 0.99 = 1.19$.  Differentiating a term
+        $(\eta^2 a + b)/(s^2+\eta)^2$ (with $a = {w_k^*}^2$, $b = \sigma^2s^2$)
+        gives a numerator proportional to $\eta a s^2 - b = s^2(\eta a -
+        \sigma^2)$, which is zero at $\eta = \sigma^2/a$, whatever $s$ is.
+        Here every term is smallest at $\eta = 1$.
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+U, \_ = np.linalg.qr(rng.standard\_normal((20, 2)))\\
+V, \_ = np.linalg.qr(rng.standard\_normal((2, 2)))\\
+s = np.array([2.0, 0.1])\\
+X = U @ np.diag(s) @ V.T\\
+w\_star = V @ np.array([1.0, 1.0])\\
+for eta in [0.0, 0.1, 1.0]:\\
+\hspace*{2em}err = []\\
+\hspace*{2em}for \_ in range(20000):\\
+\hspace*{4em}y = X @ w\_star + rng.standard\_normal(20)\\
+\hspace*{4em}A = X.T @ X + eta * np.eye(2)\\
+\hspace*{4em}w = np.linalg.solve(A, X.T @ y)\\
+\hspace*{4em}err.append(((w - w\_star)**2).sum())\\
+\hspace*{2em}print(eta, np.mean(err))
+\end{alltt}
+        The simulation gives $99.8$, $1.88$ and $1.19$, against $100.25$,
+        $1.89$ and $1.19$ from the formula.
+      \end{answer}}{\lines{8}}
+
+  \end{qparts}
+\end{question}
+\newpage
+
+% ***************************** question 4 **************************
+
+\begin{question}{25}
+  This question is harder and optional.
+  \begin{qparts}
+
+    \qpart[6]{We minimise $\frac12\len{\mat{X}\bm{w}-\bm{y}}^2$ by gradient
+      descent, $\bm{w}\leftarrow\bm{w} - r\,\mat{X}^\tr(\mat{X}\bm{w}-\bm{y})$,
+      starting from $\bm{w}=\bm{0}$, where $\mat{X}$ is $m\times p$ with
+      $p > m$ and $\mat{X}\mat{X}^\tr$ invertible.  Explain why $\bm{w}$ is
+      always of the form $\mat{X}^\tr\bm{a}$.  If it converges to an exact
+      fit, show that the limit is
+      $\bm{w} = \mat{X}^\tr(\mat{X}\mat{X}^\tr)^{-1}\bm{y}$.
+      \begin{answer}
+        Each step adds $-r\,\mat{X}^\tr(\mat{X}\bm{w}-\bm{y})$, which has the form
+        $\mat{X}^\tr\bm{b}$; starting from $\bm{0}$, a sum of such vectors
+        is still $\mat{X}^\tr\bm{a}$.  An exact fit with $\bm{w} =
+        \mat{X}^\tr\bm{a}$ needs $\mat{X}\mat{X}^\tr\bm{a} = \bm{y}$, so
+        $\bm{a} = (\mat{X}\mat{X}^\tr)^{-1}\bm{y}$.
+      \end{answer}}{\lines{6}}
+
+    \qpart[6]{Show that this is the exact fit with the smallest norm.
+      (Hint: any other exact fit is $\bm{w}+\bm{z}$ with
+      $\mat{X}\bm{z} = \bm{0}$.)  Why does this matter for over-parameterised
+      models such as neural networks?
+      \begin{answer}
+        If $\mat{X}\bm{z} = \bm{0}$ then $\bm{z}^\tr\bm{w} =
+        \bm{z}^\tr\mat{X}^\tr\bm{a} = (\mat{X}\bm{z})^\tr\bm{a} = 0$, so by
+        Pythagoras $\len{\bm{w}+\bm{z}}^2 = \len{\bm{w}}^2 + \len{\bm{z}}^2 \geq
+        \len{\bm{w}}^2$.  With more parameters than data there are infinitely
+        many exact fits; gradient descent from a small start picks a
+        small-norm one without being told to.  The optimiser is a
+        regulariser, which helps explain why heavily over-parameterised
+        models can still generalise (double descent).
+      \end{answer}}{\lines{7}}
+
+    \qpart[5]{Check part (a) in Python with $m = 10$, $p = 30$, random
+      $\mat{X}$ and $\bm{y}$, learning rate $r = 0.01$ and $20\,000$ steps.
+      \begin{answer}
+\begin{alltt}
+rng = np.random.default\_rng(0)\\
+m, p = 10, 30\\
+X = rng.standard\_normal((m, p))\\
+y = rng.standard\_normal(m)\\
+w = np.zeros(p)\\
+for \_ in range(20000):\\
+\hspace*{2em}w -= 0.01 * X.T @ (X @ w - y)\\
+w\_mn = X.T @ np.linalg.solve(X @ X.T, y)\\
+print(np.abs(w - w\_mn).max(), np.abs(X @ w - y).max())
+\end{alltt}
+        Both differences are about $10^{-15}$: gradient descent has found
+        the minimum-norm fit.  ($r = 0.01$ is below $2/s_{\max}^2 \approx
+        0.024$, so the iteration is stable.)
+      \end{answer}}{\lines{6}}
+
+    \qpart[8]{The rotations of a square image by $0$, $90$, $180$ and
+      $270$ degrees form a group $C_4$.  For any function $f$ of images,
+      show that $\bar{f}(\bm{x}) = \frac14\sum_{k=0}^{3} f(R^k\cdot\bm{x})$, where
+      $R$ is a rotation by $90$ degrees, is unchanged when $\bm{x}$ is
+      rotated.  Check this in Python with \texttt{np.rot90} for
+      $f(\bm{x}) = \sum_{ij} x_{ij}\,(4i+j)$ on a random $4\times4$ image.
+      \begin{answer}
+        $\bar{f}(R\cdot\bm{x}) = \frac14\sum_{k=0}^3 f(R^{k+1}\cdot\bm{x})$.  As
+        $k$ runs over $0,\ldots,3$, $k+1$ runs over $1,\ldots,4$, and
+        $R^4 = e$, so this is the same four terms in a different order:
+        $\bar{f}(R\cdot\bm{x}) = \bar{f}(\bm{x})$.
+\begin{alltt}
+f = lambda x: (x * np.arange(16).reshape(4, 4)).sum()\\
+def fbar(x):\\
+\hspace*{2em}return sum(f(np.rot90(x, k)) for k in range(4)) / 4\\
+img = rng.standard\_normal((4, 4))\\
+print([f(np.rot90(img, k)) for k in range(4)])\\
+print([fbar(np.rot90(img, k)) for k in range(4)])
+\end{alltt}
+        $f$ takes four different values on the four rotations, while
+        $\bar{f}$ takes the same value on all of them.  This is test-time
+        augmentation: averaging over a group makes any model invariant.
+      \end{answer}}{\lines{8}}
+
   \end{qparts}
 \end{question}
 
-% ***************************** End of exam *****************************
 \end{document}
-
-
-
-
