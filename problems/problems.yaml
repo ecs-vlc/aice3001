@@ -56,7 +56,7 @@ sheets:
     name: gaussianProcess
     keywords: integration, Gaussian integrals, Gaussian processes
   - week: 9
-    name: general
+    name: probabilisticInference
     keywords: probabilistic inference, matrix factorisation, MCMC
   - week: 10
     name: information
