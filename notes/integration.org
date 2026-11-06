@@ -126,6 +126,54 @@
      $z=(x-\mu)/\sigma$, $\dd x = \sigma\,\dd z$; the factor $\sigma$
      is the one-dimensional Jacobian determinant
 
+** The Gamma Distribution
+   * In the lecture on Bayesian inference we met the /Gamma distribution/
+     $\mathrm{Gamma}(x|a,b) = c\,x^{a-1}\e{-b\,x}$ for $x\geq0$.  To find
+     $c$, substitute $z = b\,x$ (so $\dd x = \dd z/b$, and the limits stay
+     $0$ and $\infty$):
+     $$ c\int_0^\infty x^{a-1}\e{-b\,x}\,\dd x
+        = \frac{c}{b^a}\int_0^\infty z^{a-1}\e{-z}\,\dd z = \frac{c\,\Gamma(a)}{b^a} = 1
+        \quad\Rightarrow\quad c = \frac{b^a}{\Gamma(a)} = \frac{b^a}{\Pi(a-1)} $$
+   * In terms of $z = b\,x$ every Gamma distribution becomes
+     $\mathrm{Gamma}(z|a,1)$, so $b$ only sets the scale and $a$ the shape
+     (Figure \ref{fig:gamma}): for $a<1$ the density is infinite at 0,
+     $a = 1$ is the exponential distribution, and for $a > 1$ there is a
+     peak at $z = a-1$
+     #+ATTR_LATEX: :width 0.8\textwidth
+     #+CAPTION: Gamma distributions for $a = \frac12, 1, 2, 5$ in terms of $z = b\,x$\label{fig:gamma}
+     [[file:figures/gammaDist-3.pdf]]
+   * *Lengths of Gaussian vectors.*  Let $\bm{x}\in\mathbb{R}^n$ with
+     $\bm{x}\sim\mathcal{N}(\bm{0},\mat{I})$.  The density
+     $(2\pi)^{-n/2}\e{-r^2/2}$ depends only on $r = \|\bm{x}\|$.  It is
+     largest at $\bm{x} = \bm{0}$, but the volume of a thin shell of radius
+     $r$ and thickness $\dd r$ (Figure \ref{fig:shell}) grows as
+     $r^{n-1}\dd r$, so
+     $$ f_R(r) = \frac{r^{n-1}\e{-r^2/2}}{I(n-1)}, \qquad
+        I(n-1) = \int_0^\infty r^{n-1}\e{-r^2/2}\dd r = 2^{\frac{n}{2}-1}\,\Gamma\Bigl(\frac{n}{2}\Bigr) $$
+     using $I(n)$ from the substitution example
+     #+ATTR_LATEX: :width 0.25\textwidth
+     #+CAPTION: A thin shell of radius \(r\) and thickness \(\dd r\)\label{fig:shell}
+     [[file:figures/shell-0.pdf]]
+   * Maximising $(n-1)\log(r) - r^2/2$ puts the peak at $r = \sqrt{n-1}$.
+     In high dimensions almost all the probability lies in a thin shell
+     at $r\approx\sqrt{n}$, far from the most probable point $\bm{x} = \bm{0}$
+   * Changing variables to $s = r^2$ gives
+     $f_S(s) = \mathrm{Gamma}(s|\frac{n}{2},\frac12)$ (see the exercises):
+     the /chi-squared/ distribution $\chi^2_n$ with $n$ degrees of freedom
+   * *Gamma distributions everywhere.*
+     - For $m$ samples from a normal distribution the sample variance
+       satisfies $(m-1)\hat{\sigma}^2/\sigma^2\sim\chi^2_{m-1}$, which is
+       what lies behind the $t$-test
+     - /Maxwell--Boltzmann/: each velocity component of a gas molecule of
+       mass $M$ at temperature $T$ is $\mathcal{N}(0,kT/M)$.  The speed is
+       the $n=3$ case, $f(v)\propto v^2\e{-Mv^2/(2kT)}$, and the kinetic
+       energy $\frac12 Mv^2 = \frac{kT}{2}\chi^2_3$ is
+       $\mathrm{Gamma}(\frac32,\frac{1}{kT})$
+     - /Waiting times/: $a = 1$ is the exponential distribution, and the
+       time to the $a$-th event of a Poisson process of rate $b$ is
+       $\mathrm{Gamma}(a,b)$
+     - the Gamma distribution is the conjugate prior for a Poisson rate
+
 ** Changing Variables in Many Dimensions
    * Changing variables $\bm{x}\rightarrow\bm{u}$, volume elements are
      rescaled by the determinant of the Jacobian:
@@ -150,6 +198,30 @@
 ** Mean absolute value of a normal
    * For a standard normal $Z$, use $I(1)$ to find $\av{|Z|}$
 
+** From radius to chi-squared
+   * Starting from $f_R(r) = r^{n-1}\e{-r^2/2}/I(n-1)$, use the change of
+     variables $s = r^2$ to show that $f_S(s) = \mathrm{Gamma}(s|\frac{n}{2},\frac12)$.
+
+** The surface area of a sphere in \(n\) dimensions (advanced)
+   * The unit sphere in $\mathbb{R}^n$ is
+     $S^{n-1} = \{\bm{x}\in\mathbb{R}^n : \|\bm{x}\| = 1\}$.  It is called the
+     \((n-1)\)-sphere because it is an \((n-1)\)-dimensional surface: $S^1$
+     is the circle and $S^2$ the ordinary sphere.  We write $|S^{n-1}|$
+     for its surface area (you will also see $\omega_{n-1}$, $S_{n-1}$ or
+     $\Omega_n$, the total solid angle)
+   * The normal density $\mathcal{N}(\bm{x}|\bm{0},\mat{I}) =
+     (2\pi)^{-n/2}\,\e{-\|\bm{x}\|^2/2}$ integrates to 1.  In spherical
+     coordinates the volume element is $\dd\bm{x} = r^{n-1}\,\dd r\,\dd\Omega$,
+     where $r = \|\bm{x}\|$ and $\dd\Omega$ is the element of area on $S^{n-1}$.
+     Use this to show that
+     $$ |S^{n-1}| = \frac{2\,\pi^{n/2}}{\Gamma(n/2)} $$
+     and check it for $n = 2$ and $n = 3$.  (Hint: the radial integral is
+     $I(n-1)$ from the lecture.)
+   * Since a ball of radius $R$ is a stack of shells, its volume is
+     $V_n(R) = \int_0^R |S^{n-1}|\,r^{n-1}\dd r$.  Find the volume $V_n$ of
+     the unit ball.  For which $n$ is it largest, and what happens as
+     $n\to\infty$?
+
 * Answers
 
 ** Integration by parts
@@ -163,5 +235,38 @@
 ** Mean absolute value of a normal
    * By symmetry
      $$ \av{|Z|} = \frac{2}{\sqrt{2\pi}}\int_0^\infty z\,\e{-z^2/2}\,\dd z = \frac{2\,I(1)}{\sqrt{2\pi}} = \sqrt{\frac{2}{\pi}} \approx 0.798 $$
+
+** From radius to chi-squared
+   * With $r = \sqrt{s}$, $\dd r/\dd s = 1/(2\sqrt{s})$, so
+     $$ f_S(s) = f_R(\sqrt{s})\,\frac{1}{2\sqrt{s}}
+        = \frac{s^{(n-1)/2}\,\e{-s/2}}{2\sqrt{s}\;2^{\frac{n}{2}-1}\Gamma(\frac{n}{2})}
+        = \frac{(1/2)^{n/2}}{\Gamma(\frac{n}{2})}\,s^{\frac{n}{2}-1}\e{-s/2} $$
+     which is $\mathrm{Gamma}(s|a,b)$ with $a = \frac{n}{2}$, $b = \frac12$
+
+** The surface area of a sphere in \(n\) dimensions (advanced)
+   * The integrand depends only on $r$, so the integral over directions
+     just gives the area of the unit sphere:
+     $$ 1 = \int \mathcal{N}(\bm{x}|\bm{0},\mat{I})\,\dd\bm{x}
+        = (2\pi)^{-n/2}\,|S^{n-1}|\int_0^\infty r^{n-1}\e{-r^2/2}\,\dd r
+        = (2\pi)^{-n/2}\,|S^{n-1}|\;2^{\frac{n}{2}-1}\,\Gamma\Bigl(\frac{n}{2}\Bigr) $$
+     using $I(n-1) = 2^{\frac{n}{2}-1}\Gamma(\frac{n}{2})$.  Hence
+     $$ |S^{n-1}| = \frac{(2\pi)^{n/2}}{2^{\frac{n}{2}-1}\,\Gamma(n/2)}
+        = \frac{2\,\pi^{n/2}}{\Gamma(n/2)} $$
+     and a sphere of radius $R$ has area $|S^{n-1}|\,R^{n-1}$
+   * Checks: $n = 2$ gives $2\pi/\Gamma(1) = 2\pi$, the circumference of
+     the unit circle; $n = 3$ gives $2\pi^{3/2}/\Gamma(\frac32) =
+     2\pi^{3/2}/(\frac12\sqrt{\pi}) = 4\pi$; and $n = 1$ gives
+     $2\sqrt{\pi}/\Gamma(\frac12) = 2$: the "sphere" $S^0$ is the two points
+     $\pm1$
+   * The volume of the unit ball is
+     $$ V_n = |S^{n-1}|\int_0^1 r^{n-1}\dd r = \frac{|S^{n-1}|}{n}
+        = \frac{\pi^{n/2}}{\Gamma(\frac{n}{2}+1)} $$
+     using $\frac{n}{2}\Gamma(\frac{n}{2}) = \Gamma(\frac{n}{2}+1)$.  This gives
+     $V_2 = \pi$ and $V_3 = \frac43\pi$.  It grows to a maximum
+     $V_5\approx5.26$ and then falls ($V_{10}\approx2.55$,
+     $V_{20}\approx0.026$): $\Gamma(\frac{n}{2}+1)$ eventually grows much
+     faster than $\pi^{n/2}$, so $V_n\to0$ as $n\to\infty$.  In high
+     dimensions the unit ball occupies a vanishing fraction of the cube
+     $[-1,1]^n$ around it, whose volume is $2^n$
 
 * COMMENT [[file:bayes.org][Previous]]  [[file:gaussianIntegrals.org][Next]]

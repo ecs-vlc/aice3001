@@ -507,7 +507,7 @@
   \begin{itemize}
   \item Let us assume a Gamma distributed prior
     \begin{align*}
-      p(\mu) = \Gamma(\mu|a_0,b_0) =
+      p(\mu) = \mathrm{Gamma}(\mu|a_0,b_0) =
       \frac{b_0^{a_0}\, \mu^{a_0-1} \e{-b_0\,\mu}}{\Gamma(a_0)}\pause
     \end{align*}
   \item We will assume that we know nothing.  The uninformative prior is
@@ -535,7 +535,7 @@
       &\propto \mu^{N_1+a_0-1} \e{-(b_0+1)\mu}\pause
     \end{align*}
   \item The posterior is also a Gamma distribution
-    $\Gamma(\mu|a_1,b_1)$ with $a_1=a_0+N_1$, $b_1=b_0+1$\pause
+    $\mathrm{Gamma}(\mu|a_1,b_1)$ with $a_1=a_0+N_1$, $b_1=b_0+1$\pause
   \end{itemize}
 \end{PauseHighLight}
 

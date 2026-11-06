@@ -102,6 +102,22 @@
      the integrals directly; see the derivation below
 
 ** Inference with Gaussians
+   * *Bayes with Gaussians.*  With a Gaussian prior
+     $\bm{x}\sim\mathcal{N}(\bm{\mu}_0,\mat{\Sigma}_0)$ and a linear measurement
+     with Gaussian noise, $\bm{y} = \mat{W}\bm{x} + \bm{b} + \bm{\epsilon}$,
+     $\bm{\epsilon}\sim\mathcal{N}(\bm{0},\mat{\Sigma}_\epsilon)$ independent of
+     $\bm{x}$, the pair $(\bm{x},\bm{y})$ is a linear map of
+     $(\bm{x},\bm{\epsilon})$ and so jointly Gaussian, with
+     $\bm{\mu}_y = \mat{W}\bm{\mu}_0 + \bm{b}$,
+     $\mat{\Sigma}_{0y} = \mathrm{Cov}(\bm{x},\bm{y}) = \mat{\Sigma}_0\mat{W}^\tr$ and
+     $\mat{\Sigma}_{yy} = \mat{W}\mat{\Sigma}_0\mat{W}^\tr + \mat{\Sigma}_\epsilon$
+   * The posterior $p(\bm{x}\mid\bm{y}) = p(\bm{x},\bm{y})/p(\bm{y})$ is the
+     conditional distribution, so by the conditioning result
+     $$ p(\bm{x}\mid\bm{y}) = \mathcal{N}\bigl(\bm{x}\bigm|\bm{\mu}_0 +
+        \mat{\Sigma}_{0y}\mat{\Sigma}_{yy}^{-1}(\bm{y}-\bm{\mu}_y),\;
+        \mat{\Sigma}_0 - \mat{\Sigma}_{0y}\mat{\Sigma}_{yy}^{-1}\mat{\Sigma}_{0y}^\tr\bigr) $$
+     while the evidence $p(\bm{y}) = \mathcal{N}(\bm{\mu}_y,\mat{\Sigma}_{yy})$ is
+     the marginal.  The examples below are special cases
    * *A noisy measurement.*  Prior $x\sim\mathcal{N}(\mu_0,s_0^2)$,
      measurement $y = x+\epsilon$ with $\epsilon\sim\mathcal{N}(0,\sigma^2)$.
      Then $(x,y)$ is jointly Gaussian with covariance

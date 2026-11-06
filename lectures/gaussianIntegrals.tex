@@ -242,10 +242,11 @@
     $\mat{V}$ has $|\det\mat{V}| = 1$ (rotations keep volumes)\pause
     \begin{align*}
       I = \int \e{-\frac12\bm{y}^\tr\mat{\Lambda}^{-1}\bm{y}}\,\dd\bm{y}
-      = \prod_i\sqrt{2\pi\lambda_i} = \sqrt{\det(2\pi\mat{\Sigma})}\pause
+      = \prod_i\sqrt{2\pi\lambda_i}\pause
+      = \sqrt{\det(2\pi\mat{\Sigma})}
     \end{align*}
     as $\det\mat{\Sigma} = \prod_i\lambda_i$ and
-    $\det(c\,\mat{\Sigma}) = c^n\det\mat{\Sigma}$\pause
+    $\det(c\,\mat{\Sigma}) = c^n\det\mat{\Sigma}$\pauseb
   \item So the multivariate normal density is
     \begin{align*}
       \mathcal{N}(\bm{x}\mid\bm{\mu},\mat{\Sigma}) =
@@ -364,12 +365,12 @@
     \mathcal{N}\!\left(
     \begin{pmatrix}\bm{\mu}_1\\ \bm{\mu}_2\end{pmatrix},
     \begin{pmatrix}\mat{\Sigma}_{11} & \mat{\Sigma}_{12}\\
-      \mat{\Sigma}_{21} & \mat{\Sigma}_{22}\end{pmatrix}\right),
-    \quad \mat{\Sigma}_{21} = \mat{\Sigma}_{12}^\tr$\pause}
+      \mat{\Sigma}_{21} & \mat{\Sigma}_{22}\end{pmatrix}\right)$}
 \end{center}
-\pauselevel{=6}From now on we write $\bm{z}_1$ for $\bm{x}$ and
-$\bm{z}_2$ for $\bm{y}$, and $\mat{\Sigma}_{11}$, $\mat{\Sigma}_{12}$
-and $\mat{\Sigma}_{22}$ for $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
+With $\mat{\Sigma}_{21} = \mat{\Sigma}_{12}^\tr$. From now on we write
+$\bm{z}_1$ for $\bm{x}$ and $\bm{z}_2$ for $\bm{y}$, and
+$\mat{\Sigma}_{11}$, $\mat{\Sigma}_{12}$ and $\mat{\Sigma}_{22}$ for
+$\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
 
 \end{slide}
 
@@ -379,20 +380,35 @@ and $\mat{\Sigma}_{22}$ for $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
 \section[-2]{Marginalising}
 
 \begin{PauseHighLight}
-  \begin{itemize}
+  \begin{itemize}\squeeze
   \item We want $p(\bm{z}_1) = \int p(\bm{z}_1,\bm{z}_2)\,\dd\bm{z}_2$\pause
   \item Doing the integral directly takes a page of block-matrix
     algebra (see the notes)\pause
-  \item Instead take $\bm{t} = (\bm{t}_1, \bm{0})$ in the MGF, so that
-    $\bm{t}^\tr\bm{z} = \bm{t}_1^\tr\bm{z}_1$
-    \begin{align*}
+  % Level 3 shows the full MGF; at level 4 the text and equation are
+  % overwritten in place by their t_2 = 0 versions.  \rlap and \makebox
+  % are text-mode boxes, so maths inside them needs its own $...$.  The old
+  % chunks are in HandoutHidden so the printable PDF shows only the new.
+  % PauseHighLight is highlight mode: without "build" a chunk is visible
+  % from the start, so both versions carry it; ", =n" highlights at level n.
+  % \leavevmode starts the paragraph so \rlap is not a line of its own.
+  \item \leavevmode\pausenomark\pauselevel{build =1 :3, =3}\rlap{\color{HandoutHidden}Take
+    $\bm{t} = (\bm{t}_1, \bm{t}_2)$ in the MGF, so
+    $\bm{t}^\tr\bm{z} = \bm{t}_1^\tr\bm{z}_1 + \bm{t}_2^\tr\bm{z}_2$}\pausenomark
+    \pauselevel{build =4, =4}Now set $\bm{t}_2 = \bm{0}$, so
+    $\bm{t}^\tr\bm{z} = \bm{t}_1^\tr\bm{z}_1$\pausenomark
+    \pauselevel{build =1 :3, =3}
+    \begin{center}
+      \makebox[0pt]{\color{HandoutHidden}$\displaystyle
+      \av{\e{\bm{t}_1^\tr\bm{z}_1 + \bm{t}_2^\tr\bm{z}_2}} =
+      \e{\bm{t}_1^\tr\bm{\mu}_1 + \bm{t}_2^\tr\bm{\mu}_2 +
+      \frac12\bm{t}_1^\tr\mat{\Sigma}_{11}\bm{t}_1 + \bm{t}_1^\tr\mat{\Sigma}_{12}\bm{t}_2
+      + \frac12\bm{t}_2^\tr\mat{\Sigma}_{22}\bm{t}_2}$}\pausenomark
+      \pauselevel{build =4, =4}\makebox[0pt]{$\displaystyle
       \av{\e{\bm{t}_1^\tr\bm{z}_1}} =
-      \e{\bm{t}_1^\tr\bm{\mu}_1 + \frac12\bm{t}_1^\tr\mat{\Sigma}_{11}\bm{t}_1}\pause
-    \end{align*}
+      \e{\bm{t}_1^\tr\bm{\mu}_1 + \frac12\bm{t}_1^\tr\mat{\Sigma}_{11}\bm{t}_1}$}\pause
+    \end{center}
   \item That is the MGF of $\mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})$, so
-    \begin{align*}
-      \bm{z}_1 \sim \mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})\pause
-    \end{align*}
+    $\bm{z}_1 \sim \mathcal{N}(\bm{\mu}_1,\mat{\Sigma}_{11})$\pause
   \item To marginalise, just strike out the rows and columns of the
     variables you integrate away\pause
   \end{itemize}
@@ -416,7 +432,7 @@ and $\mat{\Sigma}_{22}$ for $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
     jointly Gaussian, and
     \begin{align*}
       \mathrm{Cov}(\bm{w},\bm{z}_2) = \mat{\Sigma}_{12} -
-      \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{22} = \mat{0}\pause
+      \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{22}\pause = \mat{0}\pauseb
     \end{align*}
   \item For jointly Gaussian variables, uncorrelated means
     independent\pause{} (the MGF factorises)\pause
@@ -490,6 +506,54 @@ and $\mat{\Sigma}_{22}$ for $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 \Outline % Inference with Gaussians
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Bayes with Gaussians}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item We want to infer $\bm{x}$, with a Gaussian \emph{prior}
+    $\bm{x}\sim \normal{\bm{\mu}_0, \mat{\Sigma}_0}$\pause
+  \item We measure $\bm{y} = \mat{W}\,\bm{x} + \bm{b} + \bm{\epsilon}$, with
+    noise $\bm{\epsilon}\sim\normal{\bm{0},\mat{\Sigma}_\epsilon}$\pause---the
+    \emph{likelihood} is Gaussian\pauseb
+  \item $(\bm{x},\bm{y})$ is a linear map of $(\bm{x},\bm{\epsilon})$, so
+    jointly Gaussian
+    \begin{align*}
+      p(\bm{x}, \bm{y}) = \mathcal{N}\bra{
+      \begin{pmatrix}
+        \bm{x} \\ \bm{y}
+      \end{pmatrix}
+      \middle|
+      \begin{pmatrix}
+        \bm{\mu}_0 \\ \bm{\mu}_y
+      \end{pmatrix} ,
+      \begin{pmatrix}
+        \mat{\Sigma}_0 & \mat{\Sigma}_{0y} \\
+        \mat{\Sigma}_{y0} & \mat{\Sigma}_{yy}
+      \end{pmatrix}
+      }\pause
+    \end{align*}
+    {\small $\bm{\mu}_y = \mat{W}\bm{\mu}_0 + \bm{b}$,
+      $\mat{\Sigma}_{0y} = \mat{\Sigma}_0\mat{W}^\tr = \mat{\Sigma}_{y0}^\tr$,
+      $\mat{\Sigma}_{yy} = \mat{W}\mat{\Sigma}_0\mat{W}^\tr + \mat{\Sigma}_\epsilon$}\pause
+  \item The \emph{posterior} $p(\bm{x}|\bm{y}) = p(\bm{x},\bm{y})/p(\bm{y})$ is
+    just the conditional distribution
+    \begin{align*}
+      p(\bm{x}|\bm{y}) = \normal{\bm{x}\middle|\bm{\mu}_0 +
+      \mat{\Sigma}_{0y}\mat{\Sigma}_{yy}^{-1}(\bm{y}-\bm{\mu}_y),\,
+      \mat{\Sigma}_0 - \mat{\Sigma}_{0y}\mat{\Sigma}_{yy}^{-1}\mat{\Sigma}_{y0}
+      }\pause
+    \end{align*}
+  \end{itemize}
+\end{PauseHighLight}
+
+
+\end{slide}
+
+
 
 \begin{slide}
 \section[-2]{A Noisy Measurement}

@@ -73,7 +73,7 @@
           (x_{i+1} - x_i) \, f(x_i)
           +  s\, \lim\limits_{\delta x_i\rightarrow 0} \sum_{i=0}^{n-1}
           (x_{i+1} - x_i) \, g(x_i) \pauseb \\
-      &= r \int_a^b f(x) \, \mathrm{d}x + s \int_a^b f(x) \, \mathrm{d}x\pauseb
+      &= r \int_a^b f(x) \, \mathrm{d}x + s \int_a^b g(x) \, \mathrm{d}x\pauseb
     \end{align*}}
   \end{itemize}
 \end{PauseHighLight}
@@ -153,7 +153,7 @@
     integrate between two points ($a$ and $b$)\pause
   \item However, when think about integration as an
     anti-derivative, it is useful to think of a function
-    $F(x)= \int f(x) \, \dd x$\pause
+    $F(x)= \int f(x) \, \dd x$\pause{} (really $\int^x f(z) \, \dd z$)\pauseb
   \item So that $F'(x) = f(x)$\pause
   \item However the function $F(x)$, $F(x)+1$, $F(x)+\pi$, etc.{} all
     have the same derivative so $F(x)$ is only defined up to an
@@ -522,6 +522,103 @@
     $I(5)=2^2\times2!=8$\pauseb, but $I(0)=
     \Pi(-1/2)/\sqrt{2}$\pauseb, $I(2)= \sqrt{2}\,\Pi(1/2)=
     \Pi(-1/2)/\sqrt{2}$\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Gamma Distribution}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item Last lecture we met the Gamma distribution
+    \begin{align*}
+      \mathrm{Gamma}(x|a,b) = c\,x^{a-1}\,\e{-b\,x}, \qquad x\geq0
+    \end{align*}
+    Let's compute the normalisation factor $c$\pause
+  \item We need $\displaystyle c\int_0^\infty x^{a-1}\,\e{-b\,x}\,\dd x = 1$\pause
+  \item Substitute $z = b\,x$, so $\dd x = \dd z/b$ and the limits stay
+    $0$ and $\infty$
+    \begin{align*}
+      c\int_0^\infty \Bigl(\frac{z}{b}\Bigr)^{a-1}\e{-z}\,\frac{\dd z}{b}
+      = \frac{c}{b^a}\int_0^\infty z^{a-1}\,\e{-z}\,\dd z\pause
+      = \frac{c\,\Gamma(a)}{b^a}\pauseb
+    \end{align*}
+  \item So $c = \dfrac{b^a}{\Gamma(a)} = \dfrac{b^a}{\Pi(a-1)}$\pause{}: $b$
+    only sets the scale, $a$ sets the shape\pauseb
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Shapes of the Gamma Distribution}
+
+\pb\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=\linewidth]{gammaDist}\pause
+\end{center}
+\begin{itemize}
+\item In terms of $z = b\,x$ every Gamma distribution is
+  $\mathrm{Gamma}(z|a,1)$: one curve for each $a$\pauseh
+\item $a<1$: infinite at $0$; $a=1$: the exponential distribution;
+  $a>1$: a peak at $z = a-1$\pauseh
+\end{itemize}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Lengths of Gaussian Vectors}
+
+\begin{PauseHighLight}
+  \begin{rightImage}[0.22]{shell-0}
+  \begin{itemize}\squeeze
+  \item Take $\bm{x}\in\mathbb{R}^n$ with $\bm{x}\sim\mathcal{N}(\bm{0},\mat{I})$:
+    the density $\propto\e{-r^2/2}$ depends only on $r = \|\bm{x}\|$\pause
+  \item The density is largest at $\bm{x}=\bm{0}$, but there is more space
+    at large $r$: a shell of radius $r$ and thickness $\dd r$ has volume
+    $\propto r^{n-1}\,\dd r$\pause
+  \end{itemize}
+  \end{rightImage}
+  \begin{itemize}\squeeze
+  \item So, normalising with $I(n-1)$ from the last example,
+    \begin{align*}
+      f_R(r) = \frac{r^{n-1}\,\e{-r^2/2}}{I(n-1)}, \qquad
+      I(n-1) = 2^{\frac{n}{2}-1}\,\Gamma\Bigl(\frac{n}{2}\Bigr)\pause
+    \end{align*}
+  \item The peak is at $r = \sqrt{n-1}$: in high dimensions almost all the
+    probability is far from the most probable point\pause
+  \item With $s = r^2$, $f_S(s) = \mathrm{Gamma}(s|\frac{n}{2},\frac12)$: the
+    \emph{chi-squared} distribution with $n$ degrees of freedom\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Gamma Distributions Everywhere}
+
+\begin{PauseHighLight}
+  \begin{itemize}
+  \item \emph{Chi-squared}: a sum of squares of $n$ independent standard
+    normals is $\mathrm{Gamma}(\frac{n}{2},\frac12)$\pause
+  \item For $m$ normal samples the sample variance has
+    $(m-1)\,\hat{\sigma}^2/\sigma^2\sim\chi^2_{m-1}$, which lies behind the
+    $t$-test\pause
+  \item \emph{Maxwell--Boltzmann}: each velocity component of a gas
+    molecule of mass $M$ is $\mathcal{N}(0, kT/M)$, so the speed is the
+    $n=3$ case, $f(v)\propto v^2\,\e{-Mv^2/(2kT)}$, and the energy
+    $\frac12 Mv^2\sim\mathrm{Gamma}(\frac32, \frac{1}{kT})$\pause
+  \item \emph{Waiting times}: $a=1$ is the exponential distribution; the
+    time to the $a$-th event of a Poisson process of rate
+    $b$ is $\mathrm{Gamma}(a,b)$\pause
+  \item And it is the conjugate prior for a Poisson rate (Bayes
+    lecture)\pause
   \end{itemize}
 \end{PauseHighLight}
 
