@@ -92,8 +92,8 @@
       I(a,x) =  \int_a^x f(z) \, \mathrm{d}z =  \lim\limits_{\delta z_i\rightarrow 0} \sum_{i=0}^{n-1}
           (z_{i+1} - z_i) \, f(z_i)\pause
     \end{align*}
-  \item Now for small $\delta x$ \hspace{12cm}
-    \makebox(0,0){\includegraphics[width=8cm]{fundamental_law}}
+  \item Now for small $\delta x$ \hspace{9cm}
+    \raisebox{-0.5cm}{\makebox(0,0){\includegraphics[width=9cm]{fundamental_law}}}
     \vspace{1cm}
     \begin{align*}
       I(a,x+\delta x) =  \int_a^{x+\delta x} f(z) \, \mathrm{d}z\pause
@@ -463,8 +463,8 @@
       x: 0\to1 \;\Rightarrow\; u: 1\to2\pause
     \end{align*}
     \begin{align*}
-      \int_0^1 2x\,(1+x^2)^3\,\dd x = \int_1^2 u^3\,\dd u
-      = \left[\frac{u^4}{4}\right]_1^2 = \frac{16-1}{4} = \frac{15}{4}\pause
+      \int_0^1 2x\,(1+x^2)^3\,\dd x = \int_1^2 u^3\,\dd u\pause
+      = \left[\frac{u^4}{4}\right]_1^2 \pauseb= \frac{16-1}{4} = \frac{15}{4}\pauseb
     \end{align*}
   \end{itemize}
 \end{PauseHighLight}
@@ -482,8 +482,8 @@
     take $u = \cos(x)$, $\dd u = -\sin(x)\,\dd x$, and $x: 0\to\pi/2$
     gives $u: 1\to0$\pause
     \begin{align*}
-      \int_0^{\pi/2} \sin(x)\cos^2(x)\,\dd x = \int_1^0 -u^2\,\dd u
-      = \int_0^1 u^2\,\dd u = \frac13\pause
+      \int_0^{\pi/2} \sin(x)\cos^2(x)\,\dd x = \int_1^0 -u^2\,\dd u\pause
+      = \int_0^1 u^2\,\dd u\pauseb = \frac13\pauseb
     \end{align*}
   \item A linear change of variable stretches $\dd x$: with
     $z = (x-\mu)/\sigma$, $\dd x = \sigma\,\dd z$\pause
@@ -492,7 +492,7 @@
       = \sigma\int_{-\infty}^\infty \e{-z^2/2}\,\dd z\pause
     \end{align*}
   \item The factor $\sigma$ is the one-dimensional version of the
-    Jacobian determinant (next slides)\pause
+    Jacobian determinant (see later slide)\pause
   \end{itemize}
 \end{PauseHighLight}
 
