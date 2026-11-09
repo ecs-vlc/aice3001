@@ -28,7 +28,7 @@ void axes() {
     draw(P(0, y)--P(0, y) - (3, 0));
     label(format("$%#.1f$", y), P(0, y) - (3, 0), W, fontsize(9pt));
   }
-  label("$z = b\,x$", P(zmax, 0) + (6, 0), E, fontsize(10pt));
+  label("$x = b\,z$", P(zmax, 0) + (6, 0), E, fontsize(10pt));
 }
 
 guide curve(real a) {
@@ -48,7 +48,7 @@ for (int k = 0; k < as.length; ++k) {
     draw(o--o + (18, 0), pens[j] + linewidth(1.2));
     label(names[j], o + (22, 0), E, fontsize(10pt));
   }
-  label("$\mathrm{Gamma}(z|a,1) = \dfrac{z^{a-1}\,\mathrm{e}^{-z}}{\Gamma(a)}$",
+  label("$\frac1b\,\mathrm{Gamma}(z|a,b) = \dfrac{(b\,z)^{a-1}\,\mathrm{e}^{-b\,z}}{\Gamma(a)}$",
         P(3.2, 1.0), fontsize(10pt));
   ship();
   erase();
