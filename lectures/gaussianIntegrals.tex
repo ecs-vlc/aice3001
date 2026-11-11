@@ -84,9 +84,9 @@
     r\,\dd r\,\dd\theta$)
     \begin{align*}
       I^2 = \int_0^{2\pi}\dd\theta \int_0^\infty r\,\e{-r^2/2}\,\dd r
-      \pause = 2\pi\int_0^\infty \e{-u}\,\dd u \pause = 2\pi
+      \pause = 2\pi\int_0^\infty \e{-u}\,\dd u \pause = 2\pi\pause
     \end{align*}
-    using $u = r^2/2$, $\dd u = r\,\dd r$\pause
+    using $u = r^2/2$, $\dd u = r\,\dd r$\pauselevel{=3}\pause
   \item So
     \begin{align*}
       \int_{-\infty}^{\infty} \e{-x^2/2}\,\dd x = \sqrt{2\pi}\pause
@@ -321,8 +321,8 @@
     $\bm{x}\sim\mathcal{N}(\bm{\mu},\mat{\Sigma})$\pause
   \item Its MGF is
     \begin{align*}
-      \av{\e{\bm{t}^\tr\bm{z}}} = \e{\bm{t}^\tr\bm{c}}\,
-      \av{\e{(\mat{W}^\tr\bm{t})^\tr\bm{x}}}\pause
+      \av[\bm{z}]{\e{\bm{t}^\tr\bm{z}}} = \e{\bm{t}^\tr\bm{c}}\,
+      \av[\bm{x}]{\e{(\mat{W}^\tr\bm{t})^\tr\bm{x}}}\pause
       = \e{\bm{t}^\tr(\mat{W}\bm{\mu}+\bm{c}) +
       \frac12\bm{t}^\tr\mat{W}\mat{\Sigma}\mat{W}^\tr\bm{t}}\pause
     \end{align*}
@@ -392,7 +392,7 @@ $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
   % from the start, so both versions carry it; ", =n" highlights at level n.
   % \leavevmode starts the paragraph so \rlap is not a line of its own.
   \item \leavevmode\pausenomark\pauselevel{build =1 :3, =3}\rlap{\color{HandoutHidden}Take
-    $\bm{t} = (\bm{t}_1, \bm{t}_2)$ in the MGF, so
+    $\bm{t} = \begin{pmatrix}\bm{t}_1\\ \bm{t}_2\end{pmatrix}$ in the MGF, so
     $\bm{t}^\tr\bm{z} = \bm{t}_1^\tr\bm{z}_1 + \bm{t}_2^\tr\bm{z}_2$}\pausenomark
     \pauselevel{build =4, =4}Now set $\bm{t}_2 = \bm{0}$, so
     $\bm{t}^\tr\bm{z} = \bm{t}_1^\tr\bm{z}_1$\pausenomark
@@ -453,7 +453,7 @@ $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
   \begin{itemize}
   \item From the linear-transformation rule, $\bm{w}$ has mean
     $\bm{\mu}_1 - \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\bm{\mu}_2$ and
-    covariance $\mat{\Sigma}_{11} -
+    covariance $\mathrm{Cov}(\bm{w}, \bm{w}) = \mat{\Sigma}_{11} -
     \mat{\Sigma}_{12}\mat{\Sigma}_{22}^{-1}\mat{\Sigma}_{21}$\pause
   \item Hence
     \begin{align*}
@@ -614,24 +614,26 @@ $\mat{A}$, $\mat{B}$ and $\mat{C}$\pause
 \section[-2]{Predicting One Variable from Another}
 
 \begin{PauseHighLight}
-  \begin{itemize}
-  \item Two correlated quantities (e.g. height and weight) with
-    correlation $\rho$
+  \begin{itemize}\squeeze
+  \item Two quantities (e.g.\ height and weight) with correlation $\rho$
     \begin{align*}
       \begin{pmatrix} x_1 \\ x_2\end{pmatrix} \sim
       \mathcal{N}\!\left(\begin{pmatrix}\mu_1\\ \mu_2\end{pmatrix},
       \begin{pmatrix} \sigma_1^2 & \rho\,\sigma_1\sigma_2 \\
         \rho\,\sigma_1\sigma_2 & \sigma_2^2\end{pmatrix}\right)\pause
     \end{align*}
-  \item Conditioning on $x_1$
+  \item Conditioning on $x_1$ gives a straight line (linear regression)
     \begin{align*}
       \av{x_2\mid x_1} = \mu_2 + \rho\,\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),
       \qquad
       \Var{x_2\mid x_1} = \sigma_2^2\,(1-\rho^2)\pause
     \end{align*}
-  \item The prediction is a straight line: linear regression\pause
-  \item As $|\rho|<1$ the prediction is fewer standard deviations from
-    the mean than $x_1$ is: \emph{regression to the mean}\pause
+  \item In standard units
+    \begin{align*}
+      \frac{\av{x_2\mid x_1}-\mu_2}{\sigma_2} = \rho\,\frac{x_1-\mu_1}{\sigma_1}
+    \end{align*}
+    so if $x_1$ is $k$ standard deviations out, the prediction is only
+    $\rho k$ out\pause{} ($|\rho|<1$): \emph{regression to the mean}\pauseb
   \end{itemize}
 \end{PauseHighLight}
 

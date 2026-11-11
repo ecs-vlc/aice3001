@@ -134,8 +134,15 @@
    * *Predicting one variable from another.*  For two variables with
      correlation $\rho$,
      $\av{x_2\mid x_1} = \mu_2 + \rho\,(\sigma_2/\sigma_1)(x_1-\mu_1)$ and
-     $\mathrm{Var}(x_2\mid x_1) = \sigma_2^2(1-\rho^2)$: linear regression, and
-     regression to the mean
+     $\mathrm{Var}(x_2\mid x_1) = \sigma_2^2(1-\rho^2)$: linear regression.  In
+     standard units the prediction is
+     $(\av{x_2\mid x_1}-\mu_2)/\sigma_2 = \rho\,(x_1-\mu_1)/\sigma_1$, so if $x_1$
+     is $k$ standard deviations from its mean, the prediction is only $\rho k$
+     standard deviations from its mean: /regression to the mean/.  (Galton's
+     example: the sons of very tall fathers are tall, but on average less
+     extreme.)  This is about the prediction, not the population: $x_2$ is as
+     spread out as ever, and predicting $x_1$ from $x_2$ regresses in the same
+     way, so nothing causal is implied
    * *Kalman filter.*  For a drifting position
      $x_{t+1}=x_t+\eta_t$, $\eta_t\sim\mathcal{N}(0,q)$, observed as
      $y_t = x_t+\epsilon_t$, the belief $\mathcal{N}(m_t,v_t)$ is updated
