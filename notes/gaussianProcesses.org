@@ -377,7 +377,8 @@
      - Here we are in a better positions than in SVMs in that the kernel
        represents the covariance function
      - Given data we could estimate the kernel function using
-       $$ \av{y_i,y_j} = k(\bm{x}_i,\bm{x}_j) + \sigma^2 \delta_{ij} $$
+       $$ \av{y_i\,y_j} = k(\bm{x}_i,\bm{x}_j) + \sigma^2 \delta_{ij} $$
+       (for zero-mean targets)
      - It would be an inverse problem to estimate $k(\bm{x}_i,\bm{x}_j)$
      - Often we start with a guess of the form of the kernel
      - A very common kernel function is the Gaussian kernel
@@ -385,7 +386,7 @@
      - Now $\ell$ is a /scale parameter/ that has to be determined
      - However, a great advantage of Gaussian Processes is that we can
        compute the evidence in closed form
-       $$  \logg{p(\mathcal{D}|\bm{\theta})} = - \frac{1}{2} \bm{y}^\tr (\mat{K}+\sigma^2\mat{I})^{-1} \bm{y} - \frac{1}{2}  \logg{|\mat{K}+\sigma^2\mat{I}|} - \frac{m}{2} \log(2\,\pi) $$
+       $$  \logg{p(\mathcal{D}|\bm{\phi})} = - \frac{1}{2} \bm{y}^\tr (\mat{K}+\sigma^2\mat{I})^{-1} \bm{y} - \frac{1}{2}  \logg{|\mat{K}+\sigma^2\mat{I}|} - \frac{m}{2} \log(2\,\pi) $$
        + This allows us to rapidly compare different hyperparameters
          (kernels and noise level)
        + We are not doing this in a fully Bayesian way (we are
@@ -393,6 +394,66 @@
          for the hyperparameters) therefore we could overfit
        + However, usually we have relatively few hyperparameters so
          overfitting is less severe
+
+** Gaussian Processes in Practice
+   * *A real example: CO$_2$ at Mauna Loa.*  The monthly mean
+     concentration of CO$_2$ in the atmosphere has been measured at Mauna
+     Loa since 1958 (data: NOAA GML, with Scripps data before 1974).  We
+     train on 1958--2004 (562 months), forecast to 2030, and compare with
+     what was actually measured
+   * *Building the kernel.*  Look at the data and add one term for each
+     feature (with $r = t - t'$ in years):
+     - a rising trend: a quadratic with uncertain coefficients,
+       $c_0^2 + c_1^2\,uu' + c_2^2\,u^2u'^2$ with $u = (t-1980)/30$, which is
+       Bayesian linear regression on $1, u, u^2$ written as a polynomial
+       kernel, plus a smooth term $s_1^2\e{-r^2/(2\ell_1^2)}$
+     - a yearly cycle that slowly changes shape,
+       $s_2^2\,\e{-r^2/(2\ell_2^2)}\,\e{-2\sin^2(\pi r)/\ell_3^2}$: a periodic
+       kernel with period one year (we know the period, so we fix it),
+       multiplied by a squared exponential so that the cycle can drift
+     - short-term wiggles $s_3^2\e{-r^2/(2\ell_4^2)}$ and measurement noise
+       $\sigma^2\delta_{t,t'}$
+     - sums and products of kernels are kernels (lecture on the kernel
+       trick): adding kernels adds independent effects, multiplying lets
+       one modulate another
+   * *Fitting the hyperparameters.*  The eleven hyperparameters maximise
+     the log evidence, found with a gradient method (L-BFGS).  We work
+     with their logarithms, start from sensible values in ppm and years,
+     and use several restarts.  The fitted values make sense: the cycle
+     changes shape over about a century ($\ell_2\approx107$ years), the
+     wiggles last about seven weeks ($\ell_4\approx0.14$ years) and the
+     noise is $\sigma\approx0.19$ ppm.  The whole fit is about 40 lines of
+     numpy and takes two minutes on a laptop
+   * *Forecasts* (Figure \ref{fig:co2}).  Model A has the same kernel
+     without the quadratic trend, and only the constant mean of the
+     training data.  Far from the data a GP returns to its prior mean, so
+     model A's forecast drifts back down
+     | Model                     | log evidence | RMS error 2005--26 | inside $\pm2$ s.d. | Jan 2025 forecast |
+     |---------------------------+--------------+--------------------+--------------------+-------------------|
+     | A: constant mean          |         -151 | 16.8 ppm           | 84%                | $391\pm30$ ppm    |
+     | B: quadratic trend kernel |         -126 | 2.3 ppm            | 77%                | $422\pm4$ ppm     |
+     The measured value in January 2025 was 426.6 ppm.  The evidence
+     prefers model B, which forecasts well, but its band is a little too
+     narrow 20 years ahead: CO$_2$ has risen faster than a quadratic
+     #+ATTR_LATEX: :width 0.9\textwidth
+     #+CAPTION: Forecasts of CO\(_2\) at Mauna Loa from data up to 2004, with \(\pm2\) standard deviations\label{fig:co2}
+     [[file:figures/co2GP-2.pdf]]
+   * *Making GPs work*
+     - build the kernel from what you know: squared exponential for
+       smooth functions, Ornstein--Uhlenbeck for rough ones, periodic
+       kernels for repeating patterns, polynomial (linear) kernels for
+       trends, combined with sums and products
+     - put trends into the model, because away from the data a GP
+       falls back to its prior mean
+     - standardise inputs and outputs, fit the hyperparameters by the
+       evidence with several restarts, and check that they make sense
+     - test on held-out data, especially when extrapolating
+     - an exact GP costs $O(m^3)$ for $m$ data points (a Cholesky
+       factorisation of the $m\times m$ matrix), which is fine up to about
+       $10^4$ points; beyond that use sparse (inducing point)
+       approximations
+     - libraries such as scikit-learn, GPyTorch and GPflow do the linear
+       algebra and the optimisation
 
 * Exercises
 
@@ -490,6 +551,14 @@
          $\mat{I}=\mat{A}\,\mat{A}^{-1}$ (answer below)
 	 
 * Experiments
+
+** CO$_2$ at Mauna Loa
+   * The script =lectures/figures/co2GP.py= fits both models of the
+     lecture to =co2_mm_mlo.txt= with numpy and scipy, and writes the data
+     for the figure.  Try other kernels (drop the periodic term, or the
+     quadratic trend), another split year, or forecasting further ahead,
+     and compare the log evidence and the errors on the held-out years
+
 
 ** Generate Samples from a Gaussian Processes
    * To generate a Gaussian Process, $\mathcal{GP}(0,k)$, with

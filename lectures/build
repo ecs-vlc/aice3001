@@ -96,6 +96,15 @@ def combine(lectures):
         print(f"\ncombined {len(parts)} lectures -> {out}")
 
 
+def update_lectures_html():
+    """Regenerate <site_dir>/lectures.html, which lists every lecture (titles
+    and keywords come from the .tex files) and links the notes that have
+    been published.  lecturehtml uses paths relative to lectures/, so run it
+    from there."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    subprocess.run([sys.executable, os.path.join(here, "lecturehtml")], cwd=here)
+
+
 def main():
     args = [a for a in sys.argv[1:]]
     force = "--force" in args
@@ -115,11 +124,13 @@ def main():
     todo = wanted if force else [l for l in wanted if stale(l)]
     if not todo:
         print("everything is up to date")
+        update_lectures_html()
         return
 
     print(f"building {len(todo)} of {len(wanted)} lectures\n")
     ok = [l for l in todo if build_one(l)]
     combine(lecture_list.load())
+    update_lectures_html()          # titles and keywords may have changed
 
     print(f"\nbuilt {len(ok)}/{len(todo)}")
     failed = [l.id for l in todo if l not in ok]

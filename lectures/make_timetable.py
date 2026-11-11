@@ -18,6 +18,7 @@ with AICE1005 and comp3212, so it is not imported or modified here.
 import argparse
 import datetime
 import os
+import subprocess
 import sys
 from collections import deque
 
@@ -278,6 +279,16 @@ def render_text(cfg, slots, rows):
 
 # --------------------------------------------------------------------------
 
+
+def update_lectures_html():
+    """Regenerate <site_dir>/lectures.html, which lists every lecture (titles
+    and keywords come from the .tex files) and links the notes that have
+    been published.  lecturehtml uses paths relative to lectures/, so run it
+    from there."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    subprocess.run([sys.executable, os.path.join(here, "lecturehtml")], cwd=here)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Build the lecture timetable.")
     ap.add_argument("-o", "--output", help="output file (default <site_dir>/lecture_timetable.html)")
@@ -313,6 +324,7 @@ def main():
         written = write_tutorial_dates(cfg_all, rows)
         if written:
             print(f"wrote {written}")
+        update_lectures_html()      # the lecture order may have changed
 
     # report anything that did not fit, and any spare capacity
     n_lecture_slots = sum(1 for r in rows for c in r["cells"]

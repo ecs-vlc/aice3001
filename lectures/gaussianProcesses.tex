@@ -17,9 +17,9 @@
 \begin{minipage}{10cm}\raggedright
   \begin{enumerate}\squeeze
     \outlineitem{ML with Gaussians}{mlgausee}
-    \outlineitem{Gaussian Processes}{gp}
     \outlineitem{Bayesian Inference}{bayesgp}
     \outlineitem{Hyper-parameters}{hyperp}
+    \outlineitem{GPs in Practice}{practice}
   \end{enumerate}
 \end{minipage}\hfill
 \begin{minipage}{12cm}
@@ -91,8 +91,7 @@
 \end{slide}
 
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
-\Outline % Introduction to GP
-%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{slide}
 \section{Gaussian Processes}
@@ -505,7 +504,7 @@
   \item For GP the (log)-evidence can be computed in closed form
     \begin{align*}
       \logg{p(\mathcal{D}|\bm{\phi})} = \mypl{1}\pause
-      - \frac{1}{2} \bm{y}^\tr (\mat{K}+\sigma^2\mat{I}) \bm{y}
+      - \frac{1}{2} \bm{y}^\tr (\mat{K}+\sigma^2\mat{I})^{-1} \bm{y}
       \pauselevel{=1 :2}\pause
       -   \frac{1}{2}  \logg{|\mat{K}+\sigma^2\mat{I}|}
       \pauselevel{=1 :1, =3 :3}\pause
@@ -513,7 +512,7 @@
     \end{align*}
     \begin{itemize}
     \item First term measures goodness of fit\mypl{2}
-    \item Second term measure complexity of model\mypl{3}
+    \item Second term measures complexity of model\mypl{3}
     \item Last term is a common normalisation constant\mypl{4}
     \end{itemize}
   \item Can efficiently compute derivatives and find best parameters\pause
@@ -534,6 +533,114 @@
 \end{center}
 \end{slide}
 
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+\Outline % GPs in Practice
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Example: CO$_2$ at Mauna Loa}
+
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{co2GP-0}
+\end{center}
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Monthly mean CO$_2$ since 1958 {\small (data: NOAA GML and
+      Scripps)}\pause
+  \item Train on 1958--2004 (562 months), forecast to 2030, and check
+    against what was actually measured\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Building the Kernel}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Look at the data and add one term for each feature you see
+    ($r = t - t'$ in years)\pause
+    \begin{itemize}
+    \item a rising trend: a quadratic with uncertain coefficients,
+      $c_0^2 + c_1^2\,tt' + c_2^2\,t^2t'^2$, plus a smooth
+      $s_1^2\,k_{\mathrm{SE}}(r;\ell_1)$\pause
+    \item a yearly cycle that slowly changes shape:
+      $s_2^2\,\e{-r^2/(2\ell_2^2)}\,\e{-2\sin^2(\pi r)/\ell_3^2}$\pause
+    \item short wiggles $s_3^2\,k_{\mathrm{SE}}(r;\ell_4)$, and measurement
+      noise $\sigma^2\delta_{t,t'}$\pause
+    \end{itemize}
+  \item Sums and products of kernels are kernels (kernel trick
+    lecture)\pause{}: add independent effects, multiply to let one
+    modulate another\pauseb
+  \item The period is fixed at one year: use what you know\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Fitting the Hyperparameters}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Eleven hyperparameters, found by maximising the log evidence with
+    a gradient method\pause
+  \item Work with their logarithms (they must be positive), start from
+    sensible values (ppm, years), and use several restarts\pause
+  \item The fitted values make sense: the cycle changes shape over about
+    a century ($\ell_2\approx107$ years), the wiggles last about seven
+    weeks ($\ell_4\approx0.14$ years), the noise is
+    $\sigma\approx0.19$\,ppm\pause
+  \item The evidence also compares models: log evidence $-126$ with the
+    quadratic trend against $-151$ without it\pause
+  \item About 40 lines of numpy, and two minutes on a laptop\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-2]{Forecasting}
+
+\pb\pause\pauselevel{=1}
+\begin{center}
+  \multipdf[width=0.9\linewidth]{co2GP}\pause
+\end{center}
+\begin{itemize}\squeeze\pauselevel{=2}
+\item A: far from the data a GP returns to its prior mean\pauseh
+\item B: follows the rise (error 2.3\,ppm over 2005--26), but only 77\%
+  of months fall inside $\pm2$ s.d.: a little over-confident 20 years
+  ahead\pauseh
+\end{itemize}
+
+\end{slide}
+%%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\section[-1]{Making GPs Work}
+
+\begin{PauseHighLight}
+  \begin{itemize}\squeeze
+  \item Build the kernel from what you know: smooth (SE), rough (OU),
+    repeating (periodic), trends (polynomial); combine with sums and
+    products\pause
+  \item Put trends into the model: away from the data a GP falls back
+    to its prior mean\pause
+  \item Standardise inputs and outputs, fit the hyperparameters by the
+    evidence with several restarts, and check they make sense\pause
+  \item Test on held-out data, especially when extrapolating\pause
+  \item Exact GPs cost $O(m^3)$: fine up to about $10^4$ points, beyond
+    that use sparse approximations\pause
+  \item Libraries (scikit-learn, GPyTorch, GPflow) do the
+    linear algebra\pause
+  \end{itemize}
+\end{PauseHighLight}
+
+\end{slide}
 %%%%%%%%%%%%%%%%%%%%%%% Next Slide %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}

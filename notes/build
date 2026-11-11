@@ -93,6 +93,14 @@ def errors(org):
         return sum(1 for line in f if line.startswith("!"))
 
 
+def update_lectures_html():
+    """Regenerate <site_dir>/lectures.html, whose "Subsidiary notes" links
+    appear only once a note has been published.  lecturehtml uses paths
+    relative to lectures/, so run it from there."""
+    lectures = os.path.join(os.path.dirname(os.path.abspath(__file__)), LECTURES)
+    subprocess.run([sys.executable, "lecturehtml"], cwd=lectures)
+
+
 def main():
     args = sys.argv[1:]
     force = "--force" in args
@@ -136,6 +144,7 @@ def main():
 
     if do_combine:
         combine()
+    update_lectures_html()          # link the notes just published
 
 
 def combine():
