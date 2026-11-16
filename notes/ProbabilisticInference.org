@@ -52,9 +52,11 @@
    * *Latent Variables*
      - To model complicated processes we introduce intermediate random
        variables that we never observe
-     - These are known as *latent variables*; they are not our target,
-       but they make the model easy to write down
-     - To predict we marginalise them out:
+     - These are known as *latent* (hidden) *variables*. Sometimes
+       they are what we want to infer (the product qualities
+       $\theta_j$ below); often they are not our target, but they make
+       the model easy to write down
+     - When we don't care about them, we marginalise them out:
        $\Prob{\bm{X},Y} = \sum_Z \Prob{\bm{X},Y,Z}$
    * *Generative Stories*
      - A good way to build a model is to write down how the data could
@@ -78,7 +80,14 @@ k = rng.binomial(n, theta)        # observed positive reviews
        point to a variable from the variables it is drawn from
      - We use dark nodes for fixed numbers (parameters or known
        quantities), shaded nodes for observed variables and white
-       nodes for latent variables
+       nodes for unobserved random variables. White nodes can be
+       nuisance variables or the quantities we want: the $\theta_j$
+       are both. When we fit $a$ and $b$ (empirical Bayes) we
+       integrate the $\theta_j$ out; when we rank products the
+       $\theta_j$ are the target. The hyperparameters $a$, $b$ are
+       dark because we treat them as fixed numbers that we fit; in a
+       fully Bayesian model they would get a prior and become white
+       nodes, with the prior's parameters dark
      - A box (a /plate/) means "repeat for each": here for each product
        $j$
      - The joint distribution is the product, over nodes, of the

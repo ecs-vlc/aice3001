@@ -108,12 +108,12 @@
 \begin{PauseHighLight}
   \begin{itemize}
   \item Sometimes we have models that involve random variables that we
-    don't observe and we don't care about\pause
-  \item These are called \emph{latent variables}\pause
-  \item They are not observed and not our final target, but they make
-    the model easy to write down\pause
-  \item If we have a latent variable $Z$ and observed variable $\bm{X}$
-    and we are predicting a variable $Y$ then we would
+    never observe\pause
+  \item These are called \emph{latent} (hidden) \emph{variables}\pause
+  \item Sometimes they are what we want to infer; often they are not our
+    final target, but they make the model easy to write down\pause
+  \item If we have a latent variable $Z$ we don't care about, an
+    observed $\bm{X}$, and we are predicting $Y$, then we
     \emph{marginalise} over the latent variable
     \begin{align*}
       \Prob{\bm{X}, Y} = \sum_Z \Prob{\bm{X}, Y, Z}\pause
@@ -216,7 +216,9 @@ k = rng.binomial(n, theta)        # observed positive reviews
   \end{center}
   \begin{itemize}\squeeze
   \item Nodes are variables (dark: fixed; shaded: observed; white:
-    latent); arrows point from the variables each one is drawn from\pause
+    unobserved); arrows point from the variables each one is drawn
+    from {\small ($a$, $b$ are dark as we will fit them; with a prior
+    they would be white)}\pause
   \item A box (a \emph{plate}) means ``repeat for each $j$''\pause
   \item The joint distribution is the product over nodes of each
     node given its parents\pause
@@ -241,9 +243,9 @@ k = rng.binomial(n, theta)        # observed positive reviews
   \item The posterior mean is a weighted average: the prior counts as
     $a+b$ extra reviews
     \begin{align*}
-      \av{\theta_j|k_j} = \frac{a+k_j}{a+b+n_j}
+      \av{\theta_j|k_j} = \frac{a+k_j}{a+b+n_j}\pause
       = \frac{a+b}{a+b+n_j}\,\frac{a}{a+b} +
-      \frac{n_j}{a+b+n_j}\,\frac{k_j}{n_j}\pause
+      \frac{n_j}{a+b+n_j}\,\frac{k_j}{n_j}\pauseb
     \end{align*}
   \item With $a=20$, $b=5$ (typical rate 0.8, worth 25 reviews):
     $A$ gets $23/28 = 0.82$\pause{} and $B$ gets $1860/2025 =
@@ -532,11 +534,12 @@ move.  Products \emph{borrow strength} from each other.\pauseh
     parameters
     \begin{align*}
       \bm{\Theta}^{(t+1)} = \mathop{\mathrm{argmax}}_{\bm{\Theta}}
-      \sum_{\bm{Z}} \Prob{\bm{Z}\big|\data,\bm{\Theta}^{(t)}}\,
-      \logg{f(\data,\bm{Z}| \bm{\Theta})}\pause
+      \underbrace{\sum_{\bm{Z}} \Prob{\bm{Z}\big|\data,\bm{\Theta}^{(t)}}\,
+      \logg{f(\data,\bm{Z}| \bm{\Theta})}}_{\textstyle\color{EmphColor}
+        Q(\bm{\Theta}|\bm{\Theta}^{(t)})}\pause
     \end{align*}
-  \item E-step: compute $\Prob{\bm{Z}|\data,\bm{\Theta}^{(t)}}$;
-    M-step: maximise\pause
+  \item E-step: compute $\Prob{\bm{Z}|\data,\bm{\Theta}^{(t)}}$;\pause{}
+    M-step: maximise $Q(\bm{\Theta}|\bm{\Theta}^{(t)})$\pause
   \item No step decreases the likelihood\pause{} (the proof is in the
     notes)\pauseb
   \end{itemize}
