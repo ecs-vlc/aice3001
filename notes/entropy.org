@@ -116,9 +116,13 @@
      $-H$ is convex
    * For $K$ outcomes, Jensen's inequality for the concave $\log$ gives
      $$ H_X = \av{\log_2\!\bra{\frac{1}{\Prob{X}}}} \leq
-        \log_2\!\bra{\av{\frac{1}{\Prob{X}}}} = \log_2(K) $$
-     since $\av{1/\Prob{X}} = \sum_x \Prob{X=x}/\Prob{X=x} = K$.  The
-     uniform distribution has the most uncertainty
+        \log_2\!\bra{\av{\frac{1}{\Prob{X}}}} \leq \log_2(K) $$
+     since $\av{1/\Prob{X}} = \sum_{x:\,\Prob{X=x}>0} \Prob{X=x}/\Prob{X=x}$
+     is the number of outcomes with non-zero probability, which is at
+     most $K$ (outcomes with $\Prob{X=x}=0$ never occur, so they do not
+     enter the average).  Equality needs every outcome possible and
+     $1/\Prob{X}$ constant, i.e. the uniform distribution: it has the
+     most uncertainty
    * Maximising a concave function subject to linear constraints (such
      as fixed averages) is a convex problem with a single maximum, so the
      maximum entropy method gives one answer

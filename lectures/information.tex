@@ -542,7 +542,7 @@
 \begin{align*}
     \mathcal{L} =
   \av[\bm{x}\sim\mathcal{D}]{
-  \KL{q_{\bm{\theta}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}
+  \KL{q_{\bm{\phi}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}
   - \logg{p_{\bm{\theta}}(\bm{x}|\bm{z}(\bm{x}))}}\pause
 \end{align*}
 \end{slide}
@@ -558,7 +558,7 @@
   \multipdf[width=0.6\linewidth]{latentSpace}\pause
 \end{center}
 \begin{align*}
-  \KL{q_{\bm{\theta}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}\pauseb
+  \KL{q_{\bm{\phi}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}\pauseb
 \end{align*}
 \end{slide}
 
@@ -597,19 +597,19 @@
     \begin{align*}
       \mathcal{L} =
       \av[\bm{x}\sim\mathcal{D}]{
-      \KL{q_{\bm{\theta}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}
+      \KL{q_{\bm{\phi}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}
       - \logg{p_{\bm{\theta}}(\bm{x}|\bm{z}(\bm{x}))}}\pause
     \end{align*}
     can be interpreted as
     \begin{itemize}
     \item The cost of communicating the code
-      $\KL{q_{\bm{\theta}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}$\pause{}
+      $\KL{q_{\bm{\phi}}(\bm{z}|\bm{x})}{\mathcal{N}(\bm{0},\mat{I})}$\pause{}
       {\small (using ``bits-back'' coding, Hinton and van Camp 1993)}\pauseb
     \item Plus the cost to send the repair $-\logg{p_{\bm{\theta}}(\bm{x}|\bm{z}(\bm{x}))}$\pause
     \end{itemize}
   \item We minimise the loss function\pause{} equivalent to MDL\pauseb
   \item What is really clever is that we can choose the accuracy of
-    the code we send $q_{\bm{\theta}}(\bm{z}|\bm{x})$ to minimise the
+    the code we send $q_{\bm{\phi}}(\bm{z}|\bm{x})$ to minimise the
     over-all cost\pause
   \end{itemize}
 \end{PauseHighLight}

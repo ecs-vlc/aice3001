@@ -182,19 +182,19 @@
 
 ** Variational Auto-Encoders
    * A variational auto-encoder (VAE) encodes an input $\bm{x}$ into a
-     distribution $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ over a latent code
+     distribution $q_{\bm{\phi}}(\bm{z}\mid\bm{x})$ over a latent code
      $\bm{z}$ and decodes $\bm{z}$ back to a reconstruction.  Its loss is
-     $$ \mathcal{L} = \av[\bm{x}\sim\mathcal{D}]{\mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} - \log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))}} $$
+     $$ \mathcal{L} = \av[\bm{x}\sim\mathcal{D}]{\mathrm{KL}\bra{q_{\bm{\phi}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} - \log\!\bra{p_{\bm{\theta}}(\bm{x}\mid\bm{z}(\bm{x}))}} $$
      #+ATTR_LATEX: :width 0.8\linewidth
      [[file:figures/vae-5.pdf]]
    * The original paper derived this as a variational lower bound on the
      likelihood of the data: the loss is minus an ELBO, with
-     $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ as the variational distribution.
+     $q_{\bm{\phi}}(\bm{z}\mid\bm{x})$ as the variational distribution.
      That derivation is hard to follow.  The loss has a much more natural
      reading as a description length:
      - Alice encodes each image into a latent code
-       $q_{\bm{\theta}}(\bm{z}\mid\bm{x})$ and sends it, at a cost of
-       $$ \mathrm{KL}\bra{q_{\bm{\theta}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} $$
+       $q_{\bm{\phi}}(\bm{z}\mid\bm{x})$ and sends it, at a cost of
+       $$ \mathrm{KL}\bra{q_{\bm{\phi}}(\bm{z}\mid\bm{x})\,\|\,\mathcal{N}(\bm{0},\mat{I})} $$
        (strictly, this is the cost with "bits-back" coding, Hinton and van
        Camp 1993: the randomness in the sampled code can carry other
        information, which is refunded)
